@@ -267,7 +267,8 @@ export class Stage {
   // ---- cards (U6) ----
 
   /**
-   * What a part's card offers: the part's own viewpoints, less the one shown, then a close look.
+   * What a part's card offers: the part's own viewpoints, less the one shown, then a close look
+   * (except the desk's: Console is its close look).
    * @param {string} name
    * @returns {CardAction[]}
    */
@@ -280,7 +281,9 @@ export class Stage {
     // a card offers no button for the viewpoint already shown, except the desk's: the desk is
     // the console, so at Console its first action reframes Console, as the menu and Home do
     if (name !== "console.desk") list = list.filter((a) => a.view !== this.view);
-    list.push({ look: true, label: t("card.look") });
+    // the desk's close look is Console itself, which frames it from the operator's seat; a
+    // second, framing its legs and the floor, would only be a worse view of the same thing
+    if (name !== "console.desk") list.push({ look: true, label: t("card.look") });
     return list;
   }
 
