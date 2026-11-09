@@ -1,0 +1,12 @@
+[ TOWN: ONE HOUSE, PLACED FOUR TIMES (FJCC68 P. 749: "STRUCTURED IMAGES").
+[ NEEDS HOUSE.  TYPE:  ADEPT ("TOWN")!  THEN  DSPLY (V.TOWN)!
+TOWN:   TEXT /TOWN/
+        SAVT; DV (0, -.5, .5); SCL (.4); IMG (HOUSE); REST
+        SAVT; DV (0, .5, .5); SCL (.4); ROTZ (20DEG); IMG (HOUSE); REST
+        SAVT; DV (0, -.5, -.5); SCL (.3); IMG (HOUSE); REST
+        SAVT; DV (0, .5, -.5); SCL (.5); IMG (HOUSE); REST
+        RET
+V.TOWN: TEXT /V.TOWN/
+        RXYZ'IRL (DIALZ'DIR, DIALX'DIR, DIALY'DIR)
+        IMG (TOWN)
+        RET

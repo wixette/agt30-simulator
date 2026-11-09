@@ -1,0 +1,51 @@
+[ RVCD: READ A VARIABLE CONTROL DIAL THROUGH THE ARRAY.
+[ THE MULTIPLEXER PUTS THE DIAL'S VOLTAGE BESIDE THE ARRAY'S X DATA
+[ REGISTER, AND A COMPARATOR SETS SENSE LINE 24 WHEN X IS ABOVE IT
+[ (SRM5 GHA4). WE FIND THE DIAL BY SUCCESSIVE APPROXIMATION: TRY EACH
+[ BIT FROM THE TOP, AND KEEP IT IF X IS NOT YET ABOVE THE DIAL.
+[ CALL:  JPSR RVCD; N     N = DIAL 0-5.  RETURN: AR = THE DIAL, A FRACTION.
+CMP = 40                        [ SENSE LINE 24 IN THE LOWER HALF OF S4
+RVCD:   0                       [ THE RETURN ADDRESS GOES HERE
+        MDAR'I'X RVCD           [ THE DIAL'S NUMBER; STEP PAST IT
+        ARMX                    [ SELECT IT ON THE MULTIPLEXER
+        ARXO                    [ AR = 0
+        ARMD RV.X
+        ARXY                    [ COMPARE THE DIAL WITH 0
+        SKLA CMP                [ 0 ABOVE THE DIAL: IT IS NEGATIVE
+        JUMP RV.POS
+        MDAR'F 1
+        JUMP RV.GO
+RV.POS: ARXO
+RV.GO:  ARMD RV.NEG
+        MDAR'F 20000            [ THE FIRST BIT TRIED: ONE HALF
+        ARMD RV.B
+RV.LP:  MDAR RV.X
+        MDAE RV.B               [ TRY X + BIT
+        ARMD RV.T
+        MDAR RV.NEG
+        JPLS RV.N1
+        MDAR RV.T
+        ARXY                    [ +T ABOVE THE DIAL?
+        SKLA CMP
+        JUMP RV.KEEP            [ NO: KEEP THE BIT
+        JUMP RV.NEXT
+RV.N1:  MDAR'N RV.T
+        ARXY                    [ -T STILL ABOVE THE DIAL?
+        SKLA CMP
+        JUMP RV.NEXT            [ NO
+RV.KEEP: MDAR RV.T
+        ARMD RV.X
+RV.NEXT: MDAR RV.B
+        ARRS 1                  [ THE NEXT BIT DOWN
+        ARMD RV.B
+        JPLS RV.LP              [ UNTIL NO BITS ARE LEFT
+        MDAR RV.NEG
+        JPLS RV.MI
+        MDAR RV.X
+        JUMP'I RVCD
+RV.MI:  MDAR'N RV.X
+        JUMP'I RVCD
+RV.X:   0
+RV.B:   0
+RV.T:   0
+RV.NEG: 0

@@ -1,0 +1,537 @@
+[ TTT: 3-D TIC-TAC-TOE, 3 X 3 X 3, FOR TWO PLAYERS.  OURS, AFTER THE 4 X 4 X 4
+[ GAME D. OGDEN WROTE AT NCSU WITH "A NICE 3-D DISPLAY ROUTINE" (NCSU).
+[ TYPE:   ADEPT ("TTT")!   DSPLY (V.TTT)!   TTT!
+[ FUNCTION KEYS 0, 1 AND 2 CHOOSE THE LAYER (0 THE BOTTOM): ITS GRID TURNS
+[ SOLID, AND ONLY ITS CELLS ANSWER THE LIGHT PEN.  POINT THE PEN AT A CELL'S
+[ SMALL TICK AND PRESS ITS SWITCH.  DIALS 0, 1 AND 2 TURN THE CUBE.  THREE
+[ IN A ROW IN ANY DIRECTION WINS.
+[
+[ THE BOARD: THREE LAYERS OF 9 CELLS, A TRUE CUBE.  EACH LAYER HAS TWO ITEMS
+[ THE PROGRAM REWRITES: D, DASHED GRID OR SOLID (THE DASH MODE BIT, DSPLY
+[ P. 28), AND P, PEN OFF OR ON (THE PE BIT).  EACH CELL DRAWS A SMALL TICK
+[ OF ITS OWN (THE PEN'S TARGET: ITS ITEM'S ADDRESS TELLS WHICH CELL WAS
+[ SEEN), THEN SHOWS ITS MARK THROUGH AN IMG ITEM: THE PROGRAM PLACES A MARK
+[ BY STORING ONE WORD, IMG (XMARK) OR IMG (OMARK), OVER IT.  EACH LAYER
+[ SAVES THE TRANSFORM ONCE AND STEPS FROM CELL TO CELL WITH DV.
+BOARD:  TEXT /BOARD/
+[ THE TITLE: EACH LETTER IS A SUB-IMAGE OF THE STROKE FONT (CH84 IS T),
+[ SCALED AND PLACED BY THE ARRAY.  IT IS IN THE CUBE'S SPACE, SO IT TURNS
+[ WITH THE CUBE.
+        SAVT; DV (0, -.53, .66); SCL (.10)
+        IMG (CH84); DX (.75); IMG (CH73); DX (.75); IMG (CH67); DX (.75); IMG (CH45); DX (.75)
+        IMG (CH84); DX (.75); IMG (CH65); DX (.75); IMG (CH67); DX (.75); IMG (CH45); DX (.75)
+        IMG (CH84); DX (.75); IMG (CH79); DX (.75); IMG (CH69); DX (.75); IMG (CH32); DX (.75)
+        IMG (CH51); DX (.75); IMG (CH68); DX (.75)
+        REST
+[ LAYER 0 (THE BOTTOM)
+D0:     ORMB (10000)            [ DASHED; SOLID WHEN THIS LAYER IS CHOSEN
+        MOVE (-.54, -.54, -.36); DRAW (.54, -.54, -.36)
+        MOVE (-.54, -.54, -.36); DRAW (-.54, .54, -.36)
+        MOVE (-.54, -.18, -.36); DRAW (.54, -.18, -.36)
+        MOVE (-.18, -.54, -.36); DRAW (-.18, .54, -.36)
+        MOVE (-.54, .18, -.36); DRAW (.54, .18, -.36)
+        MOVE (.18, -.54, -.36); DRAW (.18, .54, -.36)
+        MOVE (-.54, .54, -.36); DRAW (.54, .54, -.36)
+        MOVE (.54, -.54, -.36); DRAW (.54, .54, -.36)
+        ANDMB (67600)           [ SOLID AGAIN FOR THE MARKS
+P0:     ANDMB (75600)           [ PEN OFF; ON WHEN THIS LAYER IS CHOSEN
+        SAVT; DV (-.36, -.36, -.36)
+        MOVE (0, 0, -.025); T00: DRAW (0, 0, .025); M00: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T01: DRAW (0, 0, .025); M01: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T02: DRAW (0, 0, .025); M02: IMG (EMPTY)
+        DV (.36, -.72, 0)        [ THE NEXT ROW
+        MOVE (0, 0, -.025); T03: DRAW (0, 0, .025); M03: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T04: DRAW (0, 0, .025); M04: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T05: DRAW (0, 0, .025); M05: IMG (EMPTY)
+        DV (.36, -.72, 0)        [ THE NEXT ROW
+        MOVE (0, 0, -.025); T06: DRAW (0, 0, .025); M06: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T07: DRAW (0, 0, .025); M07: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T10: DRAW (0, 0, .025); M10: IMG (EMPTY)
+        REST
+[ LAYER 1
+D1:     ORMB (10000)            [ DASHED; SOLID WHEN THIS LAYER IS CHOSEN
+        MOVE (-.54, -.54, .00); DRAW (.54, -.54, .00)
+        MOVE (-.54, -.54, .00); DRAW (-.54, .54, .00)
+        MOVE (-.54, -.18, .00); DRAW (.54, -.18, .00)
+        MOVE (-.18, -.54, .00); DRAW (-.18, .54, .00)
+        MOVE (-.54, .18, .00); DRAW (.54, .18, .00)
+        MOVE (.18, -.54, .00); DRAW (.18, .54, .00)
+        MOVE (-.54, .54, .00); DRAW (.54, .54, .00)
+        MOVE (.54, -.54, .00); DRAW (.54, .54, .00)
+        ANDMB (67600)           [ SOLID AGAIN FOR THE MARKS
+P1:     ANDMB (75600)           [ PEN OFF; ON WHEN THIS LAYER IS CHOSEN
+        SAVT; DV (-.36, -.36, .00)
+        MOVE (0, 0, -.025); T11: DRAW (0, 0, .025); M11: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T12: DRAW (0, 0, .025); M12: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T13: DRAW (0, 0, .025); M13: IMG (EMPTY)
+        DV (.36, -.72, 0)        [ THE NEXT ROW
+        MOVE (0, 0, -.025); T14: DRAW (0, 0, .025); M14: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T15: DRAW (0, 0, .025); M15: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T16: DRAW (0, 0, .025); M16: IMG (EMPTY)
+        DV (.36, -.72, 0)        [ THE NEXT ROW
+        MOVE (0, 0, -.025); T17: DRAW (0, 0, .025); M17: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T20: DRAW (0, 0, .025); M20: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T21: DRAW (0, 0, .025); M21: IMG (EMPTY)
+        REST
+[ LAYER 2 (THE TOP)
+D2:     ORMB (10000)            [ DASHED; SOLID WHEN THIS LAYER IS CHOSEN
+        MOVE (-.54, -.54, .36); DRAW (.54, -.54, .36)
+        MOVE (-.54, -.54, .36); DRAW (-.54, .54, .36)
+        MOVE (-.54, -.18, .36); DRAW (.54, -.18, .36)
+        MOVE (-.18, -.54, .36); DRAW (-.18, .54, .36)
+        MOVE (-.54, .18, .36); DRAW (.54, .18, .36)
+        MOVE (.18, -.54, .36); DRAW (.18, .54, .36)
+        MOVE (-.54, .54, .36); DRAW (.54, .54, .36)
+        MOVE (.54, -.54, .36); DRAW (.54, .54, .36)
+        ANDMB (67600)           [ SOLID AGAIN FOR THE MARKS
+P2:     ANDMB (75600)           [ PEN OFF; ON WHEN THIS LAYER IS CHOSEN
+        SAVT; DV (-.36, -.36, .36)
+        MOVE (0, 0, -.025); T22: DRAW (0, 0, .025); M22: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T23: DRAW (0, 0, .025); M23: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T24: DRAW (0, 0, .025); M24: IMG (EMPTY)
+        DV (.36, -.72, 0)        [ THE NEXT ROW
+        MOVE (0, 0, -.025); T25: DRAW (0, 0, .025); M25: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T26: DRAW (0, 0, .025); M26: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T27: DRAW (0, 0, .025); M27: IMG (EMPTY)
+        DV (.36, -.72, 0)        [ THE NEXT ROW
+        MOVE (0, 0, -.025); T30: DRAW (0, 0, .025); M30: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T31: DRAW (0, 0, .025); M31: IMG (EMPTY); DV (0, .36, 0); MOVE (0, 0, -.025); T32: DRAW (0, 0, .025); M32: IMG (EMPTY)
+        REST
+        ANDMB (65600)           [ SOLID, PEN OFF
+WINL:   IMG (EMPTY)             [ THE WINNING LINE, WHEN THERE IS ONE
+        RET
+[ THE MARKS.  EACH FIRST LOADS A ZERO ROTATION (LDRX: THE ROTATION IS
+[ REPLACED, THE PLACE KEPT), SO IT FACES THE VIEWER HOWEVER THE CUBE IS
+[ TURNED.  EACH LINE IS DRAWN TWICE, SO IT GLOWS BRIGHTER THAN THE GRID.
+EMPTY:  TEXT /EMPTY/
+        RET
+XMARK:  TEXT /XMARK/
+        LDRX (0DEG)
+        MOVE (0, -.09, -.09); DRAW (0, .09, .09); MOVE (0, -.09, .09); DRAW (0, .09, -.09)
+        MOVE (0, -.09, -.09); DRAW (0, .09, .09); MOVE (0, -.09, .09); DRAW (0, .09, -.09)
+        RET
+OMARK:  TEXT /OMARK/
+        LDRX (0DEG)
+        REPEAT 2
+        MOVE (0, .09, .04); DRAW (0, .09, -.04); DRAW (0, .04, -.09); DRAW (0, -.04, -.09)
+        DRAW (0, -.09, -.04); DRAW (0, -.09, .04); DRAW (0, -.04, .09); DRAW (0, .04, .09)
+        DRAW (0, .09, .04)
+        ENDR
+        RET
+[ THE WINNING LINE: THE PROGRAM COPIES THE FIRST AND LAST CELLS' PLACES
+[ INTO W1 TO W4, TWICE, SO IT TOO GLOWS BRIGHTER.
+WIN:    TEXT /WIN/
+W1:     MOVE (0, 0, 0)
+W2:     DRAW (0, 0, 0)
+W3:     MOVE (0, 0, 0)
+W4:     DRAW (0, 0, 0)
+        RET
+[ THE VIEW: WHOSE TURN IT IS, IN THE CORNER, THEN THE CUBE, TURNED BY THE
+[ DIALS FROM A VIEW A LITTLE FROM ABOVE AND TO THE SIDE
+V.TTT:  TEXT /V.TTT/
+        ANDMB (65600)
+        SAVT; DV (0, -.8, .8); TURN: IMG (XMARK); REST
+        RXYZ'IRL (DIALZ'DIR, DIALX'DIR, DIALY'DIR)
+        ROTX (20DEG)
+        ROTY (30DEG)
+        IMG (BOARD)
+        RET
+[
+[ THE PROGRAM.  THE BOARD IS 27 WORDS: 0 EMPTY, 1 X, 5 O.  A LINE ADDS UP TO 3
+[ WHEN X HOLDS IT, 17 (15 DECIMAL) WHEN O DOES.
+TTT:    0                       [ THE RETURN ADDRESS GOES HERE
+        MDAR'F BRD
+        ARMD G.P
+        MDAR'F MKS
+        ARMD G.Q
+        ARXO
+        ARMD G.K
+        ARMD G.MV               [ NO MOVES YET
+G.CLR:  ARXO
+        ARMD'I'X G.P            [ AN EMPTY CELL
+        MDAR'I'X G.Q
+        ARMD G.A
+        MDAR G.IE
+        ARMD'I G.A              [ ITS PICTURE: IMG (EMPTY)
+        MDAR G.K
+        MDAS'F 1
+        ARMD G.K
+        MDXO'F 27.
+        JPLS G.CLR              [ COUNT UP TO 27: NO -0 TO WORRY ABOUT
+        MDAR G.IE
+        ARMD WINL               [ NO WINNING LINE
+        MDAR'F 1
+        ARMD G.WHO              [ X PLAYS FIRST
+        MDAR G.IX
+        ARMD TURN
+        ARXO
+        ARMD G.LAY
+        JPSR G.SETL             [ THE BOTTOM LAYER FIRST
+        MDAR PHT
+        ARMD G.LAST             [ HITS BEFORE THE GAME DO NOT COUNT; HITS
+        JPSR G.TYP; G.M0        [ WHILE THIS LINE PRINTS ARE TAKEN AFTER IT
+[ WAIT FOR A KEY OR THE PEN
+G.WAIT: S5AR'H                  [ THE FUNCTION KEYS, KEY 0 AT THE TOP
+        MDAR'A G.KM0
+        JPLS G.K0
+        S5AR'H
+        MDAR'A G.KM1
+        JPLS G.K1
+        S5AR'H
+        MDAR'A G.KM2
+        JPLS G.K2
+        MDAR PHT
+        MDXO G.LAST
+        JPLS G.HIT              [ A NEW PEN HIT
+        JUMP G.WAIT
+G.K0:   ARXO
+        JUMP G.KL
+G.K1:   MDAR'F 1
+        JUMP G.KL
+G.K2:   MDAR'F 2
+G.KL:   ARMD G.LAY
+        JPSR G.SETL
+        JUMP G.WAIT
+G.HIT:  MDAR PHT
+        ARMD G.LAST
+        JPSR PENHT; G.N; G.IT; G.IM
+        MDAR'F TKS              [ WHICH CELL'S TICK WAS SEEN?
+        ARMD G.Q
+        ARXO
+        ARMD G.C
+G.FND:  MDAR'I'X G.Q
+        MDXO G.IT
+        JPLS G.NX
+        JUMP G.GOT
+G.NX:   MDAR G.C
+        MDAS'F 1
+        ARMD G.C
+        MDXO'F 27.
+        JPLS G.FND
+        JUMP G.WAIT             [ NOT A CELL: A MARK
+G.GOT:  MDAR G.C
+        MDAS'F BRD
+        ARMD G.A
+        MDAR'I G.A
+        JPLS G.WAIT             [ TAKEN
+        MDAR G.WHO
+        ARMD'I G.A              [ THE BOARD
+        MDAR G.C
+        MDAS'F MKS
+        ARMD G.B
+        MDAR'I G.B
+        ARMD G.B                [ THE CELL'S IMG ITEM
+        MDAR G.WHO
+        MDXO'F 1
+        JPLS G.PO
+        MDAR G.IX
+        JUMP G.PUT
+G.PO:   MDAR G.IO
+G.PUT:  ARMD'I G.B              [ ITS PICTURE: IMG (XMARK) OR IMG (OMARK)
+        JPSR G.CHK
+        JPLS G.WON              [ AR NOT ZERO: THREE IN A ROW
+        MDAR G.MV
+        MDAS'F 1
+        ARMD G.MV
+        MDXO'F 27.
+        JPLS G.NEXT
+        JPSR G.TYP; G.MD        [ ALL 27 CELLS TAKEN (ON THIS BOARD A LINE COMES FIRST)
+        JUMP'I TTT
+G.NEXT: MDAR'F 6
+        MDAS'N G.WHO            [ THE OTHER PLAYER: 1 <-> 5
+        ARMD G.WHO
+        MDXO'F 1
+        JPLS G.TO
+        MDAR G.IX
+        JUMP G.TS
+G.TO:   MDAR G.IO
+G.TS:   ARMD TURN
+        JUMP G.WAIT
+G.WON:  JPSR G.LINE             [ DRAW THE WINNING LINE
+        MDAR G.WHO
+        MDXO'F 1
+        JPLS G.OW
+        JPSR G.TYP; G.MX
+        JUMP'I TTT
+G.OW:   JPSR G.TYP; G.MO
+        JUMP'I TTT
+[
+[ G.SETL: MAKE LAYER G.LAY THE CHOSEN ONE.  FOR EACH LAYER, STORE ONE OF
+[ TWO WHOLE ITEMS OVER ITS D AND ITS P: SOLID AND PEN ON FOR THE CHOSEN
+[ LAYER, DASHED AND PEN OFF FOR THE OTHERS.
+G.SETL: 0
+        MDAR'F DLS
+        ARMD G.P
+        MDAR'F PLS
+        ARMD G.Q
+        ARXO
+        ARMD G.K
+G.SL:   MDAR'I'X G.P
+        ARMD G.A                [ THIS LAYER'S D ITEM
+        MDAR'I'X G.Q
+        ARMD G.B                [ AND ITS P ITEM
+        MDAR G.K
+        MDXO G.LAY
+        JPLS G.SO               [ NOT THE CHOSEN ONE
+        MDAR G.SOL
+        ARMD'I G.A
+        MDAR G.PON
+        ARMD'I G.B
+        JUMP G.SN
+G.SO:   MDAR G.DSH
+        ARMD'I G.A
+        MDAR G.POF
+        ARMD'I G.B
+G.SN:   MDAR G.K
+        MDAS'F 1
+        ARMD G.K
+        MDXO'F 3
+        JPLS G.SL
+        JUMP'I G.SETL
+[
+[ G.CHK: ADD UP EACH OF THE 49 LINES.  RETURN AR = 1 IF A LINE IS ALL ONE
+[ PLAYER'S, 0 IF NONE; G.LP IS THEN JUST PAST THAT LINE.  REPEAT WRITES
+[ THE ADDITION OUT THREE TIMES.
+G.CHK:  0
+        MDAR'F LNS
+        ARMD G.LP
+        ARXO
+        ARMD G.LK
+G.LN:   ARXO
+        ARMD G.S
+        REPEAT 3
+        MDAR'I'X G.LP           [ THE NEXT CELL OF THE LINE
+        MDAS'F BRD
+        ARMD G.A
+        MDAR'I G.A
+        MDAS G.S
+        ARMD G.S
+        ENDR
+        MDXO'F 3
+        JPLS G.L2
+        JUMP G.YES              [ THREE X
+G.L2:   MDAR G.S
+        MDXO'F 17
+        JPLS G.L3
+        JUMP G.YES              [ THREE O
+G.L3:   MDAR G.LK
+        MDAS'F 1
+        ARMD G.LK
+        MDXO'F 49.
+        JPLS G.LN
+        ARXO
+        JUMP'I G.CHK
+G.YES:  MDAR'F 1
+        JUMP'I G.CHK
+[
+[ G.LINE: COPY THE WINNING LINE'S FIRST AND LAST CELLS INTO WIN, AS A MOVE
+[ AND A DRAW (TWO WORDS EACH, FROM THE TABLES WMV AND WDR), TWICE, AND
+[ SHOW WIN.
+G.LINE: 0
+        MDAR G.LP
+        MDAS'F'N 3              [ BACK TO THE LINE'S FIRST CELL
+        ARMD G.A
+        MDAR'I G.A
+        JPSR G.CP; WMV; W1
+        MDAR G.LP
+        MDAS'F'N 3
+        ARMD G.A
+        MDAR'I G.A
+        JPSR G.CP; WMV; W3
+        MDAR G.LP
+        MDAS'F'N 1              [ THE LAST CELL
+        ARMD G.A
+        MDAR'I G.A
+        JPSR G.CP; WDR; W2
+        MDAR G.LP
+        MDAS'F'N 1
+        ARMD G.A
+        MDAR'I G.A
+        JPSR G.CP; WDR; W4
+        MDAR G.IW
+        ARMD WINL
+        JUMP'I G.LINE
+[ G.CP: AR = A CELL.  COPY THE TWO WORDS AT TABLE + 2 X CELL TO DEST.
+[ CALL:  JPSR G.CP; TABLE; DEST
+G.CP:   0
+        ARMD G.T
+        MDAS G.T                [ TWO WORDS A CELL
+        MDAS'I'X G.CP           [ + THE TABLE
+        ARMD G.R
+        MDAR'I'X G.CP
+        ARMD G.D                [ THE DESTINATION
+        MDAR'I'X G.R
+        ARMD'I'X G.D
+        MDAR'I G.R
+        ARMD'I G.D
+        JUMP'I G.CP
+[
+[ G.TYP: TYPE A LINE.  CALL:  JPSR G.TYP; TEXT'S ADDRESS
+G.TYP:  0
+        MDAR'I'X G.TYP
+        ARMD G.TP
+G.TW:   MDAR'I'X G.TP
+        ARMD G.TC
+        ARXO
+        ARMD G.TK
+G.TCH:  MDAR G.TC
+        ARAR'K                  [ THE NEXT CHARACTER INTO THE LOW SIX BITS
+        ARMD G.TC
+        MDAR'A G.T77
+        JPLS G.TT
+        JUMP G.TE               [ A NULL ENDS THE TEXT
+G.TT:   OPTY
+        JUMP G.TT
+        MDAR G.TK
+        MDAS'F 1
+        ARMD G.TK
+        MDXO'F 5
+        JPLS G.TCH
+        JUMP G.TW
+G.TE:   MDAR'F 15
+G.TE2:  OPTY
+        JUMP G.TE2
+        JUMP'I G.TYP
+G.TP:   0
+G.TC:   0
+G.TK:   0
+G.T77:  77
+G.M0:   TEXT /3-D TIC-TAC-TOE, 3 X 3 X 3.  X PLAYS FIRST.  KEYS 0-2 CHOOSE THE LAYER./
+        0
+G.MX:   TEXT /X WINS./
+        0
+G.MO:   TEXT /O WINS./
+        0
+G.MD:   TEXT /A DRAW./
+        0
+[ WHOLE ITEMS AND WORDS THE PROGRAM STORES
+G.IE:   IMG (EMPTY)
+G.IX:   IMG (XMARK)
+G.IO:   IMG (OMARK)
+G.IW:   IMG (WIN)
+G.SOL:  ANDMB (67600)           [ SOLID (DASH OFF)
+G.DSH:  ORMB (10000)            [ DASHED
+G.PON:  ORMB (2000)             [ PEN ON
+G.POF:  ANDMB (75600)           [ PEN OFF
+G.KM0:  40000                   [ THE KEYS, ROTATED INTO THE LOWER HALF: KEY 0
+G.KM1:  20000                   [ KEY 1
+G.KM2:  10000                   [ KEY 2
+G.N:    0                       [ PENHT'S N: THE LATEST HIT
+G.IT:   0
+G.IM:   0
+G.LAST: 0
+G.WHO:  0
+G.LAY:  0
+G.MV:   0
+G.C:    0
+G.K:    0
+G.P:    0
+G.Q:    0
+G.A:    0
+G.B:    0
+G.S:    0
+G.LP:   0
+G.LK:   0
+G.T:    0
+G.R:    0
+G.D:    0
+[ THE BOARD, AND THE TABLES: EACH LAYER'S D AND P, EACH CELL'S TICK AND IMG
+[ ITEM, EACH CELL'S PLACE AS A MOVE AND AS A DRAW, AND THE LINES
+BRD:    REPEAT 27.
+        0
+        ENDR
+DLS:    D0; D1; D2
+PLS:    P0; P1; P2
+TKS:    T00; T01; T02; T03; T04; T05; T06; T07; T10
+        T11; T12; T13; T14; T15; T16; T17; T20; T21
+        T22; T23; T24; T25; T26; T27; T30; T31; T32
+MKS:    M00; M01; M02; M03; M04; M05; M06; M07; M10
+        M11; M12; M13; M14; M15; M16; M17; M20; M21
+        M22; M23; M24; M25; M26; M27; M30; M31; M32
+WMV:    MOVE (-.36, -.36, -.36)
+        MOVE (-.36, .00, -.36)
+        MOVE (-.36, .36, -.36)
+        MOVE (.00, -.36, -.36)
+        MOVE (.00, .00, -.36)
+        MOVE (.00, .36, -.36)
+        MOVE (.36, -.36, -.36)
+        MOVE (.36, .00, -.36)
+        MOVE (.36, .36, -.36)
+        MOVE (-.36, -.36, .00)
+        MOVE (-.36, .00, .00)
+        MOVE (-.36, .36, .00)
+        MOVE (.00, -.36, .00)
+        MOVE (.00, .00, .00)
+        MOVE (.00, .36, .00)
+        MOVE (.36, -.36, .00)
+        MOVE (.36, .00, .00)
+        MOVE (.36, .36, .00)
+        MOVE (-.36, -.36, .36)
+        MOVE (-.36, .00, .36)
+        MOVE (-.36, .36, .36)
+        MOVE (.00, -.36, .36)
+        MOVE (.00, .00, .36)
+        MOVE (.00, .36, .36)
+        MOVE (.36, -.36, .36)
+        MOVE (.36, .00, .36)
+        MOVE (.36, .36, .36)
+WDR:    DRAW (-.36, -.36, -.36)
+        DRAW (-.36, .00, -.36)
+        DRAW (-.36, .36, -.36)
+        DRAW (.00, -.36, -.36)
+        DRAW (.00, .00, -.36)
+        DRAW (.00, .36, -.36)
+        DRAW (.36, -.36, -.36)
+        DRAW (.36, .00, -.36)
+        DRAW (.36, .36, -.36)
+        DRAW (-.36, -.36, .00)
+        DRAW (-.36, .00, .00)
+        DRAW (-.36, .36, .00)
+        DRAW (.00, -.36, .00)
+        DRAW (.00, .00, .00)
+        DRAW (.00, .36, .00)
+        DRAW (.36, -.36, .00)
+        DRAW (.36, .00, .00)
+        DRAW (.36, .36, .00)
+        DRAW (-.36, -.36, .36)
+        DRAW (-.36, .00, .36)
+        DRAW (-.36, .36, .36)
+        DRAW (.00, -.36, .36)
+        DRAW (.00, .00, .36)
+        DRAW (.00, .36, .36)
+        DRAW (.36, -.36, .36)
+        DRAW (.36, .00, .36)
+        DRAW (.36, .36, .36)
+[ THE 49 LINES, THREE CELL NUMBERS EACH (OCTAL: 9 X LAYER + 3 X ROW + COLUMN)
+LNS:    32; 15; 00
+        30; 14; 00
+        31; 15; 01
+        32; 16; 02
+        30; 15; 02
+        24; 12; 00
+        27; 15; 03
+        32; 20; 06
+        22; 11; 00
+        23; 12; 01
+        24; 13; 02
+        25; 14; 03
+        26; 15; 04
+        27; 16; 05
+        30; 17; 06
+        31; 20; 07
+        32; 21; 10
+        22; 12; 02
+        25; 15; 05
+        30; 20; 10
+        24; 15; 06
+        22; 14; 06
+        23; 15; 07
+        24; 16; 10
+        22; 15; 10
+        10; 04; 00
+        21; 15; 11
+        32; 26; 22
+        06; 03; 00
+        07; 04; 01
+        10; 05; 02
+        17; 14; 11
+        20; 15; 12
+        21; 16; 13
+        30; 25; 22
+        31; 26; 23
+        32; 27; 24
+        06; 04; 02
+        17; 15; 13
+        30; 26; 24
+        02; 01; 00
+        05; 04; 03
+        10; 07; 06
+        13; 12; 11
+        16; 15; 14
+        21; 20; 17
+        24; 23; 22
+        27; 26; 25
+        32; 31; 30

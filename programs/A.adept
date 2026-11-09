@@ -1,0 +1,22 @@
+[ A: THE BLOCK LETTER A OF FJCC68 FIG. 4, DRAWN WITH 13 VECTORS: 11
+[ VISIBLE ("DRAW") AND 2 INVISIBLE ("MOVE").  ITS PROPORTIONS ARE OURS.
+[ A POINT IS (Z, X, Y), FRACTIONS FROM -1 TO 1 (DSPLY P. 17).
+[ SHOW IT WITH:   DSPLY (V.A)!
+A:      TEXT /A/                [ THE IMAGE'S NAME: ITS TWO-WORD HEADER
+        MOVE (0, -.5, -.6)      [ THE OUTSIDE, FROM THE FOOT OF THE LEFT LEG
+        DRAW (0, -.15, .6)
+        DRAW (0, .15, .6)
+        DRAW (0, .5, -.6)
+        DRAW (0, .25, -.6)
+        DRAW (0, .17, -.3)
+        DRAW (0, -.17, -.3)
+        DRAW (0, -.25, -.6)
+        DRAW (0, -.5, -.6)
+        MOVE (0, -.1, -.08)     [ THE HOLE
+        DRAW (0, 0, .28)
+        DRAW (0, .1, -.08)
+        DRAW (0, -.1, -.08)
+        RET
+V.A:    TEXT /V.A/
+        IMG (A)
+        RET
