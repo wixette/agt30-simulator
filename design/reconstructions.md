@@ -6,7 +6,7 @@ Every place where the documents stop and we chose. Each entry gives four things:
 - why;
 - what would settle it.
 
-About shows a short form of each entry (U14 in [../docs/ui-design.md](../docs/ui-design.md)).
+The README lists a short form of each entry, and each program's card those it rests on (U14 in [../docs/ui-design.md](../docs/ui-design.md)).
 
 Sources are cited by key ([../research/bibliography.md](../research/bibliography.md)). **Status:** draft for v0.0.1, 2026-11-09. Ids are permanent: an entry that is settled stays here, marked *settled*, with what settled it.
 

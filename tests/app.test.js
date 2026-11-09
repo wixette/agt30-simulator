@@ -13,10 +13,13 @@ const ROOT = new URL("../", import.meta.url);
 const walk = (dir, ends) => readdirSync(new URL(dir, ROOT), { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(`${dir}/${e.name}`, ends) : ends.some((x) => e.name.endsWith(x)) ? [`${dir}/${e.name}`] : []));
 
 describe("the page (APP)", () => {
-  it("APP-1: About lists every reconstruction of design/reconstructions.md, in order (U14)", () => {
+  it("APP-1: the README lists every reconstruction of design/reconstructions.md, in order, as the page knows them (U14)", () => {
     const doc = readFileSync(new URL("design/reconstructions.md", ROOT), "utf8");
     const ids = [...doc.matchAll(/^\*\*(R\d+)\. /gm)].map((m) => m[1]);
     assert.deepEqual(RECONSTRUCTIONS, ids);
+    const readme = readFileSync(new URL("README.md", ROOT), "utf8");
+    assert.deepEqual([...readme.matchAll(/^- \*\*(R\d+)\.\*\* /gm)].map((m) => m[1]), ids);
+    assert.match(readme, /^## What is reconstructed$/m, "the heading About links to");
   });
 
   it("APP-2: nothing the page loads comes from another site (P10)", () => {

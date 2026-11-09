@@ -226,7 +226,7 @@ The link format names a viewpoint and a program: `#view=tube&program=tic-tac-toe
 
 About is a dialog with a title band:
 - the logo, the version and what the simulator is;
-- **What is reconstructed**: the short form of each entry in [../design/reconstructions.md](../design/reconstructions.md);
+- one line saying that where the documents stop the simulator reconstructs, that each program's card says what is ours in it, and a link to the whole list in the README's *What is reconstructed* *(build, after the manual check: About first listed all twenty reconstructions, too long for an About; the README lists them, and tests/app.test.js keeps that list complete)*;
 - credits: sources, people and libraries;
 - the licences, one per line;
 - a link to the source repository.

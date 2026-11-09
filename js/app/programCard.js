@@ -14,7 +14,7 @@ import { t } from "../l10n/l10n.js";
  * @param {HTMLElement} host
  * @param {Program | null} p
  * @param {Record<string, string>} sources the ADEPT files, by name
- * @param {{ type: (statement: string, label: string) => void; busy: boolean; openRecon: (id: string) => void }} ops
+ * @param {{ type: (statement: string, label: string) => void; busy: boolean }} ops
  */
 export function renderProgramCard(host, p, sources, ops) {
   if (!p) {
@@ -40,14 +40,7 @@ export function renderProgramCard(host, p, sources, ops) {
   const ours = el(
     "ul",
     {},
-    p.reconstructions.map((id) => {
-      const a = el("a", { href: `#about-${id}`, text: id });
-      a.addEventListener("click", (e) => {
-        e.preventDefault();
-        ops.openRecon(id);
-      });
-      return el("li", {}, [a, ` ${t(`recon.${id}`)}`]);
-    }),
+    p.reconstructions.map((id) => el("li", {}, [el("strong", { text: id }), ` ${t(`recon.${id}`)}`])),
   );
   const statements = p.statements.join("\n").replace(/\r/g, "");
   const files = p.files.map((f) =>

@@ -100,7 +100,6 @@ async function start() {
         agt.type(statement, FAST_US_PER_CHAR);
         say(t("status.action", { statement: label }));
       },
-      openRecon: (id) => openAbout(pkg.version, id),
     });
   };
   drawCard();

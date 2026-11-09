@@ -301,8 +301,6 @@ code, pre, .mono { font-family: var(--mono); }
 .dialog-body h3 { margin: 18px 0 6px; font-size: 14px; color: var(--md-on-surface-variant); }
 .dialog-body ol, .dialog-body ul { margin: 0; padding-left: 22px; }
 .dialog-body li { margin: 2px 0; }
-.dialog-body ul.recon { list-style: none; padding-left: 0; }
-.dialog-body ul.recon li:target { color: var(--attention); }
 .about-band { display: flex; gap: 16px; align-items: center; }
 .about-band img { width: 64px; height: 64px; }
 .about-band .version { color: var(--md-on-surface-variant); }

@@ -1,30 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// About (docs/ui-design.md, U14): what the simulator is and its version; what is reconstructed,
-// the short form of each entry of design/reconstructions.md; credits; the licences; the source.
+// About (docs/ui-design.md, U14): what the simulator is and its version; where the list of what it
+// reconstructs is (the README); credits; the licences; the source.
 
 import { el, showDialog } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
-import { RECONSTRUCTIONS, SOURCE_URL } from "./aboutData.js";
+import { SOURCE_URL } from "./aboutData.js";
 
 
 /**
- * Opens About, scrolled to a reconstruction if one is named.
+ * Opens About.
  * @param {string} version
- * @param {string} [recon] e.g. "R4"
  */
-export function openAbout(version, recon) {
+export function openAbout(version) {
   const logo = el("img", { src: new URL("../../images/logo.svg", import.meta.url).href, alt: "" });
-  const d = showDialog(t("about.title"), [
+  showDialog(t("about.title"), [
     el("div", { class: "about-band" }, [logo, el("div", {}, [el("strong", { text: t("app.name") }), el("div", { class: "version", text: t("about.version", { version }) })])]),
     el("p", { text: t("about.what") }),
-    el("h3", { text: t("about.recon") }),
-    el("p", { text: t("about.recon.intro") }),
-    el(
-      "ul",
-      { class: "recon" },
-      RECONSTRUCTIONS.map((id) => el("li", { id: `about-${id}` }, [el("strong", { text: `${id}. ` }), t(`recon.${id}`)])),
-    ),
+    el("p", {}, [t("about.recon"), " ", el("a", { href: `${SOURCE_URL}#what-is-reconstructed`, target: "_blank", rel: "noopener", text: t("about.recon.link") })]),
     el("h3", { text: t("about.credits") }),
     el("p", { text: t("about.credits.sources") }),
     el("p", { text: t("about.credits.libs") }),
@@ -36,5 +29,4 @@ export function openAbout(version, recon) {
     ),
     el("p", {}, [el("a", { href: SOURCE_URL, target: "_blank", rel: "noopener", text: t("about.source") })]),
   ]);
-  if (recon) d.querySelector(`#about-${recon}`)?.scrollIntoView({ block: "center" });
 }
