@@ -31,6 +31,8 @@ const DIR = /** @type {Record<string, string>} */ ({
 export const ICONS = [
   "arrow_back",
   "check",
+  "chevron_left",
+  "chevron_right",
   "close",
   "content_copy",
   "edit",

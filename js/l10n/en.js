@@ -67,6 +67,8 @@ export default {
   "strip.dials": "Dials",
   "strip.dial": "Dial {n}",
   "strip.dial.tip": "Dial {n}: turn it round with the mouse, clockwise up; or use the wheel or the arrow keys",
+  "strip.dial.down": "Turn dial {n} down; hold to keep turning",
+  "strip.dial.up": "Turn dial {n} up; hold to keep turning",
   "strip.keys": "Function keys",
   "strip.key": "Key {n}",
   "strip.key.tip": "Function key {n}: down while pressed",

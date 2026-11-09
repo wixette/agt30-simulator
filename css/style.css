@@ -174,11 +174,17 @@ code, pre, .mono { font-family: var(--mono); }
 .strip-label { font-size: 11px; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
 .strip-sep { width: 1px; background: var(--md-outline-variant); }
 .dials { display: flex; gap: 6px; }
-.dial { width: 40px; height: 40px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; display: flex; flex-direction: column; align-items: center; }
+.dial-col { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.dial { width: 40px; height: 36px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center; }
 .dial svg { width: 34px; height: 34px; }
+.dial-steps { display: flex; align-items: center; gap: 1px; }
+.dial-step { width: 16px; height: 16px; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--md-on-surface-variant); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.dial-step:hover { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); color: var(--md-on-surface); }
+.dial-step:active { background: color-mix(in srgb, var(--md-on-surface) 22%, transparent); }
+.dial-step .icon { width: 16px; height: 16px; }
 .dial .knob { fill: #1b1513; stroke: #4d443d; stroke-width: 1.5; }
 .dial .pointer { stroke: #e8e2d6; stroke-width: 2.4; stroke-linecap: round; }
-.dial .n { font-size: 9px; color: var(--md-outline); line-height: 1; }
+.dial-steps .n { font-size: 10px; color: var(--md-outline); line-height: 1; min-width: 8px; text-align: center; }
 .dial:active { cursor: grabbing; }
 .keys { display: grid; grid-template-columns: repeat(3, 26px) 8px 26px; grid-template-rows: repeat(4, 13px); gap: 2px; }
 .fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }

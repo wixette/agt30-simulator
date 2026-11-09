@@ -5,7 +5,7 @@
 // on the desk in 3D are two ways to one operation (P2): both call the machine's setDial and
 // setKey. Its words come from the messages (U11).
 
-import { el, setTip } from "../ui/components.js";
+import { el, icon, setTip } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 import { DIALS, KEYS } from "../sim/agt.js";
 import { DIAL_TRAVEL_DEG } from "../scene/viewer.js";
@@ -53,6 +53,11 @@ export function turner(center, get, set) {
 }
 /** One arrow key's step, and one wheel notch's. */
 const STEP = 1 / 64;
+/** One click of a dial's small arrows: two arrow keys' worth, about 9 degrees. */
+const ARROW_STEP = 1 / 32;
+/** Held down, an arrow steps again after this, then every REPEAT_MS. */
+const REPEAT_DELAY_MS = 400;
+const REPEAT_MS = 70;
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
 
@@ -72,7 +77,7 @@ export function buildStrip(host, machine, say) {
   const dials = el("div", { class: "dials" });
   for (let n = 0; n < DIALS; n++) {
     const b = el("button", { class: "dial", type: "button", role: "slider", "aria-valuemin": "-1", "aria-valuemax": "1", "aria-valuenow": "0", "aria-label": t("strip.dial", { n }) });
-    b.innerHTML = `<svg viewBox="-20 -20 40 40" aria-hidden="true"><circle class="knob" r="16"/><line class="pointer" x1="0" y1="-4" x2="0" y2="-14"/></svg><span class="n">${n}</span>`;
+    b.innerHTML = `<svg viewBox="-20 -20 40 40" aria-hidden="true"><circle class="knob" r="16"/><line class="pointer" x1="0" y1="-4" x2="0" y2="-14"/></svg>`;
     pointers.push(/** @type {SVGLineElement} */ (b.querySelector(".pointer")));
     setTip(b, t("strip.dial.tip", { n }));
     /** @param {number} v */
@@ -114,7 +119,29 @@ export function buildStrip(host, machine, say) {
       set(e.key === "Home" ? 0 : machine().dev.dials[n] + (d ?? 0));
     });
     dialButtons.push(b);
-    dials.append(b);
+    // under it, a pair of small arrows that step it, and keep stepping while held: down, its
+    // number, up (U5)
+    /** @param {number} sign @param {string} name */
+    const arrow = (sign, name) => {
+      const a = el("button", { class: "dial-step", type: "button", tabindex: "-1" }, [icon(/** @type {"chevron_left" | "chevron_right"} */ (name))]);
+      setTip(a, t(sign < 0 ? "strip.dial.down" : "strip.dial.up", { n }));
+      /** @type {ReturnType<typeof setTimeout> | undefined} */
+      let timer;
+      const step = () => set(machine().dev.dials[n] + sign * ARROW_STEP);
+      const stop = () => clearTimeout(timer);
+      a.addEventListener("pointerdown", (e) => {
+        a.setPointerCapture(e.pointerId);
+        step();
+        const again = () => {
+          step();
+          timer = setTimeout(again, REPEAT_MS);
+        };
+        timer = setTimeout(again, REPEAT_DELAY_MS);
+      });
+      for (const ev of ["pointerup", "pointercancel", "lostpointercapture"]) a.addEventListener(ev, stop);
+      return a;
+    };
+    dials.append(el("div", { class: "dial-col" }, [b, el("div", { class: "dial-steps" }, [arrow(-1, "chevron_left"), el("span", { class: "n", text: String(n) }), arrow(1, "chevron_right")])]));
   }
 
   // the function switch box: a 4 x 4 grid, its last column set apart (FNS1)
