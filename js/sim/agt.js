@@ -55,7 +55,7 @@ export class Agt30 extends Terminal {
     this.dev = {
       /** six variable control dials (VCD1), -1..1 */
       dials: new Float64Array(DIALS),
-      /** sixteen function keys (FNS1), key 0 as bit 0 of S5 */
+      /** sixteen function keys (FNS1) on S5, key n as bit n in Adage's numbering from the left */
       switches: 0,
     };
     /** @type {number[]} characters typed on the keyboard and not yet read by a program (AMOS codes) */
@@ -159,7 +159,7 @@ export class Agt30 extends Terminal {
    * @param {boolean} down
    */
   setKey(n, down) {
-    const bit = 2 ** n;
+    const bit = 2 ** (29 - n);
     const on = Math.floor(this.dev.switches / bit) % 2 === 1;
     if (on !== down) this.dev.switches += down ? bit : -bit;
   }

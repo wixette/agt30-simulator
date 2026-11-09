@@ -1,0 +1,77 @@
+{
+  "about": "The Adage AGT-30: documented facts the simulator rests on, each with its source key (research/bibliography.md). Octal values are strings. confidence: 'doc' = stated in a document and read from the scan; 'inference' = derived from documented facts. Reconstructions are not here: they are in design/reconstructions.md.",
+  "processor": {
+    "name": "DPR-2; its behaviour from the AGT/5's DPR3, of the same family",
+    "word_bits": { "value": 30, "source": "FJCC68 p. 748; SRM5 DPR3 p. 1", "confidence": "doc" },
+    "arithmetic": { "value": "one's complement; a 29-bit and a 14-bit add, each with a sign", "source": "SRM5 DPR3 p. 4", "confidence": "doc" },
+    "memory_cycle_us": { "value": 2, "source": "FJCC68 p. 748; SRM5 DPR3 p. 1", "confidence": "doc" },
+    "instruction_us": { "memory_reference": 4, "immediate": 3, "jump": 3, "jpsr": 5, "skip": 3, "opio": 6, "multiply": [4, 10], "shift": [3, 9], "pri_instruction": 3, "source": "SRM5 DPR3 pp. 4-7", "confidence": "doc" },
+    "multiply_us_used": { "value": 6, "source": "CCT21c", "confidence": "doc" },
+    "fields": { "value": "13 bits of operation, an index bit, an indirect bit, 15 bits of address", "source": "SRM5 DPR3 p. 4", "confidence": "doc" },
+    "encodings": { "value": null, "note": "No octal value of any instruction is documented in the sources found (R1)." },
+    "core_words": { "standard": 8192, "ncsu": 32768, "source": "BRO69; NCSU", "confidence": "doc" }
+  },
+  "frame_clock": {
+    "frames_per_second": "120 / (RATE + 1)",
+    "rates": { "1": 60, "2": 40, "3": 30, "4": 24, "5": 20, "7": 15, "9": 12, "11": 10 },
+    "initial": { "RATE": 2, "ERRORI": "SKIP", "ERRORT": "ALL" },
+    "timing_error_options": { "ALL": "interpret the entire image at a slower rate", "CUT": "display as much as possible at the rate", "BUMP": "advance RATE so the entire image is processed, and notify the operator on the Teletype" },
+    "source": "DSPLY pp. 7-9", "confidence": "doc"
+  },
+  "array": {
+    "equations": ["x' = PS (DX + SC (R11 x + R12 y + R13 z))", "y' = PS (DY + SC (R21 x + R22 y + R23 z))", "z' = PS (DZ + SC (R31 x + R32 y + R33 z))"],
+    "inputs": "15-bit one's complement",
+    "time_us": { "value": 4, "note": "less than", "source": "FJCC68 p. 751", "confidence": "doc" },
+    "settling": { "us": 2, "to_percent": 0.01, "source": "SRM5 GHA4", "confidence": "doc" },
+    "recalibration": { "value": "about once a year", "source": "CCT20", "confidence": "doc" },
+    "source": "FJCC68 eqs. 5-7; GIM72 Fig. 9"
+  },
+  "vector_generator": {
+    "per_vector_us": { "min": 5, "max": 39, "including_gap_us": 3, "source": "SRM5 AVG1 p. 1", "confidence": "doc" },
+    "long_move_us": { "value": 15, "note": "a move with a component over 3 in", "source": "SRM5 AVG1 p. 1", "confidence": "doc" },
+    "processor_time_per_table_vector_us": { "value": 5.5, "source": "SRM5 p. 2", "confidence": "doc" },
+    "short_table_vector_us": { "value": 5, "source": "DSPLY p. 18", "confidence": "doc" },
+    "vectors_per_40_frame": { "short": 4550, "1in": 2940, "3in": 1660, "7in": 800, "10in": 640, "source": "SRM5 AVG1 pp. 1-2", "confidence": "doc" },
+    "full_scale_in": { "value": 20, "note": "full scale spans a 20-inch square", "source": "DSPLY p. 22", "confidence": "doc" }
+  },
+  "crt": {
+    "model": "GDS1, 21-inch",
+    "usable_in": [12, 12], "quality_in": [10, 10], "spot_in": 0.02,
+    "phosphor": { "value": null, "note": "not documented (R14)" },
+    "source": "SRM5 GDS1", "confidence": "doc"
+  },
+  "depth_cueing": {
+    "law": "intensity falls exponentially as z'm decreases, down 10:1 at z'm = 0; blanked beyond the +10 V cut-off",
+    "view": "VIEW (FRONT, BACK, DIM)!: DIM 0 none, 37777 maximum; FRONT initially 37777, BACK 40000",
+    "source": "FJCC68 p. 753, Fig. 14; DSPLY p. 9", "confidence": "doc"
+  },
+  "image_format": {
+    "command_word_bits": { "operation": [0, 8], "data_type": [9, 11], "address_mode": [12, 14], "address": [15, 29] },
+    "fraction": "a signed 14-bit one's-complement fraction in 15 bits: 37777 full scale, 40000 minus full scale",
+    "angle": "a fraction of pi, modulo 2 pi: 37777 = pi, 20000 = pi/2, 57777 = -pi/2",
+    "opcodes_H": {
+      "MOVE": "100", "2DTBL": "200", "DRAW": "300", "2DTF": "400", "LABLR": "500", "2DLST": "600", "LABL": "700",
+      "2DTAB": "1000", "2DTAF": "1100", "2DINT": "1200", "2DINF": "1300", "3DTAB": "1400", "3DTAF": "1500", "2DROT": "1600", "2DROF": "1700",
+      "SCL": "10000", "ROTX": "10100", "ROTY": "10200", "ROTZ": "10300", "RXYZ": "10400", "DX": "10500", "DY": "10600", "DZ": "10700", "DV": "11000",
+      "LDSCL": "20000", "LDRX": "20100", "LDRY": "20200", "LDRZ": "20300", "LDRV": "20400", "LDX": "20500", "LDY": "20600", "LDZ": "20700", "LDV": "21000", "LDI": "21200",
+      "NUL": "0", "SAVT": "30000", "REST": "30100", "RET": "30200", "IMG": "30300", "LOOP": "30400", "ENDL": "30500", "JMP": "30600", "JSR": "30700", "LONG": "31500", "SHORT": "31600",
+      "LDMB": "50000", "ORMB": "50100", "ANDMB": "50200", "LDSN": "54000", "LDLS": "55000", "CJMP": "56C00", "CJSR": "57C00", "WJMP": "6WW00", "WJSR": "7WW00",
+      "LDW": "31000", "MVW": "31100", "LWS": "31200", "DEPTH": "31300", "LDPS": "31400"
+    },
+    "condition_codes_H": { "FLAG1": "400", "FLAG2": "200", "PEN": "100" },
+    "window_bounds_H": { "WBX1": "4000", "WBX2": "2000", "WBY1": "1000", "WBY2": "400", "WBZ1": "200", "WBZ2": "100" },
+    "data_types_H": { "IHW": "00", "RHW": "10", "IFW": "20", "RFW": "30", "IRL": "60", "RRL": "70" },
+    "address_modes_H": { "IMED": "0", "I": "1", "DIR": "4", "STR": "5" },
+    "max_nesting": { "value": 16, "source": "FJCC68 p. 755", "confidence": "doc" },
+    "source": "DSPLY pp. 12-26, 39-41 (read from the scan)", "confidence": "doc"
+  },
+  "teletype": {
+    "model": "ASR-33", "characters_per_second": 10, "columns": 72,
+    "source": "SRM5 DPR3 p. 11; BRO69; ASR33", "confidence": "doc"
+  },
+  "configuration": {
+    "agt30_standard": ["DPR digital computer", "3-D coordinate transformation array", "ASR-33 Teletype", "8K core", "vector generator with intensity modulation", "console", "CRT with light pen", "function switches: 16 keys, 2 foot pedals, PULSE 1"],
+    "ncsu": "4 racks, two 7-track tape drives, two disk drives, a card reader, a Teletype; a dial box, a button box, a Rand tablet, a 3-D joystick, foot pedals",
+    "source": "BRO69; SRM5 FNS1; NCSU", "confidence": "doc"
+  }
+}
