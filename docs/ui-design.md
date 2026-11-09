@@ -96,7 +96,7 @@ A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*) and 
 The installation seen whole is much wider than it is tall, so, as in the 8800 simulator, the dock goes **below** the stage. Below it, the Teletype also gets the full width for its 72 columns.
 
 ```
-┌ [logo] AGT-30 Simulator   [▤ Programs ▾]  [⏻ Turn off and on]                [ⓘ] ┐  top bar
+┌ [logo] AGT-30 Simulator   [▤ Programs ▾]  [⏻ Reboot]                         [ⓘ] ┐  top bar
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │ Console ▾                                                    [⌂] [− +]   [Back]  │  stage band
 │                                                                                  │
@@ -137,10 +137,10 @@ The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop. Recent Chrome, 
 
 ### U3. The top bar
 
-- **Left** (the machine): the logo and title, the **Programs** menu, and, set apart from it, **Turn off and on**, with the power icon, which turns the whole terminal off and on again: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program".)*
+- **Left** (the machine): the logo and title, the **Programs** menu, and, set apart from it, **Reboot**, with the power icon, which reboots the whole terminal: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program"; one reboots a machine, never a program.)*
 - **Right** (the app): **About**.
 
-There is no language menu while there is one language. Choosing a program, or turning the terminal off and on, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
+There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
 
 ### U4. Each viewpoint fits its subject into the stage's free area
 
@@ -150,7 +150,7 @@ The stage's top band (viewpoint menu, view tools), the console strip and an open
 
 The strip floats at the bottom of the stage, centred, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
 
-- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its centre, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* A small button on the *Dials* label line turns all six back to the centre at once, a convenience of ours: the operator turned each by hand. It is not the top bar's *Turn off and on*, which restarts the whole terminal. §6).
+- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its centre, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* A small button on the *Dials* label line turns all six back to the centre at once, a convenience of ours: the operator turned each by hand. It is not the top bar's *Reboot*, which restarts the whole terminal. §6).
 - **Sixteen function keys** in a 4 × 4 grid, the last column set apart, and **PULSE 1** above them, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard. A key pressed here goes down on the desk in 3D and turns amber there, and one pressed on the desk shows down here (P2). PULSE 1 is there because it is on the box; no program of v0.0.1 uses it, so pressing it says so in the status line (R10). *(build, after the manual check)*
 - **The light pen.** It shows its state: *pen: point at the screen* on Screen, greyed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
 
@@ -175,7 +175,7 @@ In this order:
 
 ### U8. The Programs menu and card actions type on the Teletype
 
-Choosing a program types its statements on the Teletype at the ASR-33's 10 characters a second, as an operator would have. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *More lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or turning the terminal off and on, stops it.
+Choosing a program types its statements on the Teletype at the ASR-33's 10 characters a second, as an operator would have. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *More lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or rebooting, stops it.
 
 *Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves. It takes as long as it did: the longest, the town's, take about 8 seconds.
 *Rejected:* an instant load, which hides the monitor and makes the paper a lie.
