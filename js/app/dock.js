@@ -21,6 +21,7 @@ const KEY_STEP = 24;
  * @property {(id: "program" | "tty") => void} show selects a tab and opens the dock
  * @property {(id: "program" | "tty") => void} mark puts a dot on a tab not in view
  * @property {() => boolean} ttyShown whether the Teletype is in view
+ * @property {() => boolean} isFolded whether the dock is folded to its tab bar
  */
 
 /**
@@ -102,5 +103,6 @@ export function buildDock(onResize) {
       dot?.setAttribute("aria-label", t("dock.activity"));
     },
     ttyShown: () => current === "tty" && !folded,
+    isFolded: () => folded,
   };
 }

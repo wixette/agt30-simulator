@@ -124,7 +124,7 @@ The dock is full width under the stage, resizable by its top edge, and folds to 
 - **Program** is the loaded program's card (U7).
 - **Teletype** is the paper and keyboard (U9).
 
-The dock opens on Program when a program is chosen, and on Teletype when a program types on the paper while the dock is folded. Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4).
+A folded dock opens on Program when a program is chosen; an open one stays on the tab the reader chose, and the other tab gets an activity dot. *(build, after the manual check: choosing a program first switched an open dock back to Program, away from the Teletype the reader was watching.)* Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4).
 
 *Why below:* the room is a wide, flat subject, so a dock on the right would letterbox it. The Teletype needs the width.
 *Rejected:*

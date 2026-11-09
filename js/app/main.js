@@ -117,7 +117,10 @@ async function start() {
     program = p;
     agt.type(p.statements.join(""), FAST_US_PER_CHAR);
     drawCard();
-    dock.show("program");
+    // the reader's choice of tab stands: a folded dock opens on the new card, an open one stays
+    // where it is, and the tab not in view gets its dot
+    if (dock.isFolded()) dock.show("program");
+    dock.mark("program");
     dock.mark("tty");
     writeLink();
     say(t("status.typing", { title: t(`program.${p.id}.title`) }));
