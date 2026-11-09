@@ -31,8 +31,6 @@ export default {
   "view.zoomOut": "Zoom out",
   "view.back": "Back",
   "view.back.tip": "Climb one level (Escape)",
-  "view.connections": "Connections",
-  "view.connections.tip": "Dim the machines and light the cables, each with its traffic (a view the real AGT never had)",
   "view.stage": "The AGT-30 installation in 3D. Click a part for its card. Drag to turn, scroll to zoom.",
   "view.screen.label": "The scope's screen, close up",
   "view.inset": "The screen: go to it",

@@ -120,12 +120,6 @@ export class Stage {
     $("zoom-in").addEventListener("click", () => this.view3d?.zoom(0.8));
     $("zoom-out").addEventListener("click", () => this.view3d?.zoom(1.25));
     $("back").addEventListener("click", () => this.up());
-    $("connections").addEventListener("click", () => {
-      if (!this.view3d) return;
-      this.view3d.connections = !this.view3d.connections;
-      $("connections").setAttribute("aria-pressed", String(this.view3d.connections));
-      this.view3d.select(this.view3d.selected?.name ?? null);
-    });
   }
 
   /**
@@ -143,7 +137,6 @@ export class Stage {
     host.replaceChildren(b);
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
     $("back").hidden = this.view === "room" && !this.closeLook;
-    $("room-tools").hidden = this.view !== "room";
     for (const id of ["home", "zoom-in", "zoom-out"]) $(id).hidden = this.view === "screen";
   }
 

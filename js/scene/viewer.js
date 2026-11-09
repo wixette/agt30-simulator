@@ -50,9 +50,6 @@ const LOOK_SAMPLES = {
   top: [[0, 0.45, 0], [-0.45, 0.45, -0.45], [0.45, 0.45, -0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0, 0.45]],
 };
 
-/** How bright the machines stay under Connections, so the cables stand out. */
-const DIM = 0.22;
-
 /** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
 
@@ -102,8 +99,6 @@ export class TerminalView {
     this.active = true;
     /** @type {THREE.Object3D | null} */
     this.selected = null;
-    /** Show the cables strongly and the machines faintly (Room's Connections). */
-    this.connections = false;
     /** @type {Rect | null} */
     this.free = null;
     /** The reader has moved the camera: refitting stops until a viewpoint is chosen (U4). */
@@ -435,7 +430,7 @@ export class TerminalView {
   }
 
   /**
-   * Highlights a part (or none), and fades the rest under Connections.
+   * Highlights a part (or none).
    * @param {string | null} name
    */
   select(name) {
@@ -454,11 +449,6 @@ export class TerminalView {
         const mm = /** @type {THREE.MeshStandardMaterial} */ (o.material);
         mm.emissive.set(accent);
         mm.emissiveIntensity = inSel ? 0.25 : 0;
-        // Connections dims the machines rather than making them see-through: transparent
-        // pieces close together (a tape door's reels, its glass, the columns behind) are sorted
-        // by distance and swapped places as the camera turned, so parts flickered in and out
-        o.userData.base ??= mm.color.clone();
-        mm.color.copy(o.userData.base).multiplyScalar(this.connections && !inSel ? DIM : 1);
       }
     });
   }
@@ -527,7 +517,7 @@ export class TerminalView {
     for (const c of this.built.cables.values()) {
       const m = /** @type {THREE.MeshStandardMaterial} */ (c.userData.material);
       const a = /** @type {keyof typeof level} */ (c.userData.activity);
-      m.emissiveIntensity = (this.connections ? 0.25 : 0.05) + (level[a] ?? 0) * pulse * (this.connections ? 1.6 : 0.8);
+      m.emissiveIntensity = 0.05 + (level[a] ?? 0) * pulse * 0.8;
     }
     this.updateBeam(agt);
     this.controls.update();
