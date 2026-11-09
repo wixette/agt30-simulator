@@ -50,6 +50,9 @@ const LOOK_SAMPLES = {
   top: [[0, 0.45, 0], [-0.45, 0.45, -0.45], [0.45, 0.45, -0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0, 0.45]],
 };
 
+/** How near a knob, in pixels, a press on the dial box grabs it. */
+const GRAB_PX = 16;
+
 /** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
 
@@ -113,26 +116,26 @@ export class TerminalView {
     this.onPick = () => {};
     /** @type {(name: string) => void} */
     this.onActivate = () => {};
-    /** @type {(n: number, dyPx: number, start: boolean) => void} a dial on the desk dragged up or down (U5, P2) */
+    /** @type {(n: number, x: number, y: number, start: boolean) => void} a dial on the desk being turned, the pointer at x, y (U5, P2) */
     this.onDial = () => {};
     this.raycaster = new THREE.Raycaster();
     const canvas = this.renderer.domElement;
     /** @type {{ x: number; y: number } | null} */
     let down = null;
-    /** @type {{ n: number; y0: number } | null} a dial being turned on the desk */
+    /** @type {{ n: number } | null} a dial being turned on the desk */
     let dial = null;
     canvas.addEventListener("pointerdown", (e) => {
       down = { x: e.clientX, y: e.clientY };
-      const m = this.rawHit(e)?.match(/^console\.dials\.knob\.(\d)/);
-      if (m) {
-        dial = { n: Number(m[1]), y0: e.clientY };
+      const n = this.dialAt(e);
+      if (n !== null) {
+        dial = { n };
         this.controls.enabled = false;
         canvas.setPointerCapture(e.pointerId);
-        this.onDial(dial.n, 0, true);
+        this.onDial(dial.n, e.clientX, e.clientY, true);
       }
     });
     canvas.addEventListener("pointermove", (e) => {
-      if (dial) this.onDial(dial.n, dial.y0 - e.clientY, false);
+      if (dial) this.onDial(dial.n, e.clientX, e.clientY, false);
     });
     canvas.addEventListener("pointerup", (e) => {
       if (dial) {
@@ -379,6 +382,42 @@ export class TerminalView {
     const off = this.camera.position.clone().sub(this.controls.target).multiplyScalar(k);
     this.camera.position.copy(this.controls.target).add(off);
     this.controls.update();
+  }
+
+  /**
+   * The desk dial a press grabs: the knob under the pointer, or, a knob being only a few pixels
+   * across from the operator's seat, the nearest within GRAB_PX of the press.
+   * @param {MouseEvent} e
+   * @returns {number | null}
+   */
+  dialAt(e) {
+    const name = this.rawHit(e);
+    const m = name?.match(/^console\.dials\.knob\.(\d)/);
+    if (m) return Number(m[1]);
+    let best = null;
+    let near = GRAB_PX;
+    this.knobs.forEach((_, n) => {
+      const [x, y] = this.knobOnScreen(n);
+      const d = Math.hypot(e.clientX - x, e.clientY - y);
+      if (d < near) {
+        near = d;
+        best = n;
+      }
+    });
+    return best;
+  }
+
+  /**
+   * Where a desk dial's knob is on the screen, for turning it round its centre.
+   * @param {number} n
+   * @returns {[number, number]}
+   */
+  knobOnScreen(n) {
+    const k = this.knobs[n];
+    const r = this.renderer.domElement.getBoundingClientRect();
+    if (!k) return [r.left, r.top];
+    const p = k.getWorldPosition(new THREE.Vector3()).project(this.camera);
+    return [r.left + ((p.x + 1) / 2) * r.width, r.top + ((1 - p.y) / 2) * r.height];
   }
 
   /**

@@ -10,8 +10,47 @@ import { t } from "../l10n/l10n.js";
 import { DIALS, KEYS } from "../sim/agt.js";
 import { DIAL_TRAVEL_DEG } from "../scene/viewer.js";
 
-/** Pixels of vertical drag for the whole travel, end to end (the same on the desk in 3D). */
-export const DRAG_PX = 240;
+/** Closer than this to a knob's centre, in pixels, the pointer's angle is too unsteady to follow. */
+const DEAD_PX = 4;
+
+/**
+ * Turns a knob the way a hand does (U5): the knob follows the pointer's angle round its centre,
+ * clockwise up. Once grabbed, the pointer may circle as wide as it likes, and the wider, the
+ * finer. Shared by the strip's dials and the desk's in 3D (P2).
+ * @param {() => [number, number]} center the knob's centre on the screen
+ * @param {() => number} get the dial's value, -1..1
+ * @param {(v: number) => void} set
+ * @returns {{ start: (x: number, y: number) => void; move: (x: number, y: number) => void }}
+ */
+export function turner(center, get, set) {
+  /** @type {number | null} */
+  let last = null;
+  let v = 0;
+  /** @param {number} x @param {number} y @returns {number | null} radians clockwise from up */
+  const angle = (x, y) => {
+    const [cx, cy] = center();
+    return Math.hypot(x - cx, y - cy) < DEAD_PX ? null : Math.atan2(x - cx, cy - y);
+  };
+  const perRadian = 1 / ((DIAL_TRAVEL_DEG * Math.PI) / 180);
+  return {
+    start(x, y) {
+      v = get();
+      last = angle(x, y);
+    },
+    move(x, y) {
+      const a = angle(x, y);
+      if (a === null) return;
+      if (last !== null) {
+        let d = a - last;
+        if (d > Math.PI) d -= 2 * Math.PI;
+        if (d < -Math.PI) d += 2 * Math.PI;
+        v = Math.max(-1, Math.min(1, v + d * perRadian));
+        set(v);
+      }
+      last = a;
+    },
+  };
+}
 /** One arrow key's step, and one wheel notch's. */
 const STEP = 1 / 64;
 
@@ -41,13 +80,20 @@ export function buildStrip(host, machine, say) {
       machine().setDial(n, v);
       say(t("status.dial", { n, v: machine().dev.dials[n].toFixed(3) }));
     };
-    // a vertical drag turns it (U5; the drag round the knob was the alternative)
+    // turned round its centre, as a hand turns a knob (U5)
+    const knob = turner(
+      () => {
+        const r = /** @type {SVGElement} */ (b.querySelector("svg")).getBoundingClientRect();
+        return [r.left + r.width / 2, r.top + r.height / 2];
+      },
+      () => machine().dev.dials[n],
+      set,
+    );
     b.addEventListener("pointerdown", (e) => {
       b.setPointerCapture(e.pointerId);
-      const y0 = e.clientY;
-      const v0 = machine().dev.dials[n];
+      knob.start(e.clientX, e.clientY);
       /** @param {PointerEvent} m */
-      const move = (m) => set(v0 + ((y0 - m.clientY) * 2) / DRAG_PX);
+      const move = (m) => knob.move(m.clientX, m.clientY);
       const up = () => {
         b.removeEventListener("pointermove", move);
         b.removeEventListener("pointerup", up);

@@ -14,7 +14,7 @@ import { phosphorById } from "../view/phosphor.js";
 import { TracesView } from "../view/traces.js";
 import { TerminalView } from "../scene/viewer.js";
 import { v3, boxOf } from "../scene/terminal3d.js";
-import { DRAG_PX } from "./strip.js";
+import { turner } from "./strip.js";
 
 /** @typedef {import("./link.js").View} View */
 /** @typedef {{ view?: View; look?: true; label: string }} CardAction a card's button: a viewpoint, or a close look */
@@ -80,12 +80,15 @@ export class Stage {
     }
     if (this.view3d) {
       this.view3d.onPick = (name) => this.openCard(name);
-      /** the dial's value when its drag started */
-      let v0 = 0;
-      this.view3d.onDial = (n, dy, start) => {
+      /** @type {ReturnType<typeof turner> | null} the desk's dial being turned */
+      let knob = null;
+      this.view3d.onDial = (n, x, y, start) => {
         const agt = this.ops.machine();
-        if (start) v0 = agt.dev.dials[n];
-        else agt.setDial(n, v0 + (dy * 2) / DRAG_PX);
+        const view = /** @type {TerminalView} */ (this.view3d);
+        if (start) {
+          knob = turner(() => view.knobOnScreen(n), () => this.ops.machine().dev.dials[n], (v) => this.ops.machine().setDial(n, v));
+          knob.start(x, y);
+        } else knob?.move(x, y);
         this.ops.say(t("status.dial", { n, v: agt.dev.dials[n].toFixed(3) }));
       };
       // a double-click does the card's first action (V1); every part has one, a close look

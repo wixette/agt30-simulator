@@ -66,7 +66,7 @@ export default {
   // ---- the console strip (U5) ----
   "strip.dials": "Dials",
   "strip.dial": "Dial {n}",
-  "strip.dial.tip": "Dial {n}: drag round, or use the arrow keys or the wheel",
+  "strip.dial.tip": "Dial {n}: turn it round with the mouse, clockwise up; or use the wheel or the arrow keys",
   "strip.keys": "Function keys",
   "strip.key": "Key {n}",
   "strip.key.tip": "Function key {n}: down while pressed",
