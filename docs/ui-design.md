@@ -173,12 +173,16 @@ In this order:
 5. *The statements*: what the Programs menu typed, as on the paper.
 6. *The source*: the ADEPT file, read-only, folded by default.
 
-### U8. The Programs menu and card actions type on the Teletype
+### U8. The Programs menu and card actions type on the Teletype, fast
 
-Choosing a program types its statements on the Teletype at the ASR-33's 10 characters a second, as an operator would have. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *More lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or rebooting, stops it.
+Choosing a program types its statements on the Teletype, and the AMOS monitor runs them, as an operator's would have been. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *2,000 lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or *Reboot*, stops it.
 
-*Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves. It takes as long as it did: the longest, the town's, take about 8 seconds.
-*Rejected:* an instant load, which hides the monitor and makes the paper a lie.
+The menu and the card type as fast as the monitor takes the characters, 1 ms each, so the picture appears at once. The printer still echoes them at the ASR-33's 10 characters a second, so the paper fills in while the program runs. A visitor's own typing goes at 10 a second, as do the machine's replies.
+
+*Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves.
+*Rejected:*
+- an instant load that bypasses the monitor, which hides it and makes the paper a lie;
+- typing at the ASR-33's 10 a second *(the first build)*: the scope stayed dark for up to 5 seconds while the statements were typed, and with the dock on the program card nothing said why *(changed after the manual check)*.
 
 ### U9. The Teletype: paper and keyboard
 

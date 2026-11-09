@@ -25,6 +25,11 @@ import { word } from "./words.js";
 
 /** The ASR-33 prints, and sends, 10 characters a second (SRM5 DPR3 p. 11). */
 export const TTY_US_PER_CHAR = 100000;
+/**
+ * How fast the page's menus send statements: as fast as the monitor takes them, 1 ms a
+ * character (U8). The printer still echoes them at its own 10 a second.
+ */
+export const FAST_US_PER_CHAR = 1000;
 /** Where the resident programs are assembled at start (R15). */
 export const RESIDENT_AT = 0o60000;
 /** Where the operator's programs are assembled: above the pictures (R15). */
@@ -68,7 +73,7 @@ export class Agt30 extends Terminal {
     this.printQueue = [];
     /** When the printer is free again. */
     this.printFree = 0;
-    /** @type {string[]} characters waiting to be sent from the keyboard, 10 a second */
+    /** @type {{ ch: string; gapUs: number }[]} characters waiting to be sent from the keyboard, each with the time until the next */
     this.sending = [];
     this.sendNext = 0;
     this.cpu = new Dpr2(this.core, {
@@ -196,11 +201,17 @@ export class Agt30 extends Terminal {
 
   /**
    * Types on the Teletype's keyboard. Characters go out at the ASR-33's 10 a second, each
-   * reaching the monitor in its turn.
+   * reaching the monitor in its turn; the page's menus send faster (FAST_US_PER_CHAR, U8).
    * @param {string} text
+   * @param {number} [usPerChar]
    */
-  type(text) {
-    for (const ch of text) this.sending.push(ch);
+  type(text, usPerChar = TTY_US_PER_CHAR) {
+    for (const ch of text) this.sending.push({ ch, gapUs: usPerChar });
+  }
+
+  /** Whether characters are still waiting to be sent. */
+  get typing() {
+    return this.sending.length > 0;
   }
 
   /** Throws away what has not been sent yet. */
@@ -255,8 +266,9 @@ export class Agt30 extends Terminal {
     if (!this.sending.length) this.sendNext = Math.max(this.sendNext, this.now);
     while (this.sending.length && this.sendNext <= until) {
       this.advanceTo(Math.max(this.sendNext, this.now));
-      this.key(/** @type {string} */ (this.sending.shift()));
-      this.sendNext += TTY_US_PER_CHAR;
+      const c = /** @type {{ ch: string; gapUs: number }} */ (this.sending.shift());
+      this.key(c.ch);
+      this.sendNext += c.gapUs;
     }
     this.advanceTo(until);
   }

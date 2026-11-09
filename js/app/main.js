@@ -6,7 +6,7 @@
 
 import params from "../../params/terminal.json" with { type: "json" };
 import pkg from "../../package.json" with { type: "json" };
-import { Agt30 } from "../sim/agt.js";
+import { Agt30, FAST_US_PER_CHAR } from "../sim/agt.js";
 import { tickUs } from "../sim/frameclock.js";
 import { readPrograms } from "../sim/programs.js";
 import { applyIcons, applyL10n, showMenu } from "../ui/components.js";
@@ -95,9 +95,9 @@ async function start() {
   const drawCard = () => {
     nameProgram();
     renderProgramCard(programCard, program, sources, {
-      busy: agt.busy,
+      busy: agt.typing,
       type: (statement, label) => {
-        agt.type(statement);
+        agt.type(statement, FAST_US_PER_CHAR);
         say(t("status.action", { statement: label }));
       },
       openRecon: (id) => openAbout(pkg.version, id),
@@ -115,7 +115,7 @@ async function start() {
   const load = (p) => {
     agt.cancelTyping();
     program = p;
-    agt.type(p.statements.join(""));
+    agt.type(p.statements.join(""), FAST_US_PER_CHAR);
     drawCard();
     dock.show("program");
     dock.mark("tty");
@@ -151,8 +151,8 @@ async function start() {
     stage.paint(agt, eyeWindowUs(period, runner.scale), runner.scale < 0.05);
     strip.update();
     tty.render();
-    if (agt.busy !== wasBusy) {
-      wasBusy = agt.busy;
+    if (agt.typing !== wasBusy) {
+      wasBusy = agt.typing;
       drawCard();
       if (!wasBusy && program) say(t("status.loaded", { title: t(`program.${program.id}.title`) }));
     }
