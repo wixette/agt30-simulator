@@ -274,7 +274,9 @@ export class Stage {
     if (name === "console.scope") list = [{ view: "screen", label: t("card.goScreen") }, { view: "tube", label: t("card.goTube") }];
     else if (name.startsWith("console.scope.tube")) list = [{ view: "screen", label: t("card.goScreen") }];
     else if (name.startsWith("console.")) list = [{ view: "console", label: t("card.goConsole") }];
-    list = list.filter((a) => a.view !== this.view);
+    // a card offers no button for the viewpoint already shown, except the desk's: the desk is
+    // the console, so at Console its first action reframes Console, as the menu and Home do
+    if (name !== "console.desk") list = list.filter((a) => a.view !== this.view);
     list.push({ look: true, label: t("card.look") });
     return list;
   }
