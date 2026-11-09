@@ -96,7 +96,14 @@ export default {
   "dock.activity": "Something new here",
 
   // ---- the program card (U7) ----
-  "program.none": "No program is loaded. Choose one from Programs, or type statements on the Teletype.",
+  "program.none": "Choose a program to run. The Programs menu in the top bar offers the same list at any time, and the Teletype takes statements typed by hand.",
+  "program.letter-a.short": "The 1968 paper's first picture, drawn one vector at a time.",
+  "program.cube.short": "A cube you turn with the dials; it seems to flip as it turns.",
+  "program.perspective-cube.short": "The same cube in perspective, the processor and the array sharing the work.",
+  "program.tunnel.short": "Fly into a tunnel, and see what depth cueing does.",
+  "program.town.short": "One house, placed four times: a structured picture.",
+  "program.tic-tac-toe.short": "A 3 × 3 × 3 game for two, played with the light pen.",
+  "program.random-lines.short": "1,000 random lines, and more, until they no longer fit a frame.",
   "program.rebuilds": "Rebuilds {source}",
   "program.use": "How to use it",
   "program.actions": "Actions",
@@ -142,7 +149,7 @@ export default {
   "tty.paper": "The Teletype's paper. Type here to send to the AMOS monitor.",
 
   // ---- the status line (P7) ----
-  "status.ready": "Ready. Choose a program from Programs.",
+  "status.ready": "Ready. Choose a program to run.",
   "status.typing": "{title}: typing its statements on the Teletype…",
   "status.loaded": "{title}: loaded.",
   "status.reset": "The terminal was rebooted: no program is loaded.",

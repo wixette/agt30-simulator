@@ -236,7 +236,13 @@ code, pre, .mono { font-family: var(--mono); }
 .program-card ul { margin: 0; padding-left: 18px; color: var(--md-on-surface-variant); }
 .program-card pre { margin: 0; padding: 8px 10px; border-radius: var(--radius-s); background: var(--md-surface-mid); overflow-x: auto; font-size: 12.5px; line-height: 1.45; }
 .program-card details summary { cursor: pointer; color: var(--md-primary); margin: 14px 0 4px; font-weight: 600; font-size: 13px; }
-.program-card .empty { color: var(--md-on-surface-variant); padding: 12px 0; }
+.program-card .empty { color: var(--md-on-surface-variant); padding: 8px 0 4px; margin: 0; }
+.program-card.picking { max-width: none; }
+.program-card .program-picks { list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.program-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 8px 12px; border: 1px solid var(--card-edge); border-radius: var(--radius-m); background: var(--md-surface-mid); text-align: left; cursor: pointer; }
+.program-pick:hover { background: var(--md-surface-high); border-color: var(--md-outline-variant); }
+.program-pick strong { color: var(--md-primary); font-weight: 600; }
+.program-pick span { color: var(--md-on-surface-variant); font-size: 13px; }
 
 /* the Teletype: paper and keyboard (U9), after the 8800 simulator's */
 #pane-tty:not([hidden]) { display: flex; flex-direction: column; }

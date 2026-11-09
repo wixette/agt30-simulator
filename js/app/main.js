@@ -96,6 +96,8 @@ async function start() {
     nameProgram();
     renderProgramCard(programCard, program, sources, {
       busy: agt.typing,
+      programs: manifest.programs,
+      load: (p) => load(p),
       type: (statement, label) => {
         agt.type(statement, FAST_US_PER_CHAR);
         say(t("status.action", { statement: label }));

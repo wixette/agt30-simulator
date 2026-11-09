@@ -19,7 +19,7 @@ It is always on screen. Nothing covers it, and nothing pushes it out of view. Th
 
 ### P2. A control has one home
 
-If a control is wanted somewhere else, move it, or make both places visible at once. Don't make a second copy. Turning a dial by dragging it in 3D and turning the same dial in the console strip are **not** copies. They are two ways to one operation, and they follow the same rules.
+If a control is wanted somewhere else, move it, or make both places visible at once. Don't make a second copy. One exception: a section's empty state may offer the choices that fill it. With no program loaded, the Program tab lists the programs, each a row that loads it, as the Programs menu does; it is gone once a program is loaded. *(build, after the manual check: "Choose one from Programs" did not say where Programs was.)* Turning a dial by dragging it in 3D and turning the same dial in the console strip are **not** copies. They are two ways to one operation, and they follow the same rules.
 
 ### P3. Tools in one dock, one at a time
 

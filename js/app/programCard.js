@@ -14,11 +14,22 @@ import { t } from "../l10n/l10n.js";
  * @param {HTMLElement} host
  * @param {Program | null} p
  * @param {Record<string, string>} sources the ADEPT files, by name
- * @param {{ type: (statement: string, label: string) => void; busy: boolean }} ops
+ * @param {{ type: (statement: string, label: string) => void; busy: boolean; programs: Program[]; load: (p: Program) => void }} ops
  */
 export function renderProgramCard(host, p, sources, ops) {
   if (!p) {
-    host.replaceChildren(el("div", { class: "program-card" }, [el("p", { class: "empty", text: t("program.none") })]));
+    // the empty state: what can be loaded, each a row that loads it, as the Programs menu does
+    // (P2: an empty state may offer the choices that fill it)
+    const rows = ops.programs.map((q) =>
+      el("li", {}, [
+        (() => {
+          const b = el("button", { class: "program-pick", type: "button" }, [el("strong", { text: t(`program.${q.id}.title`) }), el("span", { text: t(`program.${q.id}.short`) })]);
+          b.addEventListener("click", () => ops.load(q));
+          return b;
+        })(),
+      ]),
+    );
+    host.replaceChildren(el("div", { class: "program-card picking" }, [el("p", { class: "empty", text: t("program.none") }), el("ul", { class: "program-picks" }, rows)]));
     return;
   }
   const title = t(`program.${p.id}.title`);

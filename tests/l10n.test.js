@@ -35,7 +35,7 @@ function dynamicKeys() {
   const params = JSON.parse(readFileSync(new URL("params/terminal.json", ROOT), "utf8"));
   const keys = new Set();
   for (const p of PROGRAMS.manifest.programs) {
-    for (const k of ["title", "use", "what"]) keys.add(`program.${p.id}.${k}`);
+    for (const k of ["title", "use", "what", "short"]) keys.add(`program.${p.id}.${k}`);
     for (const a of p.actions) keys.add(`program.action.${a.id}`);
     for (const g of p.toggles) keys.add(`program.toggle.${g.id}`);
   }
