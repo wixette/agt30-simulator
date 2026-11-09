@@ -11,7 +11,7 @@ The keys used across the repository: in docs, code comments and the `source` fie
 | BRO69 | *Adage Graphics Terminal, Models 10, 30, 50* brochure, printed 11/69 | <http://www.bitsavers.org/pdf/adage/agt/1969_Adage_AGT_Brochure.pdf> |
 | PRM1 | *Adage Graphics Terminal Programmer's Reference Manual, Volume I (Software)*, July 1969. Its sections are cited by their own names and page numbers: ADEPT, AFDSP, DSPLY, AMRMX, BUILD, FREEZ, RADC, RJSB, RVCD, SNCOS | <http://www.bitsavers.org/pdf/adage/agt/Adage_AGT_Programmers_Reference_Manual_Volume_I_196907.pdf> |
 | ADEPT, DSPLY, AMRMX | Sections of PRM1, with their own page numbers | as PRM1 |
-| SRM5 | *Adage Graphics Terminal Model 5 System Reference Manual*, July 1969. Sections cited by name: DPR3, AVG1, GHA4, GDS1, FNS1, VCD1, JSB1, LPN1 | <http://www.bitsavers.org/pdf/adage/agt/Adage_Graphics_Terminal_Model_5_System_Reference_Manual_196907.pdf> |
+| SRM5 | *Adage Graphics Terminal Model 5 System Reference Manual*, July 1969. Sections cited by name: BGC2, DPR3, AVG1, GHA4, GDS1, FNS1, VCD1, JSB1, LPN1 | <http://www.bitsavers.org/pdf/adage/agt/Adage_Graphics_Terminal_Model_5_System_Reference_Manual_196907.pdf> |
 | GIM72 | *Adage Graphics Systems General Information Manual*, 1972 | <http://www.bitsavers.org/pdf/adage/agt/Adage_Graphics_Systems_General_Information_Manual_1972.pdf> |
 | HT66 | T. G. Hagan, R. Treiber, "Hybrid analog/digital techniques for signal processing applications", *AFIPS Spring Joint Computer Conference* 1966, vol. 28, pp. 379–388 | ACM Digital Library |
 

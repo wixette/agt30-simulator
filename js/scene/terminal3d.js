@@ -468,6 +468,11 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
         const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.0115, 0.013, 0.018, 18), mat("knobBlack"));
         knob.position.copy(v3(cx, ry, 13 + 9));
         knob.name = `${p.name}.knob.${i}`;
+        // its pointer: a white mark across the top, turned with the dial
+        const mark = new THREE.Mesh(new THREE.BoxGeometry(0.0022, 0.0012, 0.0095), mat("ttyKey"));
+        mark.position.set(0, 0.0095, -0.005);
+        mark.name = `${p.name}.knob.${i}.mark`;
+        knob.add(mark);
         top.add(knob);
       }
     }

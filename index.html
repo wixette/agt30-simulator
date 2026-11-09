@@ -4,8 +4,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="The Adage Graphics Terminal AGT-30 (1968) in your browser: a 3D picture turned by a hybrid analog array and drawn on a refreshed vector CRT.">
+    <meta name="description" content="The Adage Graphics Terminal AGT-30 (1968) in your browser: a 3D picture turned by a hybrid analog array and drawn on a refreshed vector CRT, with its Teletype and console.">
     <title>AGT-30 Simulator</title>
+    <link rel="icon" href="images/favicon.svg?v=0.0.0" type="image/svg+xml">
     <link rel="stylesheet" href="css/style.css?v=0.0.0">
     <!-- Every file name here carries the version (?v=), and so does each module the
          scripts import, through this map. pnpm version writes them, or pnpm stamp
@@ -20,7 +21,19 @@
         "./js/accept/crt.js": "./js/accept/crt.js?v=0.0.0",
         "./js/accept/model.js": "./js/accept/model.js?v=0.0.0",
         "./js/accept/scene.js": "./js/accept/scene.js?v=0.0.0",
+        "./js/app/about.js": "./js/app/about.js?v=0.0.0",
+        "./js/app/aboutData.js": "./js/app/aboutData.js?v=0.0.0",
+        "./js/app/dock.js": "./js/app/dock.js?v=0.0.0",
+        "./js/app/link.js": "./js/app/link.js?v=0.0.0",
         "./js/app/main.js": "./js/app/main.js?v=0.0.0",
+        "./js/app/programCard.js": "./js/app/programCard.js?v=0.0.0",
+        "./js/app/runner.js": "./js/app/runner.js?v=0.0.0",
+        "./js/app/selftest.js": "./js/app/selftest.js?v=0.0.0",
+        "./js/app/stage.js": "./js/app/stage.js?v=0.0.0",
+        "./js/app/strip.js": "./js/app/strip.js?v=0.0.0",
+        "./js/app/teletype.js": "./js/app/teletype.js?v=0.0.0",
+        "./js/l10n/en.js": "./js/l10n/en.js?v=0.0.0",
+        "./js/l10n/l10n.js": "./js/l10n/l10n.js?v=0.0.0",
         "./js/scene/terminal3d.js": "./js/scene/terminal3d.js?v=0.0.0",
         "./js/scene/viewer.js": "./js/scene/viewer.js?v=0.0.0",
         "./js/sim/adept.js": "./js/sim/adept.js?v=0.0.0",
@@ -39,6 +52,7 @@
         "./js/sim/terminal.js": "./js/sim/terminal.js?v=0.0.0",
         "./js/sim/vecgen.js": "./js/sim/vecgen.js?v=0.0.0",
         "./js/sim/words.js": "./js/sim/words.js?v=0.0.0",
+        "./js/ui/components.js": "./js/ui/components.js?v=0.0.0",
         "./js/view/beam.js": "./js/view/beam.js?v=0.0.0",
         "./js/view/crt.js": "./js/view/crt.js?v=0.0.0",
         "./js/view/phosphor.js": "./js/view/phosphor.js?v=0.0.0",
@@ -56,7 +70,76 @@
     </script>
   </head>
   <body>
-    <main id="app"></main>
+    <header id="topbar">
+      <div class="brand">
+        <img class="brand-mark" src="images/logo.svg?v=0.0.0" alt="">
+        <span class="brand-name" data-l10n="app.name">AGT-30 Simulator</span>
+        <span class="brand-tag" data-l10n="app.tagline"></span>
+      </div>
+      <button id="programs" class="btn tonal has-icon" type="button" aria-haspopup="menu" aria-expanded="false" data-tip-describes data-l10n-tip="bar.programs.tip"><i data-icon="list"></i><span data-l10n="bar.programs"></span><i data-icon="keyboard_arrow_down"></i></button>
+      <button id="reset" class="btn has-icon" type="button" data-tip-describes data-l10n-tip="bar.reset.tip"><i data-icon="restart_alt"></i><span data-l10n="bar.reset"></span></button>
+      <span class="spacer"></span>
+      <button id="about" class="btn icon-only" type="button" data-l10n-tip="bar.about"><i data-icon="info"></i></button>
+    </header>
+
+    <main id="stage">
+      <div id="view3d" class="fade" tabindex="0" data-l10n-tip="view.stage"></div>
+      <div id="screen" class="fade" hidden>
+        <div class="bezel"><canvas id="crt" data-l10n-tip="view.screen.label"></canvas></div>
+      </div>
+      <div id="tube-overlay" hidden>
+        <div class="tube-time" role="group" data-l10n-tip="tube.time.tip">
+          <span class="strip-label" data-l10n="tube.time"></span>
+          <button class="btn small" type="button" data-scale="0.00001" data-l10n="tube.time.slowest"></button>
+          <button class="btn small" type="button" data-scale="0.001" data-l10n="tube.time.slow"></button>
+          <button class="btn small" type="button" data-scale="1" data-l10n="tube.time.real"></button>
+        </div>
+        <p class="tube-note" data-l10n="tube.ours"></p>
+        <canvas id="traces"></canvas>
+        <button id="inset" type="button" data-l10n-tip="view.inset"><canvas id="inset-crt"></canvas></button>
+      </div>
+      <nav id="band">
+        <div id="crumbs" class="crumbs"></div>
+        <span class="spacer"></span>
+        <div class="tools">
+          <button id="connections" class="btn small" type="button" aria-pressed="false" data-tip-describes data-l10n-tip="view.connections.tip"><span data-l10n="view.connections"></span></button>
+          <button id="home" class="btn icon-only" type="button" data-l10n-tip="view.home"><i data-icon="home"></i></button>
+          <button id="zoom-out" class="btn icon-only" type="button" data-l10n-tip="view.zoomOut"><i data-icon="zoom_out"></i></button>
+          <button id="zoom-in" class="btn icon-only" type="button" data-l10n-tip="view.zoomIn"><i data-icon="zoom_in"></i></button>
+          <button id="back" class="btn small has-icon" type="button" data-tip-describes data-l10n-tip="view.back.tip"><i data-icon="arrow_back"></i><span data-l10n="view.back"></span></button>
+        </div>
+      </nav>
+      <aside id="card" class="card" hidden></aside>
+      <div id="strip" role="group" aria-label="Console"></div>
+      <p class="narrow-notice" data-l10n="app.narrow"></p>
+    </main>
+
+    <section id="dock">
+      <div id="dock-handle" role="separator" aria-orientation="horizontal" tabindex="0" data-l10n-tip="dock.resize"></div>
+      <div class="dock-bar">
+        <div id="dock-tabs" role="tablist">
+          <button id="tab-program" class="dock-tab" role="tab" aria-controls="pane-program" type="button"><span data-l10n="dock.program"></span><span class="dot" hidden></span></button>
+          <button id="tab-tty" class="dock-tab" role="tab" aria-controls="pane-tty" type="button"><span data-l10n="dock.teletype"></span><span class="dot" hidden></span></button>
+        </div>
+        <span class="spacer"></span>
+        <button id="dock-fold" class="btn icon-only" type="button" data-l10n-tip="dock.fold"><i data-icon="keyboard_arrow_down"></i></button>
+      </div>
+      <div id="pane-program" class="dock-pane" role="tabpanel" aria-labelledby="tab-program"></div>
+      <div id="pane-tty" class="dock-pane" role="tabpanel" aria-labelledby="tab-tty" hidden>
+        <div class="tty-keys">
+          <button id="tty-rubout" class="btn small tonal" type="button" data-tip-describes data-l10n-tip="tty.rubout.tip"><span data-l10n="tty.rubout"></span></button>
+          <button id="tty-kill" class="btn small tonal" type="button" data-tip-describes data-l10n-tip="tty.kill.tip"><span data-l10n="tty.kill"></span></button>
+          <span class="spacer"></span>
+          <button id="tty-clear" class="btn small" type="button" data-tip-describes data-l10n-tip="tty.clear.tip"><span data-l10n="tty.clear"></span></button>
+        </div>
+        <div id="tty-paper" tabindex="0" data-l10n-tip="tty.paper">
+          <div id="tty-empty" class="tty-empty" data-l10n="tty.empty"></div>
+          <pre id="tty-text"></pre>
+        </div>
+      </div>
+    </section>
+
+    <footer id="status" role="status" aria-live="polite"><span id="status-text"></span><span id="fps" class="fps"></span></footer>
     <script type="module" src="js/app/main.js?v=0.0.0"></script>
   </body>
 </html>

@@ -43,7 +43,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   - the house, the town, and the random lines;
   - the game, after D. Ogden's at NCSU (NCSU).
   
-  RVCD (reading a dial) is Adage's routine name, with our code and calling sequence.
+  RVCD (reading a dial) is Adage's routine name, with our code and calling sequence. RANDN, which ends Fig. 12's picture after NLINES lines, is ours.
 - *Settled by:* the tapes, or any listing.
 
 **R5. The array's analog error.**
@@ -65,7 +65,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R9. What AMOS types.**
 - *Sources:* the statements (DSPLY pp. 7–11; AMRMX).
-- *We:* type only echoes, results and `?`, with no prompt.
+- *We:* type only echoes, results and `?`, with no prompt. OPEN and LIST type a cell as AMRMX pp. 8–9 describe (its address in octal, a colon, its contents in the current MODE); the MODE at start is O, octal, our choice. RESET! returns core, the symbols, DSPLY's settings and the CLOCK chain to their state at start, which is how we read "logically equivalent to that immediately after loading the Monitor" (AMRMX p. 11).
 - *Settled by:* anyone who used the monitor.
 
 **R10. Interrupts.**
@@ -93,7 +93,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *We:*
   - The paper's pictures, DIALS, RVCD and the monitor's routines are in core when the terminal starts, as if loaded from disk.
   - The simulated machine has 32K words, as NCSU's had after its upgrade (NCSU); the standard AGT-30 had 8K (BRO69).
-  - User programs are assembled after the pictures, from 20000 octal.
+  - User programs are assembled after the pictures, from 40000 octal; the resident routines are at 60000, the monitor's work area at 67700.
 
 ## The installation in 3D
 

@@ -1,68 +1,173 @@
 {
   "about": "The programs the Programs menu loads (design/v0.0.1.md, section 2; docs/conventions.md, Programs). Each entry's statements are typed on the Teletype in order. 'resident' files are assembled into core at start (R15); the others are in the monitor's store for ADEPT (\"NAME\")!.",
-  "resident": ["RVCD", "DIALS", "PENHT", "A", "CUBE", "TUND", "RAND"],
-  "store": ["HOUSE", "TOWN", "TTT"],
+  "resident": [
+    "RVCD",
+    "DIALS",
+    "PENHT",
+    "A",
+    "CUBE",
+    "TUND",
+    "RAND"
+  ],
+  "store": [
+    "HOUSE",
+    "TOWN",
+    "TTT"
+  ],
   "programs": [
     {
       "id": "letter-a",
       "source": "FJCC68 Fig. 4",
-      "statements": ["RESET!", "DSPLY (V.A)!"],
+      "statements": [
+        "RESET!",
+        "DSPLY (V.A)!"
+      ],
       "controls": [],
       "actions": [],
-      "files": ["A"],
-      "reconstructions": ["R4"]
+      "files": [
+        "A"
+      ],
+      "reconstructions": [
+        "R4"
+      ]
     },
     {
       "id": "cube",
       "source": "FJCC68 Fig. 7",
-      "statements": ["RESET!", "DSPLY (V.CUBE, 2)!", "CLOCK (DIALS+1, DI.EX)!"],
-      "controls": ["dials"],
+      "statements": [
+        "RESET!",
+        "DSPLY (V.CUBE, 2)!",
+        "CLOCK (DIALS+1, DI.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
       "actions": [],
-      "files": ["CUBE", "DIALS", "RVCD"],
-      "reconstructions": ["R4", "R7"]
+      "files": [
+        "CUBE",
+        "DIALS",
+        "RVCD"
+      ],
+      "reconstructions": [
+        "R4",
+        "R7"
+      ]
     },
     {
       "id": "tunnel",
       "source": "FJCC68 Figs. 15-16",
-      "statements": ["RESET!", "VIEW (.19, -.556, 37777)!", "DSPLY (V.TUND)!", "CLOCK (DIALS+1, DI.EX)!"],
-      "controls": ["dial0"],
-      "actions": [
-        { "id": "depth-off", "type": "VIEW (,,0)!" },
-        { "id": "depth-on", "type": "VIEW (,,37777)!" }
+      "statements": [
+        "RESET!",
+        "VIEW (.19, -.556, 37777)!",
+        "DSPLY (V.TUND)!",
+        "CLOCK (DIALS+1, DI.EX)!"
       ],
-      "files": ["TUND", "DIALS", "RVCD"],
-      "reconstructions": ["R4", "R13"]
+      "controls": [
+        "dial0"
+      ],
+      "actions": [
+        {
+          "id": "depth-off",
+          "type": "VIEW (,,0)!"
+        },
+        {
+          "id": "depth-on",
+          "type": "VIEW (,,37777)!"
+        }
+      ],
+      "files": [
+        "TUND",
+        "DIALS",
+        "RVCD"
+      ],
+      "reconstructions": [
+        "R4",
+        "R13"
+      ]
     },
     {
       "id": "town",
       "source": "FJCC68 p. 749",
-      "statements": ["RESET!", "ADEPT (\"HOUSE\")!", "ADEPT (\"TOWN\")!", "DSPLY (V.TOWN)!", "CLOCK (DIALS+1, DI.EX)!"],
-      "controls": ["dials"],
+      "statements": [
+        "RESET!",
+        "ADEPT (\"HOUSE\")!",
+        "ADEPT (\"TOWN\")!",
+        "DSPLY (V.TOWN)!",
+        "CLOCK (DIALS+1, DI.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
       "actions": [],
-      "files": ["TOWN", "HOUSE"],
-      "reconstructions": ["R4", "R8"]
+      "files": [
+        "TOWN",
+        "HOUSE"
+      ],
+      "reconstructions": [
+        "R4",
+        "R8"
+      ]
     },
     {
       "id": "tic-tac-toe",
       "source": "NCSU",
-      "statements": ["RESET!", "ADEPT (\"TTT\")!", "DSPLY (V.TTT)!", "CLOCK (DIALS+1, DI.EX)!", "TTT!"],
-      "controls": ["keys", "pen", "dials"],
+      "statements": [
+        "RESET!",
+        "ADEPT (\"TTT\")!",
+        "DSPLY (V.TTT)!",
+        "CLOCK (DIALS+1, DI.EX)!",
+        "TTT!"
+      ],
+      "controls": [
+        "keys",
+        "pen",
+        "dials"
+      ],
       "actions": [],
-      "files": ["TTT", "PENHT"],
-      "reconstructions": ["R4", "R11"]
+      "files": [
+        "TTT",
+        "PENHT"
+      ],
+      "reconstructions": [
+        "R4",
+        "R11"
+      ]
     },
     {
       "id": "random-lines",
       "source": "FJCC68 Fig. 12",
-      "statements": ["RESET!", "DSPLY (V.RAND, 2, , BUMP)!", "CLOCK (DIALS+1, DI.EX)!"],
-      "controls": ["dials"],
-      "actions": [
-        { "id": "lines-1000", "type": "OPEN (NLINES)!1000.\r" },
-        { "id": "lines-2000", "type": "OPEN (NLINES)!2000.\r" },
-        { "id": "lines-4000", "type": "OPEN (NLINES)!4000.\r" }
+      "statements": [
+        "RESET!",
+        "DSPLY (V.RAND, 2, , BUMP)!",
+        "CLOCK (DIALS+1, DI.EX)!"
       ],
-      "files": ["RAND"],
-      "reconstructions": ["R4"]
+      "controls": [
+        "dials"
+      ],
+      "actions": [
+        {
+          "id": "lines-1000",
+          "type": "OPEN (NLINES)!1000.\r"
+        },
+        {
+          "id": "lines-2000",
+          "type": "OPEN (NLINES)!2000.\r"
+        },
+        {
+          "id": "lines-4000",
+          "type": "OPEN (NLINES)!4000.\r"
+        },
+        {
+          "id": "rate-40",
+          "type": "DSPLY (, 2)!"
+        }
+      ],
+      "files": [
+        "RAND"
+      ],
+      "reconstructions": [
+        "R4"
+      ]
     }
   ]
 }

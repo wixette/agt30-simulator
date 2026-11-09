@@ -43,7 +43,7 @@ So a heavy picture slows a program, and a busy program never slows the picture.
 
 **D5. The encodings are one table.** The DPR-2's mnemonics, meanings and times are documented, but its bit layout is not (R1). The layout is one table (`ENCODING` in `js/sim/dpr2.js`). If the real layout is found, only that table changes, and every program's source keeps working.
 
-**D6. Programs are files, not code.** Each program is an ADEPT source file in `programs/`, and `programs/index.json` names its statements, controls and card text keys. The assembler reads the same file in the browser (by `fetch`) and in Node (from disk). The pictures of the paper's figures are built into core at start by `js/sim/figures.js`, because their data (random lines, a font, a grid) is generated rather than written by hand (R15).
+**D6. Programs are files, not code.** Each program is an ADEPT source file in `programs/`, and `programs/index.json` names its statements, controls and card text keys. The assembler reads the same file in the browser (by `fetch`) and in Node (from disk). The pictures whose data is generated rather than written by hand (the stroke font, Fig. 12's random lines, the tunnel's items) are built into core at start by `js/sim/figures.js`; the rest, and the resident routines, are ADEPT files assembled at start (R15).
 
 **D7. The 3D installation is built from parameters in JavaScript.** Every part is a handful of boxes, profiles and cylinders, built in the page from `params/terminal.json`. Each part carries a size, a source and a confidence (`doc`, `measured`, `est`, `design`). There is no Blender step and no `.glb`, so the repository needs no Git LFS, and Node tests check the same geometry the page shows.
 
@@ -66,12 +66,15 @@ js/sim/        the machine: no DOM, no three.js
   amos.js        the AMOS monitor subset; amoscode.js: the 6-bit code
   teletype.js    the ASR-33's paper model (from the 8800 simulator)
   agt.js         the AGT-30 as a whole: terminal + DPR-2 + devices + Teletype + monitor
-  figures.js     the paper's pictures, built into core; font.js: the stroke font
-  programs.js    reads programs/index.json and the .adept files
-js/view/       2D views: crt.js (phosphor canvas, eye window, pen hit test), traces.js (X, Y, Z)
-js/scene/      three.js: terminal3d.js (built from params), viewer.js, cutaway.js, beam.js, framing.js
-js/app/        the page: the runner (time), stage and viewpoints, the console strip, the dock, the status line, About
-js/ui/         components: menu, dialog, icon button, tabs, card, breadcrumb
+  figures.js     the generated pictures, built into core; font.js: the stroke font
+  programs.js    reads programs/index.json and the .adept files (the caller supplies the reading)
+js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (the face, the pen's
+               inches), traces.js (X, Y, Z), beam.js (the beam at an instant), theme.js (tokens)
+js/scene/      three.js: terminal3d.js (built from params), viewer.js (framing, flights, picking,
+               the cutaway and the beam)
+js/app/        the page: main.js, runner.js (time), stage.js (viewpoints, breadcrumb, cards),
+               strip.js, dock.js, programCard.js, teletype.js, about.js, link.js, selftest.js
+js/ui/         components.js: icons, tooltips, menus, tabs, dialogs
 js/l10n/       l10n.js (lookup) and en.js
 js/accept/     acceptance checks shared by tests/ and ?selftest
 programs/      *.adept and index.json

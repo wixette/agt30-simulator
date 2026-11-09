@@ -10,10 +10,10 @@ How to run, check, change and release the simulator. Related documents:
 There is nothing to build. Serve the repository's root over HTTP:
 
 ```
-python3 -m http.server 8000
+pnpm serve           # or: python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000/>. Browsers do not load modules from `file://`, so opening `index.html` from disk does not work.
+Then open <http://localhost:8000/>. `pnpm serve` tells the browser not to cache, so an edited module is always the one loaded. Browsers do not load modules from `file://`, so opening `index.html` from disk does not work.
 
 **Options in the address** (developer options, not linked from the page):
 
@@ -34,11 +34,14 @@ The link format of the page itself (`#view=`, `#program=`) is described in [ui-d
 
 ```
 pnpm install
+pnpm check        # all three below, in order
 pnpm check:refs   # no private references, local paths or broken links
 pnpm typecheck    # the JSDoc types, checked strictly; nothing is compiled
 pnpm test         # the model, the programs, the scene and the page's data
 reuse lint        # every file's licence is declared (REUSE.toml, LICENSES/)
 ```
+
+`reuse` is a Python tool; without installing it, `uvx --from 'reuse[charset-normalizer]' reuse lint` runs it.
 
 CI runs all four on every push and pull request.
 

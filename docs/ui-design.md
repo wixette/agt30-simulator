@@ -38,7 +38,7 @@ Space that is always there is for things that change while you watch: the pictur
 
 ### P6. Unavailable is greyed and explained, never hidden
 
-A control that cannot be used right now stays where it is, greyed. When used, it answers in the status line with the reason. For example: the light pen works only on the Screen viewpoint; the Programs menu waits while the Teletype is still typing the last program's statements.
+A control that cannot be used right now stays where it is, greyed. When used, it answers in the status line with the reason. For example: the light pen works only on the Screen viewpoint.
 
 ### P7. One status line, always visible
 
@@ -138,7 +138,7 @@ The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop. Recent Chrome, 
 - **Left** (the machine): the logo and title, the **Programs** menu, and **Reset**, which powers the terminal off and on again: core as at start, the paper cleared.
 - **Right** (the app): **About**.
 
-There is no language menu while there is one language. Programs and Reset answer in the status line while the Teletype is typing, and are greyed meanwhile (P6).
+There is no language menu while there is one language. Choosing a program, or Reset, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
 
 ### U4. Each viewpoint fits its subject into the stage's free area
 
@@ -148,7 +148,7 @@ The stage's top band (breadcrumb, view tools), the console strip and an open car
 
 The strip floats at the bottom of the stage, centred, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
 
-- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. Whether a drag goes round the knob or vertically is settled by trying both (an open question in [../design/v0.0.1.md](../design/v0.0.1.md)).
+- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. A vertical drag turns it, 240 px for the whole travel; the alternative, a drag round the knob, was too coarse on a 34 px knob (settled in S5; [../design/v0.0.1.md](../design/v0.0.1.md) §6).
 - **Sixteen function keys** in a 4 × 4 grid, the last column set apart, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard.
 - **The light pen.** It shows its state: *pen: point at the screen* on Screen, greyed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
 
@@ -175,7 +175,7 @@ In this order:
 
 Choosing a program types its statements on the Teletype at the ASR-33's 10 characters a second, as an operator would have. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *More lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or Reset, stops it.
 
-*Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves. It takes as long as it did, and that is short: the longest program's statements take about 4 seconds.
+*Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves. It takes as long as it did: the longest, the town's, take about 8 seconds.
 *Rejected:* an instant load, which hides the monitor and makes the paper a lie.
 
 ### U9. The Teletype: paper and keyboard

@@ -13,7 +13,7 @@ The rules that keep the model, the parameters, the code and the tests consistent
 | three.js | metres; the build converts once |
 | The model | microseconds for time; screen coordinates as DSPLY fractions (−1 … 1, full scale 10 in); words as integers, shown in octal |
 
-- **The room frame:** +X runs to the operator's right, +Y up, and +Z toward the operator. The origin is on the floor under the front edge of the desk's centre.
+- **The params' frame** is the one drawings are dimensioned in: +X runs to the operator's right, +Y away from the operator, and +Z up, in millimetres. The scene builder converts once to three.js's frame (metres, +Y up, the operator looking along −Z).
 - **Node names** follow `<unit>.<part>[.<index>]`: lower-case ASCII, unique once the dots are removed. Examples: `scope.face`, `console.dial.3`, `rack.dpr2.lamp.17`. They are the contract between the params, the scene and the tests.
 - **Machine names** keep the documents' spelling: DPR-2, AMOS, ADEPT, DSPLY, `V.CUBE`, RATE.
 
@@ -25,7 +25,7 @@ The rules that keep the model, the parameters, the code and the tests consistent
 - **Version stamps:** every local file the page names, and every module in its import map, carries `?v=<version>`. `pnpm stamp` writes them; never edit them by hand.
 - **Where code goes:** see [../design/architecture.md](../design/architecture.md) §3. `js/sim/` has no DOM and no three.js.
 - **Comments say why,** and cite their source by key and page (`DSPLY p. 8`) or a decision by number (D3, U8, R14). A number in the code that comes from a document names its source next to it.
-- **Licence headers:** every source file starts with an SPDX licence header naming Apache-2.0 (REUSE). Files the defaults in `REUSE.toml` cover need no other notice. A file copied from another project keeps that project's copyright line.
+- **Licence headers:** every JavaScript, CSS and HTML file starts with an SPDX licence header naming Apache-2.0 (REUSE). The ADEPT files in `programs/` carry none, so that their text stays the machine's own (P5); `REUSE.toml` covers them. A file copied from another project keeps that project's copyright line.
 - **Text:** every string a reader sees is a message key in `js/l10n/en.js` (U11). Machine text (statements, the paper, ADEPT source) is data, not a message.
 - **Generated files are never edited by hand.**
 
