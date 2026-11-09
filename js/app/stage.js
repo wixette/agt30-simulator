@@ -337,10 +337,11 @@ export class Stage {
     const parts = [
       close,
       el("h2", { text: t(cable ? name : `part.${name}`) }),
+      // the actions under the title, where they are in sight however long the text (U6)
+      actions.length ? el("div", { class: "card-actions" }, actions) : null,
       el("p", { text: t(cable ? "cable.what" : `part.${name}.what`) }),
       NOT_IN_STRIP.has(name) ? el("p", { text: t("card.notInStrip") }) : null,
       !cable && ud.confidence ? el("p", { class: "confidence", text: t(`confidence.${ud.confidence}`) }) : null,
-      actions.length ? el("div", { class: "card-actions" }, actions) : null,
     ];
     this.card.replaceChildren(.../** @type {Node[]} */ (parts.filter(Boolean)));
     this.card.hidden = false;

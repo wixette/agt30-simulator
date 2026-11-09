@@ -152,7 +152,7 @@ code, pre, .mono { font-family: var(--mono); }
 .card .card-close { position: absolute; top: 6px; right: 6px; }
 /* in the Tube the card sits below the live inset, which it must not cover (V4) */
 #stage[data-view="tube"] .card { top: 236px; max-height: calc(100% - 248px); }
-.card .card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.card .card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
 
 /* ---- the console strip (U5) ---- */
 #strip {

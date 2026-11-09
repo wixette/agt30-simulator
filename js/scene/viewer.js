@@ -196,6 +196,8 @@ export class TerminalView {
     this.lastLook = null;
     /** The six knobs on the desk, turned as the dials are. */
     this.knobs = Array.from({ length: 6 }, (_, n) => this.built.root.getObjectByName(`console.dials.knob.${n}`));
+    /** A pressed key's colour (U10). */
+    this.amber = new THREE.Color(token("--attention", "#ffb74d"));
     /** The function switch box's keys on the desk, by name, and where each rests when up. */
     /** @type {Map<string, THREE.Object3D>} */
     this.fnKeys = new Map();
@@ -203,6 +205,10 @@ export class TerminalView {
       const k = this.built.root.getObjectByName(name);
       if (k) {
         k.userData.restY = k.position.y;
+        // its own material, so that it can light up alone when pressed
+        const m = /** @type {THREE.MeshStandardMaterial} */ (/** @type {THREE.Mesh} */ (k).material).clone();
+        /** @type {THREE.Mesh} */ (k).material = m;
+        k.userData.restColor = m.color.clone();
         this.fnKeys.set(name, k);
       }
     }
@@ -297,7 +303,15 @@ export class TerminalView {
    * @returns {Pose}
    */
   lookPose(part) {
-    const box = new THREE.Box3().setFromObject(part);
+    // the part without its stand: a close look at the Teletype is at the machine, not its legs
+    const box = new THREE.Box3();
+    part.updateWorldMatrix(true, true);
+    part.traverse((o) => {
+      if (!(o instanceof THREE.Mesh)) return;
+      if (/\.stand(\.|$)/.test(o.name)) return;
+      box.expandByObject(o);
+    });
+    if (box.isEmpty()) box.setFromObject(part);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     /** Whether a mesh is the part, or a piece of it (the scope's face is its own node). @param {THREE.Object3D} o */
@@ -603,6 +617,8 @@ export class TerminalView {
     for (const [name, k] of this.fnKeys) {
       const down = name.endsWith(".pulse1") ? agt.dev.pulse1 : agt.keyDown(Number(name.split(".").pop()));
       k.position.y = k.userData.restY - (down ? KEY_TRAVEL_M : 0);
+      // and amber, the colour of "your turn" (U10), as the strip shows it
+      /** @type {THREE.MeshStandardMaterial} */ (/** @type {THREE.Mesh} */ (k).material).color.copy(down ? this.amber : k.userData.restColor);
     }
     this.built.lamps.forEach((l, i) => {
       const on = Math.floor(agt.cpu.AR / 2 ** (29 - i)) % 2 === 1;
