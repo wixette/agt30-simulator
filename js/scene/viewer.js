@@ -115,9 +115,12 @@ export class TerminalView {
       const name = this.hit(e);
       if (name) this.onActivate(name);
     });
+    // the reader takes the camera: a flight under way ends where it is, and counts as arrived
     this.controls.addEventListener("start", () => {
       this.userMoved = true;
+      const f = this.flight;
       this.flight = null;
+      f?.done();
     });
     // the Tube's beam: from the gun to the yoke, then bent to the spot; faint while blanked
     const beamColor = token("--phosphor", "#7dff9b");

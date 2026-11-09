@@ -34,7 +34,7 @@ const NOT_IN_STRIP = new Set(["console.joystick", "console.pedals"]);
  * @typedef {object} StageOps
  * @property {() => Agt30} machine
  * @property {(msg: string) => void} say
- * @property {(view: View) => void} onView a viewpoint was reached
+ * @property {(view: View) => void} onView a viewpoint was chosen
  * @property {(scale: number) => void} setScale
  * @property {(on: boolean) => void} setPen
  */
@@ -221,6 +221,8 @@ export class Stage {
   async go(v, animate = true) {
     const from = this.view;
     this.view = v;
+    // the link names the viewpoint chosen, whether or not the camera gets there undisturbed
+    this.ops.onView(v);
     this.closeCard();
     this.renderCrumbs();
     // leaving the Screen: the picture fades out, the 3D view comes back
@@ -245,7 +247,6 @@ export class Stage {
       this.view3dEl.style.opacity = "0";
       if (this.view3d) this.view3d.active = false;
     }
-    this.ops.onView(v);
   }
 
   // ---- cards (U6) ----
