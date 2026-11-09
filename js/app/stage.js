@@ -222,18 +222,24 @@ export class Stage {
   /**
    * Goes to a viewpoint: the camera flies; a 2D surface cross-fades in at the end of the
    * flight, out at the start of the way back (V2).
+   * A card belongs to the part, not to the camera: a viewpoint reached by acting on a part (its
+   * card's button, or a double-click) keeps that part's card open, except on the Screen, where
+   * no part is shown; a viewpoint chosen by the menu, Back, Home or Escape closes it.
    * @param {View} v
    * @param {boolean} [animate]
+   * @param {string | null} [part] the part acted on, whose card stays open
    */
-  async go(v, animate = true) {
+  async go(v, animate = true, part = null) {
     const from = this.view;
     this.view = v;
+    this.stage.dataset.view = v;
     this.closeLook = null;
     // the link names the viewpoint chosen, whether or not the camera gets there undisturbed
     this.ops.onView(v);
-    // a viewpoint is reached with nothing selected: the part it frames is looked at, not marked
-    this.closeCard();
+    // a viewpoint is reached with nothing highlighted: the part it frames is looked at, not marked
     this.view3d?.select(null);
+    if (part && v !== "screen") this.openCard(part);
+    else this.closeCard();
     this.renderCrumbs();
     // leaving the Screen: the picture fades out, the 3D view comes back
     if (from === "screen" && v !== "screen") {
@@ -287,7 +293,7 @@ export class Stage {
    * @param {CardAction} a
    */
   act(name, a) {
-    if (a.view) this.go(a.view);
+    if (a.view) this.go(a.view, true, name);
     else this.look(name);
   }
 
@@ -302,7 +308,7 @@ export class Stage {
     const view = this.view3d;
     const o = view?.built.parts.get(name) ?? view?.built.cables.get(name);
     if (!view || !o) return;
-    if (this.card.hidden) this.openCard(name);
+    this.openCard(name);
     this.closeLook = name;
     view.select(null);
     this.renderCrumbs();
