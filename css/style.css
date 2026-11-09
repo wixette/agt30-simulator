@@ -162,21 +162,23 @@ code, pre, .mono { font-family: var(--mono); }
   transform: translateX(-50%);
   display: flex;
   align-items: stretch;
-  gap: 14px;
-  padding: 8px 14px;
+  gap: 16px;
+  padding: 8px 16px 10px;
   border-radius: var(--radius-l);
   background: color-mix(in srgb, var(--md-surface-high) 94%, transparent);
   border: 1px solid var(--card-edge);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
   z-index: 3;
 }
-.strip-group { display: flex; flex-direction: column; gap: 4px; }
-.strip-label { font-size: 11px; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
-.strip-sep { width: 1px; background: var(--md-outline-variant); }
-.dials { display: flex; gap: 6px; }
+/* three groups of one height: the labels on one line, each group's controls centred under its label */
+.strip-group { display: flex; flex-direction: column; gap: 6px; }
+.strip-group > :last-child { margin-block: auto; }
+.strip-label { font-size: 11px; line-height: 14px; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
+.strip-sep { width: 1px; margin: 2px 0; background: var(--md-outline-variant); }
+.dials { display: flex; gap: 4px; }
 .dial-col { display: flex; flex-direction: column; align-items: center; gap: 1px; }
-.dial { width: 40px; height: 36px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center; }
-.dial svg { width: 34px; height: 34px; }
+.dial { width: 48px; height: 46px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center; }
+.dial svg { width: 42px; height: 42px; }
 .dial-steps { display: flex; align-items: center; gap: 1px; }
 .dial-step { width: 16px; height: 16px; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--md-on-surface-variant); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .dial-step:hover { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); color: var(--md-on-surface); }
@@ -190,9 +192,9 @@ code, pre, .mono { font-family: var(--mono); }
 .fkey.pulse { background: #e8e2d6; font-weight: 700; }
 .fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }
 .fkey[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); }
-.pen { display: flex; align-items: center; gap: 6px; max-width: 150px; font-size: 12px; line-height: 1.25; color: var(--md-on-surface-variant); }
+.pen { display: flex; align-items: center; gap: 8px; width: 120px; font-size: 12px; line-height: 1.3; color: var(--md-on-surface-variant); }
 .pen[aria-disabled="true"] { opacity: 0.55; }
-.pen .icon { width: 18px; height: 18px; }
+.pen .icon { width: 22px; height: 22px; flex: none; }
 
 /* ---- the dock (U1) ---- */
 #dock { display: flex; flex-direction: column; min-height: 0; background: var(--md-surface-low); border-top: 1px solid var(--md-outline-variant); }

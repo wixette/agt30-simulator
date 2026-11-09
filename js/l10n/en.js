@@ -76,8 +76,8 @@ export default {
   "strip.pulse.tip": "PULSE 1, the manual interrupt",
   "status.pulse": "PULSE 1, the manual interrupt: it asks the processor to obey the instruction set on the DPR-2 panel's toggles. No program of this version uses it.",
   "strip.pen": "Light pen",
-  "strip.pen.on": "Pen: point at the screen and press",
-  "strip.pen.off": "Pen: on the Screen viewpoint only",
+  "strip.pen.on": "Point at the screen and press",
+  "strip.pen.off": "On the Screen viewpoint only",
   "strip.pen.tip": "On the Screen viewpoint the pointer over the picture is the pen; holding the button closes its fingertip switch",
 
   // ---- the dock (U1) ----

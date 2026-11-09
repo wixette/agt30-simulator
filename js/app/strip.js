@@ -199,7 +199,7 @@ export function buildStrip(host, machine, say) {
   for (let n = 0; n < KEYS; n++) makeKey(n, Math.floor(n / 4) + 2, n % 4 < 3 ? (n % 4) + 1 : 5);
 
   const penText = el("span", { text: t("strip.pen.off") });
-  const pen = el("div", { class: "pen", "aria-disabled": "true" }, [penText]);
+  const pen = el("div", { class: "pen", "aria-disabled": "true" }, [icon("edit"), penText]);
   setTip(pen, t("strip.pen.tip"));
   pen.addEventListener("click", () => pen.getAttribute("aria-disabled") === "true" && say(t("status.penOff")));
 
