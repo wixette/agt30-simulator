@@ -76,7 +76,7 @@ Each kind of control is one component, used the same way everywhere: menu, dialo
 | `screen` (2D) | The camera flies to face the scope, then cross-fades to the full-resolution 2D picture in a thin bezel | The scope's card, *Look at the screen* | The light pen (V3) |
 | `tube` | The scope cut open: the gun, the yoke, the beam, the picture on the inside of the glass, with the X, Y and Z traces under it | The scope's card, *Cut it open* | Time: 1/100,000 on entry, then 1/1,000 or real |
 
-The breadcrumb names the path: *Room › Console › Screen*, or *Room › Console › Tube*. Each crumb also opens a list of its siblings.
+The breadcrumb names the path: *Room › Console › Screen*, or *Room › Console › Tube*. Its last crumb opens a list of where you can go from there: the viewpoints below it, then those beside it (from Console: Screen and Tube).
 
 ### Rules
 
@@ -142,7 +142,7 @@ There is no language menu while there is one language. Choosing a program, or Re
 
 ### U4. Each viewpoint fits its subject into the stage's free area
 
-The stage's top band (breadcrumb, view tools), the console strip and an open card all float over the canvas. Every 3D viewpoint frames its subject in the area they leave free, filling 90 % of whichever side runs out first. It refits when the stage's size changes, until the reader moves the camera themselves; after that the camera stays theirs until they choose a viewpoint or press ⌂. (This is the Leibniz simulator's rule, adopted here.)
+The stage's top band (breadcrumb, view tools), the console strip and an open card all float over the canvas. Every 3D viewpoint frames its subject in the area the band and the strip leave free, filling 90 % of whichever side runs out first. An open card is not counted: it sits at the stage's edge, and opening or closing it never moves the view (V1). *(build: counting it shifted the picture on a part's first click.)* It refits when the stage's size changes, until the reader moves the camera themselves; after that the camera stays theirs until they choose a viewpoint or press ⌂. (This is the Leibniz simulator's rule, adopted here.)
 
 ### U5. The console strip: dials, function keys, light pen
 

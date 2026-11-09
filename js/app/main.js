@@ -76,6 +76,7 @@ async function start() {
     setScale: (s) => (runner.scale = s),
     setPen: (on) => strip.setPen(on),
   }, query.get("phosphor"));
+  if (query.has("debug")) Object.defineProperty(window, "stage", { value: stage });
   const dock = buildDock(() => stage.refit());
   const tty = buildTeletype(machine, () => {
     if (!dock.ttyShown()) dock.mark("tty");

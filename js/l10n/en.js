@@ -25,7 +25,7 @@ export default {
   "view.console": "Console",
   "view.screen": "Screen",
   "view.tube": "Tube",
-  "view.siblings": "Other viewpoints from here",
+  "view.siblings": "Viewpoints from here",
   "view.home": "Frame the viewpoint again",
   "view.zoomIn": "Zoom in",
   "view.zoomOut": "Zoom out",

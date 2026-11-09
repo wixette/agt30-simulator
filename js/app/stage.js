@@ -140,7 +140,11 @@ export class Stage {
       items.push(b);
     });
     const parent = PARENT[this.view];
-    const siblings = /** @type {View[]} */ (Object.keys(PARENT)).filter((v) => PARENT[v] === (parent ?? this.view) && v !== this.view);
+    // where you can go from here: the viewpoints below this one, then those beside it
+    const all = /** @type {View[]} */ (Object.keys(PARENT));
+    const below = all.filter((v) => PARENT[v] === this.view);
+    const beside = parent ? all.filter((v) => PARENT[v] === parent && v !== this.view) : [];
+    const siblings = [...below, ...beside];
     if (siblings.length) {
       const more = el("button", { class: "crumb more", type: "button", "aria-haspopup": "menu", "aria-expanded": "false" }, [icon("keyboard_arrow_down")]);
       setTip(more, t("view.siblings"));
@@ -172,7 +176,9 @@ export class Stage {
     const inset = /** @type {HTMLElement} */ (document.getElementById("inset")).getBoundingClientRect();
     const tube = this.view === "tube";
     const bottom = (tube ? traces.top : strip.top) - s.top;
-    let right = this.card.hidden ? s.width : this.card.getBoundingClientRect().left - s.left - 8;
+    // a part's card floats over the stage's edge and is not counted: opening it never moves
+    // the view (V1: a click selects, only actions move)
+    let right = s.width;
     if (tube) right = Math.min(right, inset.left - s.left - 8);
     return { left: 8, top, width: Math.max(80, right - 8), height: Math.max(80, bottom - top) };
   }
@@ -301,13 +307,11 @@ export class Stage {
     ];
     this.card.replaceChildren(.../** @type {Node[]} */ (parts.filter(Boolean)));
     this.card.hidden = false;
-    this.refit();
   }
 
   closeCard() {
     if (this.card.hidden) return;
     this.card.hidden = true;
-    this.refit();
   }
 
   // ---- the Screen's light pen (V3) ----
