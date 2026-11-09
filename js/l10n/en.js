@@ -26,7 +26,7 @@ export default {
   "view.screen": "Screen",
   "view.tube": "Tube",
   "view.choose": "Viewpoint: {view}. Choose another",
-  "view.home": "Frame the viewpoint again",
+  "view.home": "Back to the Room, the way in",
   "view.zoomIn": "Zoom in",
   "view.zoomOut": "Zoom out",
   "view.back": "Back",

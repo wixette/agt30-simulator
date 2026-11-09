@@ -120,7 +120,9 @@ export class Stage {
 
   wireBand() {
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
-    $("home").addEventListener("click", () => this.go(this.view));
+    // Home is the way in, as in the 8800 and Leibniz simulators: the Room, framed afresh, from
+    // anywhere. Reframing the viewpoint shown is choosing it again in the menu.
+    $("home").addEventListener("click", () => this.go("room"));
     $("zoom-in").addEventListener("click", () => this.view3d?.zoom(0.8));
     $("zoom-out").addEventListener("click", () => this.view3d?.zoom(1.25));
     $("back").addEventListener("click", () => this.up());
@@ -141,7 +143,7 @@ export class Stage {
     host.replaceChildren(b);
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
     $("back").hidden = this.view === "room" && !this.closeLook;
-    for (const id of ["home", "zoom-in", "zoom-out"]) $(id).hidden = this.view === "screen";
+    for (const id of ["zoom-in", "zoom-out"]) $(id).hidden = this.view === "screen";
   }
 
   /** Climbs one level (V2). */
