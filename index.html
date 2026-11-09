@@ -1,0 +1,32 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The Adage Graphics Terminal AGT-30 (1968) in your browser: a 3D picture turned by a hybrid analog array and drawn on a refreshed vector CRT.">
+    <title>AGT-30 Simulator</title>
+    <link rel="stylesheet" href="css/style.css?v=0.0.0">
+    <!-- Every file name here carries the version (?v=), and so does each module the
+         scripts import, through this map. pnpm version writes them, or pnpm stamp
+         (tools/stamp.mjs); do not edit them by hand. -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/build/three.module.js?v=0.0.0",
+        "three/addons/controls/OrbitControls.js": "./vendor/three/examples/jsm/controls/OrbitControls.js?v=0.0.0",
+        "./js/app/main.js": "./js/app/main.js?v=0.0.0",
+        "./package.json": "./package.json?v=0.0.0",
+        "./vendor/material-symbols/icons.js": "./vendor/material-symbols/icons.js?v=0.0.0",
+        "./vendor/three/build/three.core.js": "./vendor/three/build/three.core.js?v=0.0.0",
+        "./vendor/three/build/three.module.js": "./vendor/three/build/three.module.js?v=0.0.0",
+        "./vendor/three/examples/jsm/controls/OrbitControls.js": "./vendor/three/examples/jsm/controls/OrbitControls.js?v=0.0.0"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <main id="app"></main>
+    <script type="module" src="js/app/main.js?v=0.0.0"></script>
+  </body>
+</html>

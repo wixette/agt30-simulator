@@ -1,0 +1,7 @@
+.DS_Store
+node_modules/
+coverage/
+*.log
+
+# Release media and scratch output (pnpm shots writes outside the repository)
+shots/

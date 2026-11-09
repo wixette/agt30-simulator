@@ -25,7 +25,7 @@ The rules that keep the model, the parameters, the code and the tests consistent
 - **Version stamps:** every local file the page names, and every module in its import map, carries `?v=<version>`. `pnpm stamp` writes them; never edit them by hand.
 - **Where code goes:** see [../design/architecture.md](../design/architecture.md) §3. `js/sim/` has no DOM and no three.js.
 - **Comments say why,** and cite their source by key and page (`DSPLY p. 8`) or a decision by number (D3, U8, R14). A number in the code that comes from a document names its source next to it.
-- **Licence headers:** every source file starts with an SPDX header (`SPDX-License-Identifier: Apache-2.0`). A file copied from another project keeps that project's copyright line.
+- **Licence headers:** every source file starts with an SPDX licence header naming Apache-2.0 (REUSE). Files the defaults in `REUSE.toml` cover need no other notice. A file copied from another project keeps that project's copyright line.
 - **Text:** every string a reader sees is a message key in `js/l10n/en.js` (U11). Machine text (statements, the paper, ADEPT source) is data, not a message.
 - **Generated files are never edited by hand.**
 
