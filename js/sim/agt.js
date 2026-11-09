@@ -57,6 +57,8 @@ export class Agt30 extends Terminal {
       dials: new Float64Array(DIALS),
       /** sixteen function keys (FNS1) on S5, key n as bit n in Adage's numbering from the left */
       switches: 0,
+      /** PULSE 1, the manual interrupt, held down; in v0.0.1 it requests no service (R10) */
+      pulse1: false,
     };
     /** @type {number[]} characters typed on the keyboard and not yet read by a program (AMOS codes) */
     this.keys = [];
@@ -162,6 +164,24 @@ export class Agt30 extends Terminal {
     const bit = 2 ** (29 - n);
     const on = Math.floor(this.dev.switches / bit) % 2 === 1;
     if (on !== down) this.dev.switches += down ? bit : -bit;
+  }
+
+  /**
+   * Whether a function key is down.
+   * @param {number} n 0-15
+   * @returns {boolean}
+   */
+  keyDown(n) {
+    return Math.floor(this.dev.switches / 2 ** (29 - n)) % 2 === 1;
+  }
+
+  /**
+   * Presses or releases PULSE 1. It is drawn and pressed as on the box, but no program of v0.0.1
+   * uses it, so it requests no interrupt (R10).
+   * @param {boolean} down
+   */
+  setPulse1(down) {
+    this.dev.pulse1 = down;
   }
 
   /**

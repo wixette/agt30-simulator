@@ -70,7 +70,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R10. Interrupts.**
 - *Sources:* the priority interrupt system (SRM5 DPR3 pp. 7–9).
-- *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (PULSE 1 has no button in v0.0.1.)
+- *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (In v0.0.1 PULSE 1 is on the strip and the desk and goes down when pressed, but requests no interrupt: no program of v0.0.1 uses it, and the status line says so.)
 
 **R11. The pen-hit table and PENHT.**
 - *Sources:* DSPLY keeps "a circular table with 16 entries" of pen hits, and PENHT reads it (DSPLY p. 30).

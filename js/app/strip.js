@@ -60,6 +60,25 @@ const REPEAT_DELAY_MS = 400;
 const REPEAT_MS = 70;
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
+/** @typedef {number | "pulse1"} KeyId a function key, 0-15, or PULSE 1 */
+
+/**
+ * Presses or releases a key of the function switch box, from the strip or the desk in 3D (P2),
+ * and says so in the status line.
+ * @param {Agt30} agt
+ * @param {KeyId} id
+ * @param {boolean} down
+ * @param {(msg: string) => void} say
+ */
+export function pressKey(agt, id, down, say) {
+  if (id === "pulse1") {
+    agt.setPulse1(down);
+    if (down) say(t("status.pulse"));
+  } else {
+    agt.setKey(id, down);
+    if (down) say(t("status.key", { n: id }));
+  }
+}
 
 /**
  * Builds the strip.
@@ -144,23 +163,20 @@ export function buildStrip(host, machine, say) {
     dials.append(el("div", { class: "dial-col" }, [b, el("div", { class: "dial-steps" }, [arrow(-1, "chevron_left"), el("span", { class: "n", text: String(n) }), arrow(1, "chevron_right")])]));
   }
 
-  // the function switch box: a 4 x 4 grid, its last column set apart (FNS1)
+  // the function switch box as FNS1 lays it out: PULSE 1 above, the sixteen keys in a 4 x 4 grid
+  // below it, their last column set apart
   const keys = el("div", { class: "keys" });
-  /** @type {HTMLButtonElement[]} */
-  const keyButtons = [];
-  for (let n = 0; n < KEYS; n++) {
-    const row = Math.floor(n / 4);
-    const col = n % 4;
-    const b = el("button", { class: "fkey", type: "button", "aria-pressed": "false", "aria-label": t("strip.key", { n }), text: String(n) });
-    b.style.gridRow = String(row + 1);
-    b.style.gridColumn = String(col < 3 ? col + 1 : 5);
-    setTip(b, t("strip.key.tip", { n }));
+  /** @type {Map<KeyId, HTMLButtonElement>} */
+  const keyButtons = new Map();
+  /** @param {KeyId} id @param {number} row @param {number} col */
+  const makeKey = (id, row, col) => {
+    const pulse = id === "pulse1";
+    const b = el("button", { class: pulse ? "fkey pulse" : "fkey", type: "button", "aria-pressed": "false", "aria-label": pulse ? t("strip.pulse") : t("strip.key", { n: id }), text: pulse ? "P1" : String(id) });
+    b.style.gridRow = String(row);
+    b.style.gridColumn = String(col);
+    setTip(b, pulse ? t("strip.pulse.tip") : t("strip.key.tip", { n: id }));
     /** @param {boolean} down */
-    const press = (down) => {
-      machine().setKey(n, down);
-      b.setAttribute("aria-pressed", String(down));
-      if (down) say(t("status.key", { n }));
-    };
+    const press = (down) => pressKey(machine(), id, down, say);
     b.addEventListener("pointerdown", (e) => {
       b.setPointerCapture(e.pointerId);
       press(true);
@@ -176,9 +192,11 @@ export function buildStrip(host, machine, say) {
       if (e.key === " " || e.key === "Enter") press(false);
     });
     b.addEventListener("blur", () => b.getAttribute("aria-pressed") === "true" && press(false));
-    keyButtons.push(b);
+    keyButtons.set(id, b);
     keys.append(b);
-  }
+  };
+  makeKey("pulse1", 1, 2);
+  for (let n = 0; n < KEYS; n++) makeKey(n, Math.floor(n / 4) + 2, n % 4 < 3 ? (n % 4) + 1 : 5);
 
   const penText = el("span", { text: t("strip.pen.off") });
   const pen = el("div", { class: "pen", "aria-disabled": "true" }, [penText]);
@@ -200,6 +218,11 @@ export function buildStrip(host, machine, say) {
         const v = agt.dev.dials[n];
         pointers[n].setAttribute("transform", `rotate(${v * DIAL_TRAVEL_DEG})`);
         dialButtons[n].setAttribute("aria-valuenow", v.toFixed(3));
+      }
+      // a key pressed on the desk in 3D shows down here too (P2)
+      for (const [id, b] of keyButtons) {
+        const down = String(id === "pulse1" ? agt.dev.pulse1 : agt.keyDown(id));
+        if (b.getAttribute("aria-pressed") !== down) b.setAttribute("aria-pressed", down);
       }
     },
     setPen(on) {

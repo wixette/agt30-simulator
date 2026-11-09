@@ -186,7 +186,8 @@ code, pre, .mono { font-family: var(--mono); }
 .dial .pointer { stroke: #e8e2d6; stroke-width: 2.4; stroke-linecap: round; }
 .dial-steps .n { font-size: 10px; color: var(--md-outline); line-height: 1; min-width: 8px; text-align: center; }
 .dial:active { cursor: grabbing; }
-.keys { display: grid; grid-template-columns: repeat(3, 26px) 8px 26px; grid-template-rows: repeat(4, 13px); gap: 2px; }
+.keys { display: grid; grid-template-columns: repeat(3, 26px) 8px 26px; grid-template-rows: repeat(5, 13px); gap: 2px; }
+.fkey.pulse { background: #e8e2d6; font-weight: 700; }
 .fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }
 .fkey[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); }
 .pen { display: flex; align-items: center; gap: 6px; max-width: 150px; font-size: 12px; line-height: 1.25; color: var(--md-on-surface-variant); }

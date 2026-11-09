@@ -52,6 +52,10 @@ const LOOK_SAMPLES = {
 
 /** How near a knob, in pixels, a press on the dial box grabs it. */
 const GRAB_PX = 16;
+/** How near a key, in pixels, a press on the function switch box's top presses it. */
+const KEY_GRAB_PX = 10;
+/** How far a function key goes down when pressed, metres (est). */
+const KEY_TRAVEL_M = 0.0035;
 
 /** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
@@ -118,14 +122,25 @@ export class TerminalView {
     this.onActivate = () => {};
     /** @type {(n: number, x: number, y: number, start: boolean) => void} a dial on the desk being turned, the pointer at x, y (U5, P2) */
     this.onDial = () => {};
+    /** @type {(id: number | "pulse1", down: boolean) => void} a key of the function switch box on the desk pressed or released (P2) */
+    this.onKey = () => {};
     this.raycaster = new THREE.Raycaster();
     const canvas = this.renderer.domElement;
     /** @type {{ x: number; y: number } | null} */
     let down = null;
     /** @type {{ n: number } | null} a dial being turned on the desk */
     let dial = null;
+    /** @type {number | "pulse1" | null} a key held down on the desk */
+    let heldKey = null;
     canvas.addEventListener("pointerdown", (e) => {
       down = { x: e.clientX, y: e.clientY };
+      heldKey = this.keyAt(e);
+      if (heldKey !== null) {
+        this.controls.enabled = false;
+        canvas.setPointerCapture(e.pointerId);
+        this.onKey(heldKey, true);
+        return;
+      }
       const n = this.dialAt(e);
       if (n !== null) {
         dial = { n };
@@ -137,8 +152,16 @@ export class TerminalView {
     canvas.addEventListener("pointermove", (e) => {
       if (dial) this.onDial(dial.n, e.clientX, e.clientY, false);
     });
+    const release = () => {
+      if (heldKey === null) return;
+      this.onKey(heldKey, false);
+      heldKey = null;
+      this.controls.enabled = true;
+    };
+    canvas.addEventListener("pointercancel", release);
     canvas.addEventListener("pointerup", (e) => {
-      if (dial) {
+      if (heldKey !== null) release();
+      else if (dial) {
         dial = null;
         this.controls.enabled = true;
       } else if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) <= CLICK_PX) this.pick(e);
@@ -173,6 +196,16 @@ export class TerminalView {
     this.lastLook = null;
     /** The six knobs on the desk, turned as the dials are. */
     this.knobs = Array.from({ length: 6 }, (_, n) => this.built.root.getObjectByName(`console.dials.knob.${n}`));
+    /** The function switch box's keys on the desk, by name, and where each rests when up. */
+    /** @type {Map<string, THREE.Object3D>} */
+    this.fnKeys = new Map();
+    for (const name of ["console.fns.pulse1", ...Array.from({ length: 16 }, (_, n) => `console.fns.key.${n}`)]) {
+      const k = this.built.root.getObjectByName(name);
+      if (k) {
+        k.userData.restY = k.position.y;
+        this.fnKeys.set(name, k);
+      }
+    }
     new ResizeObserver(() => this.resize()).observe(host);
     this.resize();
   }
@@ -408,6 +441,33 @@ export class TerminalView {
   }
 
   /**
+   * The key of the function switch box a press lands on: the key under the pointer, or the
+   * nearest within KEY_GRAB_PX of a press on the box's top (a key is a few pixels across).
+   * @param {MouseEvent} e
+   * @returns {number | "pulse1" | null}
+   */
+  keyAt(e) {
+    const name = this.rawHit(e);
+    if (!name?.startsWith("console.fns")) return null;
+    /** @param {string} n @returns {number | "pulse1"} */
+    const idOf = (n) => (n.endsWith(".pulse1") ? "pulse1" : Number(n.split(".").pop()));
+    if (/\.(key\.\d+|pulse1)$/.test(name)) return idOf(name);
+    if (!/\.(panel|plate)$/.test(name)) return null;
+    let best = null;
+    let near = KEY_GRAB_PX;
+    const r = this.renderer.domElement.getBoundingClientRect();
+    for (const [n, k] of this.fnKeys) {
+      const p = k.getWorldPosition(new THREE.Vector3()).project(this.camera);
+      const d = Math.hypot(e.clientX - (r.left + ((p.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - p.y) / 2) * r.height));
+      if (d < near) {
+        near = d;
+        best = idOf(n);
+      }
+    }
+    return best;
+  }
+
+  /**
    * Where a desk dial's knob is on the screen, for turning it round its centre.
    * @param {number} n
    * @returns {[number, number]}
@@ -539,6 +599,11 @@ export class TerminalView {
     this.fly();
     this.faceTexture.needsUpdate = true;
     this.knobs.forEach((k, n) => k && (k.rotation.y = -THREE.MathUtils.degToRad(agt.dev.dials[n] * DIAL_TRAVEL_DEG)));
+    // a key held down, here or in the strip, is down on the desk (P2)
+    for (const [name, k] of this.fnKeys) {
+      const down = name.endsWith(".pulse1") ? agt.dev.pulse1 : agt.keyDown(Number(name.split(".").pop()));
+      k.position.y = k.userData.restY - (down ? KEY_TRAVEL_M : 0);
+    }
     this.built.lamps.forEach((l, i) => {
       const on = Math.floor(agt.cpu.AR / 2 ** (29 - i)) % 2 === 1;
       /** @type {THREE.MeshStandardMaterial} */ (l.material).emissiveIntensity = on ? 1.4 : 0;

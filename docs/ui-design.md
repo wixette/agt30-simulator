@@ -151,10 +151,10 @@ The stage's top band (viewpoint menu, view tools), the console strip and an open
 The strip floats at the bottom of the stage, centred, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
 
 - **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its centre, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* §6).
-- **Sixteen function keys** in a 4 × 4 grid, the last column set apart, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard.
+- **Sixteen function keys** in a 4 × 4 grid, the last column set apart, and **PULSE 1** above them, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard. A key pressed here goes down on the desk in 3D, and one pressed on the desk shows down here (P2). PULSE 1 is there because it is on the box; no program of v0.0.1 uses it, so pressing it says so in the status line (R10). *(build, after the manual check)*
 - **The light pen.** It shows its state: *pen: point at the screen* on Screen, greyed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
 
-PULSE 1, the joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so.
+The joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so.
 
 ### U6. Cards: one component, one per part or program
 
