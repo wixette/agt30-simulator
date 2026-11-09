@@ -22,5 +22,5 @@ The first pre-release: small, honest about what it reconstructs, and good enough
 
 **Tools**
 - `pnpm check` runs the reference check (forbidden names held only as digests), the strict JSDoc type check and 84 tests, among them the acceptance checks by area (WRD, IMG, ARR, VG, DSP, CRT, CPU, MON, ASM, TTY, PRG, SCN, APP).
-- `pnpm shots` takes the release screenshots and the README's picture.
+- `pnpm shots` takes the release screenshots and the README's three pictures.
 - CI runs the checks and REUSE on every push; GitHub Pages deploys `main` once they pass.

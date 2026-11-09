@@ -8,7 +8,14 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 
 **[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser: recent Chrome, Edge, Safari or Firefox.
 
-![The simulator: the AGT-30 installation in 3D, with tic-tac-toe on the scope, the console's dials and function keys below it, and the session on the Teletype's paper](./images/readme/app.jpg)
+![The Room: the AGT-30 installation in 3D, Fig. 12's random lines on the scope, the console's dials and function keys below it, and the session on the Teletype's paper](./images/readme/room.jpg)
+
+<table>
+<tr>
+<td width="50%"><b>The Screen</b>: the picture close up, here 3-D tic-tac-toe in play, the marks placed with the light pen.<br><img src="./images/readme/screen.jpg" alt="The Screen viewpoint: the 3 x 3 x 3 tic-tac-toe board in green phosphor, two X's and two O's on its bottom layer, X's turn shown at the top left"></td>
+<td width="50%"><b>The Tube</b>: the scope cut open, time slowed 100,000 times, the beam drawing the letter A, with its X, Y and Z signals below.<br><img src="./images/readme/tube.jpg" alt="The Tube viewpoint: the scope's cabinet cut away, the electron gun, the yoke and the beam reaching the face, where the letter A is being drawn; the deflection and intensity traces below; the live screen in the corner"></td>
+</tr>
+</table>
 
 ## What is in it
 
