@@ -51,7 +51,7 @@ CI runs all four on every push and pull request.
 - **The version lives in one place:** `package.json`. Set it with `pnpm version <x.y.z>`, which also writes the `?v=` stamps. It does not commit or tag (`.npmrc`).
 - **A release is a pull request named for its version.** It is tagged `vX.Y.Z` on its merge commit, and its changes are listed in `CHANGELOG.md`. Versions 0.0.x are marked as pre-releases on GitHub.
 - **Each push to `main` deploys** the site to GitHub Pages once its tests have passed.
-- **Release media** (`pnpm shots`) are written outside the repository. Only the README's pictures are committed.
+- **Release media** (`pnpm shots`) are written outside the repository, into `~/Downloads/agt30-v<version>-media/shots/` (or `--out`). Only the README's picture is committed: `pnpm shots --readme` rewrites it. `--only <part of a name>` takes some of the shots.
 
 ## Deploying behind a cache
 

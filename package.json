@@ -1,6 +1,6 @@
 {
   "name": "agt30-simulator",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "description": "The Adage Graphics Terminal AGT-30 (1968) in the browser: a 3D picture turned by a hybrid analog array, drawn on a refreshed vector CRT.",
@@ -22,7 +22,8 @@
     "vendor": "node tools/vendor.mjs",
     "stamp": "node tools/stamp.mjs",
     "version": "node tools/stamp.mjs",
-    "serve": "node tools/serve.mjs 8000"
+    "serve": "node tools/serve.mjs 8000",
+    "shots": "node tools/shots.mjs"
   },
   "devDependencies": {
     "@fontsource-variable/roboto-flex": "5.3.0",

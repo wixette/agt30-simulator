@@ -56,7 +56,14 @@ export function buildDock(onResize) {
       folded = false;
       apply();
     }
-    if (current === "tty") document.getElementById("tty-paper")?.focus({ preventScroll: true });
+    if (current === "tty") {
+      // the paper printed while hidden could not scroll: show its latest line
+      const paper = document.getElementById("tty-paper");
+      if (paper) {
+        paper.scrollTop = paper.scrollHeight;
+        paper.focus({ preventScroll: true });
+      }
+    }
   });
 
   fold.addEventListener("click", () => {

@@ -127,6 +127,9 @@ export async function openBrowser({ width, height }) {
     errors,
     async load(query = "", hash = "") {
       errors.length = 0;
+      // a blank page first: a link that differs only in its #... would not load the page afresh
+      await send("Page.navigate", { url: "about:blank" });
+      await sleep(100);
       await send("Page.navigate", { url: `${site}?debug${query ? `&${query}` : ""}${hash}` });
       await sleep(500);
       for (let i = 0; i < 150; i++) {

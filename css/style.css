@@ -3,8 +3,8 @@
    with its band, card and console strip floating over it), the dock below (U1), the status
    line. The page never scrolls. */
 
-@import url("theme.css?v=0.0.0");
-@import url("fonts.css?v=0.0.0");
+@import url("theme.css?v=0.0.1");
+@import url("fonts.css?v=0.0.1");
 
 :root {
   font-family: var(--font);
