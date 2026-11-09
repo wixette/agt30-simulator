@@ -54,6 +54,8 @@ export class Stage {
     this.ops = ops;
     /** @type {View} */
     this.view = "room";
+    /** @type {{ agt: Agt30; eyeUs: number; slow: boolean } | null} what the last repaint showed, for a surface uncovered between repaints */
+    this.last = null;
     /** @type {string | null} the beam's state as last shown in the Tube */
     this.beamState = null;
     /** @type {string | null} the part or cable a close look frames, within the viewpoint */
@@ -265,9 +267,14 @@ export class Stage {
     // leaving the Screen: the picture fades out, the 3D view comes back
     if (from === "screen" && v !== "screen") {
       this.screenEl.hidden = true;
+      // a surface out of sight keeps no picture: it would show, stale, when it comes back
+      this.screenCrt.clear();
       if (this.view3d) this.view3d.active = true;
       this.view3dEl.style.opacity = "1";
     }
+    if (from === "tube" && v !== "tube") this.insetCrt.clear();
+    // the Tube's inset shows the machine as it is now from its first frame
+    if (v === "tube" && from !== "tube" && this.last) this.insetCrt.paint(this.last.agt.segs, this.last.agt.now, this.last.eyeUs, { beam: this.last.slow });
     this.tubeEl.hidden = v !== "tube";
     this.view3d?.setInside(v === "tube");
     // V5: the Tube owns its time; leaving it puts time back to real
@@ -282,6 +289,8 @@ export class Stage {
     if (this.view3d) await this.view3d.goTo(() => this.pose(v), animate);
     if (this.view !== v) return;
     if (v === "screen") {
+      // painted from the machine as it is now before it is uncovered, never a frame late
+      if (this.last) this.screenCrt.paint(this.last.agt.segs, this.last.agt.now, this.last.eyeUs, { beam: this.last.slow });
       this.screenEl.hidden = false;
       this.view3dEl.style.opacity = "0";
       if (this.view3d) this.view3d.active = false;
@@ -431,6 +440,7 @@ export class Stage {
    * @param {boolean} slow time is slowed: show the spot
    */
   paint(agt, eyeUs, slow) {
+    this.last = { agt, eyeUs, slow };
     // the 3D view renders until the Screen's 2D surface takes over at the end of the flight (V8)
     if (this.view3d?.active) {
       this.faceCrt.paint(agt.segs, agt.now, eyeUs, { beam: slow });

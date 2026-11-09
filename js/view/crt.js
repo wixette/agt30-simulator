@@ -43,6 +43,14 @@ export class CrtView {
     this.color = token(p.color, "#7dff9b");
   }
 
+  /** Blanks the face: nothing lit (a surface left keeps no stale picture). */
+  clear() {
+    this.ctx.globalCompositeOperation = "source-over";
+    this.ctx.globalAlpha = 1;
+    this.ctx.fillStyle = token("--crt-face", "#050806");
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
   /** Matches the canvas's pixels to its size on screen. */
   fit() {
     if (this.size) {
