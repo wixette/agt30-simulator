@@ -1,5 +1,5 @@
 {
-  "about": "The programs the Programs menu loads (design/v0.0.1.md, section 2; docs/conventions.md, Programs). Each entry's statements are typed on the Teletype in order. 'resident' files are assembled into core at start (R15); the others are in the monitor's store for ADEPT (\"NAME\")!.",
+  "about": "The programs the Programs menu loads (design/v0.0.1.md, section 2; docs/conventions.md, Programs). Each entry's statements are typed on the Teletype in order. 'resident' files are assembled into core at start (R15); the others are in the monitor's store for ADEPT (\"NAME\")!. A toggle is an on/off switch on the card: it types 'on' or 'off', and shows the machine's state (depth: VIEW's DIM is not 0). Each depth range puts FRONT just in front of the picture and its back at z'm = 0, down 10 : 1 (FJCC68 Fig. 14).",
   "resident": [
     "RVCD",
     "DIALS",
@@ -30,7 +30,8 @@
       ],
       "reconstructions": [
         "R4"
-      ]
+      ],
+      "toggles": []
     },
     {
       "id": "cube",
@@ -52,6 +53,13 @@
       "reconstructions": [
         "R4",
         "R7"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.63, -1.89, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
       ]
     },
     {
@@ -76,6 +84,13 @@
       "reconstructions": [
         "R4",
         "R7"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.42, -1.26, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
       ]
     },
     {
@@ -90,16 +105,7 @@
       "controls": [
         "dial0"
       ],
-      "actions": [
-        {
-          "id": "depth-off",
-          "type": "VIEW (,,0)!"
-        },
-        {
-          "id": "depth-on",
-          "type": "VIEW (,,37777)!"
-        }
-      ],
+      "actions": [],
       "files": [
         "TUND",
         "DIALS",
@@ -108,6 +114,13 @@
       "reconstructions": [
         "R4",
         "R13"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.19, -.556, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
       ]
     },
     {
@@ -131,6 +144,13 @@
       "reconstructions": [
         "R4",
         "R8"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.63, -1.89, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
       ]
     },
     {
@@ -156,6 +176,13 @@
       "reconstructions": [
         "R4",
         "R11"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.37, -1.11, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
       ]
     },
     {
@@ -192,6 +219,13 @@
       ],
       "reconstructions": [
         "R4"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.63, -1.89, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
       ]
     }
   ]

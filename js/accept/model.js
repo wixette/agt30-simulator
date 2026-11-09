@@ -538,15 +538,17 @@ export const MODEL_CHECKS = [
   },
   {
     id: "PRG-3",
-    title: "The tunnel's card turns depth cueing off and on, by VIEW (FJCC68 Figs. 15-16)",
+    title: "The tunnel's depth cueing switch turns it off and on, by VIEW (FJCC68 Figs. 15-16)",
     run(ctx) {
       const agt = ctx.boot();
       const p = load(ctx, agt, "tunnel");
       const dimmest = () => Math.min(...lastFrame(agt).filter((g) => g.vis).map((g) => Math.min(g.i0, g.i1)));
       ok(dimmest() < 0.15, "cued: the far end is dim");
-      typeAndRun(agt, p.actions.find((a) => a.id === "depth-off")?.type ?? "");
+      const depth = p.toggles.find((g) => g.id === "depth");
+      ok(depth, "a depth cueing switch");
+      typeAndRun(agt, depth.off);
       near(dimmest(), 1, 1e-9, "not cued: all at full intensity");
-      typeAndRun(agt, p.actions.find((a) => a.id === "depth-on")?.type ?? "");
+      typeAndRun(agt, depth.on);
       ok(dimmest() < 0.15, "cued again");
     },
   },
@@ -558,6 +560,32 @@ export const MODEL_CHECKS = [
       load(ctx, agt, "town");
       const house = lastFrame(agt).filter((g) => g.vis).length;
       equal(house, 4 * 18, "four houses of 18 lines");
+    },
+  },
+  {
+    id: "PRG-7",
+    title: "Each 3D program's depth cueing range fits its picture, however the dials turn it: nothing is cut off in front of FRONT, and its far side dims (FJCC68 p. 753, Fig. 14)",
+    run(ctx) {
+      for (const p of ctx.manifest.programs) {
+        const depth = p.toggles.find((g) => g.id === "depth");
+        if (!depth || p.id === "tunnel") continue; // the tunnel cuts off what the viewer has passed, on purpose
+        for (const dials of [[0, 0, 0], [0.25, 0.3, -0.2], [-0.6, 0.45, 0.7], [0.9, -0.5, 0.35]]) {
+          const agt = ctx.boot();
+          load(ctx, agt, p.id);
+          dials.forEach((v, n) => agt.setDial(n, v));
+          agt.advance(agt.now + 100000);
+          /** the visible strokes' total length, and the dimmest of them */
+          const lit = () => {
+            const segs = lastFrame(agt).filter((g) => g.vis);
+            return { length: segs.reduce((sum, g) => sum + Math.hypot(g.x1 - g.x0, g.y1 - g.y0), 0), dimmest: Math.min(...segs.map((g) => Math.min(g.i0, g.i1))) };
+          };
+          const off = lit();
+          typeAndRun(agt, depth.on);
+          const on = lit();
+          near(on.length, off.length, off.length * 0.005, `${p.id} at ${dials}: nothing cut off`);
+          ok(on.dimmest < 0.3, `${p.id} at ${dials}: the far side dims (${on.dimmest.toFixed(2)})`);
+        }
+      }
     },
   },
   {

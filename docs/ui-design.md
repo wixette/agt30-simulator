@@ -168,14 +168,14 @@ Cards are text that can be selected and copied.
 In this order:
 1. The program's title, and what it rebuilds (*FJCC68 Fig. 7*).
 2. How to use it, naming the controls: *Turn dials 0–2.*
-3. Its actions, as buttons. Each one types a statement (U8).
+3. Its actions: a switch for a setting that is on or off (*Depth cueing*, on every 3D program's card, typing a VIEW whose range fits that picture; it shows the machine's own state, so a VIEW typed by hand moves it too), and buttons for the rest. Each types a statement (U8). *(build, after the manual check: the tunnel had two buttons, on and off, which did not show which state it was in)*
 4. *What is ours*: the program's reconstructions, linked to About's list.
 5. *The statements*: what the Programs menu typed, as on the paper.
 6. *The source*: the ADEPT file, read-only, folded by default.
 
 ### U8. The Programs menu and card actions type on the Teletype, fast
 
-Choosing a program types its statements on the Teletype, and the AMOS monitor runs them, as an operator's would have been. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *2,000 lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or *Reboot*, stops it.
+Choosing a program types its statements on the Teletype, and the AMOS monitor runs them, as an operator's would have been. The paper shows the session, and the card shows the same statements. A card's switches and buttons (*Depth cueing*, *2,000 lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or *Reboot*, stops it.
 
 The menu and the card type as fast as the monitor takes the characters, 1 ms each, so the picture appears at once. The printer still echoes them at the ASR-33's 10 characters a second, so the paper fills in while the program runs. A visitor's own typing goes at 10 a second, as do the machine's replies.
 

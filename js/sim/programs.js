@@ -10,12 +10,19 @@
  */
 
 /**
+ * A card switch: the statement it types to turn a setting on, and to turn it off; the page shows
+ * the machine's own state of that setting (depth: VIEW's DIM is not 0).
+ * @typedef {{ id: "depth"; on: string; off: string }} Toggle
+ */
+
+/**
  * @typedef {object} Program
  * @property {string} id the link's program= (U13)
  * @property {string} source what it rebuilds, by bibliography key
  * @property {string[]} statements what the Programs menu types, in order
  * @property {string[]} controls what the visitor works: "dials", "dial0", "keys", "pen"
  * @property {Action[]} actions the card's buttons
+ * @property {Toggle[]} toggles the card's switches
  * @property {string[]} files the source files its card shows, first its own
  * @property {string[]} reconstructions the R entries it rests on
  */

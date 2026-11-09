@@ -37,6 +37,7 @@ function dynamicKeys() {
   for (const p of PROGRAMS.manifest.programs) {
     for (const k of ["title", "use", "what"]) keys.add(`program.${p.id}.${k}`);
     for (const a of p.actions) keys.add(`program.action.${a.id}`);
+    for (const g of p.toggles) keys.add(`program.toggle.${g.id}`);
   }
   for (const id of RECONSTRUCTIONS) keys.add(`recon.${id}`);
   for (const p of params.parts) keys.add(`part.${p.name}`).add(`part.${p.name}.what`);

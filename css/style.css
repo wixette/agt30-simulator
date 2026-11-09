@@ -223,7 +223,14 @@ code, pre, .mono { font-family: var(--mono); }
 .program-card .rebuilds { color: var(--md-on-surface-variant); margin: 0 0 10px; font-size: 13px; }
 .program-card h3 { margin: 14px 0 4px; font-size: 13px; font-weight: 640; color: var(--md-on-surface-variant); text-transform: none; }
 .program-card p { margin: 0 0 6px; }
-.program-card .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.program-card .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+/* a switch (Material 3): track and thumb, then its label */
+.switch { display: inline-flex; align-items: center; gap: 10px; height: 32px; padding: 0 12px 0 4px; border: 0; border-radius: var(--radius-full); background: none; color: var(--md-on-surface); cursor: pointer; font-weight: 560; }
+.switch:hover { background: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
+.switch-track { position: relative; width: 44px; height: 24px; border-radius: 12px; border: 2px solid var(--md-outline); background: var(--md-surface-highest); transition: background 120ms var(--ease), border-color 120ms var(--ease); }
+.switch-thumb { position: absolute; top: 4px; left: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--md-outline); transition: all 120ms var(--ease); }
+.switch[aria-checked="true"] .switch-track { background: var(--md-primary); border-color: var(--md-primary); }
+.switch[aria-checked="true"] .switch-thumb { left: 22px; top: 2px; width: 16px; height: 16px; background: var(--md-on-primary); }
 .program-card ul { margin: 0; padding-left: 18px; color: var(--md-on-surface-variant); }
 .program-card pre { margin: 0; padding: 8px 10px; border-radius: var(--radius-s); background: var(--md-surface-mid); overflow-x: auto; font-size: 12.5px; line-height: 1.45; }
 .program-card details summary { cursor: pointer; color: var(--md-primary); margin: 14px 0 4px; font-weight: 600; font-size: 13px; }

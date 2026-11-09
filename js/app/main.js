@@ -15,7 +15,7 @@ import { eyeWindowUs } from "../view/phosphor.js";
 import { openAbout } from "./about.js";
 import { buildDock } from "./dock.js";
 import { formatLink, parseLink } from "./link.js";
-import { renderProgramCard } from "./programCard.js";
+import { renderProgramCard, syncSwitches } from "./programCard.js";
 import { Runner } from "./runner.js";
 import { selftestRequested, runSelftest } from "./selftest.js";
 import { Stage } from "./stage.js";
@@ -150,6 +150,7 @@ async function start() {
     const period = tickUs(agt.rate);
     stage.paint(agt, eyeWindowUs(period, runner.scale), runner.scale < 0.05);
     strip.update();
+    syncSwitches(programCard, agt);
     tty.render();
     if (agt.typing !== wasBusy) {
       wasBusy = agt.typing;
