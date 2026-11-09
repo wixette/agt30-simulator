@@ -16,6 +16,7 @@ export default {
   // ---- the top bar (U3) ----
   "bar.programs": "Programs",
   "bar.programs.tip": "Load a program: its statements are typed on the Teletype",
+  "bar.programs.loaded": "Program: {title}. Choose another",
   "bar.reset": "Reboot",
   "bar.reset.tip": "Reboot the whole terminal: core as at start, the display dark, the paper torn off, no program loaded",
   "bar.about": "About",

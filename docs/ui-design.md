@@ -137,7 +137,7 @@ The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop. Recent Chrome, 
 
 ### U3. The top bar
 
-- **Left** (the machine): the logo and title, the **Programs** menu, and, set apart from it, **Reboot**, with the power icon, which reboots the whole terminal: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program"; one reboots a machine, never a program.)*
+- **Left** (the machine): the logo and title, the **Programs** menu, whose button names the program loaded (*A cube turned by the dials ▾*), so it is in sight in every viewpoint, the Screen included, or says *Programs* with none *(build, after the manual check)*, and, set apart from it, **Reboot**, with the power icon, which reboots the whole terminal: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program"; one reboots a machine, never a program.)*
 - **Right** (the app): **About**.
 
 There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*

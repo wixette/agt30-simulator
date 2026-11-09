@@ -83,7 +83,17 @@ async function start() {
   });
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
-  const drawCard = () =>
+  // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu
+  // names the viewpoint; with none loaded it says Programs
+  const programsLabel = /** @type {HTMLElement} */ (document.getElementById("programs-label"));
+  const programsBtn = /** @type {HTMLElement} */ (document.getElementById("programs"));
+  const nameProgram = () => {
+    const title = program ? t(`program.${program.id}.title`) : null;
+    programsLabel.textContent = title ?? t("bar.programs");
+    programsBtn.setAttribute("aria-label", title ? t("bar.programs.loaded", { title }) : t("bar.programs"));
+  };
+  const drawCard = () => {
+    nameProgram();
     renderProgramCard(programCard, program, sources, {
       busy: agt.busy,
       type: (statement, label) => {
@@ -92,6 +102,7 @@ async function start() {
       },
       openRecon: (id) => openAbout(pkg.version, id),
     });
+  };
   drawCard();
 
   const writeLink = () => history.replaceState(null, "", `${location.pathname}${location.search}${formatLink({ view, program: program?.id })}`);
@@ -113,7 +124,6 @@ async function start() {
   };
 
   // ---- the top bar (U3) ----
-  const programsBtn = /** @type {HTMLElement} */ (document.getElementById("programs"));
   programsBtn.addEventListener("click", () =>
     showMenu(
       programsBtn,

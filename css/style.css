@@ -88,6 +88,7 @@ code, pre, .mono { font-family: var(--mono); }
 .brand-tag { color: var(--md-on-surface-variant); font-size: 13px; }
 .brand-mark { width: 26px; height: 26px; align-self: center; }
 .spacer { flex: 1; }
+#programs-label { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 /* sets the terminal's power apart from the Programs menu, so the two do not read as one */
 .bar-sep { width: 1px; height: 24px; margin: 0 8px; background: var(--md-outline-variant); }
 
