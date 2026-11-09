@@ -1,0 +1,315 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* The simulator's page (docs/ui-design.md). A fixed frame: the top bar, the stage (the machine,
+   with its band, card and console strip floating over it), the dock below (U1), the status
+   line. The page never scrolls. */
+
+@import url("theme.css?v=0.0.1");
+@import url("fonts.css?v=0.0.1");
+
+:root {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--md-on-surface);
+  background: var(--md-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--md-surface); }
+body {
+  display: grid;
+  grid-template-rows: var(--bar-h) minmax(320px, 1fr) auto var(--status-h);
+  height: 100dvh;
+  user-select: none;
+  -webkit-user-select: none;
+}
+[hidden] { display: none !important; }
+/* what is read stays selectable (U6): cards, About, the paper, the status line */
+.card, .dialog-body, #status, #tty-paper, .program-card { user-select: text; -webkit-user-select: text; }
+.card button, .program-card button { user-select: none; -webkit-user-select: none; }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--md-primary); }
+:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+.icon { width: 20px; height: 20px; fill: currentColor; flex: none; display: block; }
+code, pre, .mono { font-family: var(--mono); }
+
+/* ---- buttons (Material 3: filled, tonal, text, icon; state layers) ---- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--md-primary);
+  font-weight: 560;
+  cursor: pointer;
+  white-space: nowrap;
+  isolation: isolate;
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 120ms var(--ease);
+  z-index: -1;
+}
+.btn:hover::before { opacity: var(--state-hover); }
+.btn:active::before { opacity: var(--state-press); }
+.btn.filled { background: var(--md-primary); color: var(--md-on-primary); }
+.btn.tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.btn.has-icon { padding-left: 12px; }
+.btn.small { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn[aria-disabled="true"] { cursor: default; color: color-mix(in srgb, var(--md-on-surface) 38%, transparent); }
+.btn.tonal[aria-disabled="true"], .btn.filled[aria-disabled="true"] { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); }
+.btn[aria-disabled="true"]::before { display: none; }
+.btn.icon-only { width: 40px; padding: 0; color: var(--md-on-surface-variant); }
+.btn[aria-pressed="true"] { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+
+/* ---- the top bar (U3) ---- */
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 0 16px;
+  background: var(--md-surface-low);
+  border-bottom: 1px solid var(--md-outline-variant);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: 16px; }
+.brand-name { font-size: 18px; font-weight: 640; letter-spacing: 0.01em; }
+.brand-tag { color: var(--md-on-surface-variant); font-size: 13px; }
+.brand-mark { width: 26px; height: 26px; align-self: center; }
+.spacer { flex: 1; }
+#programs-label { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+/* sets the terminal's power apart from the Programs menu, so the two do not read as one */
+.bar-sep { width: 1px; height: 24px; margin: 0 8px; background: var(--md-outline-variant); }
+
+/* ---- the stage ---- */
+#stage { position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 35%, #1a2027 0%, var(--md-surface) 70%); }
+#view3d, #screen, #tube-overlay { position: absolute; inset: 0; }
+#view3d canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+#view3d:focus-visible { outline-offset: -3px; }
+.fade { transition: opacity 280ms var(--ease); }
+@media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
+
+/* the band: the viewpoint menu and the view tools (V2) */
+#band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  pointer-events: none;
+  z-index: 3;
+}
+#band > * { pointer-events: auto; }
+.crumbs { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px 4px; }
+.crumb { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 6px 0 10px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--md-primary); font-weight: 600; cursor: pointer; }
+.crumb:hover { background: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
+.tools { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px; }
+
+/* the Screen viewpoint: the 2D picture in a thin bezel (V3) */
+/* clear of the band above (its buttons end at 52 px) and of the strip below, whose height the
+   stage measures (--strip-space: the strip, its gap to the stage's foot, and a margin) */
+#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 68px 16px var(--strip-space, 168px); background: #030405; }
+.bezel { height: 100%; aspect-ratio: 1; max-width: 100%; padding: 10px; border-radius: 18px; background: var(--scope-bezel); box-shadow: 0 0 0 1px #22262b, 0 10px 40px #000; }
+#crt { display: block; width: 100%; height: 100%; border-radius: 10px; cursor: crosshair; touch-action: none; }
+
+/* the Tube viewpoint: its time, its traces and the live inset (V4, V5) */
+#tube-overlay { pointer-events: none; z-index: 2; }
+#tube-overlay > * { pointer-events: auto; }
+/* a viewpoint's own controls sit under the viewpoint menu (V5): the Tube's time */
+.tube-time { position: absolute; top: 56px; left: 12px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-full); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); }
+.beam-state { display: block; margin-top: 4px; color: var(--md-on-surface); font-weight: 600; }
+.beam-state[data-on="true"] { color: var(--phosphor); }
+.tube-note { position: absolute; top: 100px; left: 12px; max-width: 300px; margin: 0; padding: 6px 10px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); color: var(--md-on-surface-variant); font-size: 12px; }
+#traces { position: absolute; left: 12px; right: 12px; bottom: 112px; height: 116px; width: calc(100% - 24px); border-radius: var(--radius-m); background: color-mix(in srgb, var(--md-surface-low) 92%, transparent); }
+#inset { position: absolute; top: 56px; right: 12px; width: 168px; height: 168px; border-radius: 10px; border: 1px solid var(--md-outline-variant); background: var(--crt-face); cursor: pointer; padding: 0; }
+#inset canvas { width: 100%; height: 100%; display: block; border-radius: 9px; }
+
+/* ---- the card (U6) ---- */
+.card {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  width: 300px;
+  max-height: calc(100% - 160px);
+  overflow: auto;
+  padding: 14px 16px 12px;
+  border-radius: var(--radius-l);
+  background: var(--md-surface-high);
+  border: 1px solid var(--card-edge);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  z-index: 4;
+}
+.card h2 { margin: 0 28px 6px 0; font-size: 16px; font-weight: 620; }
+.card p { margin: 0 0 8px; color: var(--md-on-surface-variant); }
+.card .confidence { font-size: 12px; color: var(--md-outline); }
+.card .card-close { position: absolute; top: 6px; right: 6px; }
+/* in the Tube the card sits below the live inset, which it must not cover (V4) */
+#stage[data-view="tube"] .card { top: 236px; max-height: calc(100% - 248px); }
+.card .card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+
+/* ---- the console strip (U5) ---- */
+#strip {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  padding: 8px 16px 10px;
+  border-radius: var(--radius-l);
+  background: color-mix(in srgb, var(--md-surface-high) 94%, transparent);
+  border: 1px solid var(--card-edge);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  z-index: 3;
+}
+/* three groups of one height: the labels on one line, each group's controls centred under its label */
+.strip-group { display: flex; flex-direction: column; gap: 6px; }
+.strip-group > :last-child { margin-block: auto; }
+.strip-label { font-size: 11px; line-height: 14px; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
+.strip-label-row { display: flex; align-items: center; justify-content: space-between; height: 14px; }
+.strip-mini { width: 20px; height: 20px; margin: -3px -4px -3px 0; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--md-on-surface-variant); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.strip-mini:hover { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); color: var(--md-on-surface); }
+.strip-mini .icon { width: 16px; height: 16px; }
+.strip-sep { width: 1px; margin: 2px 0; background: var(--md-outline-variant); }
+.dials { display: flex; gap: 4px; }
+.dial-col { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.dial { width: 48px; height: 46px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; display: flex; align-items: center; justify-content: center; }
+.dial svg { width: 42px; height: 42px; }
+.dial-steps { display: flex; align-items: center; gap: 1px; }
+.dial-step { width: 16px; height: 16px; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--md-on-surface-variant); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.dial-step:hover { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); color: var(--md-on-surface); }
+.dial-step:active { background: color-mix(in srgb, var(--md-on-surface) 22%, transparent); }
+.dial-step .icon { width: 16px; height: 16px; }
+.dial .knob { fill: #1b1513; stroke: #4d443d; stroke-width: 1.5; }
+.dial .pointer { stroke: #e8e2d6; stroke-width: 2.4; stroke-linecap: round; }
+.dial-steps .n { font-size: 10px; color: var(--md-outline); line-height: 1; min-width: 8px; text-align: center; }
+.dial:active { cursor: grabbing; }
+.keys { display: grid; grid-template-columns: repeat(3, 26px) 8px 26px; grid-template-rows: repeat(5, 13px); gap: 2px; }
+.fkey.pulse { background: #e8e2d6; font-weight: 700; }
+.fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }
+.fkey[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); }
+.pen { display: flex; align-items: center; gap: 8px; width: 140px; font-size: 12px; line-height: 1.3; color: var(--md-on-surface-variant); }
+.pen[aria-disabled="true"] { opacity: 0.55; }
+.pen .icon { width: 22px; height: 22px; flex: none; }
+
+/* ---- the dock (U1) ---- */
+#dock { display: flex; flex-direction: column; min-height: 0; background: var(--md-surface-low); border-top: 1px solid var(--md-outline-variant); }
+#dock-handle { height: 8px; margin-top: -4px; cursor: ns-resize; position: relative; z-index: 5; touch-action: none; }
+#dock-handle::after { content: ""; position: absolute; left: 50%; top: 3px; width: 36px; height: 4px; transform: translateX(-50%); border-radius: 2px; background: var(--md-outline-variant); }
+#dock-handle:hover::after, #dock-handle:focus-visible::after { background: var(--md-primary); }
+.dock-bar { display: flex; align-items: center; gap: 2px; padding: 0 8px 0 12px; height: 40px; flex: none; }
+.dock-tab { position: relative; height: 36px; padding: 0 14px; border: 0; background: none; color: var(--md-on-surface-variant); font-weight: 560; cursor: pointer; border-radius: var(--radius-s) var(--radius-s) 0 0; }
+.dock-tab[aria-selected="true"] { color: var(--md-primary); box-shadow: inset 0 -3px 0 var(--md-primary); }
+.dock-tab .dot { position: absolute; top: 9px; right: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--attention); }
+.dock-pane { flex: 1; min-height: 0; overflow: auto; padding: 4px 16px 12px; }
+#dock.folded .dock-pane { display: none; }
+
+/* the program card (U7) */
+.program-card { max-width: 980px; }
+.program-card h2 { margin: 4px 0 2px; font-size: 18px; font-weight: 620; }
+.program-card .rebuilds { color: var(--md-on-surface-variant); margin: 0 0 10px; font-size: 13px; }
+.program-card h3 { margin: 14px 0 4px; font-size: 13px; font-weight: 640; color: var(--md-on-surface-variant); text-transform: none; }
+.program-card p { margin: 0 0 6px; }
+.program-card .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+/* a switch (Material 3): track and thumb, then its label */
+.switch { display: inline-flex; align-items: center; gap: 10px; height: 32px; padding: 0 12px 0 4px; border: 0; border-radius: var(--radius-full); background: none; color: var(--md-on-surface); cursor: pointer; font-weight: 560; }
+.switch:hover { background: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
+.switch-track { position: relative; width: 44px; height: 24px; border-radius: 12px; border: 2px solid var(--md-outline); background: var(--md-surface-highest); transition: background 120ms var(--ease), border-color 120ms var(--ease); }
+.switch-thumb { position: absolute; top: 4px; left: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--md-outline); transition: all 120ms var(--ease); }
+.switch[aria-checked="true"] .switch-track { background: var(--md-primary); border-color: var(--md-primary); }
+.switch[aria-checked="true"] .switch-thumb { left: 22px; top: 2px; width: 16px; height: 16px; background: var(--md-on-primary); }
+.program-card ul { margin: 0; padding-left: 18px; color: var(--md-on-surface-variant); }
+.program-card pre { margin: 0; padding: 8px 10px; border-radius: var(--radius-s); background: var(--md-surface-mid); overflow-x: auto; font-size: 12.5px; line-height: 1.45; }
+.program-card details summary { cursor: pointer; color: var(--md-primary); margin: 14px 0 4px; font-weight: 600; font-size: 13px; }
+.program-card .empty { color: var(--md-on-surface-variant); padding: 8px 0 4px; margin: 0; }
+.program-card.picking { max-width: none; }
+.program-card .program-picks { list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.program-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 8px 12px; border: 1px solid var(--card-edge); border-radius: var(--radius-m); background: var(--md-surface-mid); text-align: left; cursor: pointer; }
+.program-pick:hover { background: var(--md-surface-high); border-color: var(--md-outline-variant); }
+.program-pick strong { color: var(--md-primary); font-weight: 600; }
+.program-pick span { color: var(--md-on-surface-variant); font-size: 13px; }
+
+/* the Teletype: paper and keyboard (U9), after the 8800 simulator's */
+#pane-tty:not([hidden]) { display: flex; flex-direction: column; }
+.tty-keys { display: flex; gap: 6px; flex: none; margin: 4px 0 8px; }
+#tty-paper {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 52px;
+  overflow: auto;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: var(--tty-paper);
+  background-attachment: local;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.38 0 0 0 0 0.25 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  box-shadow: inset 0 12px 10px -10px rgba(60, 45, 20, 0.35);
+  color: var(--tty-ink);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 24px;
+  cursor: text;
+}
+#tty-paper:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+#tty-text { margin: 0; white-space: pre; font: inherit; text-shadow: 0 0 0.7px rgba(42, 38, 32, 0.55); min-width: 72ch; }
+.tty-cursor { background: var(--tty-ink); color: var(--tty-paper); text-shadow: none; }
+#tty-paper:focus .tty-cursor { animation: tty-blink 1s step-end infinite; }
+@keyframes tty-blink { 50% { background: transparent; color: var(--tty-ink); } }
+.tty-empty { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(520px, 90%); text-align: center; color: var(--tty-faint); font-family: var(--font); font-size: 14px; line-height: 1.6; pointer-events: none; }
+
+/* ---- the status line (P7) ---- */
+#status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--md-on-surface-variant);
+  background: var(--md-surface-low);
+  border-top: 1px solid var(--md-outline-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#status-text { overflow: hidden; text-overflow: ellipsis; }
+#status .fps { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--md-outline); }
+.narrow-notice { display: none; }
+@media (max-width: 1023px) {
+  .narrow-notice { display: block; position: absolute; left: 12px; right: 12px; top: 52px; z-index: 6; padding: 8px 12px; border-radius: var(--radius-m); background: var(--md-surface-highest); color: var(--md-on-surface); font-size: 13px; }
+}
+
+/* ---- menus, tooltips, dialogs (P10) ---- */
+.menu { position: fixed; z-index: 50; width: max-content; min-width: 140px; padding: 6px 0; border-radius: var(--radius-s); background: var(--md-surface-highest); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5); }
+.menu button { display: flex; align-items: center; gap: 10px; width: 100%; height: 40px; padding: 0 20px 0 14px; border: 0; background: none; text-align: left; cursor: pointer; }
+.menu button:hover, .menu button:focus-visible { background: color-mix(in srgb, var(--md-on-surface) 10%, transparent); outline: none; }
+.menu .check { width: 20px; }
+.menu-divider { height: 1px; margin: 6px 0; background: var(--md-outline-variant); }
+.tooltip { position: fixed; z-index: 60; max-width: 300px; padding: 6px 10px; border-radius: 6px; background: #e0e3e9; color: #1b2026; font-size: 12px; pointer-events: none; }
+.dialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 64px); padding: 0; border: 0; border-radius: var(--radius-l); background: var(--md-surface-high); color: var(--md-on-surface); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6); }
+.dialog::backdrop { background: var(--md-scrim); }
+.dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 8px 24px; }
+.dialog-head h2 { margin: 0; font-size: 20px; font-weight: 600; }
+.dialog-body { padding: 0 24px 20px; overflow: auto; max-height: calc(100vh - 140px); }
+.dialog-body h3 { margin: 18px 0 6px; font-size: 14px; color: var(--md-on-surface-variant); }
+.dialog-body ol, .dialog-body ul { margin: 0; padding-left: 22px; }
+.dialog-body li { margin: 2px 0; }
+.about-band { display: flex; gap: 16px; align-items: center; }
+.about-band img { width: 64px; height: 64px; }
+.about-band .version { color: var(--md-on-surface-variant); }
+.selftest { position: fixed; right: 12px; bottom: 40px; z-index: 40; width: 420px; max-height: 60vh; overflow: auto; padding: 10px 14px; border-radius: var(--radius-m); background: var(--md-surface-highest); font-size: 12px; }
+.selftest .pass { color: var(--success); }
+.selftest .fail { color: var(--md-error); }

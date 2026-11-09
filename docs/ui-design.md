@@ -19,7 +19,7 @@ It is always on screen. Nothing covers it, and nothing pushes it out of view. Th
 
 ### P2. A control has one home
 
-If a control is wanted somewhere else, move it, or make both places visible at once. Don't make a second copy. Turning a dial by dragging it in 3D and turning the same dial in the console strip are **not** copies. They are two ways to one operation, and they follow the same rules.
+If a control is wanted somewhere else, move it, or make both places visible at once. Don't make a second copy. One exception: a section's empty state may offer the choices that fill it. With no program loaded, the Program tab lists the programs, each a row that loads it, as the Programs menu does; it is gone once a program is loaded. *(build, after the manual check: "Choose one from Programs" did not say where Programs was.)* Turning a dial by dragging it in 3D and turning the same dial in the console strip are **not** copies. They are two ways to one operation, and they follow the same rules.
 
 ### P3. Tools in one dock, one at a time
 
@@ -34,11 +34,11 @@ Space that is always there is for things that change while you watch: the pictur
 | Surface | Case | Translated (when languages come) |
 |---|---|---|
 | The machine: the Teletype's paper, the AMOS statements, ADEPT source, the marks on the console | UPPER CASE where the machine was | No: the ASR-33 and AMOS had no lower case, and statements are code |
-| The instrument: top bar, breadcrumb, cards, dock, status line | Sentence case | Yes |
+| The instrument: top bar, viewpoint menu, cards, dock, status line | Sentence case | Yes |
 
 ### P6. Unavailable is greyed and explained, never hidden
 
-A control that cannot be used right now stays where it is, greyed. When used, it answers in the status line with the reason. For example: the light pen works only on the Screen viewpoint; the Programs menu waits while the Teletype is still typing the last program's statements.
+A control that cannot be used right now stays where it is, greyed. When used, it answers in the status line with the reason. For example: the light pen works only on the Screen viewpoint.
 
 ### P7. One status line, always visible
 
@@ -54,7 +54,7 @@ What a 1968 operator saw and touched is the primary surface. Anything the real A
 
 ### P10. One component for each kind of thing
 
-Each kind of control is one component, used the same way everywhere: menu, dialog, icon button, tab, card, chip, breadcrumb. They follow Material Design 3 (states, shapes, elevation, motion), in our own colours.
+Each kind of control is one component, used the same way everywhere: menu, dialog, icon button, tab, card, chip. They follow Material Design 3 (states, shapes, elevation, motion), in our own colours.
 - **Icons are Material Symbols, as inline SVG.** No icon fonts, and no fonts or scripts from a CDN: the page needs no network but its own site.
 - **Every icon button has a tooltip and a screen-reader name.**
 - **The keyboard is first-class:** every control is reachable with Tab and has a visible focus ring. The dock's tabs follow the WAI-ARIA tabs pattern.
@@ -71,22 +71,24 @@ Each kind of control is one component, used the same way everywhere: menu, dialo
 
 | Name (the link's `view=`) | The stage shows | Reached from | Its own controls |
 |---|---|---|---|
-| `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables | Start; the breadcrumb | *Connections*: the machines fade and the cables light up |
-| `console` | The desk from the operator's seat: the scope, the dials, the keys, the light pen, the joystick | The desk's or the scope's card; the breadcrumb | none |
+| `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables; seen a little from above (about 17°), straight at the scope, which stands at the installation's middle, so its screen is centred and faces the reader *(build, after the manual check)* | Start; the viewpoint menu | none *(build: Connections, which dimmed the machines and lit the cables, was dropped from v0.0.1 after the manual check: not worth a place in the interface; the cables still glow faintly with their traffic)* |
+| `console` | The desk from the operator's seat: the scope, the dials, the keys, the light pen, the joystick | The desk's or the scope's card; the viewpoint menu | none |
 | `screen` (2D) | The camera flies to face the scope, then cross-fades to the full-resolution 2D picture in a thin bezel | The scope's card, *Look at the screen* | The light pen (V3) |
 | `tube` | The scope cut open: the gun, the yoke, the beam, the picture on the inside of the glass, with the X, Y and Z traces under it | The scope's card, *Cut it open* | Time: 1/100,000 on entry, then 1/1,000 or real |
 
-The breadcrumb names the path: *Room › Console › Screen*, or *Room › Console › Tube*. Each crumb also opens a list of its siblings.
+A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*), with its icon, and lists all four with theirs, the current one checked (Room ⌂, the same as Home's; Console, a desk; Screen, a monitor; Tube, a magnifier over a frame); any can be reached from any other. *Back* and Escape climb one level: Screen and Tube to Console, Console to Room. *(build, after the first manual check: this replaces a breadcrumb, Room › Console › Screen. The tree is three levels of four viewpoints, so the breadcrumb added a notion of levels without helping anyone find a way; and Screen and Tube, both close-ups of the scope, appeared at different places in its lists. Its dropdown's tooltip also covered the dropdown.)*
 
 ### Rules
 
-- **V1. Click selects; actions move.** Clicking a part selects it and opens its card. The card offers the part's viewpoints as buttons. A double-click does the card's first action. A drag that ends over a part never moves the camera.
-- **V2. Moves are animated and reversible.** The camera flies. A 2D surface cross-fades in at the end of the flight and out at the start of the way back. *Back*, the breadcrumb and Escape each climb one level.
+- **V1. Click selects; actions move.** Clicking a part selects it and opens its card. The card offers the part's viewpoints, less the one shown, then *Look closer*. The desk is the exception: it is the console, so its card always offers *Sit at the console*, which at Console reframes it, and no *Look closer*, since Console is its close look. A double-click does the card's first action, so every part answers one. A drag that ends over a part never moves the camera. Choosing the viewpoint already shown from the menu reframes it. A viewpoint is reached with nothing selected. *(build, after the manual check)*
+- **V1b. A card belongs to the part, not to the camera.** Clicking a part opens its card. Acting on the part, by its card's buttons or a double-click, keeps the card open, whether that leads to a close look or to the part's viewpoint (the desk to Console). Navigating by the instrument, the viewpoint menu, *Back*, ⌂ or Escape, closes it, as does its close button or a click on nothing. On the Screen the card closes, since no part is shown there; in the Tube it sits below the live inset (V4). *(build, after the manual check)*
+- **V1a. A close look is a move, not a viewpoint.** *Look closer* flies the camera in to frame the part beside its card, always from the same place: the first of a fixed list of directions from which no other part hides the side its controls are on. For most parts that side is the front, and the list runs from the front and a little above, then turned left and right, then higher, then from the sides. For the devices on the desk (the dial box, the function switches, the joystick, the light pen) it is the top, and the list starts from above and a little in front, as the operator saw them. A part's stand is left out of its close look, so the Teletype's frames the machine, not its legs. Each part's side is its `face` in `params/terminal.json`; a part may also name, as its `look`, a direction to try first (the Teletype: from the front and well above, for its keyboard and platen). The card stays open with nothing highlighted. It is not in the link or the menu; *Back* and Escape return to the viewpoint's framing. *(build: every part can be selected, and now every part can be looked at.)*
+- **V2. Moves are animated and reversible.** The camera flies. A 2D surface cross-fades in at the end of the flight and out at the start of the way back. *Back*, the viewpoint menu and Escape each climb one level.
 - **V3. The screen is 2D at the end of the zoom.** The working surface for the picture is the flat canvas at full resolution, not a 3D camera looking at the textured glass. The glass's curve, the perspective and the texture's lower resolution would all soften text, the game's ticks and fine lines, and the light pen would need ray-casting into the texture. The flight makes the 2D screen read as the face of the same tube. The light pen works here and only here.
 - **V4. The picture is always on screen.** In Room and Console it is on the scope's face. In Tube a small live inset of the screen sits in a corner of the stage; clicking it goes to Screen.
-- **V5. A viewpoint owns its controls.** The Tube owns its time, the Room its Connections. The console strip and the dock never change with the viewpoint. Leaving the Tube puts time back to real time.
+- **V5. A viewpoint owns its controls.** The Tube owns its time. A viewpoint's own controls sit in one place, a chip under the viewpoint menu; the band's right holds only what works in every viewpoint (⌂, zoom, *Back*). **⌂ goes to the Room, the way in, framed afresh, from anywhere**, as in the 8800 and Leibniz simulators; reframing the viewpoint shown is choosing it again in the menu. *(build, after the manual check: ⌂ first reframed the viewpoint shown, which the menu already did.)* The console strip and the dock never change with the viewpoint. Leaving the Tube puts time back to real time.
 - **V6. A viewpoint is part of the link** (`#view=screen`). Its name is chosen now, for good (U13).
-- **V7. Keyboard and screen readers** use the breadcrumb and the cards. Every viewpoint can be reached without pointing into the 3D canvas.
+- **V7. Keyboard and screen readers** use the viewpoint menu and the cards. Every viewpoint can be reached without pointing into the 3D canvas.
 - **V8. Under a 2D viewpoint the 3D scene stops rendering.**
 
 ## Part 3. The layout
@@ -94,9 +96,9 @@ The breadcrumb names the path: *Room › Console › Screen*, or *Room › Conso
 The installation seen whole is much wider than it is tall, so, as in the 8800 simulator, the dock goes **below** the stage. Below it, the Teletype also gets the full width for its 72 columns.
 
 ```
-┌ [logo] AGT-30 Simulator   [▤ Programs ▾]  [⟲ Reset]                          [ⓘ] ┐  top bar
+┌ [logo] AGT-30 Simulator   [▤ Programs ▾]  [⏻ Reboot]                         [ⓘ] ┐  top bar
 ├──────────────────────────────────────────────────────────────────────────────────┤
-│ Room › Console › Screen ▾                                    [⌂] [− +]   [Back]  │  stage band
+│ Console ▾                                                    [⌂] [− +]   [Back]  │  stage band
 │                                                                                  │
 │                  THE STAGE (3D room, or the 2D screen)        ┌ card ──────────┐ │
 │                                                               │ The scope      │ │
@@ -122,7 +124,7 @@ The dock is full width under the stage, resizable by its top edge, and folds to 
 - **Program** is the loaded program's card (U7).
 - **Teletype** is the paper and keyboard (U9).
 
-The dock opens on Program when a program is chosen, and on Teletype when a program types on the paper while the dock is folded. Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4).
+A folded dock opens on Program when a program is chosen; an open one stays on the tab the reader chose, and the other tab gets an activity dot. *(build, after the manual check: choosing a program first switched an open dock back to Program, away from the Teletype the reader was watching.)* Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4).
 
 *Why below:* the room is a wide, flat subject, so a dock on the right would letterbox it. The Teletype needs the width.
 *Rejected:*
@@ -135,28 +137,28 @@ The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop. Recent Chrome, 
 
 ### U3. The top bar
 
-- **Left** (the machine): the logo and title, the **Programs** menu, and **Reset**, which powers the terminal off and on again: core as at start, the paper cleared.
+- **Left** (the machine): the logo and title, the **Programs** menu, whose button names the program loaded (*A cube turned by the dials ▾*), so it is in sight in every viewpoint, the Screen included, or says *Programs* with none *(build, after the manual check)*, and, set apart from it, **Reboot**, with the power icon, which reboots the whole terminal: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program"; one reboots a machine, never a program.)*
 - **Right** (the app): **About**.
 
-There is no language menu while there is one language. Programs and Reset answer in the status line while the Teletype is typing, and are greyed meanwhile (P6).
+There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
 
 ### U4. Each viewpoint fits its subject into the stage's free area
 
-The stage's top band (breadcrumb, view tools), the console strip and an open card all float over the canvas. Every 3D viewpoint frames its subject in the area they leave free, filling 90 % of whichever side runs out first. It refits when the stage's size changes, until the reader moves the camera themselves; after that the camera stays theirs until they choose a viewpoint or press ⌂. (This is the Leibniz simulator's rule, adopted here.)
+The stage's top band (viewpoint menu, view tools), the console strip and an open card all float over the canvas. Every 3D viewpoint frames its subject in the area the band and the strip leave free, filling 90 % of whichever side runs out first. An open card is not counted: it sits at the stage's edge, and opening or closing it never moves the view (V1). *(build: counting it shifted the picture on a part's first click.)* It refits when the stage's size changes, until the reader moves the camera themselves; after that the camera stays theirs until they choose a viewpoint (or press ⌂, which goes to the Room). (This is the Leibniz simulator's rule, adopted here.)
 
 ### U5. The console strip: dials, function keys, light pen
 
 The strip floats at the bottom of the stage, centred, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
 
-- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. Whether a drag goes round the knob or vertically is settled by trying both (an open question in [../design/v0.0.1.md](../design/v0.0.1.md)).
-- **Sixteen function keys** in a 4 × 4 grid, the last column set apart, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard.
+- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its centre, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* A small button on the *Dials* label line turns all six back to the centre at once, a convenience of ours: the operator turned each by hand. It is not the top bar's *Reboot*, which restarts the whole terminal. §6).
+- **Sixteen function keys** in a 4 × 4 grid, the last column set apart, and **PULSE 1** above them, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard. A key pressed here goes down on the desk in 3D and turns amber there, and one pressed on the desk shows down here (P2). PULSE 1 is there because it is on the box; no program of v0.0.1 uses it, so pressing it says so in the status line (R10). *(build, after the manual check)*
 - **The light pen.** It shows its state: *pen: point at the screen* on Screen, greyed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
 
-PULSE 1, the joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so.
+The joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so.
 
 ### U6. Cards: one component, one per part or program
 
-- **A part's card** gives the part's name, what it did, how sure its size is (documented, measured from photos, or estimated), and its viewpoint buttons.
+- **A part's card** gives the part's name, its buttons (its viewpoints and *Look closer*) right under the name, where they are in sight however long the text, then what it did and how sure its size is (documented, measured from photos, or estimated).
 - **The Program tab's card** follows U7.
 
 Cards are text that can be selected and copied.
@@ -166,17 +168,21 @@ Cards are text that can be selected and copied.
 In this order:
 1. The program's title, and what it rebuilds (*FJCC68 Fig. 7*).
 2. How to use it, naming the controls: *Turn dials 0–2.*
-3. Its actions, as buttons. Each one types a statement (U8).
+3. Its actions: a switch for a setting that is on or off (*Depth cueing*, on every 3D program's card, typing a VIEW whose range fits that picture; it shows the machine's own state, so a VIEW typed by hand moves it too), and buttons for the rest. Each types a statement (U8). *(build, after the manual check: the tunnel had two buttons, on and off, which did not show which state it was in)*
 4. *What is ours*: the program's reconstructions, linked to About's list.
 5. *The statements*: what the Programs menu typed, as on the paper.
 6. *The source*: the ADEPT file, read-only, folded by default.
 
-### U8. The Programs menu and card actions type on the Teletype
+### U8. The Programs menu and card actions type on the Teletype, fast
 
-Choosing a program types its statements on the Teletype at the ASR-33's 10 characters a second, as an operator would have. The paper shows the session, and the card shows the same statements. A card's action buttons (*Depth cueing off*, *More lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or Reset, stops it.
+Choosing a program types its statements on the Teletype, and the AMOS monitor runs them, as an operator's would have been. The paper shows the session, and the card shows the same statements. A card's switches and buttons (*Depth cueing*, *2,000 lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or *Reboot*, stops it.
 
-*Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves. It takes as long as it did, and that is short: the longest program's statements take about 4 seconds.
-*Rejected:* an instant load, which hides the monitor and makes the paper a lie.
+The menu and the card type as fast as the monitor takes the characters, 1 ms each, so the picture appears at once, and their echo, and what they set off (the monitor's replies, a program's first line), print at once too. What the machine types on its own (a program's output, BUMP's new RATE) prints at the ASR-33's 10 characters a second, as does a visitor's own typing. *(build, after the manual check: the echo first printed at 10 a second, and tic-tac-toe, whose first act is to type a line, could not be played for 15 seconds while it waited behind it.)*
+
+*Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves.
+*Rejected:*
+- an instant load that bypasses the monitor, which hides it and makes the paper a lie;
+- typing at the ASR-33's 10 a second *(the first build)*: the scope stayed dark for up to 5 seconds while the statements were typed, and with the dock on the program card nothing said why *(changed after the manual check)*.
 
 ### U9. The Teletype: paper and keyboard
 
@@ -220,7 +226,7 @@ The link format names a viewpoint and a program: `#view=tube&program=tic-tac-toe
 
 About is a dialog with a title band:
 - the logo, the version and what the simulator is;
-- **What is reconstructed**: the short form of each entry in [../design/reconstructions.md](../design/reconstructions.md);
+- one line saying that where the documents stop the simulator reconstructs, that each program's card says what is ours in it, and a link to the whole list in the README's *What is reconstructed* *(build, after the manual check: About first listed all twenty reconstructions, too long for an About; the README lists them, and tests/app.test.js keeps that list complete)*;
 - credits: sources, people and libraries;
 - the licences, one per line;
 - a link to the source repository.

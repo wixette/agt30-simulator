@@ -1,0 +1,179 @@
+[ PCUBE: A CUBE IN PERSPECTIVE, THE WORK SHARED BETWEEN THE ARRAY AND THE
+[ PROCESSOR.  PERSPECTIVE MAKES A POINT AT DEPTH Z LOOK 1 / (1 - Z/2) AS
+[ LARGE, WITH THE EYE 2 UNITS FROM THE CENTRE.  THE ARRAY ONLY MULTIPLIES
+[ AND ADDS (FJCC68 EQS. 5-7), AND WHAT IT COMPUTES GOES TO THE SCREEN, NOT
+[ BACK TO THE PROCESSOR, SO IT CANNOT DIVIDE BY DEPTH.  BUT A POINT'S
+[ DEPTH NEEDS ONLY THE LAST ROW OF THE MATRIX.  SO, ONCE A FRAME, A CLOCK
+[ ROUTINE WORKS OUT EACH CORNER'S DEPTH AND ITS SCALE, ONE DIVIDE A
+[ CORNER; THE PICTURE LOADS THAT SCALE BEFORE EACH POINT (LDSCL); AND
+[ THE ARRAY TURNS THE POINT AND SCALES IT: THE DIVISION DONE BY THE
+[ PROCESSOR, THE ROTATION BY THE ARRAY.
+[ TYPE:  ADEPT ("PCUBE")!   DSPLY (V.PCUBE)!
+[        CLOCK (DIALS+1, DI.EX)!   CLOCK (PCUBE+1, PC.EX)!
+[ NUMBERS ARE FRACTIONS TIMES 2**14 IN WHOLE 30-BIT WORDS.
+[
+[ THE PICTURE: THE CUBE'S EDGES, AS V.CUBE DRAWS THEM, EACH POINT AFTER
+[ ITS CORNER'S SCALE.  A SCALE REGISTER HOLDS LESS THAN 1, BUT THE NEAREST
+[ CORNER LOOKS 1.43 TIMES AS LARGE, SO THE SCALES ARE KEPT DIVIDED BY 1.5
+[ AND THE PICTURE SCALE IS RAISED TO MAKE UP FOR IT.
+[ CORNER K IS X + 2 Y + 4 Z, EACH 1 FOR + .35, 0 FOR - .35.
+V.PCUBE: TEXT /V.PCUBE/
+        LDPS (.99)
+        RXYZ'IRL (DIALZ'DIR, DIALX'DIR, DIALY'DIR)
+        LDSCL'IRL (S0'DIR); MOVE (-.35, -.35, -.35)     [ THE BACK FACE
+        LDSCL'IRL (S1'DIR); DRAW (-.35, .35, -.35)
+        LDSCL'IRL (S3'DIR); DRAW (-.35, .35, .35)
+        LDSCL'IRL (S2'DIR); DRAW (-.35, -.35, .35)
+        LDSCL'IRL (S0'DIR); DRAW (-.35, -.35, -.35)
+        LDSCL'IRL (S4'DIR); DRAW (.35, -.35, -.35)      [ UP TO THE FRONT
+        LDSCL'IRL (S5'DIR); DRAW (.35, .35, -.35)
+        LDSCL'IRL (S7'DIR); DRAW (.35, .35, .35)
+        LDSCL'IRL (S6'DIR); DRAW (.35, -.35, .35)
+        LDSCL'IRL (S4'DIR); DRAW (.35, -.35, -.35)
+        LDSCL'IRL (S1'DIR); MOVE (-.35, .35, -.35)      [ THE THREE EDGES LEFT
+        LDSCL'IRL (S5'DIR); DRAW (.35, .35, -.35)
+        LDSCL'IRL (S3'DIR); MOVE (-.35, .35, .35)
+        LDSCL'IRL (S7'DIR); DRAW (.35, .35, .35)
+        LDSCL'IRL (S2'DIR); MOVE (-.35, -.35, .35)
+        LDSCL'IRL (S6'DIR); DRAW (.35, -.35, .35)
+        RET
+[ EACH CORNER'S SCALE, WRITTEN EACH FRAME: S0 TO S7
+S0: .5; S1: .5; S2: .5; S3: .5; S4: .5; S5: .5; S6: .5; S7: .5
+[ THE CORNERS, IN THE SAME ORDER
+VX:     -.35; .35; -.35; .35; -.35; .35; -.35; .35
+VY:     -.35; -.35; .35; .35; -.35; -.35; .35; .35
+VZ:     -.35; -.35; -.35; -.35; .35; .35; .35; .35
+[
+[ THE CLOCK ROUTINE.  THE MATRIX OF RXYZ IS RZ RY RX, AND ITS LAST ROW,
+[ WHICH GIVES THE DEPTH, IS (- SY, CY SX, CY CX): Z'S ANGLE DOES NOT ENTER.
+PCUBE:  0
+        MDAR DIALY
+        JPSR PC.SIN
+        ARMD SY
+        MDAR DIALY
+        MDAE'F 20000            [ COS A = SIN (A + 1/2)
+        JPSR PC.SIN
+        ARMD CY
+        MDAR DIALX
+        JPSR PC.SIN
+        ARMD SX
+        MDAR DIALX
+        MDAE'F 20000
+        JPSR PC.SIN
+        ARMD CX
+        MDAR'N SY
+        ARMD M20                [ - SY
+        JPSR PC.MUL; CY; SX
+        ARMD M21                [ CY SX
+        JPSR PC.MUL; CY; CX
+        ARMD M22                [ CY CX
+[ EACH CORNER: ITS DEPTH RZ, THEN ITS SCALE DIVIDED BY 1.5,
+[ 1 / (1.5 - .75 RZ) = (1/2) / (.75 - .375 RZ) = 2**27 / (.75 - .375 RZ)
+[ IN THESE UNITS.
+        MDAR'F 8.
+        ARMD PC.N
+        MDAR'F VX
+        ARMD P.VX
+        MDAR'F VY
+        ARMD P.VY
+        MDAR'F VZ
+        ARMD P.VZ
+        MDAR'F S0
+        ARMD P.S
+PC.V:   MDAR'I'X P.VX
+        ARMD CRX
+        MDAR'I'X P.VY
+        ARMD CRY
+        MDAR'I'X P.VZ
+        ARMD CRZ
+        JPSR PC.MUL; M20; CRX   [ RZ = M20 X + M21 Y + M22 Z
+        ARMD T3
+        JPSR PC.MUL; M21; CRY
+        MDAE T3
+        ARMD T3
+        JPSR PC.MUL; M22; CRZ
+        MDAE T3
+        ARMD RZ
+        JPSR PC.MUL; K375; RZ
+        ARMD T3
+        MDAR K75
+        MDAE'N T3
+        ARMD DEN                [ .75 - .375 RZ
+        MDAR TWO27
+        DIVL DEN
+        ARMD'I'X P.S            [ THE CORNER'S SCALE
+        MDAR PC.N
+        MDAE'F'N 1
+        ARMD PC.N
+        JPLS PC.V
+PC.EX:  NOOP                    [ CLOCK PUTS THE RETURN HERE
+[
+[ PC.MUL: AR = A TIMES B, TWO FRACTIONS.  CALL:  JPSR PC.MUL; A; B
+[ (A AND B ARE THE WORDS' ADDRESSES)
+PC.MUL: 0
+        MDAR'I'X PC.MUL
+        ARMD PM.A
+        MDAR'I'X PC.MUL
+        ARMD PM.B
+        MDAR'I PM.A
+        MPYL'I PM.B             [ 2**14 TIMES 2**14
+        ARRS 14.
+        JUMP'I PC.MUL
+[
+[ PC.SIN: AR = SIN (PI AR), AR A FRACTION OF PI FROM -3/2 TO 3/2.  IT IS
+[ BROUGHT INTO -1/2 .. 1/2 BY SIN (PI X) = SIN (PI (1 - X)), THEN AN ODD
+[ POLYNOMIAL OF DEGREE 7 IN X, ITS COEFFICIENTS TIMES 2**11.
+PC.SIN: 0
+        ARMD PS.X
+        MDAE'F'N 20000          [ X - 1/2
+        JPAN PS.A
+        MDAR'F 40000            [ X >= 1/2: 1 - X
+        MDAE'N PS.X
+        ARMD PS.X
+        JUMP PS.B
+PS.A:   MDAR PS.X
+        MDAE'F 20000            [ X + 1/2
+        JPAN PS.N
+        JUMP PS.B
+PS.N:   MDAR'F'N 40000          [ X < -1/2: -1 - X
+        MDAE'N PS.X
+        ARMD PS.X
+PS.B:   MDAR PS.X
+        MPYL PS.X
+        ARRS 14.
+        ARMD PS.X2              [ X SQUARED
+        MPYL PS.C7
+        ARRS 14.
+        MDAE PS.C5
+        MPYL PS.X2
+        ARRS 14.
+        MDAE PS.C3
+        MPYL PS.X2
+        ARRS 14.
+        MDAE PS.C1
+        MPYL PS.X
+        ARRS 11.
+        ARMD PS.R               [ KEPT WITHIN A FRACTION: -1 < SIN < 1
+        MDAE'F'N 37777
+        JPAN PS.UP
+        MDAR'F 37777
+        JUMP'I PC.SIN
+PS.UP:  MDAR PS.R
+        MDAE'F 37777
+        JPAN PS.LO
+        MDAR PS.R
+        JUMP'I PC.SIN
+PS.LO:  MDAR'F'N 37777
+        JUMP'I PC.SIN
+PS.C1:  6434.                   [ PI
+PS.C3:  -10583.                 [ - PI**3 / 6
+PS.C5:  5223.                   [ PI**5 / 120
+PS.C7:  -1227.                  [ - PI**7 / 5040
+[ WORKING WORDS
+SX: 0; CX: 0; SY: 0; CY: 0; M20: 0; M21: 0; M22: 0
+T3: 0; RZ: 0; DEN: 0; CRX: 0; CRY: 0; CRZ: 0
+PC.N: 0; P.VX: 0; P.VY: 0; P.VZ: 0; P.S: 0
+PM.A: 0; PM.B: 0; PS.X: 0; PS.X2: 0; PS.R: 0
+K375:   .375
+K75:    .75
+TWO27:  1000000000              [ 2**27

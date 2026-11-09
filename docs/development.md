@@ -10,10 +10,10 @@ How to run, check, change and release the simulator. Related documents:
 There is nothing to build. Serve the repository's root over HTTP:
 
 ```
-python3 -m http.server 8000
+pnpm serve           # or: python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000/>. Browsers do not load modules from `file://`, so opening `index.html` from disk does not work.
+Then open <http://localhost:8000/>. `pnpm serve` tells the browser not to cache, so an edited module is always the one loaded. Browsers do not load modules from `file://`, so opening `index.html` from disk does not work.
 
 **Options in the address** (developer options, not linked from the page):
 
@@ -21,7 +21,7 @@ Then open <http://localhost:8000/>. Browsers do not load modules from `file://`,
 |---|---|
 | `?selftest` | Runs the page's acceptance checks and shows a tick or a cross for each; publishes `window.__selftest = { done, passed, failed }` |
 | `?phosphor=p31`, `p4` or `p7` | Uses that phosphor model (R14). `p31` is the default |
-| `?debug` | Exposes the machine to the console as `agt` |
+| `?debug` | Exposes the machine to the console as `agt`, and the stage as `stage` |
 
 The link format of the page itself (`#view=`, `#program=`) is described in [ui-design.md](ui-design.md), U13. It is not frozen before 1.0.0.
 
@@ -34,11 +34,14 @@ The link format of the page itself (`#view=`, `#program=`) is described in [ui-d
 
 ```
 pnpm install
+pnpm check        # all three below, in order
 pnpm check:refs   # no private references, local paths or broken links
 pnpm typecheck    # the JSDoc types, checked strictly; nothing is compiled
 pnpm test         # the model, the programs, the scene and the page's data
 reuse lint        # every file's licence is declared (REUSE.toml, LICENSES/)
 ```
+
+`reuse` is a Python tool; without installing it, `uvx --from 'reuse[charset-normalizer]' reuse lint` runs it.
 
 CI runs all four on every push and pull request.
 
@@ -48,7 +51,7 @@ CI runs all four on every push and pull request.
 - **The version lives in one place:** `package.json`. Set it with `pnpm version <x.y.z>`, which also writes the `?v=` stamps. It does not commit or tag (`.npmrc`).
 - **A release is a pull request named for its version.** It is tagged `vX.Y.Z` on its merge commit, and its changes are listed in `CHANGELOG.md`. Versions 0.0.x are marked as pre-releases on GitHub.
 - **Each push to `main` deploys** the site to GitHub Pages once its tests have passed.
-- **Release media** (`pnpm shots`) are written outside the repository. Only the README's pictures are committed.
+- **Release media** (`pnpm shots`) are written outside the repository, into `~/Downloads/agt30-v<version>-media/shots/` (or `--out`). Only the README's three pictures are committed: `pnpm shots --readme` rewrites them. `--only <part of a name>` takes some of the shots.
 
 ## Deploying behind a cache
 

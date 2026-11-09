@@ -1,0 +1,41 @@
+[ PENHT: READ THE PEN-HIT TABLE (DSPLY P. 30).  WHEN THE LIGHT PEN SEES A
+[ LINE WHILE THE PE BIT IS SET, DSPLY ENTERS THE ITEM THAT DREW IT, AND THE
+[ IMAGE IT WAS DRAWN IN, IN A CIRCULAR TABLE OF 16 ENTRIES.
+[ CALL:  JPSR PENHT; N; ITA; IMA
+[ N, ITA AND IMA ARE ADDRESSES: N HOLDS WHICH ENTRY (0 THE LATEST, 1 THE
+[ ONE BEFORE ...); THE ITEM'S ADDRESS GOES TO ITA, THE IMAGE'S TO IMA.
+[ THE TABLE'S LAYOUT IS OURS: PHT HOLDS THE NUMBER OF HITS SO FAR, THEN
+[ TWO WORDS AN ENTRY.  A PROGRAM WAITING FOR A HIT WATCHES PHT CHANGE.
+PENHT:  0                       [ THE RETURN ADDRESS GOES HERE
+        MDAR'I'X PENHT          [ THE ADDRESS OF N; STEP PAST IT
+        ARMD PH.A
+        MDAR'I PH.A
+        ARMD PH.N               [ N
+        MDAR PHT                [ HITS SO FAR
+        MDAS'F 17
+        MDAS'N PH.N             [ + 15 - N
+        MDAR'A PH.M             [ MODULO 16: THE ENTRY
+        ARMD PH.T
+        MDAS PH.T               [ TWO WORDS AN ENTRY
+        MDAS'F PHT+1
+        ARMD PH.P
+        MDAR'I'X PH.P
+        ARMD PH.I               [ THE ITEM
+        MDAR'I PH.P
+        ARMD PH.J               [ THE IMAGE
+        MDAR'I'X PENHT
+        ARMD PH.A
+        MDAR PH.I
+        ARMD'I PH.A             [ TO ITA
+        MDAR'I'X PENHT
+        ARMD PH.A
+        MDAR PH.J
+        ARMD'I PH.A             [ TO IMA
+        JUMP'I PENHT
+PH.A:   0
+PH.N:   0
+PH.T:   0
+PH.P:   0
+PH.I:   0
+PH.J:   0
+PH.M:   17

@@ -1,0 +1,90 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* The theme's tokens (docs/ui-design.md, U10): a dark Material 3 scheme, the tokens copied from
+   the Leibniz Stepped Reckoner simulator's, plus the machine's own colours. The brightest thing on
+   screen is the phosphor; the interface around it is cool and quiet. One colour has one meaning:
+   blue the instrument, blue-grey the machine's controls, amber your turn, green done, red refused
+   or a fault. The canvas and three.js views read these tokens (js/view/theme.js). The page is
+   dark only: a CRT's picture is read in a dark room. */
+
+:root {
+  color-scheme: dark;
+  /* blue: the instrument: navigation, selection, where you are, links, focus */
+  --md-primary: #9ecaff;
+  --md-on-primary: #00325a;
+  --md-primary-container: #12497c;
+  --md-on-primary-container: #d3e4ff;
+  /* blue-grey: the machine's controls */
+  --md-secondary-container: #364657;
+  --md-on-secondary-container: #d5e4f7;
+  /* cool neutrals */
+  --md-surface: #0f1317;
+  --md-surface-low: #171b20;
+  --md-surface-mid: #1b2026;
+  --md-surface-high: #252a31;
+  --md-surface-highest: #30353d;
+  --md-on-surface: #e0e3e9;
+  --md-on-surface-variant: #c1c7d0;
+  --md-outline: #8b919a;
+  --md-outline-variant: #3f464f;
+  --card-edge: #343a43;
+  --md-scrim: rgba(0, 0, 0, 0.55);
+  /* amber: your turn */
+  --attention: #ffb74d;
+  /* green: done */
+  --success: #9bd88e;
+  /* red: refused, or a fault */
+  --md-error: #ffb4ab;
+  --state-hover: 0.14;
+  --state-press: 0.22;
+
+  /* the phosphors (R14): P31-like is the GDS1's assumed one; P4 and P7 by ?phosphor= */
+  --phosphor: #7dff9b;
+  --phosphor-p4: #e8f0ff;
+  --phosphor-p7: #9fd4ff;
+  --phosphor-core: #e8ffe9;
+  --crt-face: #050806;
+  --scope-bezel: #0b0c0e;
+  /* the traces: X and Y in the instrument's colours, Z in the phosphor's */
+  --trace-x: #9ecaff;
+  --trace-y: #ffb86b;
+  /* the cables: digital words and analog voltages (R19) */
+  --digital: #9ecaff;
+  --analog: #ffb86b;
+  /* the machines' finishes, for the 3D view */
+  --enamel: #9aa7b3;
+  --enamel-dark: #5f6b77;
+  --panel-black: #23272c;
+  --trim: #c9ced3;
+  --metal: #b4b9bf;
+  --switch-red: #c8352b;
+  --box-brown: #3d2f28;
+  --box-top: #8b8d86;
+  --knob-black: #1a1513;
+  --desk-top: #d3d0c6;
+  --rack-black: #1b1d20;
+  --rack-panel: #2e3136;
+  --rack-white: #d9d6cc;
+  --glass: #9fb4c4;
+  --tty-case: #a9a08c;
+  --tty-cover: #c4bea9;
+  --tty-stand: #8f8c82;
+  --tty-key: #e4e0d2;
+  --tty-dark: #2d2f31;
+  --paper: #efe8d2;
+  --lamp-off: #4a4033;
+  --lamp-on: #ffd36b;
+  /* the Teletype's paper in the dock: canary stock of the period, outside the scheme */
+  --tty-paper: #ebe3cb;
+  --tty-ink: #2a2620;
+  --tty-faint: #8a8270;
+
+  --font: "Roboto Flex", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-full: 999px;
+  --bar-h: 56px;
+  --status-h: 30px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}

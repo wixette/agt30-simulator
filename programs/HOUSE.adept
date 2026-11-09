@@ -1,0 +1,36 @@
+[ HOUSE: AN IMAGE OF YOUR OWN.  CHANGE IT, THEN TYPE
+[     ADEPT ("HOUSE")!
+[     DSPLY (V.HOUSE)!
+[ A POINT IS (Z, X, Y), FRACTIONS FROM -1 TO 1 (DSPLY P. 17); Z COMES
+[ OUT OF THE SCREEN.  TURN THE DIALS TO SEE THE HOUSE FROM THE SIDE.
+HOUSE:  TEXT /HOUSE/            [ THE IMAGE'S NAME: ITS TWO-WORD HEADER
+        MOVE (.3, -.5, -.5)     [ THE FRONT WALL AND ITS GABLE
+        DRAW (.3, .5, -.5)
+        DRAW (.3, .5, .2)
+        DRAW (.3, 0, .6)
+        DRAW (.3, -.5, .2)
+        DRAW (.3, -.5, -.5)
+        MOVE (-.3, -.5, -.5)    [ THE BACK WALL
+        DRAW (-.3, .5, -.5)
+        DRAW (-.3, .5, .2)
+        DRAW (-.3, 0, .6)
+        DRAW (-.3, -.5, .2)
+        DRAW (-.3, -.5, -.5)
+        DRAW (.3, -.5, -.5)     [ FRONT TO BACK: THE CORNERS AND THE RIDGE
+        MOVE (.3, .5, -.5)
+        DRAW (-.3, .5, -.5)
+        MOVE (.3, .5, .2)
+        DRAW (-.3, .5, .2)
+        MOVE (.3, 0, .6)
+        DRAW (-.3, 0, .6)
+        MOVE (.3, -.5, .2)
+        DRAW (-.3, -.5, .2)
+        MOVE (.3, -.1, -.5)     [ THE DOOR
+        DRAW (.3, -.1, -.1)
+        DRAW (.3, .1, -.1)
+        DRAW (.3, .1, -.5)
+        RET
+V.HOUSE: TEXT /V.HOUSE/
+        RXYZ'IRL (DIALZ'DIR, DIALX'DIR, DIALY'DIR)
+        IMG (HOUSE)
+        RET

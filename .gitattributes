@@ -1,0 +1,2 @@
+# Text normalisation. There are no large binaries, so no Git LFS (design/architecture.md, D7).
+* text=auto eol=lf

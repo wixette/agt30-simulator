@@ -1,0 +1,22 @@
+// The type check, `pnpm typecheck`. It reads the JSDoc in the JavaScript and checks it
+// against the code, strictly; nothing is compiled, and the page runs the files as they
+// are. "three" resolves to node_modules here, and to vendor/ in the browser (the page's
+// import map); tests/vendor.test.js keeps the two the same.
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "include": ["js", "tests", "tools/*.mjs"]
+}

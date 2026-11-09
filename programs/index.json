@@ -1,0 +1,232 @@
+{
+  "about": "The programs the Programs menu loads (design/v0.0.1.md, section 2; docs/conventions.md, Programs). Each entry's statements are typed on the Teletype in order. 'resident' files are assembled into core at start (R15); the others are in the monitor's store for ADEPT (\"NAME\")!. A toggle is an on/off switch on the card: it types 'on' or 'off', and shows the machine's state (depth: VIEW's DIM is not 0). Each depth range puts FRONT just in front of the picture and its back at z'm = 0, down 10 : 1 (FJCC68 Fig. 14).",
+  "resident": [
+    "RVCD",
+    "DIALS",
+    "PENHT",
+    "A",
+    "CUBE",
+    "TUND",
+    "RAND"
+  ],
+  "store": [
+    "HOUSE",
+    "TOWN",
+    "TTT",
+    "PCUBE"
+  ],
+  "programs": [
+    {
+      "id": "letter-a",
+      "source": "FJCC68 Fig. 4",
+      "statements": [
+        "RESET!",
+        "DSPLY (V.A)!"
+      ],
+      "controls": [],
+      "actions": [],
+      "files": [
+        "A"
+      ],
+      "reconstructions": [
+        "R4"
+      ],
+      "toggles": []
+    },
+    {
+      "id": "cube",
+      "source": "FJCC68 Fig. 7",
+      "statements": [
+        "RESET!",
+        "DSPLY (V.CUBE, 2)!",
+        "CLOCK (DIALS+1, DI.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
+      "actions": [],
+      "files": [
+        "CUBE",
+        "DIALS",
+        "RVCD"
+      ],
+      "reconstructions": [
+        "R4",
+        "R7"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.63, -1.89, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
+      ]
+    },
+    {
+      "id": "perspective-cube",
+      "source": "FJCC68 p. 753",
+      "statements": [
+        "RESET!",
+        "ADEPT (\"PCUBE\")!",
+        "DSPLY (V.PCUBE)!",
+        "CLOCK (DIALS+1, DI.EX)!",
+        "CLOCK (PCUBE+1, PC.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
+      "actions": [],
+      "files": [
+        "PCUBE",
+        "DIALS",
+        "RVCD"
+      ],
+      "reconstructions": [
+        "R4",
+        "R7"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.58, -1.2, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
+      ]
+    },
+    {
+      "id": "tunnel",
+      "source": "FJCC68 Figs. 15-16",
+      "statements": [
+        "RESET!",
+        "VIEW (.19, -.556, 37777)!",
+        "DSPLY (V.TUND)!",
+        "CLOCK (DIALS+1, DI.EX)!"
+      ],
+      "controls": [
+        "dial0"
+      ],
+      "actions": [],
+      "files": [
+        "TUND",
+        "DIALS",
+        "RVCD"
+      ],
+      "reconstructions": [
+        "R4",
+        "R13"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.19, -.556, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
+      ]
+    },
+    {
+      "id": "town",
+      "source": "FJCC68 p. 749",
+      "statements": [
+        "RESET!",
+        "ADEPT (\"HOUSE\")!",
+        "ADEPT (\"TOWN\")!",
+        "DSPLY (V.TOWN)!",
+        "CLOCK (DIALS+1, DI.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
+      "actions": [],
+      "files": [
+        "TOWN",
+        "HOUSE"
+      ],
+      "reconstructions": [
+        "R4",
+        "R8"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.63, -1.89, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
+      ]
+    },
+    {
+      "id": "tic-tac-toe",
+      "source": "NCSU",
+      "statements": [
+        "RESET!",
+        "ADEPT (\"TTT\")!",
+        "DSPLY (V.TTT)!",
+        "CLOCK (DIALS+1, DI.EX)!",
+        "TTT!"
+      ],
+      "controls": [
+        "keys",
+        "pen",
+        "dials"
+      ],
+      "actions": [],
+      "files": [
+        "TTT",
+        "PENHT"
+      ],
+      "reconstructions": [
+        "R4",
+        "R11"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.37, -1.11, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
+      ]
+    },
+    {
+      "id": "random-lines",
+      "source": "FJCC68 Fig. 12",
+      "statements": [
+        "RESET!",
+        "DSPLY (V.RAND, 2, , BUMP)!",
+        "CLOCK (DIALS+1, DI.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
+      "actions": [
+        {
+          "id": "lines-1000",
+          "type": "OPEN (NLINES)!1000.\r"
+        },
+        {
+          "id": "lines-2000",
+          "type": "OPEN (NLINES)!2000.\r"
+        },
+        {
+          "id": "lines-4000",
+          "type": "OPEN (NLINES)!4000.\r"
+        },
+        {
+          "id": "rate-40",
+          "type": "DSPLY (, 2)!"
+        }
+      ],
+      "files": [
+        "RAND"
+      ],
+      "reconstructions": [
+        "R4"
+      ],
+      "toggles": [
+        {
+          "id": "depth",
+          "on": "VIEW (.63, -1.89, 37777)!",
+          "off": "VIEW (,,0)!"
+        }
+      ]
+    }
+  ]
+}

@@ -6,7 +6,7 @@ Every place where the documents stop and we chose. Each entry gives four things:
 - why;
 - what would settle it.
 
-About shows a short form of each entry (U14 in [../docs/ui-design.md](../docs/ui-design.md)).
+The README lists a short form of each entry, and each program's card those it rests on (U14 in [../docs/ui-design.md](../docs/ui-design.md)).
 
 Sources are cited by key ([../research/bibliography.md](../research/bibliography.md)). **Status:** draft for v0.0.1, 2026-11-09. Ids are permanent: an entry that is settled stays here, marked *settled*, with what settled it.
 
@@ -43,7 +43,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   - the house, the town, and the random lines;
   - the game, after D. Ogden's at NCSU (NCSU).
   
-  RVCD (reading a dial) is Adage's routine name, with our code and calling sequence.
+  RVCD (reading a dial) is Adage's routine name, with our code and calling sequence. RANDN, which ends Fig. 12's picture after NLINES lines, is ours.
 - *Settled by:* the tapes, or any listing.
 
 **R5. The array's analog error.**
@@ -65,12 +65,12 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R9. What AMOS types.**
 - *Sources:* the statements (DSPLY pp. 7–11; AMRMX).
-- *We:* type only echoes, results and `?`, with no prompt.
+- *We:* type only echoes, results and `?`, with no prompt. OPEN and LIST type a cell as AMRMX pp. 8–9 describe (its address in octal, a colon, its contents in the current MODE); the MODE at start is O, octal, our choice. RESET! returns core, the symbols, DSPLY's settings and the CLOCK chain to their state at start, which is how we read "logically equivalent to that immediately after loading the Monitor" (AMRMX p. 11).
 - *Settled by:* anyone who used the monitor.
 
 **R10. Interrupts.**
 - *Sources:* the priority interrupt system (SRM5 DPR3 pp. 7–9).
-- *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (PULSE 1 has no button in v0.0.1.)
+- *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (In v0.0.1 PULSE 1 is on the strip and the desk and goes down when pressed, but requests no interrupt: no program of v0.0.1 uses it, and the status line says so.)
 
 **R11. The pen-hit table and PENHT.**
 - *Sources:* DSPLY keeps "a circular table with 16 entries" of pen hits, and PENHT reads it (DSPLY p. 30).
@@ -93,7 +93,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *We:*
   - The paper's pictures, DIALS, RVCD and the monitor's routines are in core when the terminal starts, as if loaded from disk.
   - The simulated machine has 32K words, as NCSU's had after its upgrade (NCSU); the standard AGT-30 had 8K (BRO69).
-  - User programs are assembled after the pictures, from 20000 octal.
+  - User programs are assembled after the pictures, from 40000 octal; the resident routines are at 60000, the monitor's work area at 67700.
 
 ## The installation in 3D
 
@@ -111,4 +111,4 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R19. The cables** are a diagram of the documented signal paths: one tube per link, routed on the floor, coloured blue for digital words and orange for analog voltages. They are not the real cabling, which is undocumented. They glow with their traffic, a view the real AGT never had.
 
-**R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection centre to the spot. A real beam is invisible and curves through the field. Both are views the real AGT never had.
+**R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection centre to the spot, only while it draws: blanked, for a move or between frames, no electrons flow, and none is drawn; the Tube's note says which. A real beam is invisible and curves through the field. Both are views the real AGT never had.

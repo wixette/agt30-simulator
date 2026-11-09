@@ -1,0 +1,36 @@
+{
+  "name": "agt30-simulator",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "The Adage Graphics Terminal AGT-30 (1968) in the browser: a 3D picture turned by a hybrid analog array, drawn on a refreshed vector CRT.",
+  "license": "Apache-2.0",
+  "homepage": "https://wixette.github.io/agt30-simulator/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wixette/agt30-simulator.git"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check:refs": "node tools/check-refs.mjs",
+    "check": "pnpm check:refs && pnpm typecheck && pnpm test",
+    "test": "node --test \"tests/**/*.test.js\" \"tools/*.test.mjs\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "vendor": "node tools/vendor.mjs",
+    "stamp": "node tools/stamp.mjs",
+    "version": "node tools/stamp.mjs",
+    "serve": "node tools/serve.mjs 8000",
+    "shots": "node tools/shots.mjs"
+  },
+  "devDependencies": {
+    "@fontsource-variable/roboto-flex": "5.3.0",
+    "@material-symbols/svg-400": "0.48.0",
+    "@types/node": "24.19.2",
+    "@types/three": "0.186.0",
+    "three": "0.186.1",
+    "typescript": "7.0.2"
+  }
+}

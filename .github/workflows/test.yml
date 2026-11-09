@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6 # the version comes from package.json's packageManager
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+      # Development only: three.js for Node (tests) and TypeScript's checker. The page
+      # uses the copies in vendor/, and nothing is built.
+      - run: pnpm install --frozen-lockfile
+      # No private references, local paths or broken links (tools/check-refs.mjs).
+      - run: pnpm check:refs
+      # Every file's licence is declared (REUSE.toml, LICENSES/).
+      - uses: fsfe/reuse-action@v6
+      # The JSDoc types, checked strictly against the code (tsconfig.json).
+      - run: pnpm typecheck
+      # The model, the programs, the scene, the page's data, vendor/ and the import map,
+      # and the reference check's own tests.
+      - run: pnpm test
