@@ -80,7 +80,7 @@ A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*) and 
 
 ### Rules
 
-- **V1. Click selects; actions move.** Clicking a part selects it and opens its card. The card offers the part's viewpoints as buttons. A double-click does the card's first action. A drag that ends over a part never moves the camera.
+- **V1. Click selects; actions move.** Clicking a part selects it and opens its card. The card offers the part's viewpoints as buttons. A double-click does the card's first action. A drag that ends over a part never moves the camera. Choosing the viewpoint already shown, from the menu or by double-clicking a part whose viewpoint it is, reframes it, as ⌂ does. A viewpoint is reached with nothing selected. *(build, after the manual check)*
 - **V2. Moves are animated and reversible.** The camera flies. A 2D surface cross-fades in at the end of the flight and out at the start of the way back. *Back*, the viewpoint menu and Escape each climb one level.
 - **V3. The screen is 2D at the end of the zoom.** The working surface for the picture is the flat canvas at full resolution, not a 3D camera looking at the textured glass. The glass's curve, the perspective and the texture's lower resolution would all soften text, the game's ticks and fine lines, and the light pen would need ray-casting into the texture. The flight makes the 2D screen read as the face of the same tube. The light pen works here and only here.
 - **V4. The picture is always on screen.** In Room and Console it is on the scope's face. In Tube a small live inset of the screen sits in a corner of the stage; clicking it goes to Screen.

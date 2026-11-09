@@ -85,8 +85,10 @@ export class Stage {
         else agt.setDial(n, v0 + (dy * 2) / DRAG_PX);
         this.ops.say(t("status.dial", { n, v: agt.dev.dials[n].toFixed(3) }));
       };
+      // a double-click does the card's first action, even when that is the viewpoint already
+      // shown: choosing the current viewpoint reframes it, from the menu or from a part (V1)
       this.view3d.onActivate = (name) => {
-        const first = this.cardActions(name)[0];
+        const first = this.cardActions(name, true)[0];
         if (first) this.go(first.view);
       };
     }
@@ -223,7 +225,9 @@ export class Stage {
     this.view = v;
     // the link names the viewpoint chosen, whether or not the camera gets there undisturbed
     this.ops.onView(v);
+    // a viewpoint is reached with nothing selected: the part it frames is looked at, not marked
     this.closeCard();
+    this.view3d?.select(null);
     this.renderCrumbs();
     // leaving the Screen: the picture fades out, the 3D view comes back
     if (from === "screen" && v !== "screen") {
@@ -252,15 +256,19 @@ export class Stage {
   // ---- cards (U6) ----
 
   /**
-   * The viewpoints a part's card offers.
+   * The viewpoints a part's card offers: the part's own, less the one shown unless all are asked for.
    * @param {string} name
+   * @param {boolean} [all]
    * @returns {{ view: View; label: string }[]}
    */
-  cardActions(name) {
-    if (name === "console.scope") return [{ view: "screen", label: t("card.goScreen") }, { view: "tube", label: t("card.goTube") }];
-    if (name.startsWith("console.scope.tube")) return [{ view: "screen", label: t("card.goScreen") }];
-    if (name.startsWith("console.")) return this.view === "console" ? [] : [{ view: "console", label: t("card.goConsole") }];
-    return [];
+  cardActions(name, all = false) {
+    /** @type {{ view: View; label: string }[]} */
+    let list = [];
+    if (name === "console.scope") list = [{ view: "screen", label: t("card.goScreen") }, { view: "tube", label: t("card.goTube") }];
+    else if (name.startsWith("console.scope.tube")) list = [{ view: "screen", label: t("card.goScreen") }];
+    else if (name.startsWith("console.")) list = [{ view: "console", label: t("card.goConsole") }];
+    // a card offers no button for the viewpoint already shown
+    return all ? list : list.filter((a) => a.view !== this.view);
   }
 
   /** @param {string | null} name */
