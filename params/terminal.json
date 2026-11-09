@@ -1,0 +1,561 @@
+{
+  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame: +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). The parts' names and descriptions are messages in js/l10n/en.js.",
+  "units": "mm",
+  "room": {
+    "w": 7200,
+    "d": 5600,
+    "confidence": "design"
+  },
+  "parts": [
+    {
+      "name": "console.desk",
+      "box": [
+        1600,
+        1000,
+        740
+      ],
+      "at": [
+        0,
+        100,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est",
+      "desk": {
+        "top": 30,
+        "post": 45,
+        "inset": 70,
+        "rail": 70,
+        "pedestal": [
+          600,
+          520,
+          40
+        ]
+      }
+    },
+    {
+      "name": "console.scope",
+      "box": [
+        545,
+        870,
+        635
+      ],
+      "at": [
+        0,
+        145,
+        740
+      ],
+      "material": "trim",
+      "confidence": "photo",
+      "gds1": {
+        "sheet": 2,
+        "lip": 9,
+        "partition": [
+          544,
+          5
+        ],
+        "seam": 17,
+        "apex": 5,
+        "module": 700,
+        "panel": [
+          34,
+          511,
+          562,
+          613,
+          15,
+          150
+        ],
+        "knobs": [
+          110,
+          154,
+          198,
+          242,
+          286,
+          330
+        ],
+        "knob": [
+          6,
+          15
+        ],
+        "logo": [
+          416,
+          52,
+          12
+        ],
+        "switch": 469,
+        "nameplate": [
+          515,
+          -15,
+          46,
+          8
+        ],
+        "vents": [
+          17,
+          250,
+          690,
+          48,
+          135
+        ],
+        "groove": 200,
+        "corner": 35,
+        "tube": [
+          640,
+          18,
+          150,
+          52,
+          80
+        ]
+      }
+    },
+    {
+      "name": "console.scope.face",
+      "partOf": "console.scope",
+      "plane": [
+        365,
+        380
+      ],
+      "radius": 1000,
+      "picture": 305,
+      "at": [
+        0,
+        -268,
+        1057
+      ],
+      "material": "crt",
+      "confidence": "photo"
+    },
+    {
+      "name": "console.fns",
+      "box": [
+        150,
+        190,
+        100
+      ],
+      "wedge": 65,
+      "at": [
+        -410,
+        -290,
+        740
+      ],
+      "material": "panel",
+      "confidence": "est"
+    },
+    {
+      "name": "console.dials",
+      "box": [
+        170,
+        240,
+        85
+      ],
+      "wedge": 70,
+      "at": [
+        -650,
+        -275,
+        740
+      ],
+      "material": "panel",
+      "confidence": "est"
+    },
+    {
+      "name": "console.joystick",
+      "box": [
+        170,
+        150,
+        47
+      ],
+      "at": [
+        610,
+        -315,
+        740
+      ],
+      "material": "boxBrown",
+      "confidence": "est"
+    },
+    {
+      "name": "console.pen",
+      "cylinder": [
+        11,
+        150
+      ],
+      "at": [
+        390,
+        -330,
+        740
+      ],
+      "material": "panel",
+      "confidence": "est"
+    },
+    {
+      "name": "console.pedals",
+      "box": [
+        350,
+        230,
+        75
+      ],
+      "at": [
+        0,
+        -300,
+        0
+      ],
+      "material": "panel",
+      "confidence": "design"
+    },
+    {
+      "name": "tty.asr33",
+      "box": [
+        559,
+        470,
+        864
+      ],
+      "at": [
+        -1450,
+        -100,
+        0
+      ],
+      "material": "tty",
+      "confidence": "doc"
+    },
+    {
+      "name": "rack.dpr2",
+      "box": [
+        600,
+        760,
+        1830
+      ],
+      "at": [
+        -1500,
+        1900,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est",
+      "front": [
+        [
+          "rackWhite",
+          150
+        ],
+        [
+          "lamps",
+          330
+        ],
+        [
+          "rackWhite",
+          260
+        ],
+        [
+          "vent",
+          170
+        ],
+        [
+          "black",
+          260
+        ],
+        [
+          "rackWhite",
+          260
+        ],
+        [
+          "vent",
+          0
+        ]
+      ]
+    },
+    {
+      "name": "rack.core",
+      "box": [
+        600,
+        760,
+        1830
+      ],
+      "at": [
+        -880,
+        1900,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est",
+      "front": [
+        [
+          "rackWhite",
+          150
+        ],
+        [
+          "black",
+          130
+        ],
+        [
+          "drawer",
+          380
+        ],
+        [
+          "drawer",
+          380
+        ],
+        [
+          "vent",
+          170
+        ],
+        [
+          "black",
+          0
+        ]
+      ]
+    },
+    {
+      "name": "rack.array",
+      "box": [
+        600,
+        760,
+        1830
+      ],
+      "at": [
+        -260,
+        1900,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est",
+      "front": [
+        [
+          "rackWhite",
+          150
+        ],
+        [
+          "array",
+          640
+        ],
+        [
+          "avg",
+          200
+        ],
+        [
+          "vent",
+          170
+        ],
+        [
+          "rackWhite",
+          0
+        ]
+      ]
+    },
+    {
+      "name": "rack.io",
+      "box": [
+        600,
+        760,
+        1830
+      ],
+      "at": [
+        360,
+        1900,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est",
+      "front": [
+        [
+          "rackWhite",
+          150
+        ],
+        [
+          "meters",
+          240
+        ],
+        [
+          "rackWhite",
+          300
+        ],
+        [
+          "switches",
+          130
+        ],
+        [
+          "black",
+          280
+        ],
+        [
+          "vent",
+          170
+        ],
+        [
+          "rackWhite",
+          0
+        ]
+      ]
+    },
+    {
+      "name": "tape.0",
+      "box": [
+        700,
+        700,
+        1830
+      ],
+      "at": [
+        1150,
+        1900,
+        0
+      ],
+      "material": "enamel_dark",
+      "confidence": "est"
+    },
+    {
+      "name": "tape.1",
+      "box": [
+        700,
+        700,
+        1830
+      ],
+      "at": [
+        1900,
+        1900,
+        0
+      ],
+      "material": "enamel_dark",
+      "confidence": "est"
+    },
+    {
+      "name": "disk.0",
+      "box": [
+        620,
+        680,
+        960
+      ],
+      "at": [
+        2500,
+        700,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est"
+    },
+    {
+      "name": "disk.1",
+      "box": [
+        620,
+        680,
+        960
+      ],
+      "at": [
+        2500,
+        -150,
+        0
+      ],
+      "material": "enamel",
+      "confidence": "est"
+    }
+  ],
+  "cables": [
+    {
+      "name": "cable.deflection",
+      "from": "rack.array",
+      "to": "console.scope",
+      "kind": "analog",
+      "activity": "vectors",
+      "lead": {
+        "to": [
+          [
+            0,
+            560,
+            900
+          ],
+          [
+            0,
+            640,
+            900
+          ]
+        ]
+      }
+    },
+    {
+      "name": "cable.bus",
+      "from": "rack.dpr2",
+      "to": "rack.array",
+      "kind": "digital",
+      "activity": "vectors"
+    },
+    {
+      "name": "cable.memory",
+      "from": "rack.dpr2",
+      "to": "rack.core",
+      "kind": "digital",
+      "activity": "cpu"
+    },
+    {
+      "name": "cable.console.analog",
+      "from": "console.desk",
+      "to": "rack.array",
+      "kind": "analog",
+      "activity": "clock",
+      "lead": {
+        "from": [
+          [
+            -650,
+            540,
+            708
+          ],
+          [
+            -650,
+            630,
+            708
+          ]
+        ]
+      }
+    },
+    {
+      "name": "cable.console.digital",
+      "from": "console.desk",
+      "to": "rack.dpr2",
+      "kind": "digital",
+      "activity": "clock",
+      "lead": {
+        "from": [
+          [
+            -410,
+            540,
+            708
+          ],
+          [
+            -410,
+            630,
+            708
+          ]
+        ]
+      }
+    },
+    {
+      "name": "cable.tty",
+      "from": "tty.asr33",
+      "to": "rack.dpr2",
+      "kind": "digital",
+      "activity": "tty"
+    },
+    {
+      "name": "cable.tape",
+      "from": "tape.0",
+      "to": "rack.io",
+      "kind": "digital",
+      "activity": "none"
+    },
+    {
+      "name": "cable.tape2",
+      "from": "tape.1",
+      "to": "tape.0",
+      "kind": "digital",
+      "activity": "none"
+    },
+    {
+      "name": "cable.disk",
+      "from": "disk.0",
+      "to": "rack.io",
+      "kind": "digital",
+      "activity": "none"
+    },
+    {
+      "name": "cable.disk2",
+      "from": "disk.1",
+      "to": "disk.0",
+      "kind": "digital",
+      "activity": "none"
+    }
+  ]
+}

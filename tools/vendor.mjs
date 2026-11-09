@@ -15,7 +15,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 /** Files the page needs, by package. three.js's addons import each other by relative path. */
 export const VENDORED = /** @type {Record<string, string[]>} */ ({
-  three: ["LICENSE", "build/three.module.js", "build/three.core.js", "examples/jsm/controls/OrbitControls.js"],
+  three: ["LICENSE", "build/three.module.js", "build/three.core.js", "examples/jsm/controls/OrbitControls.js", "examples/jsm/utils/BufferGeometryUtils.js"],
   // Roboto Flex, weight axis only, Latin subsets (English only, U11).
   "@fontsource-variable/roboto-flex": ["LICENSE", ...["latin", "latin-ext"].map((s) => `files/roboto-flex-${s}-wght-normal.woff2`)],
   "@material-symbols/svg-400": ["LICENSE"],

@@ -5,6 +5,7 @@
 import { describe, it } from "node:test";
 import { CRT_CHECKS } from "../js/accept/crt.js";
 import { MODEL_CHECKS } from "../js/accept/model.js";
+import { SCENE_CHECKS } from "../js/accept/scene.js";
 import { boot, PROGRAMS } from "./boot.js";
 
 const ctx = { boot, manifest: PROGRAMS.manifest, sources: PROGRAMS.sources };
@@ -15,4 +16,8 @@ describe("acceptance: the model", () => {
 
 describe("acceptance: the CRT", () => {
   for (const c of CRT_CHECKS) it(`${c.id}: ${c.title}`, () => c.run(ctx));
+});
+
+describe("acceptance: the scene", () => {
+  for (const c of SCENE_CHECKS) it(`${c.id}: ${c.title}`, () => c.run(ctx));
 });
