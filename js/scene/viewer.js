@@ -20,6 +20,24 @@ export const FILL = 0.9;
 const FLIGHT_MS = 900;
 /** A pointer that moves farther than this between down and up is a drag, not a click (V1). */
 const CLICK_PX = 5;
+/**
+ * The directions a close look tries, in order, from the part towards the camera (three.js: +Z
+ * is the operator's side of the room, where every part's front faces): from the front and a
+ * little above, then turned left and right, then higher, then from the sides. The first from
+ * which nothing hides the part is used, so a part is always seen from the same place (V1a).
+ */
+const LOOK_DIRECTIONS = [
+  [0, 0.35, 1], [-0.45, 0.35, 1], [0.45, 0.35, 1],
+  [0, 0.8, 1], [-0.6, 0.8, 1], [0.6, 0.8, 1],
+  [-1, 0.5, 0.4], [1, 0.5, 0.4], [0, 1.6, 1],
+];
+/**
+ * Points of the part a close look must see, as fractions of its box from the centre: the centre,
+ * the corners of its front (+Z, the operator's side, where every part's front faces), 5 % in,
+ * and the middle of its top.
+ */
+const LOOK_SAMPLES = [[0, 0, 0], [-0.45, -0.45, 0.45], [0.45, -0.45, 0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0.45, 0]];
+
 /** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
 
@@ -135,6 +153,8 @@ export class TerminalView {
       b.core.visible = b.glow.visible = false;
     }
     this.inside = false;
+    /** @type {{ direction: number[]; seen: number; of: number } | null} */
+    this.lastLook = null;
     /** The six knobs on the desk, turned as the dials are. */
     this.knobs = Array.from({ length: 6 }, (_, n) => this.built.root.getObjectByName(`console.dials.knob.${n}`));
     new ResizeObserver(() => this.resize()).observe(host);
@@ -195,6 +215,59 @@ export class TerminalView {
           d = Math.max(d, b + (Math.abs(c.dot(right)) * H) / (FILL * f.width * tan), b + (Math.abs(c.dot(up)) * H) / (FILL * f.height * tan));
         }
     return { pos: center.clone().addScaledVector(back, d), target: center };
+  }
+
+  /**
+   * The pose of a close look at a part (V1a): the first of LOOK_DIRECTIONS from which every
+   * sample point of the part is seen, or else the one that sees most of them. It does not
+   * depend on where the camera is, so the same part is always seen from the same place.
+   * @param {THREE.Object3D} part
+   * @returns {Pose}
+   */
+  lookPose(part) {
+    const box = new THREE.Box3().setFromObject(part);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    /** Whether a mesh is the part, or a piece of it (the scope's face is its own node). @param {THREE.Object3D} o */
+    const ofPart = (o) => {
+      for (let q = /** @type {THREE.Object3D | null} */ (o); q; q = q.parent) if (q === part || q.userData.partOf === part.name) return true;
+      return false;
+    };
+    /** @param {THREE.Object3D} o */
+    const shown = (o) => {
+      for (let q = /** @type {THREE.Object3D | null} */ (o); q; q = q.parent) if (!q.visible) return false;
+      return true;
+    };
+    /** Whether a mesh hides what is behind it: not glass, the floor or the beam. @param {THREE.Object3D} o */
+    const opaque = (o) => {
+      const m = /** @type {THREE.Material} */ (/** @type {THREE.Mesh} */ (o).material);
+      return shown(o) && o.name !== "room.floor" && !o.name.startsWith("beam.") && !(m && m.transparent && m.opacity < 0.5);
+    };
+    const ray = new THREE.Raycaster();
+    /** @type {Pose | null} */
+    let best = null;
+    let bestSeen = -1;
+    for (const d of LOOK_DIRECTIONS) {
+      const pose = this.frame(box, new THREE.Vector3(...d));
+      let seen = 0;
+      for (const [sx, sy, sz] of LOOK_SAMPLES) {
+        const target = center.clone().add(new THREE.Vector3(sx * size.x, sy * size.y, sz * size.z));
+        const dir = target.clone().sub(pose.pos);
+        ray.set(pose.pos, dir.clone().normalize());
+        // only what stands in front of the point hides it (a thin part's box has air beside it)
+        ray.far = dir.length() + 0.005;
+        const hit = ray.intersectObjects(this.built.root.children, true).find((h) => opaque(h.object));
+        if (!hit || ofPart(hit.object)) seen++;
+      }
+      if (seen > bestSeen) {
+        bestSeen = seen;
+        best = pose;
+        /** which direction a close look took, and how many of its points it saw (for ?debug) */
+        this.lastLook = { direction: d, seen, of: LOOK_SAMPLES.length };
+      }
+      if (seen === LOOK_SAMPLES.length) break;
+    }
+    return /** @type {Pose} */ (best);
   }
 
   /**

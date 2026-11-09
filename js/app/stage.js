@@ -288,8 +288,9 @@ export class Stage {
   }
 
   /**
-   * A close look: the camera flies in to frame one part, from about the direction it looks from
-   * now. It is a move within the viewpoint, not a viewpoint: no link, no menu entry; Back and
+   * A close look: the camera flies in to frame one part, always from the same place: the first
+   * of a fixed list of directions from which nothing hides it (viewer.lookPose). It is a move
+   * within the viewpoint, not a viewpoint: no link, no menu entry; Back and
    * Escape return to the viewpoint's framing. The card stays open, with nothing highlighted.
    * @param {string} name
    */
@@ -301,10 +302,8 @@ export class Stage {
     this.closeLook = name;
     view.select(null);
     this.renderCrumbs();
-    const box = new THREE.Box3().setFromObject(o);
-    const dir = view.camera.position.clone().sub(view.controls.target);
     this.refit();
-    view.goTo(() => view.frame(box, dir));
+    view.goTo(() => view.lookPose(o));
   }
 
   /** @param {string | null} name */
