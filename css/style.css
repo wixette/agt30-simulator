@@ -117,7 +117,9 @@ code, pre, .mono { font-family: var(--mono); }
 .tools { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px; }
 
 /* the Screen viewpoint: the 2D picture in a thin bezel (V3) */
-#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 56px 16px 120px; background: #030405; }
+/* clear of the band above (its buttons end at 52 px) and of the strip below, whose height the
+   stage measures (--strip-space: the strip, its gap to the stage's foot, and a margin) */
+#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 68px 16px var(--strip-space, 168px); background: #030405; }
 .bezel { height: 100%; aspect-ratio: 1; max-width: 100%; padding: 10px; border-radius: 18px; background: var(--scope-bezel); box-shadow: 0 0 0 1px #22262b, 0 10px 40px #000; }
 #crt { display: block; width: 100%; height: 100%; border-radius: 10px; cursor: crosshair; touch-action: none; }
 
@@ -192,7 +194,7 @@ code, pre, .mono { font-family: var(--mono); }
 .fkey.pulse { background: #e8e2d6; font-weight: 700; }
 .fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }
 .fkey[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); }
-.pen { display: flex; align-items: center; gap: 8px; width: 120px; font-size: 12px; line-height: 1.3; color: var(--md-on-surface-variant); }
+.pen { display: flex; align-items: center; gap: 8px; width: 140px; font-size: 12px; line-height: 1.3; color: var(--md-on-surface-variant); }
 .pen[aria-disabled="true"] { opacity: 0.55; }
 .pen .icon { width: 22px; height: 22px; flex: none; }
 

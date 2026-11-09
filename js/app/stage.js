@@ -105,6 +105,12 @@ export class Stage {
       if (e.key === "Escape" && !document.querySelector("dialog[open], .menu")) this.up();
     });
     new ResizeObserver(() => this.refit()).observe(this.stage);
+    // the Screen's picture keeps clear of the strip, however tall the strip is
+    const strip = /** @type {HTMLElement} */ (document.getElementById("strip"));
+    new ResizeObserver(() => {
+      const s = this.stage.getBoundingClientRect();
+      this.stage.style.setProperty("--strip-space", `${Math.ceil(s.bottom - strip.getBoundingClientRect().top) + 16}px`);
+    }).observe(strip);
   }
 
   /**
