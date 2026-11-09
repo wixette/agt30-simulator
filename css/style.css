@@ -131,6 +131,8 @@ code, pre, .mono { font-family: var(--mono); }
 #tube-overlay > * { pointer-events: auto; }
 /* a viewpoint's own controls sit under the viewpoint menu (V5): the Tube's time */
 .tube-time { position: absolute; top: 56px; left: 12px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-full); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); }
+.beam-state { display: block; margin-top: 4px; color: var(--md-on-surface); font-weight: 600; }
+.beam-state[data-on="true"] { color: var(--phosphor); }
 .tube-note { position: absolute; top: 100px; left: 12px; max-width: 300px; margin: 0; padding: 6px 10px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); color: var(--md-on-surface-variant); font-size: 12px; }
 #traces { position: absolute; left: 12px; right: 12px; bottom: 112px; height: 116px; width: calc(100% - 24px); border-radius: var(--radius-m); background: color-mix(in srgb, var(--md-surface-low) 92%, transparent); }
 #inset { position: absolute; top: 56px; right: 12px; width: 168px; height: 168px; border-radius: 10px; border: 1px solid var(--md-outline-variant); background: var(--crt-face); cursor: pointer; padding: 0; }

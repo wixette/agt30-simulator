@@ -111,4 +111,4 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R19. The cables** are a diagram of the documented signal paths: one tube per link, routed on the floor, coloured blue for digital words and orange for analog voltages. They are not the real cabling, which is undocumented. They glow with their traffic, a view the real AGT never had.
 
-**R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection centre to the spot. A real beam is invisible and curves through the field. Both are views the real AGT never had.
+**R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection centre to the spot, only while it draws: blanked, for a move or between frames, no electrons flow, and none is drawn; the Tube's note says which. A real beam is invisible and curves through the field. Both are views the real AGT never had.

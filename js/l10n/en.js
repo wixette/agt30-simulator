@@ -39,6 +39,10 @@ export default {
   // ---- the Tube viewpoint ----
   "tube.ours": "A cutaway and a visible beam: views the real AGT never had.",
   "tube.time": "Time",
+  "beam.drawing": "Beam: on, drawing a line",
+  "beam.moving": "Beam: off, a move to the next line",
+  "beam.waiting": "Beam: off, waiting for the next frame",
+  "beam.off": "Beam: off, nothing on the display",
   "tube.time.slowest": "1/100,000",
   "tube.time.slow": "1/1,000",
   "tube.time.real": "Real",

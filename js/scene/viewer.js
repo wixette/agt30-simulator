@@ -589,17 +589,19 @@ export class TerminalView {
     if (!t || !this.inside) return;
     const b = beamAt(agt.segs, agt.now);
     const spot = t.spot(b.x, b.y);
+    // blanked (a move, or waiting for the next frame), the grid cuts the electrons off: no beam
     const on = b.z > 0;
     const legs = [[t.gun, t.bend], [t.bend, spot]];
     this.beam.forEach((leg, i) => {
       const [a, c] = legs[i];
-      for (const [m, r] of /** @type {[THREE.Mesh, number][]} */ ([[leg.core, on ? 0.0009 : 0.0005], [leg.glow, on ? 0.003 : 0.0015]])) {
-        m.visible = true;
+      for (const [m, r] of /** @type {[THREE.Mesh, number][]} */ ([[leg.core, 0.0009], [leg.glow, 0.003]])) {
+        m.visible = on;
+        if (!on) continue;
         m.position.copy(a).add(c).multiplyScalar(0.5);
         m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), c.clone().sub(a).normalize());
         m.scale.set(r, a.distanceTo(c), r);
         const mm = /** @type {THREE.MeshBasicMaterial} */ (m.material);
-        mm.opacity = on ? (m === leg.core ? 0.35 + 0.65 * b.z : 0.12 + 0.2 * b.z) : m === leg.core ? 0.1 : 0.04;
+        mm.opacity = m === leg.core ? 0.35 + 0.65 * b.z : 0.12 + 0.2 * b.z;
       }
     });
   }

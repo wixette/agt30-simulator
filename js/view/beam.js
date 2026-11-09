@@ -40,3 +40,16 @@ export function beamAt(segs, now) {
   const f = s.t1 > s.t0 ? (now - s.t0) / (s.t1 - s.t0) : 1;
   return { x: s.x0 + (s.x1 - s.x0) * f, y: s.y0 + (s.y1 - s.y0) * f, z: s.vis ? s.i0 + (s.i1 - s.i0) * f : 0, drawing: s.vis, seg: s };
 }
+
+/**
+ * What the beam is doing now, in words a reader can be told: drawing a line; blanked for a move;
+ * blanked, waiting for the next frame; or off, with nothing displayed.
+ * @param {import("../sim/terminal.js").Terminal} term
+ * @returns {"drawing" | "moving" | "waiting" | "off"}
+ */
+export function beamState(term) {
+  if (term.image === null) return "off";
+  const b = beamAt(term.segs, term.now);
+  if (b.drawing) return "drawing";
+  return b.seg ? "moving" : "waiting";
+}

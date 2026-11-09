@@ -12,6 +12,7 @@ import { t } from "../l10n/l10n.js";
 import { CrtView } from "../view/crt.js";
 import { phosphorById } from "../view/phosphor.js";
 import { TracesView } from "../view/traces.js";
+import { beamState } from "../view/beam.js";
 import { TerminalView } from "../scene/viewer.js";
 import { v3, boxOf } from "../scene/terminal3d.js";
 import { pressKey, turner } from "./strip.js";
@@ -51,6 +52,8 @@ export class Stage {
     this.ops = ops;
     /** @type {View} */
     this.view = "room";
+    /** @type {string | null} the beam's state as last shown in the Tube */
+    this.beamState = null;
     /** @type {string | null} the part or cable a close look frames, within the viewpoint */
     this.closeLook = null;
     this.stage = /** @type {HTMLElement} */ (document.getElementById("stage"));
@@ -434,6 +437,14 @@ export class Stage {
     if (this.view === "tube") {
       this.insetCrt.paint(agt.segs, agt.now, eyeUs, { beam: slow });
       this.traces.paint(agt);
+      // the beam's state, beside it in words (R20): on and drawing, or off and why
+      const state = beamState(agt);
+      if (this.beamState !== state) {
+        this.beamState = state;
+        const el = /** @type {HTMLElement} */ (document.getElementById("beam-state"));
+        el.textContent = t(`beam.${state}`);
+        el.dataset.on = String(state === "drawing");
+      }
     }
   }
 }
