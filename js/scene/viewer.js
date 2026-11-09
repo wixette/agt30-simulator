@@ -95,8 +95,10 @@ export class TerminalView {
     this.userMoved = false;
     /** @type {(() => Pose) | null} the pose the current viewpoint frames, for refits */
     this.framing = null;
-    /** @type {{ from: Pose; to: Pose; t0: number; done: () => void } | null} */
+    /** @type {{ from: Pose; to: Pose; t0: number; done: () => void; fromOffset: { x: number; y: number }; toOffset: { x: number; y: number } } | null} */
     this.flight = null;
+    /** The view offset applied now (applyOffset). */
+    this.offset = { x: 0, y: 0 };
     /** @type {(name: string | null) => void} */
     this.onPick = () => {};
     /** @type {(name: string) => void} */
@@ -138,6 +140,7 @@ export class TerminalView {
       this.userMoved = true;
       const f = this.flight;
       this.flight = null;
+      if (f) this.applyOffset(f.toOffset);
       f?.done();
     });
     // the Tube's beam: from the gun to the yoke, then bent to the spot; faint while blanked
@@ -181,12 +184,35 @@ export class TerminalView {
     if (this.framing && !this.userMoved && !this.flight) this.jump(this.framing());
   }
 
-  applyFree() {
+  /**
+   * Sets the free area for the next flight without moving the picture now: the flight moves the
+   * picture's centre there in step with the camera, so nothing jumps before it starts.
+   * @param {Rect} rect
+   */
+  setFreeForFlight(rect) {
+    this.free = rect;
+  }
+
+  /** @returns {{ x: number; y: number }} the view offset that centres the projection on the free area */
+  offsetFor() {
     const W = this.host.clientWidth || 1;
     const H = this.host.clientHeight || 1;
     const f = this.free ?? { left: 0, top: 0, width: W, height: H };
-    this.camera.setViewOffset(W, H, W / 2 - (f.left + f.width / 2), H / 2 - (f.top + f.height / 2), W, H);
+    return { x: W / 2 - (f.left + f.width / 2), y: H / 2 - (f.top + f.height / 2) };
+  }
+
+  /** @param {{ x: number; y: number }} o */
+  applyOffset(o) {
+    const W = this.host.clientWidth || 1;
+    const H = this.host.clientHeight || 1;
+    this.offset = o;
+    this.camera.setViewOffset(W, H, o.x, o.y, W, H);
     this.camera.updateProjectionMatrix();
+  }
+
+  applyFree() {
+    if (this.flight) this.flight.toOffset = this.offsetFor();
+    else this.applyOffset(this.offsetFor());
   }
 
   /**
@@ -286,14 +312,29 @@ export class TerminalView {
       this.jump(to);
       return Promise.resolve();
     }
+    this.stopInertia();
     return new Promise((done) => {
       this.flight?.done();
-      this.flight = { from: { pos: this.camera.position.clone(), target: this.controls.target.clone() }, to, t0: performance.now(), done };
+      this.flight = { from: { pos: this.camera.position.clone(), target: this.controls.target.clone() }, to, t0: performance.now(), done, fromOffset: { ...this.offset }, toOffset: this.offsetFor() };
     });
+  }
+
+  /**
+   * Stops what the reader's last drag or scroll is still doing: OrbitControls' damping carries a
+   * turn, a pan and a zoom on after the pointer is released. Left alone, it pushes the camera
+   * during a flight and after it lands, so the same viewpoint came out different each time.
+   */
+  stopInertia() {
+    const c = /** @type {any} */ (this.controls);
+    c._sphericalDelta?.set(0, 0, 0);
+    c._panOffset?.set(0, 0, 0);
+    if (typeof c._scale === "number") c._scale = 1;
   }
 
   /** @param {Pose} p */
   jump(p) {
+    this.stopInertia();
+    this.applyOffset(this.offsetFor());
     this.camera.position.copy(p.pos);
     this.controls.target.copy(p.target);
     this.controls.update();
@@ -303,10 +344,12 @@ export class TerminalView {
   fly() {
     const f = this.flight;
     if (!f) return;
+    this.stopInertia();
     const u = Math.min(1, (performance.now() - f.t0) / FLIGHT_MS);
     const e = u < 0.5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
     this.camera.position.lerpVectors(f.from.pos, f.to.pos, e);
     this.controls.target.lerpVectors(f.from.target, f.to.target, e);
+    this.applyOffset({ x: f.fromOffset.x + (f.toOffset.x - f.fromOffset.x) * e, y: f.fromOffset.y + (f.toOffset.y - f.fromOffset.y) * e });
     if (u >= 1) {
       this.flight = null;
       f.done();

@@ -247,9 +247,11 @@ export class Stage {
     this.ops.setScale(v === "tube" ? TUBE_SCALE : 1);
     this.markTime(v === "tube" ? TUBE_SCALE : 1);
     this.ops.setPen(v === "screen");
-    // the overlays are laid out before the free area is measured
+    // the overlays are laid out before the free area is measured; the flight moves the
+    // picture's centre to it, in step with the camera
     await new Promise((r) => requestAnimationFrame(r));
-    this.refit();
+    if (animate) this.view3d?.setFreeForFlight(this.freeRect());
+    else this.refit();
     if (this.view3d) await this.view3d.goTo(() => this.pose(v), animate);
     if (this.view !== v) return;
     if (v === "screen") {
@@ -302,7 +304,8 @@ export class Stage {
     this.closeLook = name;
     view.select(null);
     this.renderCrumbs();
-    this.refit();
+    // the free area changes (the card is counted); the flight moves the picture there
+    view.setFreeForFlight(this.freeRect());
     view.goTo(() => view.lookPose(o));
   }
 
