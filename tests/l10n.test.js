@@ -23,7 +23,8 @@ function staticKeys() {
   for (const f of files) {
     const src = readFileSync(new URL(f, ROOT), "utf8");
     for (const m of src.matchAll(/\bt\(\s*"([a-zA-Z0-9.-]+)"/g)) keys.add(m[1]);
-    for (const m of src.matchAll(/\bt\(\s*([a-z]+) \? "([a-zA-Z0-9.-]+)" : "([a-zA-Z0-9.-]+)"/g)) (keys.add(m[2]), keys.add(m[3]));
+    // t(condition ? "key" : "other"), whatever the condition
+    for (const m of src.matchAll(/\bt\(\s*[^"`()]+?\?\s*"([a-zA-Z0-9.-]+)"\s*:\s*"([a-zA-Z0-9.-]+)"/g)) (keys.add(m[1]), keys.add(m[2]));
     for (const m of src.matchAll(/data-l10n(?:-tip)?="([a-zA-Z0-9.-]+)"/g)) keys.add(m[1]);
   }
   return keys;
