@@ -42,6 +42,7 @@ export const ICONS = [
   "info",
   "keyboard_arrow_down",
   "list",
+  "power_settings_new",
   "restart_alt",
   "zoom_in",
   "zoom_out",

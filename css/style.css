@@ -88,6 +88,8 @@ code, pre, .mono { font-family: var(--mono); }
 .brand-tag { color: var(--md-on-surface-variant); font-size: 13px; }
 .brand-mark { width: 26px; height: 26px; align-self: center; }
 .spacer { flex: 1; }
+/* sets the terminal's power apart from the Programs menu, so the two do not read as one */
+.bar-sep { width: 1px; height: 24px; margin: 0 8px; background: var(--md-outline-variant); }
 
 /* ---- the stage ---- */
 #stage { position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 35%, #1a2027 0%, var(--md-surface) 70%); }

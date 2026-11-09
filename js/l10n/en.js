@@ -16,8 +16,8 @@ export default {
   // ---- the top bar (U3) ----
   "bar.programs": "Programs",
   "bar.programs.tip": "Load a program: its statements are typed on the Teletype",
-  "bar.reset": "Reset",
-  "bar.reset.tip": "Power the terminal off and on again: core as at start, the paper cleared",
+  "bar.reset": "Turn off and on",
+  "bar.reset.tip": "Turn the whole terminal off and on again: core as at start, the display dark, the paper torn off, no program loaded",
   "bar.about": "About",
 
   // ---- viewpoints (V1-V8) ----
@@ -138,7 +138,7 @@ export default {
   "status.ready": "Ready. Choose a program from Programs.",
   "status.typing": "{title}: typing its statements on the Teletype…",
   "status.loaded": "{title}: loaded.",
-  "status.reset": "The terminal was powered off and on again.",
+  "status.reset": "The terminal was turned off and on again: no program is loaded.",
   "status.penOff": "The light pen works on the Screen viewpoint only.",
   "status.pen": "Pen at ({x}, {y}) in.",
   "status.dial": "Dial {n}: {v}.",
