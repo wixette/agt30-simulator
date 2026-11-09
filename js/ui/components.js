@@ -93,7 +93,8 @@ export function setTip(e, text) {
   const show = () => {
     clearTimeout(tipTimer);
     tipTimer = setTimeout(() => {
-      if (!e.isConnected || !e.dataset.tip) return;
+      // never over an open menu: the tooltip would cover what was just asked for
+      if (!e.isConnected || !e.dataset.tip || openMenu) return;
       tipBox ??= document.body.appendChild(el("div", { class: "tooltip", role: "presentation" }));
       tipBox.textContent = e.dataset.tip;
       tipBox.hidden = false;
@@ -163,6 +164,7 @@ export function showMenu(anchor, items) {
   });
   document.body.appendChild(box);
   openMenu = { box, anchor };
+  if (tipBox) tipBox.hidden = true;
   anchor.setAttribute("aria-expanded", "true");
   const r = anchor.getBoundingClientRect();
   const b = box.getBoundingClientRect();

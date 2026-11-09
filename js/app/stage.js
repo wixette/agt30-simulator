@@ -124,34 +124,19 @@ export class Stage {
     });
   }
 
-  /** The breadcrumb: the path to the viewpoint, each crumb a way back; the last lists its siblings. */
+  /**
+   * The viewpoint menu: one button naming the viewpoint, whose menu lists all four, the current
+   * one checked. Its label says what it is, so it has no tooltip. Back and Escape climb a level.
+   */
   renderCrumbs() {
     const host = /** @type {HTMLElement} */ (document.getElementById("crumbs"));
-    /** @type {View[]} */
-    const path = [];
-    for (let v = /** @type {View | null} */ (this.view); v; v = PARENT[v]) path.unshift(v);
-    /** @type {Node[]} */
-    const items = [];
-    path.forEach((v, i) => {
-      if (i) items.push(el("span", { class: "sep", text: "›" }));
-      const b = el("button", { class: "crumb", type: "button", text: t(`view.${v}`) });
-      if (v === this.view) b.setAttribute("aria-current", "page");
-      b.addEventListener("click", () => this.go(v));
-      items.push(b);
-    });
-    const parent = PARENT[this.view];
-    // where you can go from here: the viewpoints below this one, then those beside it
     const all = /** @type {View[]} */ (Object.keys(PARENT));
-    const below = all.filter((v) => PARENT[v] === this.view);
-    const beside = parent ? all.filter((v) => PARENT[v] === parent && v !== this.view) : [];
-    const siblings = [...below, ...beside];
-    if (siblings.length) {
-      const more = el("button", { class: "crumb more", type: "button", "aria-haspopup": "menu", "aria-expanded": "false" }, [icon("keyboard_arrow_down")]);
-      setTip(more, t("view.siblings"));
-      more.addEventListener("click", () => showMenu(more, siblings.map((v) => ({ label: t(`view.${v}`), run: () => this.go(v) }))));
-      items.push(more);
-    }
-    host.replaceChildren(...items);
+    const b = el("button", { class: "crumb", type: "button", "aria-haspopup": "menu", "aria-expanded": "false", "aria-label": t("view.choose", { view: t(`view.${this.view}`) }) }, [
+      el("span", { text: t(`view.${this.view}`) }),
+      icon("keyboard_arrow_down"),
+    ]);
+    b.addEventListener("click", () => showMenu(b, all.map((v) => ({ label: t(`view.${v}`), checked: v === this.view, run: () => this.go(v) }))));
+    host.replaceChildren(b);
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
     $("back").hidden = this.view === "room";
     $("connections").hidden = this.view !== "room";

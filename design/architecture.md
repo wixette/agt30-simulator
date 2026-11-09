@@ -72,7 +72,7 @@ js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (t
                inches), traces.js (X, Y, Z), beam.js (the beam at an instant), theme.js (tokens)
 js/scene/      three.js: terminal3d.js (built from params), viewer.js (framing, flights, picking,
                the cutaway and the beam)
-js/app/        the page: main.js, runner.js (time), stage.js (viewpoints, breadcrumb, cards),
+js/app/        the page: main.js, runner.js (time), stage.js (viewpoints, their menu, cards),
                strip.js, dock.js, programCard.js, teletype.js, about.js, link.js, selftest.js
 js/ui/         components.js: icons, tooltips, menus, tabs, dialogs
 js/l10n/       l10n.js (lookup) and en.js

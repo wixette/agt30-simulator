@@ -97,7 +97,7 @@ code, pre, .mono { font-family: var(--mono); }
 .fade { transition: opacity 280ms var(--ease); }
 @media (prefers-reduced-motion: reduce) { .fade { transition: none; } }
 
-/* the band: breadcrumb and view tools (V2) */
+/* the band: the viewpoint menu and the view tools (V2) */
 #band {
   position: absolute;
   left: 0;
@@ -112,11 +112,8 @@ code, pre, .mono { font-family: var(--mono); }
 }
 #band > * { pointer-events: auto; }
 .crumbs { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px 4px; }
-.crumbs .sep { color: var(--md-outline); padding: 0 2px; }
-.crumb { height: 32px; padding: 0 10px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--md-on-surface-variant); cursor: pointer; }
+.crumb { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 6px 0 12px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--md-primary); font-weight: 600; cursor: pointer; }
 .crumb:hover { background: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
-.crumb[aria-current="page"] { color: var(--md-primary); font-weight: 600; }
-.crumb.more { width: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
 .tools { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px; }
 
 /* the Screen viewpoint: the 2D picture in a thin bezel (V3) */
