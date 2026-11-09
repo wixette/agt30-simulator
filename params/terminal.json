@@ -1,9 +1,13 @@
 {
-  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame: +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). A part's 'face' (front unless given) is the side its controls are on, which a close look shows; its 'look', if given, is the direction a close look tries first, from the part towards the camera, in this frame (docs/ui-design.md, V1a). The parts' names and descriptions are messages in js/l10n/en.js.",
+  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame, the scope at the middle of the installation (x = 500; the Room looks straight at it): +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). A part's 'face' (front unless given) is the side its controls are on, which a close look shows; its 'look', if given, is the direction a close look tries first, from the part towards the camera, in this frame (docs/ui-design.md, V1a). The parts' names and descriptions are messages in js/l10n/en.js.",
   "units": "mm",
   "room": {
     "w": 7200,
     "d": 5600,
+    "at": [
+      500,
+      1000
+    ],
     "confidence": "design"
   },
   "parts": [
@@ -15,7 +19,7 @@
         740
       ],
       "at": [
-        0,
+        500,
         100,
         0
       ],
@@ -41,7 +45,7 @@
         635
       ],
       "at": [
-        0,
+        500,
         145,
         740
       ],
@@ -117,7 +121,7 @@
       "radius": 1000,
       "picture": 305,
       "at": [
-        0,
+        500,
         -268,
         1057
       ],
@@ -133,7 +137,7 @@
       ],
       "wedge": 65,
       "at": [
-        -410,
+        90,
         -290,
         740
       ],
@@ -150,7 +154,7 @@
       ],
       "wedge": 70,
       "at": [
-        -650,
+        -150,
         -275,
         740
       ],
@@ -166,7 +170,7 @@
         47
       ],
       "at": [
-        610,
+        1110,
         -315,
         740
       ],
@@ -181,7 +185,7 @@
         150
       ],
       "at": [
-        390,
+        890,
         -330,
         740
       ],
@@ -197,7 +201,7 @@
         75
       ],
       "at": [
-        0,
+        500,
         -300,
         0
       ],
@@ -212,7 +216,7 @@
         864
       ],
       "at": [
-        -1450,
+        -950,
         -100,
         0
       ],
@@ -463,12 +467,12 @@
       "lead": {
         "to": [
           [
-            0,
+            500,
             560,
             900
           ],
           [
-            0,
+            500,
             640,
             900
           ]
@@ -498,12 +502,12 @@
       "lead": {
         "from": [
           [
-            -650,
+            -150,
             540,
             708
           ],
           [
-            -650,
+            -150,
             630,
             708
           ]
@@ -519,12 +523,12 @@
       "lead": {
         "from": [
           [
-            -410,
+            90,
             540,
             708
           ],
           [
-            -410,
+            90,
             630,
             708
           ]

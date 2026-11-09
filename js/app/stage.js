@@ -202,14 +202,15 @@ export class Stage {
   pose(v) {
     const view = /** @type {TerminalView} */ (this.view3d);
     if (v === "room") {
-      // straight at the scope, from above: the scope's screen is centred and faces the reader, and
-      // the other machines show their depth. The box is made even about the scope (x = 0), so the
-      // framing is centred on it.
+      // straight at the scope, a little from above: the scope's screen is centred and faces the
+      // reader, and the other machines show their depth. The scope stands at the installation's
+      // middle; the box is made even about it all the same, so the framing is centred on it.
       const box = this.boxOfParts(this.params.parts.map((p) => p.name));
-      const half = Math.max(-box.min.x, box.max.x);
-      box.min.x = -half;
-      box.max.x = half;
-      return view.frame(box, new THREE.Vector3(0, 0.5, 1));
+      const cx = this.boxOfParts(["console.scope"]).getCenter(new THREE.Vector3()).x;
+      const half = Math.max(cx - box.min.x, box.max.x - cx);
+      box.min.x = cx - half;
+      box.max.x = cx + half;
+      return view.frame(box, new THREE.Vector3(0, 0.3, 1));
     }
     if (v === "console") {
       const box = this.boxOfParts(CONSOLE_PARTS);

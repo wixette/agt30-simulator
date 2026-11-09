@@ -77,7 +77,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
  * @property {string} activity
  */
 
-/** @typedef {{ parts: PartDef[]; cables: CableDef[]; room: { w: number; d: number } }} TerminalParams */
+/** @typedef {{ parts: PartDef[]; cables: CableDef[]; room: { w: number; d: number; at?: number[] } }} TerminalParams */
 
 /** The materials' colours; the page passes the theme's tokens. */
 export const DEFAULT_PALETTE = {
@@ -1000,7 +1000,9 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
 
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(params.room.w / 1000, params.room.d / 1000), new THREE.MeshStandardMaterial({ color: palette.floor, roughness: 0.95 }));
   floor.rotation.x = -Math.PI / 2;
-  floor.position.set(0, -0.001, -1);
+  // the floor's centre, under the installation's middle
+  const [fx, fy] = params.room.at ?? [0, 1000];
+  floor.position.copy(v3(fx, fy, -1));
   floor.name = "room.floor";
   root.add(floor);
 
