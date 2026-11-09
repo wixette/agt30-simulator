@@ -58,6 +58,7 @@ export default {
   "card.goScreen": "Look at the screen",
   "card.goTube": "Cut it open",
   "card.goConsole": "Sit at the console",
+  "card.look": "Look closer",
   "confidence.doc": "Its size is documented.",
   "confidence.photo": "Its size is measured from photographs.",
   "confidence.est": "Its size is estimated from photographs and the common sizes of the period.",

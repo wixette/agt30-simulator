@@ -17,6 +17,7 @@ import { v3, boxOf } from "../scene/terminal3d.js";
 import { DRAG_PX } from "./strip.js";
 
 /** @typedef {import("./link.js").View} View */
+/** @typedef {{ view?: View; look?: true; label: string }} CardAction a card's button: a viewpoint, or a close look */
 /** @typedef {import("../scene/viewer.js").Pose} Pose */
 /** @typedef {import("../scene/terminal3d.js").TerminalParams} TerminalParams */
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
@@ -50,6 +51,8 @@ export class Stage {
     this.ops = ops;
     /** @type {View} */
     this.view = "room";
+    /** @type {string | null} the part or cable a close look frames, within the viewpoint */
+    this.closeLook = null;
     this.stage = /** @type {HTMLElement} */ (document.getElementById("stage"));
     this.card = /** @type {HTMLElement} */ (document.getElementById("card"));
     this.screenEl = /** @type {HTMLElement} */ (document.getElementById("screen"));
@@ -85,11 +88,10 @@ export class Stage {
         else agt.setDial(n, v0 + (dy * 2) / DRAG_PX);
         this.ops.say(t("status.dial", { n, v: agt.dev.dials[n].toFixed(3) }));
       };
-      // a double-click does the card's first action, even when that is the viewpoint already
-      // shown: choosing the current viewpoint reframes it, from the menu or from a part (V1)
+      // a double-click does the card's first action (V1); every part has one, a close look
       this.view3d.onActivate = (name) => {
-        const first = this.cardActions(name, true)[0];
-        if (first) this.go(first.view);
+        const first = this.cardActions(name)[0];
+        if (first) this.act(name, first);
       };
     }
     this.wireBand();
@@ -140,13 +142,14 @@ export class Stage {
     b.addEventListener("click", () => showMenu(b, all.map((v) => ({ label: t(`view.${v}`), checked: v === this.view, run: () => this.go(v) }))));
     host.replaceChildren(b);
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
-    $("back").hidden = this.view === "room";
+    $("back").hidden = this.view === "room" && !this.closeLook;
     $("connections").hidden = this.view !== "room";
     for (const id of ["home", "zoom-in", "zoom-out"]) $(id).hidden = this.view === "screen";
   }
 
   /** Climbs one level (V2). */
   up() {
+    if (this.closeLook) return void this.go(this.view);
     const p = PARENT[this.view];
     if (p) this.go(p);
   }
@@ -164,8 +167,10 @@ export class Stage {
     const tube = this.view === "tube";
     const bottom = (tube ? traces.top : strip.top) - s.top;
     // a part's card floats over the stage's edge and is not counted: opening it never moves
-    // the view (V1: a click selects, only actions move)
+    // the view (V1: a click selects, only actions move). A close look, an action, frames its
+    // part beside the card, so that the card describing it does not cover it.
     let right = s.width;
+    if (this.closeLook && !this.card.hidden) right = this.card.getBoundingClientRect().left - s.left - 8;
     if (tube) right = Math.min(right, inset.left - s.left - 8);
     return { left: 8, top, width: Math.max(80, right - 8), height: Math.max(80, bottom - top) };
   }
@@ -223,6 +228,7 @@ export class Stage {
   async go(v, animate = true) {
     const from = this.view;
     this.view = v;
+    this.closeLook = null;
     // the link names the viewpoint chosen, whether or not the camera gets there undisturbed
     this.ops.onView(v);
     // a viewpoint is reached with nothing selected: the part it frames is looked at, not marked
@@ -256,19 +262,49 @@ export class Stage {
   // ---- cards (U6) ----
 
   /**
-   * The viewpoints a part's card offers: the part's own, less the one shown unless all are asked for.
+   * What a part's card offers: the part's own viewpoints, less the one shown, then a close look.
    * @param {string} name
-   * @param {boolean} [all]
-   * @returns {{ view: View; label: string }[]}
+   * @returns {CardAction[]}
    */
-  cardActions(name, all = false) {
-    /** @type {{ view: View; label: string }[]} */
+  cardActions(name) {
+    /** @type {CardAction[]} */
     let list = [];
     if (name === "console.scope") list = [{ view: "screen", label: t("card.goScreen") }, { view: "tube", label: t("card.goTube") }];
     else if (name.startsWith("console.scope.tube")) list = [{ view: "screen", label: t("card.goScreen") }];
     else if (name.startsWith("console.")) list = [{ view: "console", label: t("card.goConsole") }];
-    // a card offers no button for the viewpoint already shown
-    return all ? list : list.filter((a) => a.view !== this.view);
+    list = list.filter((a) => a.view !== this.view);
+    list.push({ look: true, label: t("card.look") });
+    return list;
+  }
+
+  /**
+   * Does a card's action.
+   * @param {string} name the part or cable
+   * @param {CardAction} a
+   */
+  act(name, a) {
+    if (a.view) this.go(a.view);
+    else this.look(name);
+  }
+
+  /**
+   * A close look: the camera flies in to frame one part, from about the direction it looks from
+   * now. It is a move within the viewpoint, not a viewpoint: no link, no menu entry; Back and
+   * Escape return to the viewpoint's framing. The card stays open, with nothing highlighted.
+   * @param {string} name
+   */
+  look(name) {
+    const view = this.view3d;
+    const o = view?.built.parts.get(name) ?? view?.built.cables.get(name);
+    if (!view || !o) return;
+    if (this.card.hidden) this.openCard(name);
+    this.closeLook = name;
+    view.select(null);
+    this.renderCrumbs();
+    const box = new THREE.Box3().setFromObject(o);
+    const dir = view.camera.position.clone().sub(view.controls.target);
+    this.refit();
+    view.goTo(() => view.frame(box, dir));
   }
 
   /** @param {string | null} name */
@@ -287,7 +323,7 @@ export class Stage {
     });
     const actions = this.cardActions(name).map((a) => {
       const b = el("button", { class: "btn tonal small", type: "button", text: a.label });
-      b.addEventListener("click", () => this.go(a.view));
+      b.addEventListener("click", () => this.act(name, a));
       return b;
     });
     /** @type {(Node | null)[]} */
