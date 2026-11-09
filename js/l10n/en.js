@@ -108,7 +108,7 @@ export default {
   "program.cube.what": "Seen in orthogonal projection, the cube flips from one orientation to the other as it turns: nothing tells its front from its back.",
   "program.perspective-cube.title": "A cube in perspective",
   "program.perspective-cube.use": "Turn dials 0, 1 and 2, as for the cube: now the near side looks larger, and the cube never flips.",
-  "program.perspective-cube.what": "The array only multiplies and adds, so it cannot divide by depth. Here the processor does it: once a frame, a routine turns the eight corners, divides each by its distance from the eye, and writes them into the picture. It takes about 9 ms of each 25 ms frame, more than a third of the processor, for 8 corners; Fig. 12's 2,000 points would take well over a second a frame. That is the work the array was built to take off the processor.",
+  "program.perspective-cube.what": "The array only multiplies and adds, and what it computes goes to the screen, so it cannot divide by depth. The work is shared: once a frame the processor works out each corner's depth and how much larger that makes it look, one divide a corner, and the array turns each point and scales it by that much. That takes the processor about 3 ms of each 25 ms frame for 8 corners; done entirely by the processor it took 9.",
   "program.tunnel.title": "The tunnel, with depth cueing",
   "program.tunnel.use": "Turn dial 0 to fly in. Switch depth cueing off and on to see why it was invented.",
   "program.tunnel.what": "Without depth cueing many people see a pyramid from above; with it, the far end dims 10 to 1 and the picture reads as a tunnel.",

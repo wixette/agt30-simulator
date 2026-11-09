@@ -590,29 +590,31 @@ export const MODEL_CHECKS = [
   },
   {
     id: "PRG-6",
-    title: "The perspective cube: the processor turns each corner as RXYZ does and divides it by its distance from the eye, within 2 LSB, in under a frame (FJCC68 eqs. 5-7; DSPLY p. 22)",
+    title: "The perspective cube: the processor works out each corner's scale from its depth, 1 / (1 - z/2), and the array turns and scales it, so each corner lands where perspective puts it, in under a frame (FJCC68 eqs. 5-7; DSPLY pp. 22, 33)",
     run(ctx) {
       const agt = ctx.boot();
       load(ctx, agt, "perspective-cube");
-      const dials = [0.2, -0.3, 0.45];
-      dials.forEach((v, n) => agt.setDial(n, v));
+      [0.2, -0.3, 0.45].forEach((v, n) => agt.setDial(n, v));
       const t0 = agt.now;
       const c0 = agt.clockUs;
       agt.advance(agt.now + 200000);
       const frames = agt.frames.filter((f) => f.start > t0).length;
       ok(frames > 0, "frames drawn");
       ok((agt.clockUs - c0) / frames < tickUs(agt.rate), "the CLOCK routines fit in a frame");
-      // the corners as they should land: RXYZ's matrix (Z first, then Y, then X), the eye 2 units away
+      // where each corner should land: RXYZ's matrix (Z first, then Y, then X), the eye 2 units
+      // away, through the picture scale of V.PCUBE (.99, and the stored scales divided by 1.5)
       const angle = (/** @type {string} */ s) => fromFrac(agt.core.read(agt.core.addr(s)) & 0o77777) * Math.PI;
-      const [az, ax, ay] = [angle("DIALZ"), angle("DIALX"), angle("DIALY")];
-      const R = rotZYX(az, ax, ay);
+      const R = rotZYX(angle("DIALZ"), angle("DIALX"), angle("DIALY"));
+      const ends = lastFrame(agt).flatMap((g) => [[g.x0, g.y0], [g.x1, g.y1]]);
       for (let v = 0; v < 8; v++) {
         const p = [v & 1 ? 0.35 : -0.35, v & 2 ? 0.35 : -0.35, v & 4 ? 0.35 : -0.35];
         const r = [0, 1, 2].map((i) => R[i * 3] * p[0] + R[i * 3 + 1] * p[1] + R[i * 3 + 2] * p[2]);
-        const k = 1 / (1 - r[2] / 2);
-        const got = (/** @type {string} */ s) => fromFrac(agt.core.read(agt.core.addr(s) + v) & 0o77777);
-        near(got("PX"), r[0] * k, 4 * LSB, `corner ${v}: x`);
-        near(got("PY"), r[1] * k, 4 * LSB, `corner ${v}: y`);
+        const scale = 1 / (1.5 - 0.75 * r[2]);
+        near(fromFrac(agt.core.read(agt.core.addr(`S${v}`)) & 0o77777), scale, 3 * LSB, `corner ${v}: its scale`);
+        const k = fromFrac(toFrac(0.99)) * scale * 1.5 * 10;
+        const want = [(r[0] * k) / 1.5, (r[1] * k) / 1.5];
+        const d = Math.min(...ends.map(([x, y]) => Math.hypot(x - want[0], y - want[1])));
+        ok(d < 0.02, `corner ${v} on the screen: ${d.toFixed(3)} in from where perspective puts it`);
       }
     },
   },

@@ -1,58 +1,57 @@
-[ PCUBE: A CUBE IN PERSPECTIVE.  THE ARRAY ONLY MULTIPLIES AND ADDS (FJCC68
-[ EQS. 5-7): IT CANNOT DIVIDE BY DEPTH, SO V.CUBE IS AN ORTHOGONAL VIEW.
-[ HERE THE PROCESSOR DOES WHAT THE ARRAY CANNOT.  ONCE A FRAME, A CLOCK
-[ ROUTINE TURNS THE CUBE'S EIGHT CORNERS BY THE DIALS' ANGLES, AS RXYZ
-[ WOULD (Z FIRST, THEN Y, THEN X), DIVIDES EACH BY ITS DISTANCE FROM THE
-[ EYE, AND WRITES THE RESULT INTO THE PICTURE'S ITEMS.  THE ARRAY IS LEFT
-[ ONLY TO SCALE IT.  IT COSTS THE PROCESSOR ABOUT 9 MS OF EACH 25 MS
-[ FRAME, MORE THAN A THIRD OF IT, FOR 8 CORNERS: FOR THE 2,000 POINTS OF
-[ FIG. 12 IT WOULD TAKE WELL OVER A SECOND A FRAME.
+[ PCUBE: A CUBE IN PERSPECTIVE, THE WORK SHARED BETWEEN THE ARRAY AND THE
+[ PROCESSOR.  PERSPECTIVE MAKES A POINT AT DEPTH Z LOOK 1 / (1 - Z/2) AS
+[ LARGE, WITH THE EYE 2 UNITS FROM THE CENTRE.  THE ARRAY ONLY MULTIPLIES
+[ AND ADDS (FJCC68 EQS. 5-7), AND WHAT IT COMPUTES GOES TO THE SCREEN, NOT
+[ BACK TO THE PROCESSOR, SO IT CANNOT DIVIDE BY DEPTH.  BUT A POINT'S
+[ DEPTH NEEDS ONLY THE LAST ROW OF THE MATRIX.  SO, ONCE A FRAME, A CLOCK
+[ ROUTINE WORKS OUT EACH CORNER'S DEPTH AND ITS SCALE, ONE DIVIDE A
+[ CORNER; THE PICTURE LOADS THAT SCALE BEFORE EACH POINT (LDSCL); AND
+[ THE ARRAY TURNS THE POINT AND SCALES IT: THE DIVISION DONE BY THE
+[ PROCESSOR, THE ROTATION BY THE ARRAY.
 [ TYPE:  ADEPT ("PCUBE")!   DSPLY (V.PCUBE)!
 [        CLOCK (DIALS+1, DI.EX)!   CLOCK (PCUBE+1, PC.EX)!
 [ NUMBERS ARE FRACTIONS TIMES 2**14 IN WHOLE 30-BIT WORDS.
 [
-[ THE PICTURE: THE CUBE'S EDGES, AS V.CUBE DRAWS THEM.  THE ROUTINE
-[ REWRITES EVERY ITEM'S POINT EACH FRAME; Z IS KEPT, FOR DEPTH CUEING.
+[ THE PICTURE: THE CUBE'S EDGES, AS V.CUBE DRAWS THEM, EACH POINT AFTER
+[ ITS CORNER'S SCALE.  A SCALE REGISTER HOLDS LESS THAN 1, BUT THE NEAREST
+[ CORNER LOOKS 1.43 TIMES AS LARGE, SO THE SCALES ARE KEPT DIVIDED BY 1.5
+[ AND THE PICTURE SCALE IS RAISED TO MAKE UP FOR IT.
+[ CORNER K IS X + 2 Y + 4 Z, EACH 1 FOR + .35, 0 FOR - .35.
 V.PCUBE: TEXT /V.PCUBE/
-        LDPS (.68)              [ A LARGER PICTURE SCALE: THE POINTS ARE SMALL
-PC.I0:  MOVE (0, 0, 0)          [ THE BACK FACE
-        DRAW (0, 0, 0); DRAW (0, 0, 0); DRAW (0, 0, 0); DRAW (0, 0, 0)
-        DRAW (0, 0, 0)          [ UP TO THE FRONT, AND ROUND IT
-        DRAW (0, 0, 0); DRAW (0, 0, 0); DRAW (0, 0, 0); DRAW (0, 0, 0)
-        MOVE (0, 0, 0); DRAW (0, 0, 0)  [ THE THREE EDGES LEFT
-        MOVE (0, 0, 0); DRAW (0, 0, 0)
-        MOVE (0, 0, 0); DRAW (0, 0, 0)
+        LDPS (.99)
+        RXYZ'IRL (DIALZ'DIR, DIALX'DIR, DIALY'DIR)
+        LDSCL'IRL (S0'DIR); MOVE (-.35, -.35, -.35)     [ THE BACK FACE
+        LDSCL'IRL (S1'DIR); DRAW (-.35, .35, -.35)
+        LDSCL'IRL (S3'DIR); DRAW (-.35, .35, .35)
+        LDSCL'IRL (S2'DIR); DRAW (-.35, -.35, .35)
+        LDSCL'IRL (S0'DIR); DRAW (-.35, -.35, -.35)
+        LDSCL'IRL (S4'DIR); DRAW (.35, -.35, -.35)      [ UP TO THE FRONT
+        LDSCL'IRL (S5'DIR); DRAW (.35, .35, -.35)
+        LDSCL'IRL (S7'DIR); DRAW (.35, .35, .35)
+        LDSCL'IRL (S6'DIR); DRAW (.35, -.35, .35)
+        LDSCL'IRL (S4'DIR); DRAW (.35, -.35, -.35)
+        LDSCL'IRL (S1'DIR); MOVE (-.35, .35, -.35)      [ THE THREE EDGES LEFT
+        LDSCL'IRL (S5'DIR); DRAW (.35, .35, -.35)
+        LDSCL'IRL (S3'DIR); MOVE (-.35, .35, .35)
+        LDSCL'IRL (S7'DIR); DRAW (.35, .35, .35)
+        LDSCL'IRL (S2'DIR); MOVE (-.35, -.35, .35)
+        LDSCL'IRL (S6'DIR); DRAW (.35, -.35, .35)
         RET
-[ WHICH CORNER EACH ITEM GOES TO (CORNER = X + 2 Y + 4 Z, 1 FOR +)
-PC.IT:  0; 1; 3; 2; 0; 4; 5; 7; 6; 4; 1; 5; 3; 7; 2; 6
-[ THE CORNERS, AND WHERE EACH LANDS ON THE SCREEN
+[ EACH CORNER'S SCALE, WRITTEN EACH FRAME: S0 TO S7
+S0: .5; S1: .5; S2: .5; S3: .5; S4: .5; S5: .5; S6: .5; S7: .5
+[ THE CORNERS, IN THE SAME ORDER
 VX:     -.35; .35; -.35; .35; -.35; .35; -.35; .35
 VY:     -.35; -.35; .35; .35; -.35; -.35; .35; .35
 VZ:     -.35; -.35; -.35; -.35; .35; .35; .35; .35
-PX:     REPEAT 8.
-        0
-        ENDR
-PY:     REPEAT 8.
-        0
-        ENDR
-PZ:     REPEAT 8.
-        0
-        ENDR
 [
-[ THE CLOCK ROUTINE
+[ THE CLOCK ROUTINE.  THE MATRIX OF RXYZ IS RZ RY RX, AND ITS LAST ROW,
+[ WHICH GIVES THE DEPTH, IS (- SY, CY SX, CY CX): Z'S ANGLE DOES NOT ENTER.
 PCUBE:  0
-        MDAR DIALZ              [ SINES AND COSINES OF THE THREE ANGLES:
-        JPSR PC.SIN             [ COS A = SIN (A + 1/2)
-        ARMD SZ
-        MDAR DIALZ
-        MDAE'F 20000
-        JPSR PC.SIN
-        ARMD CZ
         MDAR DIALY
         JPSR PC.SIN
         ARMD SY
         MDAR DIALY
-        MDAE'F 20000
+        MDAE'F 20000            [ COS A = SIN (A + 1/2)
         JPSR PC.SIN
         ARMD CY
         MDAR DIALX
@@ -62,42 +61,15 @@ PCUBE:  0
         MDAE'F 20000
         JPSR PC.SIN
         ARMD CX
-[ THE MATRIX OF RXYZ: RZ RY RX
-        JPSR PC.MUL; CZ; CY
-        ARMD M00                [ CZ CY
-        JPSR PC.MUL; SY; SX
-        ARMD T1
-        JPSR PC.MUL; SY; CX
-        ARMD T2
-        JPSR PC.MUL; SZ; CX
-        ARMD T3
-        JPSR PC.MUL; CZ; T1
-        MDAE'N T3
-        ARMD M01                [ CZ SY SX - SZ CX
-        JPSR PC.MUL; SZ; SX
-        ARMD T3
-        JPSR PC.MUL; CZ; T2
-        MDAE T3
-        ARMD M02                [ CZ SY CX + SZ SX
-        JPSR PC.MUL; SZ; CY
-        ARMD M10                [ SZ CY
-        JPSR PC.MUL; CZ; CX
-        ARMD T3
-        JPSR PC.MUL; SZ; T1
-        MDAE T3
-        ARMD M11                [ SZ SY SX + CZ CX
-        JPSR PC.MUL; CZ; SX
-        ARMD T3
-        JPSR PC.MUL; SZ; T2
-        MDAE'N T3
-        ARMD M12                [ SZ SY CX - CZ SX
         MDAR'N SY
         ARMD M20                [ - SY
         JPSR PC.MUL; CY; SX
         ARMD M21                [ CY SX
         JPSR PC.MUL; CY; CX
         ARMD M22                [ CY CX
-[ EACH CORNER: TURNED, THEN DIVIDED BY ITS DISTANCE FROM THE EYE
+[ EACH CORNER: ITS DEPTH RZ, THEN ITS SCALE DIVIDED BY 1.5,
+[ 1 / (1.5 - .75 RZ) = (1/2) / (.75 - .375 RZ) = 2**27 / (.75 - .375 RZ)
+[ IN THESE UNITS.
         MDAR'F 8.
         ARMD PC.N
         MDAR'F VX
@@ -106,35 +78,15 @@ PCUBE:  0
         ARMD P.VY
         MDAR'F VZ
         ARMD P.VZ
-        MDAR'F PX
-        ARMD P.PX
-        MDAR'F PY
-        ARMD P.PY
-        MDAR'F PZ
-        ARMD P.PZ
+        MDAR'F S0
+        ARMD P.S
 PC.V:   MDAR'I'X P.VX
         ARMD CRX
         MDAR'I'X P.VY
         ARMD CRY
         MDAR'I'X P.VZ
         ARMD CRZ
-        JPSR PC.MUL; M00; CRX   [ RX = M00 X + M01 Y + M02 Z
-        ARMD T3
-        JPSR PC.MUL; M01; CRY
-        MDAE T3
-        ARMD T3
-        JPSR PC.MUL; M02; CRZ
-        MDAE T3
-        ARMD RX
-        JPSR PC.MUL; M10; CRX   [ RY
-        ARMD T3
-        JPSR PC.MUL; M11; CRY
-        MDAE T3
-        ARMD T3
-        JPSR PC.MUL; M12; CRZ
-        MDAE T3
-        ARMD RY
-        JPSR PC.MUL; M20; CRX   [ RZ: TOWARD THE VIEWER
+        JPSR PC.MUL; M20; CRX   [ RZ = M20 X + M21 Y + M22 Z
         ARMD T3
         JPSR PC.MUL; M21; CRY
         MDAE T3
@@ -142,64 +94,18 @@ PC.V:   MDAR'I'X P.VX
         JPSR PC.MUL; M22; CRZ
         MDAE T3
         ARMD RZ
-        ARMD'I'X P.PZ           [ KEPT FOR DEPTH CUEING
-[ THE EYE IS 2 UNITS FROM THE CENTRE: A POINT AT RZ IS 1 - RZ/2 AS FAR
-[ AS THE CENTRE, AND SHOWS 1 / (1 - RZ/2) AS LARGE.  HALF THAT DISTANCE,
-[ 1/2 - RZ/4, IS KEPT, SO THAT IT FITS A HALF-WORD; THEN
-[ X ON THE SCREEN = RX / (1 - RZ/2) = RX 2**13 / HALF.
-        JPSR PC.MUL; QTR; RZ
+        JPSR PC.MUL; K375; RZ
         ARMD T3
-        MDAR'F 20000
+        MDAR K75
         MDAE'N T3
-        ARMD HALF
-        MDAR RX
-        ARLS 13.
-        DIVL HALF
-        ARMD'I'X P.PX
-        MDAR RY
-        ARLS 13.
-        DIVL HALF
-        ARMD'I'X P.PY
+        ARMD DEN                [ .75 - .375 RZ
+        MDAR TWO27
+        DIVL DEN
+        ARMD'I'X P.S            [ THE CORNER'S SCALE
         MDAR PC.N
         MDAE'F'N 1
         ARMD PC.N
         JPLS PC.V
-[ WRITE EACH ITEM'S POINT: Z IN ITS COMMAND WORD'S LOWER HALF, X AND Y IN
-[ THE HALVES OF ITS SECOND WORD (DSPLY P. 17)
-        MDAR'F 16.
-        ARMD PC.N
-        MDAR'F PC.IT
-        ARMD P.IT
-        MDAR'F PC.I0
-        ARMD P.I
-PC.W:   MDAR'I'X P.IT           [ THE CORNER
-        ARMD PC.K
-        MDAE'F PZ
-        ARMD P.T
-        MDAR'I P.T
-        MDAR'A LOW
-        ARMD T3                 [ Z, 15 BITS
-        MDAR'I P.I              [ THE COMMAND WORD
-        MDAR'A HIGH             [ KEEP ITS OPERATION
-        MDAR'O T3
-        ARMD'I'X P.I
-        MDAR PC.K
-        MDAE'F PX
-        ARMD P.T
-        MDAR'I P.T
-        MDAR'A LOW
-        ARMD T3                 [ X, 15 BITS
-        MDAR PC.K
-        MDAE'F PY
-        ARMD P.T
-        MDAR'I P.T
-        MDAR'A LOW              [ Y IN THE LOWER HALF
-        MDAR'O'H T3             [ X TURNED INTO THE UPPER HALF
-        ARMD'I'X P.I
-        MDAR PC.N
-        MDAE'F'N 1
-        ARMD PC.N
-        JPLS PC.W
 PC.EX:  NOOP                    [ CLOCK PUTS THE RETURN HERE
 [
 [ PC.MUL: AR = A TIMES B, TWO FRACTIONS.  CALL:  JPSR PC.MUL; A; B
@@ -264,13 +170,10 @@ PS.C3:  -10583.                 [ - PI**3 / 6
 PS.C5:  5223.                   [ PI**5 / 120
 PS.C7:  -1227.                  [ - PI**7 / 5040
 [ WORKING WORDS
-SX: 0; CX: 0; SY: 0; CY: 0; SZ: 0; CZ: 0
-M00: 0; M01: 0; M02: 0; M10: 0; M11: 0; M12: 0; M20: 0; M21: 0; M22: 0
-T1: 0; T2: 0; T3: 0; RX: 0; RY: 0; RZ: 0; HALF: 0
-CRX: 0; CRY: 0; CRZ: 0
-PC.N: 0; PC.K: 0; P.VX: 0; P.VY: 0; P.VZ: 0; P.PX: 0; P.PY: 0; P.PZ: 0
-P.IT: 0; P.I: 0; P.T: 0
+SX: 0; CX: 0; SY: 0; CY: 0; M20: 0; M21: 0; M22: 0
+T3: 0; RZ: 0; DEN: 0; CRX: 0; CRY: 0; CRZ: 0
+PC.N: 0; P.VX: 0; P.VY: 0; P.VZ: 0; P.S: 0
 PM.A: 0; PM.B: 0; PS.X: 0; PS.X2: 0; PS.R: 0
-QTR:    .25
-LOW:    77777
-HIGH:   77777!H
+K375:   .375
+K75:    .75
+TWO27:  1000000000              [ 2**27
