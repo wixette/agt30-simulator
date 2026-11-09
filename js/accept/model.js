@@ -9,7 +9,7 @@ import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
 import { assembleOp, onesAdd, TIME } from "../sim/dpr2.js";
-import { MAX_DEPTH } from "../sim/dsply.js";
+import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
 import { Teletype } from "../sim/teletype.js";
@@ -446,6 +446,18 @@ export const MODEL_CHECKS = [
     },
   },
   {
+    id: "ASM-3",
+    title: "A REPEAT count is octal unless it ends in a point; a digit 8 or 9 without one is an error (ADEPT pp. 8, 12)",
+    run() {
+      const r = assemble(new Core(), "A: REPEAT 8\n 1\n ENDR\n", 0o200);
+      equal(r.errors.length, 1, "one error");
+      ok(/not octal/.test(r.errors[0].message), "saying why");
+      const c = new Core();
+      equal(assemble(c, "B: REPEAT 10\n 1\n ENDR\nE: 0\n", 0o200).errors.length, 0, "REPEAT 10 assembles");
+      equal(c.addr("E") - c.addr("B"), 8, "10 octal is 8 times");
+    },
+  },
+  {
     id: "ASM-2",
     title: "An undefined symbol is reported with its line (ADEPT p. 14)",
     run() {
@@ -546,6 +558,34 @@ export const MODEL_CHECKS = [
       load(ctx, agt, "town");
       const house = lastFrame(agt).filter((g) => g.vis).length;
       equal(house, 4 * 18, "four houses of 18 lines");
+    },
+  },
+  {
+    id: "PRG-6",
+    title: "The perspective cube: the processor turns each corner as RXYZ does and divides it by its distance from the eye, within 2 LSB, in under a frame (FJCC68 eqs. 5-7; DSPLY p. 22)",
+    run(ctx) {
+      const agt = ctx.boot();
+      load(ctx, agt, "perspective-cube");
+      const dials = [0.2, -0.3, 0.45];
+      dials.forEach((v, n) => agt.setDial(n, v));
+      const t0 = agt.now;
+      const c0 = agt.clockUs;
+      agt.advance(agt.now + 200000);
+      const frames = agt.frames.filter((f) => f.start > t0).length;
+      ok(frames > 0, "frames drawn");
+      ok((agt.clockUs - c0) / frames < tickUs(agt.rate), "the CLOCK routines fit in a frame");
+      // the corners as they should land: RXYZ's matrix (Z first, then Y, then X), the eye 2 units away
+      const angle = (/** @type {string} */ s) => fromFrac(agt.core.read(agt.core.addr(s)) & 0o77777) * Math.PI;
+      const [az, ax, ay] = [angle("DIALZ"), angle("DIALX"), angle("DIALY")];
+      const R = rotZYX(az, ax, ay);
+      for (let v = 0; v < 8; v++) {
+        const p = [v & 1 ? 0.35 : -0.35, v & 2 ? 0.35 : -0.35, v & 4 ? 0.35 : -0.35];
+        const r = [0, 1, 2].map((i) => R[i * 3] * p[0] + R[i * 3 + 1] * p[1] + R[i * 3 + 2] * p[2]);
+        const k = 1 / (1 - r[2] / 2);
+        const got = (/** @type {string} */ s) => fromFrac(agt.core.read(agt.core.addr(s) + v) & 0o77777);
+        near(got("PX"), r[0] * k, 4 * LSB, `corner ${v}: x`);
+        near(got("PY"), r[1] * k, 4 * LSB, `corner ${v}: y`);
+      }
     },
   },
   {

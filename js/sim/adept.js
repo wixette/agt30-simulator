@@ -84,6 +84,12 @@ export function statements(src) {
       continue;
     }
     const body = out.slice(i + 1, end);
+    if (!/\.$/.test(out[i].body) && /[89]/.test(r[1])) {
+      // a count is octal unless it ends in a point: REPEAT 8 is a mistake, not zero times
+      expanded.push({ ...out[i], body: `?${r[1]} is not octal (write ${r[1]}. for decimal)` });
+      i = end;
+      continue;
+    }
     const times = /\.$/.test(out[i].body) ? parseInt(r[1], 10) : parseInt(r[1], 8);
     const first = expanded.length;
     for (let k = 0; k < times; k++) expanded.push(...body.map((s) => ({ ...s, tags: k === 0 ? [...s.tags] : [] })));

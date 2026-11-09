@@ -12,7 +12,8 @@
   "store": [
     "HOUSE",
     "TOWN",
-    "TTT"
+    "TTT",
+    "PCUBE"
   ],
   "programs": [
     {
@@ -45,6 +46,30 @@
       "actions": [],
       "files": [
         "CUBE",
+        "DIALS",
+        "RVCD"
+      ],
+      "reconstructions": [
+        "R4",
+        "R7"
+      ]
+    },
+    {
+      "id": "perspective-cube",
+      "source": "FJCC68 p. 753",
+      "statements": [
+        "RESET!",
+        "ADEPT (\"PCUBE\")!",
+        "DSPLY (V.PCUBE)!",
+        "CLOCK (DIALS+1, DI.EX)!",
+        "CLOCK (PCUBE+1, PC.EX)!"
+      ],
+      "controls": [
+        "dials"
+      ],
+      "actions": [],
+      "files": [
+        "PCUBE",
         "DIALS",
         "RVCD"
       ],
