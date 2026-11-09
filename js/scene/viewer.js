@@ -50,6 +50,9 @@ const LOOK_SAMPLES = {
   top: [[0, 0.45, 0], [-0.45, 0.45, -0.45], [0.45, 0.45, -0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0, 0.45]],
 };
 
+/** How bright the machines stay under Connections, so the cables stand out. */
+const DIM = 0.22;
+
 /** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
 
@@ -451,8 +454,11 @@ export class TerminalView {
         const mm = /** @type {THREE.MeshStandardMaterial} */ (o.material);
         mm.emissive.set(accent);
         mm.emissiveIntensity = inSel ? 0.25 : 0;
-        mm.transparent = this.connections && !inSel;
-        mm.opacity = this.connections && !inSel ? 0.25 : 1;
+        // Connections dims the machines rather than making them see-through: transparent
+        // pieces close together (a tape door's reels, its glass, the columns behind) are sorted
+        // by distance and swapped places as the camera turned, so parts flickered in and out
+        o.userData.base ??= mm.color.clone();
+        mm.color.copy(o.userData.base).multiplyScalar(this.connections && !inSel ? DIM : 1);
       }
     });
   }

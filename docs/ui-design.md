@@ -71,7 +71,7 @@ Each kind of control is one component, used the same way everywhere: menu, dialo
 
 | Name (the link's `view=`) | The stage shows | Reached from | Its own controls |
 |---|---|---|---|
-| `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables | Start; the viewpoint menu | *Connections*: the machines fade and the cables light up |
+| `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables | Start; the viewpoint menu | *Connections*: the machines dim and the cables light up, each with its traffic (R19) |
 | `console` | The desk from the operator's seat: the scope, the dials, the keys, the light pen, the joystick | The desk's or the scope's card; the viewpoint menu | none |
 | `screen` (2D) | The camera flies to face the scope, then cross-fades to the full-resolution 2D picture in a thin bezel | The scope's card, *Look at the screen* | The light pen (V3) |
 | `tube` | The scope cut open: the gun, the yoke, the beam, the picture on the inside of the glass, with the X, Y and Z traces under it | The scope's card, *Cut it open* | Time: 1/100,000 on entry, then 1/1,000 or real |
@@ -86,7 +86,7 @@ A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*) and 
 - **V2. Moves are animated and reversible.** The camera flies. A 2D surface cross-fades in at the end of the flight and out at the start of the way back. *Back*, the viewpoint menu and Escape each climb one level.
 - **V3. The screen is 2D at the end of the zoom.** The working surface for the picture is the flat canvas at full resolution, not a 3D camera looking at the textured glass. The glass's curve, the perspective and the texture's lower resolution would all soften text, the game's ticks and fine lines, and the light pen would need ray-casting into the texture. The flight makes the 2D screen read as the face of the same tube. The light pen works here and only here.
 - **V4. The picture is always on screen.** In Room and Console it is on the scope's face. In Tube a small live inset of the screen sits in a corner of the stage; clicking it goes to Screen.
-- **V5. A viewpoint owns its controls.** The Tube owns its time, the Room its Connections. The console strip and the dock never change with the viewpoint. Leaving the Tube puts time back to real time.
+- **V5. A viewpoint owns its controls.** The Tube owns its time, the Room its Connections. They sit in one place, a chip under the viewpoint menu; the band's right holds only what works in every viewpoint (⌂, zoom, *Back*). The console strip and the dock never change with the viewpoint. Leaving the Tube puts time back to real time.
 - **V6. A viewpoint is part of the link** (`#view=screen`). Its name is chosen now, for good (U13).
 - **V7. Keyboard and screen readers** use the viewpoint menu and the cards. Every viewpoint can be reached without pointing into the 3D canvas.
 - **V8. Under a 2D viewpoint the 3D scene stops rendering.**

@@ -143,7 +143,7 @@ export class Stage {
     host.replaceChildren(b);
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
     $("back").hidden = this.view === "room" && !this.closeLook;
-    $("connections").hidden = this.view !== "room";
+    $("room-tools").hidden = this.view !== "room";
     for (const id of ["home", "zoom-in", "zoom-out"]) $(id).hidden = this.view === "screen";
   }
 
