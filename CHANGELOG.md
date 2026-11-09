@@ -16,7 +16,8 @@ The first pre-release: small, honest about what it reconstructs, and good enough
 - The installation in 3D, built from parameters with sizes measured from photographs or estimated (R16-R19): the desk and scope, the console's devices, the Teletype, four racks, two tape drives, two disk drives and the cables. Every part has a card and a close look.
 - Four viewpoints, chosen from one menu: Room, Console, Screen (the picture close up, where the light pen works) and Tube (the scope cut open, the beam drawing in time slowed up to 100,000 times, with its X, Y and Z signals).
 - The console strip: six dials, turned round their centre or by small arrows; sixteen function keys and PULSE 1, in step with the desk in 3D; the light pen's state.
-- The dock: the program's card, with its actions, a depth cueing switch, what is ours, its statements and source; and the Teletype's paper and keyboard.
+- The dock: the program's card, with its actions, a depth cueing switch, what is ours, its statements and source (with no program loaded, the list of programs to choose from); and the Teletype's paper and keyboard.
+- The top bar: the Programs menu, its button naming the program loaded; Reboot; About.
 - English only, every text a message (U11); desktop browsers only (U2).
 - `?selftest` runs the acceptance checks in the page; `?phosphor=p4` or `p7` tries another phosphor (R14); `?debug` exposes the machine.
 
