@@ -198,13 +198,21 @@ export function buildStrip(host, machine, say) {
   makeKey("pulse1", 1, 2);
   for (let n = 0; n < KEYS; n++) makeKey(n, Math.floor(n / 4) + 2, n % 4 < 3 ? (n % 4) + 1 : 5);
 
+  // all six dials back to the centre at once: a convenience of ours (the operator turned each)
+  const centre = el("button", { class: "strip-mini", type: "button" }, [icon("restart_alt")]);
+  setTip(centre, t("strip.dials.centre"));
+  centre.addEventListener("click", () => {
+    for (let n = 0; n < DIALS; n++) machine().setDial(n, 0);
+    say(t("status.dialsCentred"));
+  });
+
   const penText = el("span", { text: t("strip.pen.off") });
   const pen = el("div", { class: "pen", "aria-disabled": "true" }, [icon("edit"), penText]);
   setTip(pen, t("strip.pen.tip"));
   pen.addEventListener("click", () => pen.getAttribute("aria-disabled") === "true" && say(t("status.penOff")));
 
   host.replaceChildren(
-    el("div", { class: "strip-group" }, [el("span", { class: "strip-label", text: t("strip.dials") }), dials]),
+    el("div", { class: "strip-group" }, [el("div", { class: "strip-label-row" }, [el("span", { class: "strip-label", text: t("strip.dials") }), centre]), dials]),
     el("div", { class: "strip-sep" }),
     el("div", { class: "strip-group" }, [el("span", { class: "strip-label", text: t("strip.keys") }), keys]),
     el("div", { class: "strip-sep" }),

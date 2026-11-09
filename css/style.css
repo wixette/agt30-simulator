@@ -176,6 +176,10 @@ code, pre, .mono { font-family: var(--mono); }
 .strip-group { display: flex; flex-direction: column; gap: 6px; }
 .strip-group > :last-child { margin-block: auto; }
 .strip-label { font-size: 11px; line-height: 14px; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
+.strip-label-row { display: flex; align-items: center; justify-content: space-between; height: 14px; }
+.strip-mini { width: 20px; height: 20px; margin: -3px -4px -3px 0; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--md-on-surface-variant); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.strip-mini:hover { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); color: var(--md-on-surface); }
+.strip-mini .icon { width: 16px; height: 16px; }
 .strip-sep { width: 1px; margin: 2px 0; background: var(--md-outline-variant); }
 .dials { display: flex; gap: 4px; }
 .dial-col { display: flex; flex-direction: column; align-items: center; gap: 1px; }
