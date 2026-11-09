@@ -1,5 +1,5 @@
 {
-  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame: +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). A part's 'face' (front unless given) is the side its controls are on, which a close look shows (docs/ui-design.md, V1a). The parts' names and descriptions are messages in js/l10n/en.js.",
+  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame: +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). A part's 'face' (front unless given) is the side its controls are on, which a close look shows; its 'look', if given, is the direction a close look tries first, from the part towards the camera, in this frame (docs/ui-design.md, V1a). The parts' names and descriptions are messages in js/l10n/en.js.",
   "units": "mm",
   "room": {
     "w": 7200,
@@ -217,7 +217,12 @@
         0
       ],
       "material": "tty",
-      "confidence": "doc"
+      "confidence": "doc",
+      "look": [
+        0.15,
+        -1,
+        1
+      ]
     },
     {
       "name": "rack.dpr2",

@@ -287,7 +287,9 @@ export class TerminalView {
     let bestSeen = -1;
     const face = part.userData.face === "top" ? "top" : "front";
     const samples = LOOK_SAMPLES[face];
-    for (const d of LOOK_DIRECTIONS[face]) {
+    // a part may name the direction to try first (its look in the params, in three.js's frame here)
+    const own = /** @type {number[] | undefined} */ (part.userData.look);
+    for (const d of own ? [own, ...LOOK_DIRECTIONS[face]] : LOOK_DIRECTIONS[face]) {
       const pose = this.frame(box, new THREE.Vector3(...d));
       let seen = 0;
       for (const [sx, sy, sz] of samples) {
