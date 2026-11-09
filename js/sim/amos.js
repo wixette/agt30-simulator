@@ -24,6 +24,8 @@ import { hi, lo, M15, M30, oct, toOnes30 } from "./words.js";
 
 /** Where the monitor builds calling sequences (AMRMX p. 3), below its own area at 70000. */
 export const CALL_AREA = 0o67700;
+/** How long a statement's call runs before its program goes on in the foreground, us. */
+const CALL_LIMIT_US = 20000;
 
 /** The DSPLY entry points a statement may name (DSPLY p. 8). */
 export const ENTRY_POINTS = { SKIP: 0o77700, ALL: 0o77701, CUT: 0o77702, BUMP: 0o77703 };
@@ -227,7 +229,9 @@ export class Monitor {
           }
           // the standard calling sequence (p. 3), run in the foreground
           const args = params.map((p) => this.value(p));
-          const r = agt.cpu.call(sub, args, CALL_AREA, 1e6);
+          // a short routine returns within the call; a program that runs on (a game waiting for
+          // the pen) goes on in the foreground, in step with simulated time
+          const r = agt.cpu.call(sub, args, CALL_AREA, CALL_LIMIT_US);
           if (!r.done) {
             agt.startProgram(agt.cpu.LC, r.ret, op);
             return;

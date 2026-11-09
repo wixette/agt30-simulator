@@ -177,7 +177,7 @@ In this order:
 
 Choosing a program types its statements on the Teletype, and the AMOS monitor runs them, as an operator's would have been. The paper shows the session, and the card shows the same statements. A card's switches and buttons (*Depth cueing*, *2,000 lines*) also type statements; the card never changes the machine directly. Typing can be interrupted: choosing another program, or *Reboot*, stops it.
 
-The menu and the card type as fast as the monitor takes the characters, 1 ms each, so the picture appears at once. The printer still echoes them at the ASR-33's 10 characters a second, so the paper fills in while the program runs. A visitor's own typing goes at 10 a second, as do the machine's replies.
+The menu and the card type as fast as the monitor takes the characters, 1 ms each, so the picture appears at once, and their echo, and what they set off (the monitor's replies, a program's first line), print at once too. What the machine types on its own (a program's output, BUMP's new RATE) prints at the ASR-33's 10 characters a second, as does a visitor's own typing. *(build, after the manual check: the echo first printed at 10 a second, and tic-tac-toe, whose first act is to type a line, could not be played for 15 seconds while it waited behind it.)*
 
 *Why:* the machine has one way in, the monitor. A visitor sees what was really typed, and can type it themselves.
 *Rejected:*

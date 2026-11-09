@@ -27,7 +27,8 @@ import { word } from "./words.js";
 export const TTY_US_PER_CHAR = 100000;
 /**
  * How fast the page's menus send statements: as fast as the monitor takes them, 1 ms a
- * character (U8). The printer still echoes them at its own 10 a second.
+ * character (U8). Their echo, and the monitor's replies to them, print at once; what the
+ * machine types on its own (a program's output, BUMP's RATE) prints at 10 a second.
  */
 export const FAST_US_PER_CHAR = 1000;
 /** Where the resident programs are assembled at start (R15). */
@@ -73,6 +74,8 @@ export class Agt30 extends Terminal {
     this.printQueue = [];
     /** When the printer is free again. */
     this.printFree = 0;
+    /** Print at once, not at 10 characters a second: while a menu's fast typing is taken (U8). */
+    this.printAtOnce = false;
     /** @type {{ ch: string; gapUs: number }[]} characters waiting to be sent from the keyboard, each with the time until the next */
     this.sending = [];
     this.sendNext = 0;
@@ -241,6 +244,14 @@ export class Agt30 extends Terminal {
    */
   print(text) {
     for (const ch of text) {
+      if (this.printAtOnce) {
+        // the echo of a menu's fast typing, and the monitor's replies to it: at once, after
+        // whatever is already waiting to print (U8)
+        const at = Math.max(this.timeNow(), this.printQueue.at(-1)?.at ?? 0);
+        this.printQueue.push({ ch, at });
+        this.printFree = Math.max(this.printFree, at);
+        continue;
+      }
       const at = Math.max(this.timeNow(), this.printFree);
       this.printQueue.push({ ch, at });
       this.printFree = at + (ch === "\n" ? 0 : TTY_US_PER_CHAR);
@@ -267,7 +278,9 @@ export class Agt30 extends Terminal {
     while (this.sending.length && this.sendNext <= until) {
       this.advanceTo(Math.max(this.sendNext, this.now));
       const c = /** @type {{ ch: string; gapUs: number }} */ (this.sending.shift());
+      this.printAtOnce = c.gapUs < TTY_US_PER_CHAR;
       this.key(c.ch);
+      this.printAtOnce = false;
       this.sendNext += c.gapUs;
     }
     this.advanceTo(until);
