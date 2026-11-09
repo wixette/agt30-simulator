@@ -26,17 +26,29 @@ const CLICK_PX = 5;
  * little above, then turned left and right, then higher, then from the sides. The first from
  * which nothing hides the part is used, so a part is always seen from the same place (V1a).
  */
-const LOOK_DIRECTIONS = [
-  [0, 0.35, 1], [-0.45, 0.35, 1], [0.45, 0.35, 1],
-  [0, 0.8, 1], [-0.6, 0.8, 1], [0.6, 0.8, 1],
-  [-1, 0.5, 0.4], [1, 0.5, 0.4], [0, 1.6, 1],
-];
+const LOOK_DIRECTIONS = {
+  front: [
+    [0, 0.35, 1], [-0.45, 0.35, 1], [0.45, 0.35, 1],
+    [0, 0.8, 1], [-0.6, 0.8, 1], [0.6, 0.8, 1],
+    [-1, 0.5, 0.4], [1, 0.5, 0.4], [0, 1.6, 1],
+  ],
+  // a part whose controls are on its top (the dial box, the function switches): from above,
+  // a little in front, so the controls face the reader the way the operator saw them
+  top: [
+    [0, 2, 1], [-0.5, 2, 1], [0.5, 2, 1],
+    [0, 1.2, 1], [-0.6, 1.2, 1], [0.6, 1.2, 1],
+    [0, 0.6, 1], [-1, 1.2, 0.4], [1, 1.2, 0.4],
+  ],
+};
 /**
- * Points of the part a close look must see, as fractions of its box from the centre: the centre,
- * the corners of its front (+Z, the operator's side, where every part's front faces), 5 % in,
- * and the middle of its top.
+ * Points of the part a close look must see, as fractions of its box from the centre: the
+ * corners of the face its controls are on (the front, +Z, the operator's side; or the top), 5 %
+ * in, and the face's middle.
  */
-const LOOK_SAMPLES = [[0, 0, 0], [-0.45, -0.45, 0.45], [0.45, -0.45, 0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0.45, 0]];
+const LOOK_SAMPLES = {
+  front: [[0, 0, 0.45], [-0.45, -0.45, 0.45], [0.45, -0.45, 0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0.45, 0]],
+  top: [[0, 0.45, 0], [-0.45, 0.45, -0.45], [0.45, 0.45, -0.45], [-0.45, 0.45, 0.45], [0.45, 0.45, 0.45], [0, 0, 0.45]],
+};
 
 /** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
@@ -244,8 +256,8 @@ export class TerminalView {
   }
 
   /**
-   * The pose of a close look at a part (V1a): the first of LOOK_DIRECTIONS from which every
-   * sample point of the part is seen, or else the one that sees most of them. It does not
+   * The pose of a close look at a part (V1a): the first of LOOK_DIRECTIONS for the side its
+   * controls are on (its face) from which every sample point of that face is seen, or else the one that sees most of them. It does not
    * depend on where the camera is, so the same part is always seen from the same place.
    * @param {THREE.Object3D} part
    * @returns {Pose}
@@ -273,10 +285,12 @@ export class TerminalView {
     /** @type {Pose | null} */
     let best = null;
     let bestSeen = -1;
-    for (const d of LOOK_DIRECTIONS) {
+    const face = part.userData.face === "top" ? "top" : "front";
+    const samples = LOOK_SAMPLES[face];
+    for (const d of LOOK_DIRECTIONS[face]) {
       const pose = this.frame(box, new THREE.Vector3(...d));
       let seen = 0;
-      for (const [sx, sy, sz] of LOOK_SAMPLES) {
+      for (const [sx, sy, sz] of samples) {
         const target = center.clone().add(new THREE.Vector3(sx * size.x, sy * size.y, sz * size.z));
         const dir = target.clone().sub(pose.pos);
         ray.set(pose.pos, dir.clone().normalize());
@@ -289,9 +303,9 @@ export class TerminalView {
         bestSeen = seen;
         best = pose;
         /** which direction a close look took, and how many of its points it saw (for ?debug) */
-        this.lastLook = { direction: d, seen, of: LOOK_SAMPLES.length };
+        this.lastLook = { direction: d, seen, of: samples.length };
       }
-      if (seen === LOOK_SAMPLES.length) break;
+      if (seen === samples.length) break;
     }
     return /** @type {Pose} */ (best);
   }

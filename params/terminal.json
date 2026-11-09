@@ -1,5 +1,5 @@
 {
-  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame: +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). The parts' names and descriptions are messages in js/l10n/en.js.",
+  "_about": "The AGT-30 installation for the 3D view (D7). Millimetres, in the params' frame: +X to the operator's right, +Y away from the operator, +Z up; the builder converts to three.js once. Every part has a confidence: 'doc' documented, 'photo' measured from NCSU's photographs, 'est' estimated from photographs and the common sizes of the period, 'design' chosen for the view (R16-R19). A part's 'face' (front unless given) is the side its controls are on, which a close look shows (docs/ui-design.md, V1a). The parts' names and descriptions are messages in js/l10n/en.js.",
   "units": "mm",
   "room": {
     "w": 7200,
@@ -138,7 +138,8 @@
         740
       ],
       "material": "panel",
-      "confidence": "est"
+      "confidence": "est",
+      "face": "top"
     },
     {
       "name": "console.dials",
@@ -154,7 +155,8 @@
         740
       ],
       "material": "panel",
-      "confidence": "est"
+      "confidence": "est",
+      "face": "top"
     },
     {
       "name": "console.joystick",
@@ -169,7 +171,8 @@
         740
       ],
       "material": "boxBrown",
-      "confidence": "est"
+      "confidence": "est",
+      "face": "top"
     },
     {
       "name": "console.pen",
@@ -183,7 +186,8 @@
         740
       ],
       "material": "panel",
-      "confidence": "est"
+      "confidence": "est",
+      "face": "top"
     },
     {
       "name": "console.pedals",

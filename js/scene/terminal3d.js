@@ -25,6 +25,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
  * @property {number} [wedge] a box whose top slopes down to the front: its height at the front (box[2] is the back's)
  * @property {Desk} [desk] the console desk's frame
  * @property {string} [partOf] a piece of another part: picking it picks that part
+ * @property {"front" | "top"} [face] the side its controls are on, which a close look shows (front unless given)
  * @property {[string, number][]} [front] a cabinet's front panels, top to bottom: style and height (mm; the last fills what is left)
  * @property {string} material
  * @property {string} confidence
@@ -192,7 +193,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   for (const p of params.parts) {
     const g = new THREE.Group();
     g.name = p.name;
-    g.userData = { confidence: p.confidence, partOf: p.partOf };
+    g.userData = { confidence: p.confidence, partOf: p.partOf, face: p.face ?? "front" };
     root.add(g);
     parts.set(p.name, g);
     const [x, y, z] = p.at;
