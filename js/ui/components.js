@@ -122,6 +122,7 @@ export function setTip(e, text) {
  * @property {string} label
  * @property {() => void} run
  * @property {boolean} [checked] shown with a check (a choice among several)
+ * @property {IconName} [icon] shown before the label
  * @property {string | true} [divider] a line before the item, headed by the text if one is given
  */
 
@@ -152,7 +153,7 @@ export function showMenu(anchor, items) {
     if (it.divider) box.appendChild(el("div", { class: "menu-divider", role: "separator" }, [typeof it.divider === "string" ? el("span", { text: it.divider }) : null]));
     const role = it.checked === undefined ? "menuitem" : "menuitemradio";
     const mark = it.checked === undefined ? null : it.checked ? icon("check") : el("span", { class: "check" });
-    const b = el("button", { role, tabindex: "-1" }, [mark, el("span", { text: it.label })]);
+    const b = el("button", { role, tabindex: "-1" }, [mark, it.icon ? icon(it.icon) : null, el("span", { text: it.label })]);
     if (it.checked !== undefined) b.setAttribute("aria-checked", String(it.checked));
     b.addEventListener("click", () => {
       closeMenu();

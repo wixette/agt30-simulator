@@ -115,7 +115,7 @@ code, pre, .mono { font-family: var(--mono); }
 }
 #band > * { pointer-events: auto; }
 .crumbs { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px 4px; }
-.crumb { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 6px 0 12px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--md-primary); font-weight: 600; cursor: pointer; }
+.crumb { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 6px 0 10px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--md-primary); font-weight: 600; cursor: pointer; }
 .crumb:hover { background: color-mix(in srgb, var(--md-on-surface) 8%, transparent); }
 .tools { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); border-radius: var(--radius-full); padding: 2px; }
 

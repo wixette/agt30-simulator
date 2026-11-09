@@ -25,6 +25,8 @@ import { pressKey, turner } from "./strip.js";
 
 /** Each viewpoint's parent, for the breadcrumb and for Escape (V2). */
 const PARENT = /** @type {Record<View, View | null>} */ ({ room: null, console: "room", screen: "console", tube: "console" });
+/** Each viewpoint's icon, on the viewpoint menu's button and in its list; the Room's is Home's. */
+const VIEW_ICONS = /** @type {const} */ ({ room: "home", console: "desk", screen: "monitor", tube: "frame_inspect" });
 /** The time a Tube visit starts in (the table in Part 2). */
 export const TUBE_SCALE = 0.00001;
 /** The parts the Console viewpoint frames: the desktop and what stands on it, as the operator sees them. */
@@ -145,10 +147,11 @@ export class Stage {
     const host = /** @type {HTMLElement} */ (document.getElementById("crumbs"));
     const all = /** @type {View[]} */ (Object.keys(PARENT));
     const b = el("button", { class: "crumb", type: "button", "aria-haspopup": "menu", "aria-expanded": "false", "aria-label": t("view.choose", { view: t(`view.${this.view}`) }) }, [
+      icon(VIEW_ICONS[this.view]),
       el("span", { text: t(`view.${this.view}`) }),
       icon("keyboard_arrow_down"),
     ]);
-    b.addEventListener("click", () => showMenu(b, all.map((v) => ({ label: t(`view.${v}`), checked: v === this.view, run: () => this.go(v) }))));
+    b.addEventListener("click", () => showMenu(b, all.map((v) => ({ label: t(`view.${v}`), icon: VIEW_ICONS[v], checked: v === this.view, run: () => this.go(v) }))));
     host.replaceChildren(b);
     const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
     $("back").hidden = this.view === "room" && !this.closeLook;
