@@ -45,12 +45,12 @@ Then open <http://localhost:8000/>. (Opening `index.html` from disk does not wor
 
 ## What is reconstructed
 
-No AGT program and no listing of the AGT's software are known to survive in public, and some of the hardware is documented only in part. Where the documents stop, the simulator chooses. Each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each.
+Some of the hardware is documented only in part, and v0.0.1 was built before we knew of any of the AGT's software in public. M. Howard's images of NCSU's tapes, published in 2025 with real ADEPT source and binaries, have since come to our attention ([research/ncsu-tapes.md](research/ncsu-tapes.md)); the simulator does not use them yet. Where the documents stop, the simulator chooses. Each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each.
 
 - **R1.** The DPR-2's instruction encodings: the mnemonics and times are documented, the bit layout is ours.
 - **R2.** DSPLY is JavaScript, charged at the documented processor time; some of its times are estimates.
 - **R3.** Three gaps in the image format are filled our way.
-- **R4.** The programs are ours: no AGT program survives in public.
+- **R4.** The programs are ours, written before we knew of the NCSU tapes.
 - **R5.** The array's analog drift is modelled but off.
 - **R6.** The multiply unit's product is the integer product of two 15-bit numbers.
 - **R7.** A dial is read by comparing it with the array's X register.
@@ -70,7 +70,7 @@ No AGT program and no listing of the AGT's software are known to survive in publ
 
 ## Sources and credits
 
-The simulator rests on T. G. Hagan, R. J. Nixon and L. J. Schaefer's paper "The Adage graphics terminal" (AFIPS Fall Joint Computer Conference, 1968); Adage's manuals and brochures, kept by [bitsavers.org](http://www.bitsavers.org/pdf/adage/agt/); N. England's [history of the NCSU graphics lab](https://graphicshistory.org/ncsu/index.htm); and M. Howard's recollections on the cctalk list. Every source is listed in [research/bibliography.md](research/bibliography.md).
+The simulator rests on T. G. Hagan, R. J. Nixon and L. J. Schaefer's paper "The Adage graphics terminal" (AFIPS Fall Joint Computer Conference, 1968); Adage's manuals and brochures, kept by [bitsavers.org](http://www.bitsavers.org/pdf/adage/agt/); N. England's [history of the NCSU graphics lab](https://www.graphics-history.org/ncsu/index.htm); and M. Howard's recollections and [the NCSU tapes he recovered](https://github.com/cramcram/AGT-30). Every source is listed in [research/bibliography.md](research/bibliography.md).
 
 It is built with [three.js](https://threejs.org/), [Roboto Flex](https://github.com/googlefonts/roboto-flex) and [Material Symbols](https://github.com/google/material-design-icons).
 

@@ -21,11 +21,13 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   
   A program's source is the same as on a real DPR-2; its octal words are not.
 - *Settled by:* any octal listing beside its ADEPT source; Volume II; the DPR-2 subsystem documents that Volume I cites.
+- *Since v0.0.1:* the NCSU tapes hold about thirty routines as both source and binary, and M. Howard's disassembly of the resident monitor shows encodings unlike ours (MH25, MH26; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). The AGT-30's own source and destination numbers differ from the AGT/5's in places: BR is 2 and IC 3, for one (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)). Not yet applied.
 
 **R2. DSPLY is JavaScript.**
-- *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code is lost.
+- *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code has not been found.
 - *We:* interpret the format in JavaScript, and charge the documented processor time where it is documented. The estimates are: 12 µs a MOVE or DRAW item, 8 µs to dispatch any item, 3 µs an array register, 64 µs to save or restore a transform. With these, the documented vector counts per frame come out right.
 - *Settled by:* a DSPLY listing.
+- *Since v0.0.1:* no DSPLY is among the files catalogued on the NCSU tapes. DISP2, the AGT-10's display routine (1971), survives as source and binary, and the pack's system area is not yet examined ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
 
 **R3. Gaps in the image format.**
 - *Sources:* the command word, opcodes, data types and address modes are documented to the bit (DSPLY pp. 12–41).
@@ -36,7 +38,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Settled by:* a DSPLY listing, or an image dump.
 
 **R4. The programs are ours.**
-- *Sources:* no complete AGT program is known to survive in public in any form. Volume I gives calling sequences and fragments only. Tapes from NCSU's AGT-30 exist but, as of the last public report, are unread (CCT20).
+- *Sources:* when v0.0.1 was written, we knew of no complete AGT program surviving in public. Volume I gives calling sequences and fragments only. Tapes from NCSU's AGT-30 were last reported unread (CCT20).
 - *We:* every v0.0.1 program does a job the manuals describe, written the way the manuals write. Each program's card says what is ours:
   - the letter's proportions;
   - the tunnel's grid and proportions;
@@ -45,6 +47,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   
   RVCD (reading a dial) is Adage's routine name, with our code and calling sequence. RANDN, which ends Fig. 12's picture after NLINES lines, is ours.
 - *Settled by:* the tapes, or any listing.
+- *Since v0.0.1:* NCSU's programs survive: games as core images, more on a system pack, and the display part of 3-D tic-tac-toe as source (MH25; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). The v0.0.1 programs were written before we knew of them.
 
 **R5. The array's analog error.**
 - *Sources:* 15-bit inputs; settling to 0.01 % in 2 µs (SRM5 GHA4); "about once a year it had to be re-calibrated" (CCT20).
@@ -57,11 +60,13 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 **R7. Reading a dial.**
 - *Sources:* the array's multiplexer and comparator make an AD converter, read by successive approximation (SRM5 GHA4).
 - *We:* compare the multiplexed voltage with the X data register directly, not with the array's transformed output. The program sees the same result.
+- *Since v0.0.1:* on the AGT-30, a selector (GDD1) chooses the input and a converter (ADC5) reads it to S5; the six dials are channel 1 of the array's inputs (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)). Not yet applied.
 
 **R8. The ADEPT subset.**
 - *We implement:* statements, tags, comments, radix, decimal points, `+ − & * /`, `!H !K !B`, LOC, OCTAL, DECIMAL, TEXT, ENTRY, TITLE, TERMINATE, `=`, REPEAT/ENDR, the DPR-2 mnemonics, and the display codes.
 - *We do not implement:* macros, conditional assembly, action operators, relocation.
 - *Our own syntax:* how a display item's arguments are written (`DRAW (Z, X, Y)`); `'DIR` on an IRL argument; fractions written with a point (`.5`) and angles in degrees (`30DEG`).
+- *Since v0.0.1:* the real sources show what the subset lacks: `EXPUNGE`, `ABSOLUTE`, `STRING`, `$` externals, conditional assembly ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
 
 **R9. What AMOS types.**
 - *Sources:* the statements (DSPLY pp. 7–11; AMRMX).
@@ -71,6 +76,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 **R10. Interrupts.**
 - *Sources:* the priority interrupt system (SRM5 DPR3 pp. 7–9).
 - *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (In v0.0.1 PULSE 1 is on the strip and the desk and goes down when pressed, but requests no interrupt: no program of v0.0.1 uses it, and the status line says so.)
+- *Since v0.0.1:* the AGT-30's fifteen channels are known (PULSE 1 is 1, the Teletype 5, the frame clock 8, the light pen 10, AVG1 11; DPR2BD), and so are the pivots the software uses (77755 the frame clock, 77760 the light pen, 77776 PULSE 1; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). Not yet applied.
 
 **R11. The pen-hit table and PENHT.**
 - *Sources:* DSPLY keeps "a circular table with 16 entries" of pen hits, and PENHT reads it (DSPLY p. 30).
@@ -94,6 +100,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   - The paper's pictures, DIALS, RVCD and the monitor's routines are in core when the terminal starts, as if loaded from disk.
   - The simulated machine has 32K words, as NCSU's had after its upgrade (NCSU); the standard AGT-30 had 8K (BRO69).
   - User programs are assembled after the pictures, from 40000 octal; the resident routines are at 60000, the monitor's work area at 67700.
+- *Since v0.0.1:* the real monitor sits higher: AMLD0 enters it at 73400, its resident part starts at 74000, and the disk's pivots are 77720–77726 (MH25, MH26). Not yet applied.
 
 ## The installation in 3D
 

@@ -32,7 +32,7 @@ On the AGT-30 the DPR-2 walks the image in software (DSPLY), on interrupts from 
 
 A picture refreshed 40 times a second on a 60 Hz display is then shown as it was: refreshed 40 times a second, and decaying in between.
 
-**D3. DSPLY is JavaScript, charged at the documented time.** DSPLY was DPR-2 code, and that code is lost (R2). Our interpreter follows the manual's definition of every item, bit for bit. It charges the processor time each step cost: documented where documented (5.5 µs a table vector, SNCOS 178 µs), estimated otherwise, with every estimate listed. Frame times, overruns and the BUMP rate therefore behave as documented.
+**D3. DSPLY is JavaScript, charged at the documented time.** DSPLY was DPR-2 code, and that code has not been found (R2). Our interpreter follows the manual's definition of every item, bit for bit. It charges the processor time each step cost: documented where documented (5.5 µs a table vector, SNCOS 178 µs), estimated otherwise, with every estimate listed. Frame times, overruns and the BUMP rate therefore behave as documented.
 
 **D4. User programs run on the DPR-2.** The CLOCK routines, JSR items and the programs started from the monitor run as DPR-2 instructions, at their documented times. They share the processor the way the real one did:
 - DSPLY's work comes first;
