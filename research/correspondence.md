@@ -24,6 +24,7 @@ What we have learned from people who knew the machine, and what they have allowe
   - one day including programs from the tapes, so that the page can run the original games.
 
   We suggested a licence file in MH25 as the simplest way to cover the tools. We asked who else might hold rights in the programs, and how he would like to be credited. Two questions, if he knows offhand: does he have more DPR-2 documentation, Volume II of the Programmer's Reference Manual or an ADEPT manual; and where on the pack do AMRMX and its symbol table sit?
+- **2026-11-16.** We sent the results, briefly: the encodings from the tripp tape agree with his disassembler; our assembler reproduces all 34 tripp routines; AMRMX and its symbol table are on the pack, and its display handler drives AVG1 from the DPR-2 ([dpr2-encodings.md](dpr2-encodings.md), [amrmx.md](amrmx.md)). We said that most of the analysis was done with an AI model (Claude), and that his memory is what checks it. Two questions: what destination 07 (GDD1) does with the words written to it, and whether the games drew through a system routine or their own code. The rest are below.
 
 ## Open questions
 
