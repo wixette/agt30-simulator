@@ -9,9 +9,10 @@ Worked out on 2026-11-16. Bits are numbered as Adage numbers them, 0 the leftmos
 - **The files.** A routine on the tripp tape is three files: its source (ATEXT), its binary (RELOC) and its symbols (RLSYM). `tools/amos-tape.mjs` reads the tape; the formats are in [ncsu-tapes.md](ncsu-tapes.md).
 - **The binary.** Each record is the routine's name, a word of all ones, a word of relocation flags, the record's items, and a word of all ones. The first record starts with a pair for each entry point (01 and its address; its name). The last ends with a pair for each external (02 and an address where it is used; its name), then words marked 60, the first of which is the program's length. Between them are the program's words in order, from address 0. Since the routines start at 0, a word's address half is the value its source gives; an external's is 0.
 - **The symbols.** The symbol table gives every label's address. Each label fixes where its statement sits, so a routine is paired from each label on, statement by statement, until a statement whose size is not certain (a string, a macro, a REPEAT).
-- **The check.** A pair counts when its operand can be evaluated (a label of the routine, `.`, a number) and equals the word's address half. A statement with nothing to check, such as `FPRI`, counts when it lies in an unbroken run between pairs that do.
+- **The check.** A pair counts when its operand can be evaluated (a label of the routine, `.`, a number) and equals the word's address half. A statement with nothing to check, such as `FPRI`, counts when it lies in an unbroken run between pairs that do. Each instruction so paired is then checked against the layout below.
+- **The tool.** `node tools/dpr2-pairs.mjs TAPE` does all of this and prints, for each routine, how many operands matched; then the forms that fit, and the pairs that do not.
 
-This gives 1,423 instruction pairs from 30 routines, in over a hundred combinations of mnemonic and modifiers. Of the 953 transfers among them, 938 fit the layout below exactly; in each of the other 15 the count has slipped by one word (an off-by-one, which the neighbouring word shows). ADCR, DPIIO and OPIOR pair poorly: their binaries skip addresses in a way not yet followed, and they hold more pairs to be had.
+This gives 1,398 instruction pairs from 30 routines, in 119 forms (a mnemonic and its modifiers). Of the 953 transfers among them, 938 fit the layout below exactly; in each of the other 15 the count has slipped by one word (an off-by-one, which the neighbouring word shows). Of the 445 other instructions, 439 fit; the six that do not are in AMLD0, FIDCH, ADCR and DPIIO, where the count slips, and no value among them recurs. ADCR, DPIIO and OPIOR pair poorly, and hold more pairs to be had.
 
 ## Transfers
 
@@ -71,6 +72,6 @@ His message showed the resident monitor as his disassembler reads it (MH26). Eve
 ## Still open
 
 - The relocation flags: two bits for each item, read from the left, but how the entry and external pairs take theirs is not yet clear. The words after the length, marked 60, are not understood. Neither is needed for the layout.
-- The binaries of ADCR, DPIIO and OPIOR, as above.
+- The binaries of ADCR, DPIIO and OPIOR, as above. DPIIO's first records are not code but pairs of (05 and an address; a name), twelve to a record: perhaps the labels it defines for other routines. The pairing skips only the entry pairs (01), so its count starts wrong. AMLD0 has items marked 13. The relocation flags may say which items are code.
 - What AN and LS test, and what 'B, 'K and 'H rotate by, which v0.0.1 reads its own way (R1).
 - Instructions the tripp routines do not use: AMRMX on the system pack uses more of them.
