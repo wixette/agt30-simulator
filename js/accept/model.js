@@ -8,7 +8,7 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { assembleOp, onesAdd, TIME } from "../sim/dpr2.js";
+import { assembleOp, disassemble, onesAdd, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
@@ -45,6 +45,17 @@ function lastFrame(agt) {
   const f = agt.frames.at(-1);
   ok(f, "no frame was drawn");
   return agt.segs.filter((s) => s.t0 >= f.start && s.t0 < f.end + 1);
+}
+
+/**
+ * A disassembled word back as assembleOp's arguments.
+ * @param {string} text
+ * @returns {[string, number, import("../sim/dpr2.js").Mods]}
+ */
+function disassembleOp(text) {
+  const [op, addr] = text.split(" ");
+  const [m, ...mods] = op.split("'");
+  return [m, parseInt(addr, 8), Object.fromEntries(mods.map((k) => [k, true]))];
 }
 
 /** @type {Check[]} */
@@ -378,6 +389,32 @@ export const MODEL_CHECKS = [
         near(fromFrac(agt.cpu.AR & 0o77777), v, 2 * LSB, `dial at ${v}`);
         ok(r.us < 1000, `in ${r.us} us`);
       }
+    },
+  },
+  {
+    id: "CPU-4",
+    title: "Instruction words as the NCSU tapes' binaries show them, and 'L takes the next word (MH25; R1)",
+    run(ctx) {
+      /** @type {[string, import("../sim/dpr2.js").Mods, number][]} */
+      const words = [
+        ["MDAR", {}, 0o21000], ["ARMD", {}, 0o20100], ["MDAR", { I: true, X: true }, 0o21003], ["MDAR", { A: true }, 0o21010],
+        ["MDAR", { H: true, O: true }, 0o21064], ["ARXO", { F: true }, 0o77100], ["S5AR", { H: true, A: true, F: true }, 0o61570],
+        ["MDBR", { K: true }, 0o22040], ["MDIC", { A: true }, 0o23010], ["MDIR", { X: true }, 0o24002], ["MDAE", { N: true }, 0o36014],
+        ["MDAS", { F: true, N: true }, 0o75014], ["JPSR", {}, 0o20], ["JUMP", { I: true }, 0o41], ["JPAN", {}, 0o100], ["JPLS", {}, 0o140],
+        ["FPRI", {}, 0o360], ["UPRI", {}, 0o340], ["ARRS", {}, 0o17440], ["MPYI", {}, 0o15440], ["DIVI", {}, 0o16440],
+      ];
+      for (const [m, mods, upper] of words) {
+        const w = assembleOp(m, 0o123, mods);
+        equal(w, upper * 0o100000 + 0o123, `${m}${Object.keys(mods).map((k) => `'${k}`).join("")}`);
+        equal(assembleOp(...disassembleOp(disassemble(w))), w, `${disassemble(w)} disassembles and assembles back`);
+      }
+      const agt = ctx.boot();
+      const at = USER_AT;
+      [0o4100000000, 0o1234, assembleOp("NOOP", 0)].forEach((w, i) => agt.core.write(at + i, w));
+      agt.cpu.LC = at;
+      agt.cpu.step();
+      equal(agt.cpu.AR, 0o1234, "MDAR'L loads the next word");
+      equal(agt.cpu.LC, at + 2, "and skips it");
     },
   },
 

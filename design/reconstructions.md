@@ -12,16 +12,15 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 ## The processor and its software
 
-**R1. The DPR-2's instruction encodings.**
-- *Sources:* every mnemonic (ADEPT App. B); the meanings and times of most (the AGT/5's DPR3, SRM5 DPR3 pp. 1–14); the split of the word into 13 + 2 + 15 bits (SRM5 DPR3 p. 4); the AGT/5's source and destination numbers (SRM5 Table 1). No document found gives a single instruction's octal value. Volume II of the Programmer's Reference Manual (hardware) has not been found.
-- *We:* place the fields ourselves, in one table:
-  - bit 0 says transfer or not; then F, source (3 bits), destination (4), logic (2), rotation (2); X is bit 13, I bit 14;
-  - we number the non-transfer operations;
-  - we read the modifiers our way: 'A, 'O and 'N act on the destination; 'B, 'K and 'H rotate by 1, 6 and 15 bits; 'X steps the lower half of the word read.
-  
-  A program's source is the same as on a real DPR-2; its octal words are not.
-- *Settled by:* any octal listing beside its ADEPT source; Volume II; the DPR-2 subsystem documents that Volume I cites.
-- *Since v0.0.1:* the routines on the NCSU tapes that survive as both source and binary settle the layout: the kind of instruction in bits 0–1, the destination in 2–5, the source in 6–8, then rotation, logic, 'X and 'I; BR is 2 and IC 3 (MH25; [../research/dpr2-encodings.md](../research/dpr2-encodings.md)). It agrees with M. Howard's disassembly (MH26) and the DPR-2's block diagram (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)). Not yet applied.
+**R1. The DPR-2's instruction encodings.** *Mostly settled* (v0.0.2).
+- *Sources:* every mnemonic (ADEPT App. B); the meanings and times of most (the AGT/5's DPR3, SRM5 DPR3 pp. 1–14); the split of the word into 13 + 2 + 15 bits (SRM5 DPR3 p. 4). No document found gives an instruction's octal value, but the routines on the NCSU tapes that survive as both source and binary do (MH25; [../research/dpr2-encodings.md](../research/dpr2-encodings.md)). They agree with M. Howard's disassembly (MH26) and with the DPR-2's block diagram (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)).
+- *We:* take from the tapes the layout (the kind of instruction in bits 0–1, the destination in 2–5, the source in 6–8, rotation, logic, 'X, 'I), the register numbers, and the codes of the instructions they show. Still ours:
+  - the codes of the instructions the tapes do not use: JSLS, SKAN, SKLS, OPIO, PINT, the Teletype's OPTY and OPTI, MPYU, MPYL, DIVU and DIVL;
+  - the destinations XY (5) and MX (7), which the block diagram places but whose working is R7's;
+  - what the modifiers do: 'A, 'O and 'N act on the destination; 'B, 'K and 'H rotate by 1, 6 and 15 bits; 'X steps the lower half of the word read.
+
+  Until v0.0.1 the layout was ours too. A program's source was and is the same as on a real DPR-2; since v0.0.2 its octal words are too, for the instructions the tapes show.
+- *Settled by:* a binary using the other instructions (AMRMX on the system pack); Volume II of the Programmer's Reference Manual; the DPR-2 subsystem documents that Volume I cites.
 
 **R2. DSPLY is JavaScript.**
 - *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code has not been found.

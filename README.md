@@ -45,9 +45,9 @@ Then open <http://localhost:8000/>. (Opening `index.html` from disk does not wor
 
 ## What is reconstructed
 
-Some of the hardware is documented only in part, and v0.0.1 was built before we knew of any of the AGT's software in public. M. Howard's images of NCSU's tapes, published in 2025 with real ADEPT source and binaries, have since come to our attention ([research/ncsu-tapes.md](research/ncsu-tapes.md)); the simulator does not use them yet. Where the documents stop, the simulator chooses. Each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each.
+Some of the hardware is documented only in part, and v0.0.1 was built before we knew of any of the AGT's software in public. M. Howard's images of NCSU's tapes, published in 2025 with real ADEPT source and binaries, have since come to our attention ([research/ncsu-tapes.md](research/ncsu-tapes.md)); since v0.0.2 the simulator takes its instruction encodings from them. Where the documents stop, the simulator chooses. Each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each.
 
-- **R1.** The DPR-2's instruction encodings: the mnemonics and times are documented, the bit layout is ours.
+- **R1.** The DPR-2's instruction encodings: the layout and most codes are from the NCSU tapes; the codes of the instructions they do not use are ours.
 - **R2.** DSPLY is JavaScript, charged at the documented processor time; some of its times are estimates.
 - **R3.** Three gaps in the image format are filled our way.
 - **R4.** The programs are ours, written before we knew of the NCSU tapes.

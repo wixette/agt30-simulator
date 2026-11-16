@@ -181,7 +181,7 @@ export default {
   "about.licence.icons": "Material Symbols: Apache-2.0",
   "about.source": "Source code",
 
-  "recon.R1": "The DPR-2's instruction encodings: the mnemonics and times are documented, the bit layout is ours.",
+  "recon.R1": "The DPR-2\'s instruction encodings: the layout and most codes are from the NCSU tapes; the codes of the instructions they do not use are ours.",
   "recon.R2": "DSPLY is JavaScript, charged at the documented processor time; some of its times are estimates.",
   "recon.R3": "Three gaps in the image format are filled our way.",
   "recon.R4": "The programs are ours, written before we knew of the NCSU tapes.",

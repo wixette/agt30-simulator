@@ -65,6 +65,8 @@ Not seen on the tripp tape: JSLS, SKAN, SKLS, OPIO, the other multiplies and div
 
 What the instructions do is not changed by this: only their octal words are, and the numbers of BR and IC. 'L is new.
 
+Applied in v0.0.2 (`ENCODING` and `OPS` in `js/sim/dpr2.js`; the acceptance check CPU-4 pins the values above). The simulator also runs 'L, though its assembler does not yet accept it. The instructions the tapes do not show keep codes of ours: JSLS 00120, following JPSR and JSAN (a jump less 20); SKAN 00400, SKLS 00420, OPIO 00600, PINT 00620, the Teletype's OPTY 00640 and OPTI 00660; MPYU 15400, MPYL 15420, DIVU 16400, DIVL 16420.
+
 ## Compared with M. Howard's disassembly
 
 His message showed the resident monitor as his disassembler reads it (MH26). Everything it showed agrees with the pairs: the kind in bits 0–1 (01 memory, 11 'F, 10 'L), the destination in bits 2–5, the source in bits 6–8, 'X in bit 13; JPSR 00020, FPRI 00360, MDAR 21000, ARMD 20100.

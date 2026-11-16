@@ -2,6 +2,12 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## Unreleased
+
+- The DPR-2's instruction encodings are now those of the NCSU tapes (R1; [research/dpr2-encodings.md](research/dpr2-encodings.md)): the layout, BR 2 and IC 3, destinations numbered in octal as the block diagram does, and the codes of the instructions the tapes show. Programs' sources are unchanged; their octal words change. The processor also runs 'L, the operand in the next word.
+- `tools/amos-tape.mjs` reads the NCSU tape images, and `tools/dpr2-pairs.mjs` pairs their source with their binaries.
+- The headless launcher never leaves Chrome running.
+
 ## 0.0.1
 
 The first pre-release: small, honest about what it reconstructs, and good enough to show people who know the machine. It is public from the first commit, so nothing in it is there only to collect feedback (U12).
