@@ -16,9 +16,9 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Sources:* every mnemonic (ADEPT App. B); the meanings and times of most (the AGT/5's DPR3, SRM5 DPR3 pp. 1–14); the split of the word into 13 + 2 + 15 bits (SRM5 DPR3 p. 4). No document found gives an instruction's octal value, but the routines on the NCSU tapes that survive as both source and binary do (MH25; [../research/dpr2-encodings.md](../research/dpr2-encodings.md)). They agree with M. Howard's disassembly (MH26) and with the DPR-2's block diagram (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)).
 - *We:* take from the tapes the layout (the kind of instruction in bits 0–1, the destination in 2–5, the source in 6–8, rotation, logic, 'X, 'I), the register numbers, and the codes of the instructions they show. Still ours:
   - the codes of the instructions the tapes do not use: JSLS, SKAN, SKLS, OPIO, the Teletype's OPTY and OPTI, MPYU, MPYL, DIVU and DIVL;
-  - what the conditional transfers test: AN as JPAN does (AR negative), LS as JPLS does (AR's lower half not zero);
+  - what the conditional transfers test: AN as JPAN does (AR negative), LS as JPLS does (AR's lower half not zero). AMRMX's code bears out LS, and agrees with AN ([../research/amrmx.md](../research/amrmx.md));
   - the destinations XY (5) and MX (7), which the block diagram places but whose working is R7's;
-  - what the modifiers do: 'A, 'O and 'N act on the destination; 'B, 'K and 'H rotate by 1, 6 and 15 bits; 'X steps the lower half of the word read.
+  - what the modifiers do: 'A, 'O and 'N act on the destination; 'B, 'K and 'H rotate by 1, 6 and 15 bits (AMRMX's character table bears out 'B and 'K together); 'X steps the lower half of the word read.
 
   Until v0.0.1 the layout was ours too. A program's source was and is the same as on a real DPR-2; since v0.0.2 its octal words are too, for the instructions the tapes show.
 - *Settled by:* a binary using the other instructions (AMRMX on the system pack); Volume II of the Programmer's Reference Manual; the DPR-2 subsystem documents that Volume I cites.
@@ -27,7 +27,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code has not been found.
 - *We:* interpret the format in JavaScript, and charge the documented processor time where it is documented. The estimates are: 12 µs a MOVE or DRAW item, 8 µs to dispatch any item, 3 µs an array register, 64 µs to save or restore a transform. With these, the documented vector counts per frame come out right.
 - *Settled by:* a DSPLY listing.
-- *Since v0.0.1:* no DSPLY is among the files catalogued on the NCSU tapes. DISP2, the AGT-10's display routine (1971), survives as source and binary, and the pack's system area is not yet examined ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
+- *Since v0.0.1:* no DSPLY is among the files catalogued on the NCSU tapes. DISP2, the AGT-10's display routine (1971), survives as source and binary, and the pack's system area has no DSPLY either. AMRMX's handler that puts text on the screen drives AVG1 from the DPR-2 through destinations 05, 06, 07 and 10 and the vector interrupts, as DSPLY would ([../research/ncsu-tapes.md](../research/ncsu-tapes.md), [../research/amrmx.md](../research/amrmx.md)).
 
 **R3. Gaps in the image format.**
 - *Sources:* the command word, opcodes, data types and address modes are documented to the bit (DSPLY pp. 12–41).

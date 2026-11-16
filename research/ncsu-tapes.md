@@ -32,14 +32,14 @@ Catalogued on 2026-11-11 by reading the tape headers and the pack's volume direc
 | 35 | DCOR, DCAF, PFONT, ALPHA, BETA, RPLOT, RECT, AND, OR, and more of the simulation |
 | 37 | OPER, PONG |
 
-The cylinders before 34 are not in the volume directory. The pack holds the binary of the operating system, AMRMX, and its symbol table (MH26); M. Howard's message shows the resident monitor, from 74000, as his unpublished disassembler reads it (MH26).
+The cylinders before 34 are not in the volume directory. The pack holds the binary of the operating system, AMRMX, and its symbol table (MH26); M. Howard's message shows the resident monitor, from 74000, as his unpublished disassembler reads it (MH26). Where they are, and what they show, is in [amrmx.md](amrmx.md).
 
 ## What each find bears on
 
 The R numbers are those of [../design/reconstructions.md](../design/reconstructions.md).
 
 - **R1, the instruction encodings.** Every source in the tripp library sits beside its binary: about thirty pairs to check a layout against. They settle it, and it is not ours: [dpr2-encodings.md](dpr2-encodings.md). The disassembly in M. Howard's message (MH26), from an unpublished disassembler, agrees with them.
-- **R2 and R3, DSPLY and the image format.** No DSPLY is in the listings above. DISP2 is "Display routine for AGT10/AVG1" (C. N. Carter, March 1971): the AGT-10's, which had no array, but it drives the AVG1 vector generator and names its interrupt pivots. Whether DSPLY is in the pack's system area is not known yet.
+- **R2 and R3, DSPLY and the image format.** No DSPLY is in the listings above, nor on the pack; AMRMX's own display handler drives AVG1 from the DPR-2 ([amrmx.md](amrmx.md)). DISP2 is "Display routine for AGT10/AVG1" (C. N. Carter, March 1971): the AGT-10's, which had no array, but it drives the AVG1 vector generator and names its interrupt pivots. Whether DSPLY is in the pack's system area is not known yet.
 - **R4, the programs.** Real programs of NCSU's AGT-30 survive: the games as core images, and more on the pack. 3DTTT is source, but only the display part; it calls the game itself as `$TTT3D`, which is not among the files catalogued here.
 - **R8, ADEPT.** The sources use what v0.0.1's subset lacked: `EXPUNGE`, `ABSOLUTE`, `ENTRY A,B`, `STRING'…'`, `$NAME` for an external, `.` and `.+2`, `!H!B!B`, macros, conditional assembly (`IFPASS1`, `IFZERO`, `ELSE`, `ENDC`), and `TYPEIN` / `TYPEOUT`. Subroutines start with a `JUMP .` or `JUMP 0` word and take their arguments in the words after the `JPSR`. Since v0.0.2 our assembler takes all of them, and all 34 routines assemble to their binaries' words ([dpr2-encodings.md](dpr2-encodings.md)).
 - **R10 and R15, interrupts and core.** The sources name the interrupt pivots: 77755 the frame clock, 77756 end of vector, 77757 end of list, 77760 the light pen, 77771 overflow (DISP2); 77776 PULSE 1 and 77720–77726 the disk (AMLD0). AMLD0 reads the monitor from the pack and enters it at 73400. See also [dpr2-block-diagram.md](dpr2-block-diagram.md).

@@ -93,5 +93,5 @@ His message showed the resident monitor as his disassembler reads it (MH26). Eve
 
 - The relocation flags: two bits for each item, read from the left, an entry pair counting as one. 10 marks a relocatable word, 00 an absolute one; what 11 and 01 mark is not clear. The words after the length, marked 60, are not understood. Neither is needed for the layout or the assembler.
 - A pair marked 00 (DTRR in ADCR), as above.
-- What AN and LS test, and what 'B, 'K and 'H rotate by, which v0.0.1 reads its own way (R1).
+- What AN tests, and what 'H rotates by (R1). AMRMX bears out our reading of LS, of 'B and 'K, and of a conditional transfer, and agrees with that of AN ([amrmx.md](amrmx.md)).
 - Instructions the tripp routines do not use: AMRMX on the system pack uses more of them.
