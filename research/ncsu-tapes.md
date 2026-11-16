@@ -2,7 +2,7 @@
 
 What survives of the software of NCSU's AGT-30, as far as we have catalogued it. M. Howard kept 7-track tapes from the lab; they were read at the Computer History Museum in 2022 with L. Shustek's readtape (556 BPI, NRZI), and he published the images with tools for Adage's tape and disk formats (MH25). This page lists what is on them and what each find could settle. The images are cited by their path in MH25; none is copied here, and nothing in the simulator uses them yet.
 
-Catalogued on 2026-11-11 by reading the tape headers and the pack's volume directory with the formats below. File numbers are octal, as AMOS numbers them; lengths are in 30-bit words.
+Catalogued on 2026-11-11 by reading the tape headers and the pack's volume directory with the formats below; `tools/amos-tape.mjs` lists and extracts a tape's files. File numbers are octal, as AMOS numbers them; lengths are in 30-bit words.
 
 ## The formats
 
@@ -37,7 +37,7 @@ The cylinders before 34 are not in the volume directory. The pack holds the bina
 
 The R numbers are those of [../design/reconstructions.md](../design/reconstructions.md).
 
-- **R1, the instruction encodings.** Every source in the tripp library sits beside its binary: about thirty pairs to check a layout against. The disassembly in M. Howard's message (MH26) implies encodings that differ from ours; its mnemonics come from an unpublished disassembler and are unverified. The pairs can settle the question without it.
+- **R1, the instruction encodings.** Every source in the tripp library sits beside its binary: about thirty pairs to check a layout against. They settle it, and it is not ours: [dpr2-encodings.md](dpr2-encodings.md). The disassembly in M. Howard's message (MH26), from an unpublished disassembler, agrees with them.
 - **R2 and R3, DSPLY and the image format.** No DSPLY is in the listings above. DISP2 is "Display routine for AGT10/AVG1" (C. N. Carter, March 1971): the AGT-10's, which had no array, but it drives the AVG1 vector generator and names its interrupt pivots. Whether DSPLY is in the pack's system area is not known yet.
 - **R4, the programs.** Real programs of NCSU's AGT-30 survive: the games as core images, and more on the pack. 3DTTT is source, but only the display part; it calls the game itself as `$TTT3D`, which is not among the files catalogued here.
 - **R8, ADEPT.** The sources use what our subset lacks: `EXPUNGE`, `ABSOLUTE`, `ENTRY A,B`, `STRING'…'`, `$NAME` for an external, `.` and `.+2`, `!H!B!B`, conditional assembly (`IFPASS1`, `IFZERO`, `ELSE`, `ENDC`), and `TYPEIN` / `TYPEOUT`. Subroutines start with a `JUMP .` or `JUMP 0` word and take their arguments in the words after the `JPSR`.

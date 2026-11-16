@@ -21,7 +21,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   
   A program's source is the same as on a real DPR-2; its octal words are not.
 - *Settled by:* any octal listing beside its ADEPT source; Volume II; the DPR-2 subsystem documents that Volume I cites.
-- *Since v0.0.1:* the NCSU tapes hold about thirty routines as both source and binary, and M. Howard's disassembly of the resident monitor shows encodings unlike ours (MH25, MH26; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). The AGT-30's own source and destination numbers differ from the AGT/5's in places: BR is 2 and IC 3, for one (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)). Not yet applied.
+- *Since v0.0.1:* the routines on the NCSU tapes that survive as both source and binary settle the layout: the kind of instruction in bits 0–1, the destination in 2–5, the source in 6–8, then rotation, logic, 'X and 'I; BR is 2 and IC 3 (MH25; [../research/dpr2-encodings.md](../research/dpr2-encodings.md)). It agrees with M. Howard's disassembly (MH26) and the DPR-2's block diagram (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)). Not yet applied.
 
 **R2. DSPLY is JavaScript.**
 - *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code has not been found.
