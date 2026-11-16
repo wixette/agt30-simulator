@@ -40,13 +40,15 @@ Bits 0–1 are 00. Bits 13 and 14 are 'X and 'I, as in a transfer (JUMP'I is 000
 |---|---|---|---|
 | NOOP 00000 (9) | JPSR 00020 (112) | JUMP 00040 (160) | JSAN 00060 (4) |
 | JPAN 00100 (34) | JPLS 00140 (55) | PULSE 00200 (1) | SKUA 00220 (1) |
-| SKLA 00240 (1) | UPRI 00340 (3) | FPRI 00360 (3) | |
+| SKLA 00240 (1) | UPRI 00340 (3) | FPRI 00360 (3) | PINT 00560 |
 
 Conditional transfers keep a transfer's destination in bits 2–5: ANAR 01260 (6), ANIR 04260 (3), LSAR 01300 (2), LSIR 04300 (1), LSAS 15300 (1), LSAE 16300 (1).
 
 The arithmetic unit's operations sit in its destinations, 15–17, in bits 2–5: ARRS 17440 (10), ARLS 17500 (10), NORM 17520 (1), ERAR 17540 (1), MPYI 15440 (2), DIVI 16440 (2).
 
-Not seen on the tripp tape: JSLS, SKAN, SKLS, OPIO, the other multiplies and divides, PINT, the Teletype's instructions, and the modifier 'E.
+PINT is used only inside a macro, which the pairing does not follow; its value comes from assembling RCD (below).
+
+Not seen on the tripp tape: JSLS, SKAN, SKLS, OPIO, the other multiplies and divides, the Teletype's instructions, and the modifier 'E.
 
 ## Compared with v0.0.1
 
@@ -65,7 +67,23 @@ Not seen on the tripp tape: JSLS, SKAN, SKLS, OPIO, the other multiplies and div
 
 What the instructions do is not changed by this: only their octal words are, and the numbers of BR and IC. 'L is new.
 
-Applied in v0.0.2 (`ENCODING` and `OPS` in `js/sim/dpr2.js`; the acceptance check CPU-4 pins the values above). The simulator also runs 'L, though its assembler does not yet accept it. The instructions the tapes do not show keep codes of ours: JSLS 00120, following JPSR and JSAN (a jump less 20); SKAN 00400, SKLS 00420, OPIO 00600, PINT 00620, the Teletype's OPTY 00640 and OPTI 00660; MPYU 15400, MPYL 15420, DIVU 16400, DIVL 16420.
+Applied in v0.0.2 (`ENCODING` and `OPS` in `js/sim/dpr2.js`; the acceptance check CPU-4 pins the values above). The simulator also runs 'L. The instructions the tapes do not show keep codes of ours: JSLS 00120, following JPSR and JSAN (a jump less 20); SKAN 00400, SKLS 00420, OPIO 00600, the Teletype's OPTY 00640 and OPTI 00660; MPYU 15400, MPYL 15420, DIVU 16400, DIVL 16420.
+
+## Assembling the sources
+
+The other way round: our assembler (`js/sim/adept.js`, R8) assembles the tripp routines' sources, and the words come out as their binaries hold them. `node tools/adept-check.mjs TAPE` assembles each routine from 0, aligns its words with the binary's items, and counts what is left. All 34 routines (31 names, three twice) give their binaries' words, 4,297 in all, in order. This needed what the manual describes and the sources use: macros, repeats, conditional translation, strings, and the rest (R8). It settled two things more:
+
+- **PINT** is 00560 (RCD, from a macro).
+- **LINKAGE**, which the manual (Revision G) does not list, names entry points as ENTRY does: DPIIO's binary has a pair for each name it lists, marked 05.
+
+The binary's items left over are the loader's:
+- **Entry pairs**, 01 and the address, then the name (111), and LINKAGE's, 05 (17).
+- **External pairs**, 02 and the address of the last use, then the name (190). The uses are chained: each holds the address of the use before it, and the first holds 0.
+- **Set-location items** (LOC): 11 and the address (12), or 13 for an absolute one, after ABSOLUTE (4). The words that LOC skips are not in the binary, which is why ADCR, DPIIO and OPIOR paired poorly above.
+- **The trailer**: words marked 60, the first the program's length (288).
+- Ten others, which look like artefacts of the alignment, or a pair marked 00 (DTRR in ADCR).
+
+FACTC's ASCII string settles the LCG1 packing as the manual draws it: four 7-bit characters a word, bit 14 set on the last.
 
 ## Compared with M. Howard's disassembly
 
@@ -73,7 +91,7 @@ His message showed the resident monitor as his disassembler reads it (MH26). Eve
 
 ## Still open
 
-- The relocation flags: two bits for each item, read from the left, but how the entry and external pairs take theirs is not yet clear. The words after the length, marked 60, are not understood. Neither is needed for the layout.
-- The binaries of ADCR, DPIIO and OPIOR, as above. DPIIO's first records are not code but pairs of (05 and an address; a name), twelve to a record: perhaps the labels it defines for other routines. The pairing skips only the entry pairs (01), so its count starts wrong. AMLD0 has items marked 13. The relocation flags may say which items are code.
+- The relocation flags: two bits for each item, read from the left, an entry pair counting as one. 10 marks a relocatable word, 00 an absolute one; what 11 and 01 mark is not clear. The words after the length, marked 60, are not understood. Neither is needed for the layout or the assembler.
+- A pair marked 00 (DTRR in ADCR), as above.
 - What AN and LS test, and what 'B, 'K and 'H rotate by, which v0.0.1 reads its own way (R1).
 - Instructions the tripp routines do not use: AMRMX on the system pack uses more of them.

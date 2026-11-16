@@ -1,12 +1,13 @@
 # The NCSU tapes
 
-What survives of the software of NCSU's AGT-30, as far as we have catalogued it. M. Howard kept 7-track tapes from the lab; they were read at the Computer History Museum in 2022 with L. Shustek's readtape (556 BPI, NRZI), and he published the images with tools for Adage's tape and disk formats (MH25). This page lists what is on them and what each find could settle. The images are cited by their path in MH25; none is copied here, and nothing in the simulator uses them yet.
+What survives of the software of NCSU's AGT-30, as far as we have catalogued it. M. Howard kept 7-track tapes from the lab; they were read at the Computer History Museum in 2022 with L. Shustek's readtape (556 BPI, NRZI), and he published the images with tools for Adage's tape and disk formats (MH25). This page lists what is on them and what each find could settle. The images are cited by their path in MH25; none is copied here. Since v0.0.2 the simulator takes its instruction encodings from them, and its assembler reproduces their binaries; no program from them runs in it yet.
 
 Catalogued on 2026-11-11 by reading the tape headers and the pack's volume directory with the formats below; `tools/amos-tape.mjs` lists and extracts a tape's files. File numbers are octal, as AMOS numbers them; lengths are in 30-bit words.
 
 ## The formats
 
 - **Tape records.** Each record starts with four words: the record and file numbers (15 bits each); the file's name (five 6-bit characters); the date (year from 1964, month, day) and the record's length; and the file's type, version, revision and origin. A one's-complement checksum follows the data.
+- **Characters.** Source text is in AMOS's 6-bit code as the Teletype prints it (ADEPT pp. 23–24): code 00 prints `[` and starts a comment, 07 is `\` (ADEPT's concatenation), and a line ends with 15, its word filled with 15s. A word of two backspaces, an X and two nulls (7777700000) marks a new page and is not part of the text.
 - **File types.** SYMS, DATA, RELOC (relocatable binary), ASCII, TEXT, RLSYM (its symbols), PRNTR, ATEXT (ADEPT source in 6-bit characters, five a word), BIN, DUMP (a core image), DISK, MACRO.
 - **The disk pack.** 104-word sectors; 8 sectors on each of 2 surfaces make a cylinder; 203 cylinders. A volume directory at the start of the pack names the volumes and the files in each.
 
@@ -40,7 +41,7 @@ The R numbers are those of [../design/reconstructions.md](../design/reconstructi
 - **R1, the instruction encodings.** Every source in the tripp library sits beside its binary: about thirty pairs to check a layout against. They settle it, and it is not ours: [dpr2-encodings.md](dpr2-encodings.md). The disassembly in M. Howard's message (MH26), from an unpublished disassembler, agrees with them.
 - **R2 and R3, DSPLY and the image format.** No DSPLY is in the listings above. DISP2 is "Display routine for AGT10/AVG1" (C. N. Carter, March 1971): the AGT-10's, which had no array, but it drives the AVG1 vector generator and names its interrupt pivots. Whether DSPLY is in the pack's system area is not known yet.
 - **R4, the programs.** Real programs of NCSU's AGT-30 survive: the games as core images, and more on the pack. 3DTTT is source, but only the display part; it calls the game itself as `$TTT3D`, which is not among the files catalogued here.
-- **R8, ADEPT.** The sources use what our subset lacks: `EXPUNGE`, `ABSOLUTE`, `ENTRY A,B`, `STRING'…'`, `$NAME` for an external, `.` and `.+2`, `!H!B!B`, conditional assembly (`IFPASS1`, `IFZERO`, `ELSE`, `ENDC`), and `TYPEIN` / `TYPEOUT`. Subroutines start with a `JUMP .` or `JUMP 0` word and take their arguments in the words after the `JPSR`.
+- **R8, ADEPT.** The sources use what v0.0.1's subset lacked: `EXPUNGE`, `ABSOLUTE`, `ENTRY A,B`, `STRING'…'`, `$NAME` for an external, `.` and `.+2`, `!H!B!B`, macros, conditional assembly (`IFPASS1`, `IFZERO`, `ELSE`, `ENDC`), and `TYPEIN` / `TYPEOUT`. Subroutines start with a `JUMP .` or `JUMP 0` word and take their arguments in the words after the `JPSR`. Since v0.0.2 our assembler takes all of them, and all 34 routines assemble to their binaries' words ([dpr2-encodings.md](dpr2-encodings.md)).
 - **R10 and R15, interrupts and core.** The sources name the interrupt pivots: 77755 the frame clock, 77756 end of vector, 77757 end of list, 77760 the light pen, 77771 overflow (DISP2); 77776 PULSE 1 and 77720–77726 the disk (AMLD0). AMLD0 reads the monitor from the pack and enters it at 73400. See also [dpr2-block-diagram.md](dpr2-block-diagram.md).
 
 Open questions about the tapes are in [correspondence.md](correspondence.md).

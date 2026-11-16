@@ -53,7 +53,7 @@ export const CRT_CHECKS = [
     title: "The light pen reports the item that drew the line it sees, in the pen-hit table (DSPLY p. 30; R11)",
     run(ctx) {
       const agt = ctx.boot();
-      const r = assemble(agt.core, "T: TEXT /T/\n ORMB (2000)\n MOVE (0, -.5, 0)\nL: DRAW (0, .5, 0)\n MOVE (0, -.5, .5)\nM: DRAW (0, .5, .5)\n RET\n", USER_AT);
+      const r = assemble(agt.core, "T: TEXT /T/; 0\n ORMB (2000)\n MOVE (0, -.5, 0)\nL: DRAW (0, .5, 0)\n MOVE (0, -.5, .5)\nM: DRAW (0, .5, .5)\n RET\n", USER_AT);
       equal(r.errors.length, 0, "assembled");
       agt.start(USER_AT);
       agt.advance(agt.now + 100000);

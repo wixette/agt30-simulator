@@ -188,7 +188,7 @@ export default {
   "recon.R5": "The array's analog drift is modelled but off.",
   "recon.R6": "The multiply unit's product is the integer product of two 15-bit numbers.",
   "recon.R7": "A dial is read by comparing it with the array's X register.",
-  "recon.R8": "The assembler is a subset of ADEPT, with our syntax for display items' arguments.",
+  "recon.R8": "The assembler is ADEPT as its manual describes it, without action operators or relocatable output, and with our syntax for display items' arguments.",
   "recon.R9": "What the monitor types back is ours: echoes, results and ?.",
   "recon.R10": "Interrupts: the pen, the Teletype and the frame clock are served directly.",
   "recon.R11": "The pen-hit table's layout and PENHT's code are ours.",

@@ -14,7 +14,8 @@ import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
 import { Teletype } from "../sim/teletype.js";
 import { vectorTime } from "../sim/vecgen.js";
-import { bits, fromAngle, fromFrac, fromOnes15, oct, toFrac, toOnes15, word } from "../sim/words.js";
+import { bits, fromAngle, fromFrac, fromOnes15, hi, lo, oct, toFrac, toOnes15, word } from "../sim/words.js";
+import { packText } from "../sim/amoscode.js";
 import { equal, load, near, ok, typeAndRun } from "./check.js";
 
 /** @typedef {import("./check.js").Check} Check */
@@ -167,7 +168,7 @@ export const MODEL_CHECKS = [
       const agt = ctx.boot();
       show(
         agt,
-        `T:  TEXT /T/
+        `T:  TEXT /T/; 0
              DRAW'IRL (Z0'DIR, P'I, Y0'DIR)
              RET
          Z0: 0
@@ -214,7 +215,7 @@ export const MODEL_CHECKS = [
     run(ctx) {
       const agt = ctx.boot();
       // a point on +X, turned 90 degrees about Z, lands on +Y
-      show(agt, "T: TEXT /T/\n ROTZ (90DEG)\n DRAW (0, .5, 0)\n RET\n");
+      show(agt, "T: TEXT /T/; 0\n ROTZ (90DEG)\n DRAW (0, .5, 0)\n RET\n");
       const s = lastFrame(agt).find((g) => g.vis);
       ok(s, "a stroke");
       const ps = fromFrac(agt.dsply.ps) * 10;
@@ -303,12 +304,12 @@ export const MODEL_CHECKS = [
     title: "Depth cueing: at full DIM a line at z'm = 0 is 10 times dimmer than at the front, and blanked in front of FRONT (FJCC68 p. 753, Fig. 14)",
     run(ctx) {
       const agt = ctx.boot();
-      show(agt, "T: TEXT /T/\n MOVE (0, -.5, 0)\n DRAW (0, .5, 0)\n RET\n", "VIEW (37777, 40000, 37777)!");
+      show(agt, "T: TEXT /T/; 0\n MOVE (0, -.5, 0)\n DRAW (0, .5, 0)\n RET\n", "VIEW (37777, 40000, 37777)!");
       const mid = lastFrame(agt).find((g) => g.vis);
       ok(mid, "a stroke at z' = 0");
       near(mid.i0, 0.1, 0.002, "intensity at z'm = 0");
       const front = ctx.boot();
-      show(front, "T: TEXT /T/\n MOVE (.9, -.5, 0)\n DRAW (.9, .5, 0)\n RET\n", "VIEW (.1, 40000, 37777)!");
+      show(front, "T: TEXT /T/; 0\n MOVE (.9, -.5, 0)\n DRAW (.9, .5, 0)\n RET\n", "VIEW (.1, 40000, 37777)!");
       ok(!lastFrame(front).some((g) => g.vis), "a line in front of FRONT is blanked");
     },
   },
@@ -319,8 +320,8 @@ export const MODEL_CHECKS = [
       /** @param {number} depth */
       const nest = (depth) => {
         let src = "";
-        for (let k = 0; k < depth; k++) src += `S${k}: TEXT /S${k}/\n IMG (S${k + 1})\n RET\n`;
-        src += `S${depth}: TEXT /END/\n MOVE (0, 0, 0)\n DRAW (0, .1, .1)\n RET\n`;
+        for (let k = 0; k < depth; k++) src += `S${k}: TEXT /S${k}/; 0\n IMG (S${k + 1})\n RET\n`;
+        src += `S${depth}: TEXT /END/; 0\n MOVE (0, 0, 0)\n DRAW (0, .1, .1)\n RET\n`;
         return src;
       };
       const ok16 = ctx.boot();
@@ -337,7 +338,7 @@ export const MODEL_CHECKS = [
     title: "SAVT and REST bracket a change of transform (DSPLY p. 24)",
     run(ctx) {
       const agt = ctx.boot();
-      show(agt, "T: TEXT /T/\n SAVT\n DX (.5)\n REST\n DRAW (0, 0, .5)\n RET\n");
+      show(agt, "T: TEXT /T/; 0\n SAVT\n DX (.5)\n REST\n DRAW (0, 0, .5)\n RET\n");
       const s = lastFrame(agt).find((g) => g.vis);
       ok(s, "a stroke");
       near(s.x1, 0, 2 * LSB * 10, "the move along X was undone");
@@ -502,6 +503,103 @@ export const MODEL_CHECKS = [
       equal(r.errors.length, 1, "one error");
       equal(r.errors[0].line, 2, "on line 2");
       ok(/NOWHERE/.test(r.errors[0].message), "naming the symbol");
+    },
+  },
+  {
+    id: "ASM-4",
+    title: "Expressions: . is the location, a space between terms adds, !H rotates, a mnemonic is its word, $NAME an external (ADEPT pp. 8-9, 17)",
+    run() {
+      const core = new Core();
+      core.symbols.set("EXT", 0o4321);
+      const r = assemble(core, "A: .+2\n 77737!H 77777\n JPSR!H\n MDAR-JUMP-2\n -(60400!H)\n JPSR $EXT\nB = C+1\nC: 0\n", 0o200);
+      equal(r.errors.length, 0, "assembled");
+      equal(core.read(0o200), 0o202, ". is the location");
+      equal(core.read(0o201), 0o7773777777, "two halves, side by side");
+      equal(core.read(0o202), 0o20, "JPSR!H: the word rotated");
+      equal(core.read(0o203), 0o2073777776, "MDAR-JUMP-2");
+      equal(core.read(0o204), 0o1737777777, "a negative is complemented in 30 bits");
+      equal(core.read(0o205), assembleOp("JPSR", 0o4321), "an external from the monitor's symbols");
+      equal(core.addr("B"), 0o207, "a forward definition makes no word");
+      const chained = new Core();
+      assemble(chained, " JPSR $X\n JPSR $Y\n JPSR $X\n", 0o100, { externals: "chain" });
+      equal(lo(chained.read(0o100)), 0, "chained as a relocatable binary holds them: the first use 0");
+      equal(lo(chained.read(0o102)), 0o100, "each later use the address of the one before");
+    },
+  },
+  {
+    id: "ASM-5",
+    title: "Macros: arguments in parentheses or to the end of the statement, \"...\" quotes, \\ concatenates; ENDM may end a line (ADEPT pp. 10-12, 18)",
+    run() {
+      const core = new Core();
+      const src = [
+        "MACRO TEST (AA, BB)",
+        " MDXO'F AA",
+        " JPLS .+2",
+        " JUMP BB",
+        "ENDM",
+        "MACRO ONE; \"$ONE\" ENDM",
+        "MACRO1 TAG (N); N\\1: N\\2: 0; ENDM",
+        "GO: TEST(5, GO)",
+        " TEST 7, GO",
+        " MDAR ONE",
+        " TAG X",
+      ].join("\n");
+      core.symbols.set("ONE", 0o1);
+      const r = assemble(core, src, 0o200);
+      equal(r.errors.length, 0, "assembled");
+      equal(core.read(0o200), assembleOp("MDXO", 5, { F: true }), "an argument in parentheses");
+      equal(core.read(0o202), assembleOp("JUMP", 0o200), "and another");
+      equal(core.read(0o203), assembleOp("MDXO", 7, { F: true }), "arguments to the end of the statement");
+      equal(core.read(0o206), assembleOp("MDAR", 1), "a quoted body: $ONE, not ONE again");
+      equal(core.addr("X1"), 0o207, "N\\1 concatenates");
+      equal(core.addr("X2"), 0o207, "both tags");
+    },
+  },
+  {
+    id: "ASM-6",
+    title: "REPEAT, IREPEAT and conditional translation: IFZERO, IFNEGATIVE, IFPASS1, IFSAME, ELSE, ENDC (ADEPT pp. 12-14)",
+    run() {
+      const core = new Core();
+      const src = [
+        "IREPEAT X, (1, 2, 3)",
+        " X",
+        "ENDI",
+        "IFZERO 0; 4; ELSE 5; ENDC",
+        "IFNEGATIVE 1; 6; ELSE 7; ENDC",
+        "IFSAME (A) (A); 10; ENDC",
+        "IFSAME (A) (B); 11; ENDC",
+        "IFPASS1; TYPEOUT /PASS 1/; ENDC",
+        "N = 2",
+        "REPEAT N+1; 12; ENDR",
+      ].join("\n");
+      const r = assemble(core, src, 0o200);
+      equal(r.errors.length, 0, "assembled");
+      const words = r.listing.flatMap((l) => l.words);
+      equal(words.join(" "), [1, 2, 3, 4, 7, 0o10, 0o12, 0o12, 0o12].join(" "), "the words scanned");
+      equal(r.typed.join(), "PASS 1", "TYPEOUT in pass 1 only");
+    },
+  },
+  {
+    id: "ASM-7",
+    title: "Strings: TEXT fills its words, STRING ends with a null, ASCII packs four LCG1 characters a word; a string may run over lines (ADEPT pp. 6-7)",
+    run() {
+      const core = new Core();
+      const r = assemble(core, "A: TEXT /ABCDE/\nB: STRING /ABCDE/\nC: STRING *X\nY*\nD: ASCII *AB@015*\nE: 0\n", 0o200);
+      equal(r.errors.length, 0, "assembled");
+      equal(core.addr("B") - core.addr("A"), 1, "TEXT: five characters, one word");
+      equal(core.addr("C") - core.addr("B"), 2, "STRING: and a null word");
+      equal(core.read(core.addr("C")), packText("X\nY")[0], "over a line, the carriage return kept");
+      equal(core.read(core.addr("D")), (0o101 * 2 ** 23) + (0o102 * 2 ** 16) + 2 ** 15 + (0o15 * 2 ** 8), "A, B, CR; bit 14 ends the string");
+    },
+  },
+  {
+    id: "ASM-8",
+    title: "The NCSU sources' instructions: conditional transfers, numbered destinations, 'L, PINT (MH25; research/dpr2-encodings.md)",
+    run() {
+      const core = new Core();
+      const r = assemble(core, " ANAR'O 5\n LSAS 5\n MD10'A 5\n ARMD'L\n 0\n PINT\n", 0);
+      equal(r.errors.length, 0, "assembled");
+      equal([0, 1, 2, 3, 5].map((a) => hi(core.read(a)).toString(8)).join(" "), "1264 15300 30010 40100 560", "as the tapes show them");
     },
   },
 

@@ -95,8 +95,7 @@ export function statements(source) {
   const lines = source.split("\n");
   let i = 0;
   while (i < lines.length) {
-    let raw = lines[i];
-    if (raw.startsWith("\\\\X[[")) raw = raw.slice(5);
+    const raw = lines[i];
     const line = i + 1;
     i++;
     if (raw.startsWith("TERMINATE")) break;
@@ -264,7 +263,7 @@ export const SOURCES = { MD: 0, AR: 1, BR: 2, IC: 3, S4: 4, S5: 5 };
  */
 export const OTHERS = { NOOP: 0, JPSR: 0o20, JUMP: 0o40, JSAN: 0o60, JPAN: 0o100, JPLS: 0o140, PULSE: 0o200,
   SKUA: 0o220, SKLA: 0o240, UPRI: 0o340, FPRI: 0o360, ANAR: 0o1260, ANIR: 0o4260, LSAR: 0o1300, LSIR: 0o4300,
-  LSAS: 0o15300, LSAE: 0o16300, ARRS: 0o17440, ARLS: 0o17500, NORM: 0o17520, ERAR: 0o17540, MPYI: 0o15440,
+  PINT: 0o560, LSAS: 0o15300, LSAE: 0o16300, ARRS: 0o17440, ARLS: 0o17500, NORM: 0o17520, ERAR: 0o17540, MPYI: 0o15440,
   DIVI: 0o16440 };
 /**
  * Modifiers: [shift, value] within the upper half (bit 14 is shift 0).

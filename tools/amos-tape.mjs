@@ -17,7 +17,8 @@
 // share its file number and name.
 //
 // ADEPT source (ATEXT) is 6-bit characters, five a word; a line ends with character 15 (octal)
-// and the rest of its word is filler, so each line starts a word.
+// and the rest of its word is filler, so each line starts a word. A word of two backspaces, an X
+// and two nulls (7777700000) marks a new page; it is not text, and is left out.
 //
 // Written out: ATEXT as text, NNN-NAME.ATEXT.txt;
 // any other type as one octal word a line, NNN-NAME.TYPE.oct (NNN the file number in octal).
@@ -26,13 +27,19 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
+import { TTY } from "../js/sim/amoscode.js";
 
 export const TYPES = ["SYMS", "DATA", "RELOC", "ASCII", "TEXT", "RLSYM", "PRNTR", "ATEXT", "BIN", "DUMP", "DISK", "MACRO", "T14", "T15", "T16", "T17"];
-/** AMOS's 6-bit characters as ADEPT source uses them; "\t" tab, "\n" end of line. */
-export const CHARS = "[%]!&*:_+\t?\"'\n()0123456789;=,-./ ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@^\\";
-const NAME_CHARS = " %]!&*:_+t?\"'r()0123456789;=,-./ ABCDEFGHIJKLMNOPQRSTUVWXYZ$#@^\\";
+/**
+ * AMOS's 6-bit characters as the Teletype prints them (js/sim/amoscode.js; ADEPT pp. 23-24):
+ * "\t" tab, "\n" end of line, "\\" (07) ADEPT's concatenation, "←" (77) backspace.
+ */
+export const CHARS = TTY.map((c) => (c === "\r" ? "\n" : c)).join("");
+const NAME_CHARS = ` ${CHARS.slice(1)}`;
 const MONTHS = ["?", "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC", "?", "?", "?"];
 const M30 = 0o7777777777;
+/** The editor's page mark. */
+const PAGE = 0o7777700000;
 
 /**
  * @typedef {object} TapeFile
@@ -66,6 +73,7 @@ export function fileName(w) {
 export function text(words) {
   let s = "";
   for (const w of words) {
+    if (w === PAGE) continue;
     for (const shift of [24, 18, 12, 6, 0]) {
       const c = Math.floor(w / 2 ** shift) & 0o77;
       s += CHARS[c];

@@ -15,7 +15,8 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 **R1. The DPR-2's instruction encodings.** *Mostly settled* (v0.0.2).
 - *Sources:* every mnemonic (ADEPT App. B); the meanings and times of most (the AGT/5's DPR3, SRM5 DPR3 pp. 1–14); the split of the word into 13 + 2 + 15 bits (SRM5 DPR3 p. 4). No document found gives an instruction's octal value, but the routines on the NCSU tapes that survive as both source and binary do (MH25; [../research/dpr2-encodings.md](../research/dpr2-encodings.md)). They agree with M. Howard's disassembly (MH26) and with the DPR-2's block diagram (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)).
 - *We:* take from the tapes the layout (the kind of instruction in bits 0–1, the destination in 2–5, the source in 6–8, rotation, logic, 'X, 'I), the register numbers, and the codes of the instructions they show. Still ours:
-  - the codes of the instructions the tapes do not use: JSLS, SKAN, SKLS, OPIO, PINT, the Teletype's OPTY and OPTI, MPYU, MPYL, DIVU and DIVL;
+  - the codes of the instructions the tapes do not use: JSLS, SKAN, SKLS, OPIO, the Teletype's OPTY and OPTI, MPYU, MPYL, DIVU and DIVL;
+  - what the conditional transfers test: AN as JPAN does (AR negative), LS as JPLS does (AR's lower half not zero);
   - the destinations XY (5) and MX (7), which the block diagram places but whose working is R7's;
   - what the modifiers do: 'A, 'O and 'N act on the destination; 'B, 'K and 'H rotate by 1, 6 and 15 bits; 'X steps the lower half of the word read.
 
@@ -61,11 +62,12 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *We:* compare the multiplexed voltage with the X data register directly, not with the array's transformed output. The program sees the same result.
 - *Since v0.0.1:* on the AGT-30, a selector (GDD1) chooses the input and a converter (ADC5) reads it to S5; the six dials are channel 1 of the array's inputs (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)). Not yet applied.
 
-**R8. The ADEPT subset.**
-- *We implement:* statements, tags, comments, radix, decimal points, `+ − & * /`, `!H !K !B`, LOC, OCTAL, DECIMAL, TEXT, ENTRY, TITLE, TERMINATE, `=`, REPEAT/ENDR, the DPR-2 mnemonics, and the display codes.
-- *We do not implement:* macros, conditional assembly, action operators, relocation.
+**R8. ADEPT.** *Mostly settled* (v0.0.2).
+- *Sources:* the manual (ADEPT, Revision G); the NCSU sources and their binaries (MH25).
+- *We implement:* what the manual describes for programs: statements, tags, comments, radix, decimal points, `+ − & * / //`, a space between terms as `+`, `!H !K !B` (rotations), `.`, `$` externals, LOC, OCTAL, DECIMAL, TEXT, STRING, ASCII, ENTRY, TITLE, EXPUNGE, ABSOLUTE, TERMINATE, `=`; string substitution: macros (MACRO, MACRO1, MACRO2, `"…"`, `\`, `%`), REPEAT, IREPEAT, IFZERO, IFNEGATIVE, IFPASS1, IFSAME, ELSE, ENDC, STOP; TYPEOUT, TYPEOCT, TYPEDEC; LINKAGE, from the NCSU sources; the DPR-2 mnemonics, and the display codes. The NCSU routines assemble to their binaries' words, all 34 of them ([../research/dpr2-encodings.md](../research/dpr2-encodings.md)).
+- *We do not implement:* action operators (DEFINE), COMMON, TYPEIN, the `#` operators, relocatable output (externals resolve from the monitor's symbols, or are chained as a binary holds them, for the check).
 - *Our own syntax:* how a display item's arguments are written (`DRAW (Z, X, Y)`); `'DIR` on an IRL argument; fractions written with a point (`.5`) and angles in degrees (`30DEG`).
-- *Since v0.0.1:* the real sources show what the subset lacks: `EXPUNGE`, `ABSOLUTE`, `STRING`, `$` externals, conditional assembly ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
+- *Since v0.0.1:* TEXT fills only the words it needs, as the manual says; an image's two-word name is written `TEXT /A/; 0` where it is short.
 
 **R9. What AMOS types.**
 - *Sources:* the statements (DSPLY pp. 7–11; AMRMX).

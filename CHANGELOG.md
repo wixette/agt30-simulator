@@ -5,7 +5,8 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 ## Unreleased
 
 - The DPR-2's instruction encodings are now those of the NCSU tapes (R1; [research/dpr2-encodings.md](research/dpr2-encodings.md)): the layout, BR 2 and IC 3, destinations numbered in octal as the block diagram does, and the codes of the instructions the tapes show. Programs' sources are unchanged; their octal words change. The processor also runs 'L, the operand in the next word.
-- `tools/amos-tape.mjs` reads the NCSU tape images, and `tools/dpr2-pairs.mjs` pairs their source with their binaries.
+- The assembler is ADEPT as its manual describes it (R8): macros, REPEAT and IREPEAT, conditional translation, STRING and ASCII, `.`, `$` externals, a space between terms as `+`, rotations, mnemonics as values, and the NCSU sources' instructions (conditional transfers, numbered destinations, 'L, PINT). All 34 routines of the tripp tape assemble to their binaries' words. TEXT now fills only the words it needs, so the programs write a short image name's second word.
+- `tools/amos-tape.mjs` reads the NCSU tape images; `tools/dpr2-pairs.mjs` pairs their source with their binaries; `tools/adept-check.mjs` assembles their sources and compares.
 - The headless launcher never leaves Chrome running.
 
 ## 0.0.1

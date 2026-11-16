@@ -62,19 +62,27 @@ export const DESTS = { MD: 0, AR: 1, BR: 2, IC: 3, IR: 4, XY: 5, MX: 7, AS: 0o15
  */
 const TAPE_OPS = {
   NOOP: 0, JPSR: 0o20, JUMP: 0o40, JSAN: 0o60, JPAN: 0o100, JPLS: 0o140, SKUA: 0o220, SKLA: 0o240,
-  UPRI: 0o340, FPRI: 0o360, MPYI: 0o15440, DIVI: 0o16440, ARRS: 0o17440, ARLS: 0o17500, NORM: 0o17520,
-  ERAR: 0o17540,
+  PULSE: 0o200, UPRI: 0o340, FPRI: 0o360, MPYI: 0o15440, DIVI: 0o16440, ARRS: 0o17440, ARLS: 0o17500, NORM: 0o17520,
+  ERAR: 0o17540, PINT: 0o560,
 };
 /**
  * Those the tapes do not show, numbered by us (R1). JSLS follows the pattern of JPSR and JSAN
  * (a jump less 20); the rest sit where the tapes show nothing.
  */
 const OUR_OPS = {
-  JSLS: 0o120, SKAN: 0o400, SKLS: 0o420, OPIO: 0o600, PINT: 0o620, OPTY: 0o640, OPTI: 0o660,
+  JSLS: 0o120, SKAN: 0o400, SKLS: 0o420, OPIO: 0o600, OPTY: 0o640, OPTI: 0o660,
   MPYU: 0o15400, MPYL: 0o15420, DIVU: 0o16400, DIVL: 0o16420,
 };
 /** @type {Record<string, number>} */
 export const OPS = { ...TAPE_OPS, ...OUR_OPS };
+/**
+ * The conditional transfers, ANxx and LSxx (ANAR 01260, LSIR 04300 on the tapes): not a
+ * transfer's kind, the destination in bits 2-5, the condition in bits 6-10, and 'O, 'A, 'N, 'X
+ * and 'I as in a transfer. We read AN as JPAN's condition (AR negative) and LS as JPLS's (AR's
+ * lower half not zero), and the transfer as from memory (R1).
+ * @type {Record<string, number>}
+ */
+export const CONDITIONS = { AN: 0o260, LS: 0o300 };
 /** @type {Map<number, string>} */
 const OP_NAMES = new Map(Object.entries(OPS).map(([k, v]) => [v, k]));
 
@@ -84,6 +92,16 @@ const OP_NAMES = new Map(Object.entries(OPS).map(([k, v]) => [v, k]));
  * @returns {string | undefined}
  */
 export const opName = (ins) => OP_NAMES.get(get(ins, ENCODING.op) * 4);
+
+/**
+ * The condition of a conditional transfer, or undefined.
+ * @param {number} ins
+ * @returns {string | undefined}
+ */
+const conditionOf = (ins) => {
+  const c = (get(ins, ENCODING.op) * 4) & 0o760;
+  return Object.keys(CONDITIONS).find((k) => CONDITIONS[k] === c);
+};
 
 /** Times in microseconds (SRM5 DPR3 pp. 4-6, 10). */
 export const TIME = { memory: 4, immediate: 3, jump: 3, jpsr: 5, skip: 3, opio: 6, indirect: 2, mul: 6, div: 8, shift: 5 };
@@ -376,12 +394,21 @@ export class Dpr2 {
         return TIME.immediate;
       case "NOOP":
       case "PINT":
+      case "PULSE":
         return TIME.immediate;
       case "OPIO":
         return TIME.opio;
-      default:
+      default: {
+        const c = conditionOf(ins);
+        if (c && opName(ins) === undefined) {
+          if (!(c === "AN" ? neg : lowNz)) return TIME.skip;
+          let t = put(put(ins, ENCODING.kind, KIND.MEMORY), ENCODING.source, SOURCES.MD);
+          t = put(t, ENCODING.rotate, 0);
+          return this.transfer(t);
+        }
         this.stopped = `no such instruction ${ins.toString(8).padStart(10, "0")} at ${((this.LC - 1) & M15).toString(8).padStart(5, "0")}`;
         return TIME.immediate;
+      }
     }
   }
 
@@ -606,17 +633,26 @@ const or30 = (a, b) => word(hi(a) | hi(b), lo(a) | lo(b));
 const xor30 = (a, b) => word(hi(a) ^ hi(b), lo(a) ^ lo(b));
 
 /**
- * The modifiers an instruction may carry after quotes: 'I indirect, 'X index, 'F immediate,
+ * The modifiers an instruction may carry after quotes: 'I indirect, 'X index, 'F immediate, 'L next word,
  * 'A 'O 'N logic, 'B 'K 'H rotation (ADEPT App. B lists the letters).
- * @typedef {{ I?: boolean; X?: boolean; F?: boolean; A?: boolean; O?: boolean; N?: boolean; B?: boolean; K?: boolean; H?: boolean }} Mods
+ * @typedef {{ I?: boolean; X?: boolean; F?: boolean; L?: boolean; A?: boolean; O?: boolean; N?: boolean; B?: boolean; K?: boolean; H?: boolean }} Mods
  */
 
 /** The transfer mnemonics' two halves. */
 const SRC_NAMES = /** @type {Record<string, number>} */ (SOURCES);
 const DST_NAMES = /** @type {Record<string, number>} */ (DESTS);
 
+/**
+ * A destination by name, or by number as ADEPT writes one (MD10, AR07: octal).
+ * @param {string} d
+ * @returns {number | undefined}
+ */
+const destination = (d) => (/^[0-7]{2}$/.test(d) ? parseInt(d, 8) & 0o17 : DST_NAMES[d]);
+
 /** @param {string} m @returns {boolean} */
-const isTransfer = (m) => m.length === 4 && m.slice(0, 2) in SRC_NAMES && m.slice(2) in DST_NAMES;
+const isTransfer = (m) => m.length === 4 && m.slice(0, 2) in SRC_NAMES && destination(m.slice(2)) !== undefined;
+/** @param {string} m @returns {boolean} */
+const isConditional = (m) => m.length === 4 && m.slice(0, 2) in CONDITIONS && destination(m.slice(2)) !== undefined;
 
 /**
  * Whether a mnemonic is a DPR-2 instruction.
@@ -624,7 +660,7 @@ const isTransfer = (m) => m.length === 4 && m.slice(0, 2) in SRC_NAMES && m.slic
  * @returns {boolean}
  */
 export function isInstruction(m) {
-  return m in OPS || isTransfer(m);
+  return m in OPS || isTransfer(m) || isConditional(m);
 }
 
 /**
@@ -637,11 +673,15 @@ export function isInstruction(m) {
 export function assembleOp(m, address, mods = {}) {
   let w = address & M15;
   if (isTransfer(m)) {
-    w = put(w, ENCODING.kind, mods.F ? KIND.IMMEDIATE : KIND.MEMORY);
+    w = put(w, ENCODING.kind, mods.F ? KIND.IMMEDIATE : mods.L ? KIND.NEXT : KIND.MEMORY);
     w = put(w, ENCODING.source, SRC_NAMES[m.slice(0, 2)]);
-    w = put(w, ENCODING.destination, DST_NAMES[m.slice(2)]);
+    w = put(w, ENCODING.destination, /** @type {number} */ (destination(m.slice(2))));
     w = put(w, ENCODING.logic, mods.O ? 1 : mods.A ? 2 : mods.N ? 3 : 0);
     w = put(w, ENCODING.rotate, mods.B ? 1 : mods.K ? 2 : mods.H ? 3 : 0);
+  } else if (isConditional(m)) {
+    w = put(w, ENCODING.op, CONDITIONS[m.slice(0, 2)] / 4);
+    w = put(w, ENCODING.destination, /** @type {number} */ (destination(m.slice(2))));
+    w = put(w, ENCODING.logic, mods.O ? 1 : mods.A ? 2 : mods.N ? 3 : 0);
   } else if (m in OPS) {
     w = put(w, ENCODING.op, OPS[m] / 4);
   } else throw new Error(`unknown instruction ${m}`);
@@ -661,11 +701,16 @@ export function disassemble(w) {
   const kind = get(w, ENCODING.kind);
   if (kind !== KIND.OTHER) {
     const s = Object.keys(SRC_NAMES).find((k) => SRC_NAMES[k] === get(w, ENCODING.source)) ?? "??";
-    const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? "??";
+    const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? get(w, ENCODING.destination).toString(8).padStart(2, "0");
     const lg = ["", "'O", "'A", "'N"][get(w, ENCODING.logic)];
     const rt = ["", "'B", "'K", "'H"][get(w, ENCODING.rotate)];
     const k = ["", "", "'L", "'F"][kind];
     return `${s}${d}${k}${lg}${rt}${mods} ${a}`;
+  }
+  const c = opName(w) === undefined ? conditionOf(w) : undefined;
+  if (c) {
+    const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? get(w, ENCODING.destination).toString(8).padStart(2, "0");
+    return `${c}${d}${["", "'O", "'A", "'N"][get(w, ENCODING.logic)]}${mods} ${a}`;
   }
   return `${opName(w) ?? "?"}${mods} ${a}`;
 }
