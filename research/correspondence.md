@@ -17,6 +17,13 @@ What we have learned from people who knew the machine, and what they have allowe
   - he has begun a disassembler (written with ChatGPT's help, not published), and his message shows the start of the resident monitor (74000 on) as it disassembles. Its mnemonics are not yet checked against Adage's documents, but the encodings it implies differ from ours (R1);
   - how the array and the display processor worked is the part he knows least, and he means to work it out;
   - he offers to fill in the assembler's syntax, the architecture and the instruction encodings, and suggested a call.
+- **2026-11-11.** We replied with times for a call.
+- **2026-11-16.** We wrote again: no hurry for the call. We shared the tape catalogue ([ncsu-tapes.md](ncsu-tapes.md)) and said we would work out the instruction encodings from the tripp tape's source/binary pairs and send him the results. MH25 states no licence, so we asked whether he is comfortable with each of these:
+  - citing facts from the tapes and his notes, with credit (as we do now);
+  - adapting his tape and disk tools into this Apache-2.0 project;
+  - one day including programs from the tapes, so that the page can run the original games.
+
+  We suggested a licence file in MH25 as the simplest way to cover the tools. We asked who else might hold rights in the programs, and how he would like to be credited. Two questions, if he knows offhand: does he have more DPR-2 documentation, Volume II of the Programmer's Reference Manual or an ADEPT manual; and where on the pack do AMRMX and its symbol table sit?
 
 ## Open questions
 
