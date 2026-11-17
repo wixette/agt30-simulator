@@ -13,7 +13,7 @@ const STAGE_MIN = 320;
 /** The dock's least open height, px. */
 const DOCK_MIN = 120;
 /** Its height at start: this share of the window, so the Teletype shows a dozen lines or more, and never less than DOCK_START_MIN px. */
-const DOCK_START_SHARE = 0.36;
+const DOCK_START_SHARE = 0.3;
 const DOCK_START_MIN = 210;
 /** One arrow key's step on the handle, px. */
 const KEY_STEP = 24;
