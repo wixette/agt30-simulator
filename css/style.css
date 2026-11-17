@@ -280,6 +280,15 @@ code, pre, .mono { font-family: var(--mono); }
 
 /* ---- the Processor tab (U15) ---- */
 #pane-proc:not([hidden]) { display: flex; flex-direction: column; overflow: hidden; }
+
+/* the References tab (U16): one column down the middle of the dock, as the series' */
+.references { max-width: 780px; margin: 0 auto; padding: 4px 0 8px; line-height: 1.5; }
+.references h3 { margin: 16px 0 6px; font-size: 14px; font-weight: 600; color: var(--md-on-surface-variant); }
+.references h3:first-child { margin-top: 6px; }
+.link-list { margin: 0; padding: 0 0 0 18px; }
+.link-list li { margin: 3px 0; }
+.link-list a { text-decoration: none; }
+.link-list a:hover, .link-list a:focus-visible { text-decoration: underline; }
 .proc-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: none; margin: 4px 0 6px; }
 .proc-goto { display: inline-flex; align-items: center; gap: 6px; color: var(--md-on-surface-variant); font-weight: 560; }
 /* the field and its choices: an outlined text field with a trailing dropdown button (Material 3) */
@@ -405,6 +414,9 @@ code, pre, .mono { font-family: var(--mono); }
 .dialog-body h3 { margin: 16px 0 6px; font-size: 14px; font-weight: 500; color: var(--md-on-surface-variant); }
 .dialog-body ol, .dialog-body ul { margin: 0; padding-left: 22px; }
 .dialog-body li { margin: 2px 0; }
+/* a dialog's actions, at its foot, as the series' */
+.dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.dialog-actions .btn:not(.filled) { color: var(--md-primary-text); }
 .about-band { display: flex; gap: 16px; align-items: center; }
 .about-band img { width: 64px; height: 64px; }
 .about-band .version { color: var(--md-on-surface-variant); }

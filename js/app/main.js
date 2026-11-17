@@ -21,6 +21,7 @@ import { selftestRequested, runSelftest } from "./selftest.js";
 import { Stage } from "./stage.js";
 import { buildStrip } from "./strip.js";
 import { buildProcessor } from "./processor.js";
+import { buildReferences } from "./references.js";
 import { buildTeletype } from "./teletype.js";
 
 /** @typedef {import("../sim/programs.js").Program} Program */
@@ -80,6 +81,7 @@ async function start() {
   if (query.has("debug")) Object.defineProperty(window, "stage", { value: stage });
   /** @type {{ render: (force?: boolean) => void } | null} */
   let proc = null;
+  buildReferences(/** @type {HTMLElement} */ (document.getElementById("pane-refs")));
   const dock = buildDock(() => stage.refit(), (id) => {
     if (id === "proc") proc?.render(true);
   });
@@ -149,7 +151,7 @@ async function start() {
     writeLink();
     say(t("status.reset"));
   });
-  /** @type {HTMLElement} */ (document.getElementById("about")).addEventListener("click", () => openAbout(pkg.version));
+  /** @type {HTMLElement} */ (document.getElementById("about")).addEventListener("click", () => openAbout(pkg.version, () => dock.show("refs")));
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || document.querySelector("dialog[open], .menu")) return;
     if (document.activeElement?.id === "tty-paper") return;

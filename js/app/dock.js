@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// The dock under the stage (docs/ui-design.md, U1): three tools, Program, Teletype and Processor,
-// one at a time. It is resized by the handle above it (drag, or the arrow keys on the handle),
+// The dock under the stage (docs/ui-design.md, U1): four tools, Program, Teletype, Processor and
+// References, one at a time. It is resized by the handle above it (drag, or the arrow keys on the handle),
 // folds to its tab bar, remembers its tab, height and fold, and marks a tab with a dot when
 // something new happens on it out of sight. The stage keeps its least height: 320 px on a desktop,
 // more of a phone's. As the simulator series' dock (the TRS-80 simulator's).
@@ -9,9 +9,9 @@
 import { icon, setTip, tabs } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 
-/** @typedef {"program" | "tty" | "proc"} Tool */
+/** @typedef {"program" | "tty" | "proc" | "refs"} Tool */
 /** The tabs' element ids, by tool. */
-const TAB_IDS = { program: "tab-program", tty: "tab-tty", proc: "tab-proc" };
+const TAB_IDS = { program: "tab-program", tty: "tab-tty", proc: "tab-proc", refs: "tab-refs" };
 
 /** The dock's least open height, px. */
 const DOCK_MIN = 120;

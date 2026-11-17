@@ -122,12 +122,13 @@ The page is a fixed frame: top bar, stage, dock, status line. The page itself ne
 
 ## Part 4. Decisions
 
-### U1. The dock below the stage, three tools: Program, Teletype and Processor
+### U1. The dock below the stage, four tools: Program, Teletype, Processor and References
 
 The dock is full width under the stage, resizable by the handle above it, and folds to its tab bar. As in the series, the handle is a row of its own that lights amber while pointed at or dragged; dragging keeps the dock's foot where it is; and the dock remembers its tab, its height and whether it is folded. *(v0.0.3)*
 - **Program** is the loaded program's card (U7).
 - **Teletype** is the paper and keyboard (U9).
 - **Processor** looks into the DPR-2 (U15). *(v0.0.2)*
+- **References** lists where to read more (U16). *(v0.0.3)*
 
 A folded dock opens on Program when a program is chosen; an open one stays on the tab the reader chose, and the other tab gets an activity dot. *(build, after the manual check: choosing a program first switched an open dock back to Program, away from the Teletype the reader was watching.)* Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4). The dock starts at 30 % of the window's height, and never below 210 px, so the Teletype shows a dozen lines or more. *(v0.0.2, after the manual check: a fixed 210 px showed only four lines of paper on a large window.)*
 
@@ -238,7 +239,8 @@ About is a dialog with a title band:
 - one line saying that where the documents stop the simulator reconstructs, that each program's card says what is ours in it, and a link to the whole list in the README's *What is reconstructed* *(build, after the manual check: About first listed all twenty reconstructions, too long for an About; the README lists them, and tests/app.test.js keeps that list complete)*;
 - credits: sources, people and libraries;
 - the licences, one per line;
-- a link to the source repository.
+- a link to the source repository;
+- at its foot, as the series' About: **References**, which opens the References tab (U16), and **Close**, filled, which has the focus. *(v0.0.3)*
 
 ### U15. The Processor tab: a look into the DPR-2 *(v0.0.2)*
 
@@ -254,3 +256,8 @@ A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
 *Why:* since v0.0.2 the words in core are the real DPR-2's (R1); typing LIST and OPEN on the Teletype is how an operator read them, but not how a visitor today expects to.
 It is labelled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
 
+### U16. The References tab *(v0.0.3)*
+
+A fourth dock tool, as the series' References: one column of links down the middle of the dock, to be looked up rather than read in order. The machine and its lab (N. England's history of the NCSU lab, graphics-history.org, Adage's brochures); Adage's documents on bitsavers.org; NCSU's tapes (M. Howard's repository, its documents, readtape); then the simulator's source, research and bibliography. About's References button opens it.
+
+*Why:* the people and documents the simulator rests on deserve a place a reader can find, and About stays short. The addresses are kept in one file, `js/app/aboutData.js`, and are the only outside addresses the page names (tests/app.test.js, APP-3).

@@ -10,6 +10,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 - The Tube's traces sit just above the console strip, however tall it is.
 - The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one centre line.
 - The Program tab's choices: the cards in a row are the same height.
+- About has References and Close buttons at its foot, as in the series; a new References tab lists the history, Adage's documents, M. Howard's tapes and documents, and the simulator's source and research (U16).
 
 ## 0.0.2
 

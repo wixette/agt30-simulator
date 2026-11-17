@@ -28,6 +28,7 @@
         "./js/app/main.js": "./js/app/main.js?v=0.0.2",
         "./js/app/processor.js": "./js/app/processor.js?v=0.0.2",
         "./js/app/programCard.js": "./js/app/programCard.js?v=0.0.2",
+        "./js/app/references.js": "./js/app/references.js?v=0.0.2",
         "./js/app/runner.js": "./js/app/runner.js?v=0.0.2",
         "./js/app/selftest.js": "./js/app/selftest.js?v=0.0.2",
         "./js/app/stage.js": "./js/app/stage.js?v=0.0.2",
@@ -119,6 +120,7 @@
           <button id="tab-program" class="dock-tab" role="tab" aria-controls="pane-program" type="button"><i data-icon="description"></i><span class="label" data-l10n="dock.program"></span><span class="dot" hidden></span></button>
           <button id="tab-tty" class="dock-tab" role="tab" aria-controls="pane-tty" type="button"><i data-icon="terminal"></i><span class="label" data-l10n="dock.teletype"></span><span class="dot" hidden></span></button>
           <button id="tab-proc" class="dock-tab" role="tab" aria-controls="pane-proc" type="button"><i data-icon="memory"></i><span class="label" data-l10n="dock.processor"></span><span class="dot" hidden></span></button>
+          <button id="tab-refs" class="dock-tab" role="tab" aria-controls="pane-refs" type="button"><i data-icon="menu_book"></i><span class="label" data-l10n="dock.refs"></span></button>
         </div>
         <span class="spacer"></span>
         <button id="dock-fold" class="btn icon-only" type="button" data-l10n-tip="dock.fold"><i data-icon="keyboard_arrow_down"></i></button>
@@ -150,6 +152,7 @@
         <div id="proc-state" class="proc-state"></div>
         <div id="proc-list" class="proc-list mono" tabindex="0" data-l10n-tip="proc.list.tip"></div>
       </div>
+      <div id="pane-refs" class="dock-pane" role="tabpanel" aria-labelledby="tab-refs" hidden></div>
     </section>
 
     <footer id="status" role="status" aria-live="polite"><span id="status-text"></span><span id="fps" class="fps"></span></footer>

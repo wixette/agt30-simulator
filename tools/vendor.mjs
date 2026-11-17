@@ -46,6 +46,7 @@ export const ICONS = [
   "keyboard_arrow_down",
   "list",
   "memory",
+  "menu_book",
   "monitor",
   "power_settings_new",
   "restart_alt",
