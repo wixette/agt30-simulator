@@ -244,7 +244,9 @@ code, pre, .mono { font-family: var(--mono); }
 
 /* the program card (U7) */
 .program-card { max-width: 980px; }
+.program-head { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
 .program-card h2 { margin: 4px 0 2px; font-size: 18px; font-weight: 620; }
+.program-unload { flex: none; color: var(--md-primary-text); }
 .program-card .rebuilds { color: var(--md-on-surface-variant); margin: 0 0 10px; font-size: 13px; }
 .program-card h3 { margin: 14px 0 4px; font-size: 13px; font-weight: 640; color: var(--md-on-surface-variant); text-transform: none; }
 .program-card p { margin: 0 0 6px; }

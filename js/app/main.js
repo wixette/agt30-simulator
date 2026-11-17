@@ -106,6 +106,7 @@ async function start() {
       busy: agt.typing,
       programs: manifest.programs,
       load: (p) => load(p),
+      unload: () => reboot(),
       type: (statement, label) => {
         agt.type(statement, FAST_US_PER_CHAR);
         say(t("status.action", { statement: label }));
@@ -136,21 +137,28 @@ async function start() {
   };
 
   // ---- the top bar (U3) ----
-  programsBtn.addEventListener("click", () =>
-    showMenu(
-      programsBtn,
-      manifest.programs.map((p) => ({ label: t(`program.${p.id}.title`), run: () => load(p) })),
-    ),
-  );
-  /** @type {HTMLElement} */ (document.getElementById("reset")).addEventListener("click", () => {
+  /**
+   * Reboots the terminal: core as at start, the display dark, the paper torn off, no program
+   * loaded. Unloading a program is this (U17): the machine had no other way to forget one.
+   */
+  const reboot = () => {
+    const was = program;
     agt = Agt30.boot(sources);
     program = null;
     drawCard();
     tty.render();
     proc?.render(true);
     writeLink();
-    say(t("status.reset"));
-  });
+    say(was ? t("status.unloaded", { title: t(`program.${was.id}.title`) }) : t("status.reset"));
+  };
+  // the menu ticks the program loaded; with one loaded, Unload follows, the way back (U17)
+  programsBtn.addEventListener("click", () =>
+    showMenu(programsBtn, [
+      ...manifest.programs.map((p) => ({ label: t(`program.${p.id}.title`), checked: p === program, run: () => load(p) })),
+      ...(program ? [{ label: t("bar.programs.unload"), icon: /** @type {const} */ ("eject"), divider: /** @type {const} */ (true), run: reboot }] : []),
+    ]),
+  );
+  /** @type {HTMLElement} */ (document.getElementById("reset")).addEventListener("click", reboot);
   /** @type {HTMLElement} */ (document.getElementById("about")).addEventListener("click", () => openAbout(pkg.version, () => dock.show("refs")));
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" || document.querySelector("dialog[open], .menu")) return;

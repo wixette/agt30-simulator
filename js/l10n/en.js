@@ -15,6 +15,7 @@ export default {
   "bar.programs": "Programs",
   "bar.programs.tip": "Load a program: its statements are typed on the Teletype",
   "bar.programs.loaded": "Program: {title}. Choose another",
+  "bar.programs.unload": "Unload the program",
   "bar.reset": "Reboot",
   "bar.reset.tip": "Reboot the whole terminal: core as at start, the display dark, the paper torn off, no program loaded",
   "bar.about": "About",
@@ -96,6 +97,8 @@ export default {
   "dock.activity": "Something new here",
 
   // ---- the program card (U7) ----
+  "program.unload": "Unload",
+  "program.unload.tip": "Unload this program and reboot the terminal, back to the list of programs",
   "program.none": "Choose a program to run. The Programs menu in the top bar offers the same list at any time, and the Teletype takes statements typed by hand.",
   "program.letter-a.short": "The 1968 paper's first picture, drawn one vector at a time.",
   "program.cube.short": "A cube you turn with the dials; it seems to flip as it turns.",
@@ -185,6 +188,7 @@ export default {
   "status.ready": "Ready. Choose a program to run.",
   "status.typing": "{title}: typing its statements on the Teletype…",
   "status.loaded": "{title}: loaded.",
+  "status.unloaded": "{title} was unloaded: the terminal was rebooted.",
   "status.reset": "The terminal was rebooted: no program is loaded.",
   "status.penOff": "The light pen works on the Screen viewpoint only.",
   "status.pen": "Pen at ({x}, {y}) in.",

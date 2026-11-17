@@ -151,6 +151,8 @@ The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop, then phones (P1
 - **Left** (the machine): the logo and title, the **Programs** menu, whose button names the program loaded (*A cube turned by the dials ▾*), so it is in sight in every viewpoint, the Screen included, or says *Programs* with none *(build, after the manual check)*, and, set apart from it, **Reboot**, with the power icon, which reboots the whole terminal: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program"; one reboots a machine, never a program.)*
 - **Right** (the app): **About**.
 
+The Programs menu ticks the program loaded; with one loaded, **Unload the program** follows, after a line (U17). *(v0.0.3)*
+
 There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
 
 ### U4. Each viewpoint fits its subject into the stage's free area
@@ -177,7 +179,7 @@ Cards are text that can be selected and copied.
 ### U7. The program card
 
 In this order:
-1. The program's title, and what it rebuilds (*FJCC68 Fig. 7*).
+1. The program's title, with **Unload** beside it (U17), and what it rebuilds (*FJCC68 Fig. 7*).
 2. How to use it, naming the controls: *Turn dials 0–2.*
 3. Its actions: a switch for a setting that is on or off (*Depth cueing*, on every 3D program's card, typing a VIEW whose range fits that picture; it shows the machine's own state, so a VIEW typed by hand moves it too), and buttons for the rest. Each types a statement (U8). *(build, after the manual check: the tunnel had two buttons, on and off, which did not show which state it was in)*
 4. *What is ours*: the program's reconstructions, linked to About's list.
@@ -261,3 +263,10 @@ It is labelled where the reader meets it as a view the real AGT never had (P9). 
 A fourth dock tool, as the series' References: one column of links down the middle of the dock, to be looked up rather than read in order. The machine and its lab (N. England's history of the NCSU lab, graphics-history.org, Adage's brochures); Adage's documents on bitsavers.org; NCSU's tapes (M. Howard's repository, its documents, readtape); then the simulator's source, research and bibliography. About's References button opens it.
 
 *Why:* the people and documents the simulator rests on deserve a place a reader can find, and About stays short. The addresses are kept in one file, `js/app/aboutData.js`, and are the only outside addresses the page names (tests/app.test.js, APP-3).
+
+### U17. Each way in has its way back: Unload *(v0.0.3)*
+
+A program is loaded from the Programs menu or from a card in the Program tab, and each path leads back the way it came: the menu, with a program loaded, ends with **Unload the program**; the card has **Unload** beside its title. Both do what Reboot does (core as at start, the display dark, the paper torn off) and the Program tab shows the list of programs again. The status line names the program unloaded.
+
+*Why a reboot:* loading a program types its statements into the monitor, which builds the picture in core; the real terminal had no command to forget them, and anything gentler would leave a picture on the screen with no program named for it. The default state is the one the page opens in.
+*Rejected:* a Back on the card that shows the list while the program goes on running: two states (a program running, the list shown) that look like one, and a list headed "Choose a program to run" while one runs.

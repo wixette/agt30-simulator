@@ -39,6 +39,7 @@ export const ICONS = [
   "frame_inspect",
   "content_copy",
   "edit",
+  "eject",
   "keyboard_arrow_up",
   "home",
   "hub",
