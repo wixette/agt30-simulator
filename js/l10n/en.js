@@ -8,7 +8,6 @@
 export default {
   // ---- the page ----
   "app.name": "AGT-30 Simulator",
-  "app.tagline": "The Adage Graphics Terminal, 1968",
   "app.noWebgl": "This browser cannot draw the 3D view (no WebGL). The screen and the Teletype still work.",
   "app.loadFailed": "The simulator could not start: {error}",
 

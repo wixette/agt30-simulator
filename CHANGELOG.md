@@ -8,6 +8,8 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 - The dock's handle is a row of its own, lit while dragged; dragging keeps the dock's foot where it is; the dock remembers its tab, height and fold (U1).
 - Phones (P11, U2): the same app, packed down in steps; the console strip scrolls sideways; the notice that the page was made for a desktop is gone.
 - The Tube's traces sit just above the console strip, however tall it is.
+- The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one centre line.
+- The Program tab's choices: the cards in a row are the same height.
 
 ## 0.0.2
 

@@ -139,7 +139,6 @@ A folded dock opens on Program when a program is chosen; an open one stays on th
 ### U2. Desktops first, phones too
 
 The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop, then phones (P11). Recent Chrome, Edge, Safari and Firefox are supported. The page narrows in steps, as the series' does:
-- **Under 1,100 px:** the tagline goes.
 - **Under 700 px (a phone, upright):** the top bar keeps its icons and the program's name; the band's buttons and the strip pack down; a part's card spans the stage; the Tube's inset shrinks; the stage keeps at least 55 % of the height.
 - **Under 480 px:** the dock's tabs show only their icons.
 - **A phone on its side** (520 px tall or less): the stage keeps 65 % of the height, the dock opens folded at first, and the strip drops its labels.
