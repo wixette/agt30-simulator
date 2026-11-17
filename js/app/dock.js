@@ -1,26 +1,48 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // The dock under the stage (docs/ui-design.md, U1): three tools, Program, Teletype and Processor,
-// one at a time. It is resized by its top edge (drag, or the arrow keys on the handle), folds to its tab
-// bar, and marks a tab with a dot when something new happens on it out of sight. The stage keeps
-// at least 320 px.
+// one at a time. It is resized by the handle above it (drag, or the arrow keys on the handle),
+// folds to its tab bar, remembers its tab, height and fold, and marks a tab with a dot when
+// something new happens on it out of sight. The stage keeps its least height: 320 px on a desktop,
+// more of a phone's. As the simulator series' dock (the TRS-80 simulator's).
 
 import { icon, setTip, tabs } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 
-/** The stage's least height, px (U1). */
-const STAGE_MIN = 320;
-/** The dock's least open height, px. */
-const DOCK_MIN = 120;
-/** Its height at start: this share of the window, so the Teletype shows a dozen lines or more, and never less than DOCK_START_MIN px. */
-const DOCK_START_SHARE = 0.3;
-const DOCK_START_MIN = 210;
-/** One arrow key's step on the handle, px. */
-const KEY_STEP = 24;
-
 /** @typedef {"program" | "tty" | "proc"} Tool */
 /** The tabs' element ids, by tool. */
 const TAB_IDS = { program: "tab-program", tty: "tab-tty", proc: "tab-proc" };
+
+/** The dock's least open height, px. */
+const DOCK_MIN = 120;
+/** A window this short, px, or shorter (a phone on its side): the dock opens folded at first. */
+const SHORT = 520;
+/** A window this narrow, px, or narrower: a phone, upright. */
+const NARROW = 700;
+/** The share of the window the dock takes until the reader chooses its height. */
+const DOCK_START = 0.3;
+/** One arrow key's step on the handle, px. */
+const KEY_STEP = 24;
+const STORE = "agt30.dock";
+
+/** The stage's least height in this window, px (U1): 320 on a desktop; on a phone, more of it. */
+export function stageMin() {
+  const h = window.innerHeight;
+  if (h <= SHORT) return Math.round(h * 0.65);
+  if (window.innerWidth <= NARROW) return Math.round(h * 0.55);
+  return 320;
+}
+/** The dock's least open height in this window, px. */
+const dockMin = () => Math.min(DOCK_MIN, Math.round(window.innerHeight * 0.25));
+
+/** @returns {{ tab?: Tool, height?: number, folded?: boolean }} */
+function load() {
+  try {
+    return JSON.parse(localStorage.getItem(STORE) ?? "{}");
+  } catch {
+    return {};
+  }
+}
 
 /**
  * @typedef {object} Dock
@@ -40,36 +62,69 @@ export function buildDock(onResize, onShow = () => {}) {
   const dock = /** @type {HTMLElement} */ (document.getElementById("dock"));
   const handle = /** @type {HTMLElement} */ (document.getElementById("dock-handle"));
   const fold = /** @type {HTMLButtonElement} */ (document.getElementById("dock-fold"));
-  let height = Math.max(DOCK_START_MIN, Math.round(window.innerHeight * DOCK_START_SHARE));
-  let folded = false;
+  const saved = load();
+  /**
+   * The height the reader chose with the handle, px, or null: until they do, the dock takes
+   * DOCK_START of the window. A window too small squeezes the dock but never changes what was
+   * chosen, so the dock comes back as the window does (and after a reload).
+   * @type {number | null}
+   */
+  let wanted = typeof saved.height === "number" ? saved.height : null;
+  let height = 0;
+  let folded = saved.folded ?? window.innerHeight <= SHORT;
   /** @type {Tool} */
-  let current = "program";
+  let current = saved.tab && saved.tab in TAB_IDS ? saved.tab : "program";
+  let starting = true;
+
+  const save = () => {
+    try {
+      localStorage.setItem(STORE, JSON.stringify({ tab: current, height: wanted === null ? undefined : Math.round(wanted), folded }));
+    } catch {
+      // private browsing: the dock is not remembered
+    }
+  };
+
+  /** The tallest the dock may be in this window: whatever leaves the stage its least, px. */
+  const maxHeight = () => {
+    const h = (/** @type {string} */ id) => document.getElementById(id)?.offsetHeight ?? 0;
+    return Math.max(dockMin(), document.body.clientHeight - h("topbar") - h("status") - h("dock-handle") - stageMin());
+  };
 
   const apply = () => {
-    const max = window.innerHeight - 56 - 30 - STAGE_MIN;
-    height = Math.max(DOCK_MIN, Math.min(max, height));
+    height = Math.max(dockMin(), Math.min(maxHeight(), wanted ?? Math.round(window.innerHeight * DOCK_START)));
     dock.classList.toggle("folded", folded);
     dock.style.height = folded ? "" : `${height}px`;
     fold.replaceChildren(icon(folded ? "keyboard_arrow_up" : "keyboard_arrow_down"));
     setTip(fold, t(folded ? "dock.unfold" : "dock.fold"));
     handle.setAttribute("aria-valuenow", String(folded ? 0 : height));
+    save();
     onResize();
+  };
+
+  /** The reader's height, by the handle: what the window allows of it is what they chose. @param {number} h */
+  const choose = (h) => {
+    wanted = h;
+    apply();
+    wanted = height;
+    save();
   };
 
   const select = tabs(/** @type {HTMLElement} */ (document.getElementById("dock-tabs")), (id) => {
     current = /** @type {Tool} */ (Object.keys(TAB_IDS).find((k) => TAB_IDS[/** @type {Tool} */ (k)] === id) ?? "program");
     const tab = document.getElementById(id);
     tab?.querySelector(".dot")?.setAttribute("hidden", "");
-    if (folded) {
+    // a tab chosen opens the dock; the one shown at the start leaves it as it was
+    if (folded && !starting) {
       folded = false;
       apply();
     }
+    save();
     if (current === "tty") {
       // the paper printed while hidden could not scroll: show its latest line
       const paper = document.getElementById("tty-paper");
       if (paper) {
         paper.scrollTop = paper.scrollHeight;
-        paper.focus({ preventScroll: true });
+        if (!starting) paper.focus({ preventScroll: true });
       }
     }
     onShow(current);
@@ -80,32 +135,37 @@ export function buildDock(onResize, onShow = () => {}) {
     apply();
   });
   handle.addEventListener("pointerdown", (e) => {
+    if (e.button) return;
+    e.preventDefault();
     handle.setPointerCapture(e.pointerId);
-    const y0 = e.clientY;
-    const h0 = folded ? DOCK_MIN : height;
-    folded = false;
+    handle.classList.add("dragging");
+    // the dock's foot stays where it is: its height is from there to the pointer
+    const bottom = dock.getBoundingClientRect().bottom;
     /** @param {PointerEvent} m */
     const move = (m) => {
-      height = h0 + (y0 - m.clientY);
-      apply();
+      folded = false;
+      choose(bottom - m.clientY);
     };
     const up = () => {
+      handle.classList.remove("dragging");
       handle.removeEventListener("pointermove", move);
       handle.removeEventListener("pointerup", up);
+      handle.removeEventListener("pointercancel", up);
     };
     handle.addEventListener("pointermove", move);
     handle.addEventListener("pointerup", up);
+    handle.addEventListener("pointercancel", up);
   });
   handle.addEventListener("keydown", (e) => {
     const d = e.key === "ArrowUp" ? KEY_STEP : e.key === "ArrowDown" ? -KEY_STEP : 0;
     if (!d) return;
     e.preventDefault();
     folded = false;
-    height += d;
-    apply();
+    choose(height + d);
   });
   window.addEventListener("resize", apply);
-  select("tab-program");
+  select(TAB_IDS[current]);
+  starting = false;
   apply();
 
   return {

@@ -120,7 +120,7 @@ The page is a fixed frame: top bar, stage, dock, status line. The page itself ne
 
 ### U1. The dock below the stage, three tools: Program, Teletype and Processor
 
-The dock is full width under the stage, resizable by its top edge, and folds to its tab bar.
+The dock is full width under the stage, resizable by the handle above it, and folds to its tab bar. As in the series, the handle is a row of its own that lights amber while pointed at or dragged; dragging keeps the dock's foot where it is; and the dock remembers its tab, its height and whether it is folded. *(v0.0.3)*
 - **Program** is the loaded program's card (U7).
 - **Teletype** is the paper and keyboard (U9).
 - **Processor** looks into the DPR-2 (U15). *(v0.0.2)*
@@ -197,13 +197,12 @@ The keyboard is active when the Teletype tab has the focus. Keys a PC keyboard l
 
 ### U10. The theme
 
-The theme is a dark Material 3 scheme, with tokens copied from the graduated simulators' `css/theme.css`, never linked.
-- **The brightest thing on screen is the phosphor.** The interface around it is cool and quiet.
+The theme is the simulator series' (the Altair 8800 and TRS-80 simulators'): a dark Material 3 scheme of neutral greys round an amber primary, with the series' controls (buttons, top-bar tool buttons, tabs, the segmented button, the switch, the field, menus, tooltips, dialogs, the dock's handle). *(v0.0.3: until then the AGT had a scheme of its own, cool blues, which set it apart from its siblings.)*
+- **The brightest thing on screen is the phosphor.** The interface around it is quiet.
 - **One colour has one meaning:**
-  - blue: the instrument;
-  - blue-grey: the machine's controls;
-  - amber: your turn;
-  - green: done;
+  - amber: what to press, and where you are (the open tab, the chosen reading, the processor's line, a part selected);
+  - green: on, and done;
+  - blue: the story and the data (links, symbols, the traces' X, the digital cables);
   - red: refused, or a fault.
 - **Every colour is a token** in `css/theme.css`. The canvas and three.js views read the same tokens.
 

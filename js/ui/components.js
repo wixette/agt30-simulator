@@ -207,7 +207,7 @@ window.addEventListener("resize", closeMenu);
 
 /**
  * Fills a host with a single-select segmented button: one choice of a few, always one chosen,
- * the chosen one marked with a check. Arrow keys, Home and End move the choice.
+ * the chosen one tinted (the simulator series' segmented button). Arrow keys, Home and End move the choice.
  * @param {HTMLElement} host
  * @param {string} name the group's screen-reader name
  * @param {Segment[]} segments
@@ -219,7 +219,7 @@ export function segmented(host, name, segments, onChange) {
   host.setAttribute("role", "radiogroup");
   host.setAttribute("aria-label", name);
   const buttons = segments.map((sg) => {
-    const b = el("button", { type: "button", role: "radio", "data-id": sg.id }, [el("span", { class: "segment-check" }, [icon("check")]), el("span", { text: sg.label })]);
+    const b = el("button", { type: "button", role: "radio", "data-id": sg.id }, [el("span", { text: sg.label })]);
     if (sg.tip) {
       b.setAttribute("data-tip-describes", "");
       setTip(b, sg.tip);
