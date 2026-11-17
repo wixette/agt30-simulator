@@ -37,6 +37,7 @@ export default {
 
   // ---- the Tube viewpoint ----
   "tube.ours": "A cutaway and a visible beam: views the real AGT never had.",
+  "tube.ours.short": "Cutaway and beam: not on the real AGT.",
   "tube.time": "Time",
   "beam.drawing": "Beam: on, drawing a line",
   "beam.moving": "Beam: off, a move to the next line",

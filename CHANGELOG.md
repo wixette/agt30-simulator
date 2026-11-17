@@ -10,6 +10,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 - The Tube's traces sit just above the console strip, however tall it is.
 - The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one centre line.
 - The Program tab's choices: the cards in a row are the same height.
+- The Tube on a phone (U2): the overlays pack down to the top and the foot, the traces to a slim box, and the view is framed between them; the strip is left to the other viewpoints. The note and the traces let touches through to the 3D view.
 - A way back (U17): the Programs menu ticks the program loaded and ends with Unload the program; the program card has Unload beside its title. Both reboot the terminal and show the list of programs again.
 - About has References and Close buttons at its foot, as in the series; a new References tab lists the history, Adage's documents, M. Howard's tapes and documents, and the simulator's source and research (U16).
 

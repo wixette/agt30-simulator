@@ -69,7 +69,7 @@ Same regions, same order: the top bar packed down to icons and the program's nam
 **The stage shows the machine at one level, from one viewpoint at a time.**
 - A viewpoint is a camera position with its overlays and, for some viewpoints, a 2D surface at the end of the flight.
 - The dock holds the tools.
-- The console strip stays under the stage whatever the viewpoint.
+- The console strip stays under the stage whatever the viewpoint, except the Tube on a phone (U2).
 
 ### The viewpoints of v0.0.1
 
@@ -140,7 +140,8 @@ A folded dock opens on Program when a program is chosen; an open one stays on th
 ### U2. Desktops first, phones too
 
 The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop, then phones (P11). Recent Chrome, Edge, Safari and Firefox are supported. The page narrows in steps, as the series' does:
-- **Under 700 px (a phone, upright):** the top bar keeps its icons and the program's name; the band's buttons and the strip pack down; a part's card spans the stage; the Tube's inset shrinks; the stage keeps at least 55 % of the height.
+- **Under 700 px (a phone, upright):** the top bar keeps its icons and the program's name; the band's buttons and the strip pack down, and Back keeps only its arrow; a part's card spans the stage; the stage keeps at least 55 % of the height.
+- **The Tube on a phone** (upright or on its side): the overlays keep to the top and the foot and the view is framed between them. Time is a compact segmented button without its label; the note is one short line (the beam's state is in the traces' status line); the inset shrinks; the traces pack down to a slim box, each lane named by its letter, the status one sentence. The console strip is not shown there: the dials and keys are in the other viewpoints. On its side, Time and the note share a row and the inset sits at the foot beside the traces. The note and the traces let touches through to the 3D view, at every size. *(after the manual check: on a phone the overlays covered the Tube, leaving the view no room and no way to turn it.)*
 - **Under 480 px:** the dock's tabs show only their icons.
 - **A phone on its side** (520 px tall or less): the stage keeps 65 % of the height, the dock opens folded at first, and the strip drops its labels.
 

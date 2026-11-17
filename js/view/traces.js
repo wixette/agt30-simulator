@@ -4,7 +4,8 @@
 // viewpoint, R20): X and Y, the deflection the vector generator ramps from one end point to the
 // next, and Z, the beam on (how bright) or blanked for a move. The whole frame is drawn faintly,
 // what has been drawn so far brightly, with a cursor at now: in slowed time the cursor walks
-// along as the beam draws on the scope. Its words come from the page (U11).
+// along as the beam draws on the scope. Its words come from the page (U11). On a narrow or short
+// canvas (a phone, P11) it packs down: each lane named by its letter beside it, the status one sentence.
 
 import { token } from "./theme.js";
 import { beamAt } from "./beam.js";
@@ -21,6 +22,10 @@ import { framesPerSecond } from "../sim/frameclock.js";
  * @property {string} empty nothing on the display
  * @property {(state: "waiting" | "preparing" | "drawing" | "moving", us: number, total: number, fps: number, rate: number) => string} status
  */
+
+/** Narrower than this, px, or shorter than COMPACT_H, the traces pack down. */
+const COMPACT = 480;
+const COMPACT_H = 100;
 
 export class TracesView {
   /**
@@ -41,7 +46,7 @@ export class TracesView {
     const r = canvas.getBoundingClientRect();
     const dpr = Math.min(2, globalThis.devicePixelRatio || 1);
     const W = Math.max(200, Math.round(r.width * dpr));
-    const H = Math.max(120, Math.round(r.height * dpr));
+    const H = Math.max(60, Math.round(r.height * dpr));
     if (canvas.width !== W || canvas.height !== H) {
       canvas.width = W;
       canvas.height = H;
@@ -53,18 +58,19 @@ export class TracesView {
       { key: "z", name: this.labels.z, color: token("--phosphor", "#7dff9b"), lo: 0, hi: 1 },
     ];
     ctx.clearRect(0, 0, W, H);
-    ctx.font = `${11 * dpr}px ui-monospace, Menlo, monospace`;
+    const compact = r.width < COMPACT || r.height < COMPACT_H;
+    ctx.font = `${(compact ? 10 : 11) * dpr}px ui-monospace, Menlo, monospace`;
     ctx.textBaseline = "top";
     // the frame on the screen now: the last one that started
     const f = [...term.frames].reverse().find((q) => q.start <= term.now);
-    const left = 8 * dpr;
+    const left = (compact ? 20 : 8) * dpr;
     const right = W - 8 * dpr;
     const top = 4 * dpr;
-    const axis = 16 * dpr;
+    const axis = (compact ? 14 : 16) * dpr;
     const laneH = (H - top - axis) / 3;
     if (!f || f.end <= f.start) {
       ctx.fillStyle = ink;
-      ctx.fillText(this.labels.empty, left, top);
+      ctx.fillText(this.labels.empty, 8 * dpr, top);
       return;
     }
     // from the frame's first stroke to its end (before it, the processor prepares the frame)
@@ -86,7 +92,9 @@ export class TracesView {
     }
     lanes.forEach((lane, li) => {
       const y0 = top + li * laneH;
-      const Y = (/** @type {number} */ v) => y0 + laneH - 4 * dpr - ((v - lane.lo) / (lane.hi - lane.lo)) * (laneH - 18 * dpr);
+      // the lane's name above its signal; packed down, its letter beside it
+      const room = compact ? laneH - 6 * dpr : laneH - 18 * dpr;
+      const Y = (/** @type {number} */ v) => y0 + laneH - (compact ? 3 : 4) * dpr - ((v - lane.lo) / (lane.hi - lane.lo)) * room;
       ctx.strokeStyle = ink;
       ctx.globalAlpha = 0.25;
       ctx.lineWidth = 1;
@@ -97,7 +105,11 @@ export class TracesView {
       ctx.stroke();
       ctx.globalAlpha = 1;
       ctx.fillStyle = lane.color;
-      ctx.fillText(lane.name, left, y0);
+      if (compact) {
+        ctx.textBaseline = "middle";
+        ctx.fillText(lane.name.trim().charAt(0), 8 * dpr, y0 + laneH / 2);
+        ctx.textBaseline = "top";
+      } else ctx.fillText(lane.name, left, y0);
       // the signal: a ramp along each stroke, held between strokes; Z steps
       for (const pass of [0, 1]) {
         ctx.strokeStyle = lane.color;
@@ -138,7 +150,9 @@ export class TracesView {
     ctx.fillStyle = ink;
     const us = Math.max(0, Math.min(term.now, t1) - t0);
     const state = term.now > t1 ? "waiting" : term.now < t0 ? "preparing" : b.drawing ? "drawing" : "moving";
-    ctx.fillText(this.labels.status(state, us, t1 - t0, framesPerSecond(term.rate), term.rate), left, H - axis + 3 * dpr);
+    const status = this.labels.status(state, us, t1 - t0, framesPerSecond(term.rate), term.rate);
+    // packed down, the first sentence: where the beam is in the frame
+    ctx.fillText(compact ? status.replace(/(\.)\s.*$/, "$1") : status, compact ? 8 * dpr : left, H - axis + 3 * dpr);
   }
 }
 

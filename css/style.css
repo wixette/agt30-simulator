@@ -136,8 +136,11 @@ code, pre, .mono { font-family: var(--mono); }
 /* the Tube viewpoint: its time, its traces and the live inset (V4, V5) */
 #tube-overlay { pointer-events: none; z-index: 2; }
 #tube-overlay > * { pointer-events: auto; }
+/* what is only read lets the pointer through to the 3D view, to turn and zoom it */
+#tube-overlay > .tube-note, #tube-overlay > #traces { pointer-events: none; }
 /* a viewpoint's own controls sit under the viewpoint menu (V5): the Tube's time */
 .tube-time { position: absolute; top: 56px; left: 12px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-full); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); }
+.tube-note .ours-short { display: none; }
 .beam-state { display: block; margin-top: 4px; color: var(--md-on-surface); font-weight: 600; }
 .beam-state[data-on="true"] { color: var(--phosphor); }
 .tube-note { position: absolute; top: 100px; left: 12px; max-width: 300px; margin: 0; padding: 6px 10px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); color: var(--md-on-surface-variant); font-size: 12px; }
@@ -371,17 +374,13 @@ code, pre, .mono { font-family: var(--mono); }
   .dial svg { width: 36px; height: 36px; }
   .pen { width: 116px; font-size: 11px; }
   .card { left: 8px; right: 8px; width: auto; top: 50px; }
-  #stage[data-view="tube"] .card { top: 160px; }
-  .tube-time { top: 48px; left: 6px; }
-  .tube-note { top: 90px; left: 6px; max-width: 58%; font-size: 11px; }
-  #inset { top: 48px; right: 6px; width: 96px; height: 96px; }
-  #traces { left: 6px; right: 6px; width: calc(100% - 12px); }
   .dock-pane { padding: 6px 10px 12px; }
   #tty-paper { font-size: 13px; line-height: 20px; padding: 4px 8px; }
   /* the empty paper's hint: under the date line, not over it, and as wide as the paper in view */
   #tty-paper { display: flex; flex-direction: column; }
   #tty-text { order: 1; }
   .tty-empty { order: 2; position: sticky; left: 0; top: auto; transform: none; width: auto; margin-top: 6px; text-align: left; font-size: 13px; line-height: 1.5; }
+  #stage[data-view="tube"] .card { top: 140px; }
   .proc-ours { flex-basis: 100%; font-size: 11px; }
   .proc-line { gap: 10px; padding: 0 6px; }
   #status { padding: 0 10px; }
@@ -392,6 +391,32 @@ code, pre, .mono { font-family: var(--mono); }
   .dock-tab { padding: 0 14px; }
 }
 /* a phone on its side: the stage keeps most of the height (js/app/dock.js), the strip packs down */
+@media (max-width: 700px), (max-height: 520px) and (orientation: landscape) {
+  /* the Tube, packed down (P11): the overlays keep to the top and the foot, the middle free for the
+     3D view, which is framed below them (js/app/stage.js) */
+  /* the dials and keys are in the other viewpoints: here the traces take the foot */
+  #stage[data-view="tube"] #strip { display: none; }
+  #band .btn.small.has-icon span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #band .btn.small.has-icon { width: 34px; padding: 0; justify-content: center; }
+  .tube-time { top: 50px; left: 6px; padding: 2px; }
+  .tube-time .strip-label { display: none; }
+  .tube-time .segmented { height: 28px; }
+  .tube-time .segmented button { padding: 0 10px; font-size: 12px; }
+  .tube-note { top: 84px; left: 6px; right: 84px; max-width: none; padding: 3px 8px; font-size: 11px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tube-note .ours { display: none; }
+  .tube-note .ours-short { display: inline; }
+  /* the beam's state is the traces' status line here (js/view/traces.js) */
+  .beam-state { display: none; }
+  #inset { top: 50px; right: 6px; width: 72px; height: 72px; }
+  #traces { left: 6px; right: 6px; width: calc(100% - 12px); height: 76px; bottom: calc(var(--strip-space, 128px) - 10px); }
+}
+/* the Tube on a phone on its side: Time and the note on one row, the traces and the inset at the
+   foot, the view between them */
+@media (max-height: 520px) and (orientation: landscape) {
+  .tube-note { top: 50px; left: 230px; right: auto; max-width: calc(100% - 240px); }
+  #inset { top: auto; bottom: 6px; width: 64px; height: 64px; }
+  #traces { right: auto; width: calc(100% - 82px); height: 64px; }
+}
 @media (max-height: 520px) and (orientation: landscape) {
   :root { --bar-h: 44px; }
   #strip { bottom: 4px; padding: 4px 8px 6px; gap: 8px; }
