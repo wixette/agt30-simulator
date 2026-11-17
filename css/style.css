@@ -92,10 +92,10 @@ code, pre, .mono { font-family: var(--mono); }
 
 /* ---- the top bar (U3) ---- */
 #topbar { display: flex; align-items: center; gap: 6px; padding: 0 8px 0 14px; background: var(--md-surface-low); border-bottom: 1px solid var(--md-outline-variant); min-width: 0; }
-.brand { display: flex; align-items: baseline; gap: 10px; margin-right: 12px; min-width: 0; }
+.brand { display: flex; align-items: center; gap: 10px; margin-right: 12px; min-width: 0; }
 .brand-name { font-size: 17px; font-weight: 650; letter-spacing: 0.01em; white-space: nowrap; }
 .brand-tag { color: var(--md-on-surface-variant); font-size: 13px; white-space: nowrap; }
-.brand-mark { width: 30px; height: 30px; align-self: center; }
+.brand-mark { width: 30px; height: 30px; }
 #programs-label { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
 /* sets the terminal's power apart from the Programs menu, so the two do not read as one */
 .bar-sep { width: 1px; height: 24px; margin: 0 8px; background: var(--md-outline-variant); }
