@@ -475,6 +475,17 @@ const DT_NAME = ["IHW", "RHW", "IFW", "RFW", "?4", "?5", "IRL", "RRL"];
 const AM_NAME = ["", "I", "?2", "?3", "DIR", "STR", "?6", "?7"];
 
 /**
+ * An item as ADEPT would write it: its name, data type and address mode, and its arguments in octal.
+ * @param {Decoded} d
+ * @returns {string}
+ */
+export function itemText(d) {
+  const mods = d.dt ? `'${DT_NAME[d.dt]}${d.am ? "'" + AM_NAME[d.am] : ""}` : "";
+  const args = d.args.map((a) => oct(a, 5)).join(", ");
+  return `${d.name}${mods}${args ? " (" + args + ")" : ""}`;
+}
+
+/**
  * One line of a listing: address, the item's words in octal, and the item as ADEPT would write it.
  * @param {Core} core
  * @param {Decoded} d
@@ -483,7 +494,5 @@ const AM_NAME = ["", "I", "?2", "?3", "DIR", "STR", "?6", "?7"];
 export function listItem(core, d) {
   const words = [];
   for (let i = 0; i < d.len; i++) words.push(oct(core.read(d.addr + i)));
-  const mods = d.dt ? `'${DT_NAME[d.dt]}${d.am ? "'" + AM_NAME[d.am] : ""}` : "";
-  const args = d.args.map((a) => oct(a, 5)).join(", ");
-  return `${oct(d.addr, 5)}  ${words.join(" ").padEnd(22)}  ${d.name}${mods}${args ? " (" + args + ")" : ""}`;
+  return `${oct(d.addr, 5)}  ${words.join(" ").padEnd(22)}  ${itemText(d)}`;
 }

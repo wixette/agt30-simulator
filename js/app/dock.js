@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// The dock under the stage (docs/ui-design.md, U1): two tools, Program and Teletype, one at a
-// time. It is resized by its top edge (drag, or the arrow keys on the handle), folds to its tab
+// The dock under the stage (docs/ui-design.md, U1): three tools, Program, Teletype and Processor,
+// one at a time. It is resized by its top edge (drag, or the arrow keys on the handle), folds to its tab
 // bar, and marks a tab with a dot when something new happens on it out of sight. The stage keeps
 // at least 320 px.
 
@@ -16,25 +16,31 @@ const DOCK_START = 210;
 /** One arrow key's step on the handle, px. */
 const KEY_STEP = 24;
 
+/** @typedef {"program" | "tty" | "proc"} Tool */
+/** The tabs' element ids, by tool. */
+const TAB_IDS = { program: "tab-program", tty: "tab-tty", proc: "tab-proc" };
+
 /**
  * @typedef {object} Dock
- * @property {(id: "program" | "tty") => void} show selects a tab and opens the dock
- * @property {(id: "program" | "tty") => void} mark puts a dot on a tab not in view
+ * @property {(id: Tool) => void} show selects a tab and opens the dock
+ * @property {(id: Tool) => void} mark puts a dot on a tab not in view
  * @property {() => boolean} ttyShown whether the Teletype is in view
+ * @property {() => boolean} procShown whether the Processor is in view
  * @property {() => boolean} isFolded whether the dock is folded to its tab bar
  */
 
 /**
  * @param {() => void} onResize called when the stage's size changes
+ * @param {(id: Tool) => void} [onShow] called when a tab is selected
  * @returns {Dock}
  */
-export function buildDock(onResize) {
+export function buildDock(onResize, onShow = () => {}) {
   const dock = /** @type {HTMLElement} */ (document.getElementById("dock"));
   const handle = /** @type {HTMLElement} */ (document.getElementById("dock-handle"));
   const fold = /** @type {HTMLButtonElement} */ (document.getElementById("dock-fold"));
   let height = DOCK_START;
   let folded = false;
-  /** @type {"program" | "tty"} */
+  /** @type {Tool} */
   let current = "program";
 
   const apply = () => {
@@ -49,7 +55,7 @@ export function buildDock(onResize) {
   };
 
   const select = tabs(/** @type {HTMLElement} */ (document.getElementById("dock-tabs")), (id) => {
-    current = id === "tab-tty" ? "tty" : "program";
+    current = /** @type {Tool} */ (Object.keys(TAB_IDS).find((k) => TAB_IDS[/** @type {Tool} */ (k)] === id) ?? "program");
     const tab = document.getElementById(id);
     tab?.querySelector(".dot")?.setAttribute("hidden", "");
     if (folded) {
@@ -64,6 +70,7 @@ export function buildDock(onResize) {
         paper.focus({ preventScroll: true });
       }
     }
+    onShow(current);
   });
 
   fold.addEventListener("click", () => {
@@ -101,15 +108,16 @@ export function buildDock(onResize) {
 
   return {
     show(id) {
-      select(id === "tty" ? "tab-tty" : "tab-program");
+      select(TAB_IDS[id]);
     },
     mark(id) {
       if (current === id && !folded) return;
-      const dot = document.getElementById(id === "tty" ? "tab-tty" : "tab-program")?.querySelector(".dot");
+      const dot = document.getElementById(TAB_IDS[id])?.querySelector(".dot");
       dot?.removeAttribute("hidden");
       dot?.setAttribute("aria-label", t("dock.activity"));
     },
     ttyShown: () => current === "tty" && !folded,
+    procShown: () => current === "proc" && !folded,
     isFolded: () => folded,
   };
 }

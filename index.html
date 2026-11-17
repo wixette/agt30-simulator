@@ -26,6 +26,7 @@
         "./js/app/dock.js": "./js/app/dock.js?v=0.0.1",
         "./js/app/link.js": "./js/app/link.js?v=0.0.1",
         "./js/app/main.js": "./js/app/main.js?v=0.0.1",
+        "./js/app/processor.js": "./js/app/processor.js?v=0.0.1",
         "./js/app/programCard.js": "./js/app/programCard.js?v=0.0.1",
         "./js/app/runner.js": "./js/app/runner.js?v=0.0.1",
         "./js/app/selftest.js": "./js/app/selftest.js?v=0.0.1",
@@ -47,6 +48,7 @@
         "./js/sim/font.js": "./js/sim/font.js?v=0.0.1",
         "./js/sim/frameclock.js": "./js/sim/frameclock.js?v=0.0.1",
         "./js/sim/image.js": "./js/sim/image.js?v=0.0.1",
+        "./js/sim/listing.js": "./js/sim/listing.js?v=0.0.1",
         "./js/sim/programs.js": "./js/sim/programs.js?v=0.0.1",
         "./js/sim/teletype.js": "./js/sim/teletype.js?v=0.0.1",
         "./js/sim/terminal.js": "./js/sim/terminal.js?v=0.0.1",
@@ -120,6 +122,7 @@
         <div id="dock-tabs" role="tablist">
           <button id="tab-program" class="dock-tab" role="tab" aria-controls="pane-program" type="button"><span data-l10n="dock.program"></span><span class="dot" hidden></span></button>
           <button id="tab-tty" class="dock-tab" role="tab" aria-controls="pane-tty" type="button"><span data-l10n="dock.teletype"></span><span class="dot" hidden></span></button>
+          <button id="tab-proc" class="dock-tab" role="tab" aria-controls="pane-proc" type="button"><span data-l10n="dock.processor"></span><span class="dot" hidden></span></button>
         </div>
         <span class="spacer"></span>
         <button id="dock-fold" class="btn icon-only" type="button" data-l10n-tip="dock.fold"><i data-icon="keyboard_arrow_down"></i></button>
@@ -136,6 +139,23 @@
           <div id="tty-empty" class="tty-empty" data-l10n="tty.empty"></div>
           <pre id="tty-text"></pre>
         </div>
+      </div>
+      <div id="pane-proc" class="dock-pane" role="tabpanel" aria-labelledby="tab-proc" hidden>
+        <div class="proc-bar">
+          <label class="proc-goto"><span data-l10n="proc.goto"></span> <input id="proc-goto" class="mono" type="text" spellcheck="false" autocomplete="off" data-tip-describes data-l10n-tip="proc.goto.tip"></label>
+          <button id="proc-go" class="btn small tonal" type="button"><span data-l10n="proc.go"></span></button>
+          <span id="proc-modes" class="proc-modes" role="group">
+            <button id="proc-mode-code" class="btn small" type="button" aria-pressed="true" data-tip-describes data-l10n-tip="proc.mode.code.tip"><span data-l10n="proc.mode.code"></span></button>
+            <button id="proc-mode-items" class="btn small" type="button" aria-pressed="false" data-tip-describes data-l10n-tip="proc.mode.items.tip"><span data-l10n="proc.mode.items"></span></button>
+            <button id="proc-mode-words" class="btn small" type="button" aria-pressed="false" data-tip-describes data-l10n-tip="proc.mode.words.tip"><span data-l10n="proc.mode.words"></span></button>
+          </span>
+          <button id="proc-follow" class="switch" type="button" role="switch" aria-checked="true" data-tip-describes data-l10n-tip="proc.follow.tip"><span class="switch-track"><span class="switch-thumb"></span></span><span data-l10n="proc.follow"></span></button>
+          <span class="spacer"></span>
+          <span class="proc-ours" data-l10n="proc.ours"></span>
+        </div>
+        <div id="proc-regs" class="proc-regs mono"></div>
+        <div id="proc-state" class="proc-state"></div>
+        <div id="proc-list" class="proc-list mono" tabindex="0" data-l10n-tip="proc.list.tip"></div>
       </div>
     </section>
 

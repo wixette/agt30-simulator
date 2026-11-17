@@ -30,6 +30,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
   - 1,000 random lines, the paper's measure of the array, which you can push until the picture no longer fits a frame.
 - **The console:** six dials, sixteen function keys and PULSE 1, and the light pen.
 - **The Teletype and the AMOS monitor:** type statements yourself, such as `DSPLY (V.CUBE, 2)!`.
+- **The Processor tab:** the DPR-2's registers and interrupts, and core listed with the programs' symbols, as instructions, display items or words, following the processor as it runs. A view the real AGT never had.
 
 ## Run it on your own machine
 
