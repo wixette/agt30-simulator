@@ -47,16 +47,16 @@ Then open <http://localhost:8000/>. (Opening `index.html` from disk does not wor
 
 Some of the hardware is documented only in part, and v0.0.1 was built before we knew of any of the AGT's software in public. M. Howard's images of NCSU's tapes, published in 2025 with real ADEPT source and binaries, have since come to our attention ([research/ncsu-tapes.md](research/ncsu-tapes.md)); since v0.0.2 the simulator takes its instruction encodings from them. Where the documents stop, the simulator chooses. Each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each.
 
-- **R1.** The DPR-2's instruction encodings: the layout and most codes are from the NCSU tapes; the codes of the instructions they do not use are ours.
+- **R1.** Settled: the DPR-2's instruction encodings and what each instruction does are the processor's manual's, which the NCSU tapes bear out.
 - **R2.** DSPLY is JavaScript, charged at the documented processor time; some of its times are estimates.
 - **R3.** Three gaps in the image format are filled our way.
 - **R4.** The programs are ours, written before we knew of the NCSU tapes.
 - **R5.** The array's analog drift is modelled but off.
-- **R6.** The multiply unit's product is the integer product of two 15-bit numbers.
-- **R7.** A dial is read by comparing it with the array's X register.
+- **R6.** Settled: the multiply unit's results are as the processor's manual gives them.
+- **R7.** A dial is read through the array's input selector and converter, as on the AGT/30; how the selector's word chooses the dial is ours.
 - **R8.** The assembler is ADEPT as its manual describes it, without action operators or relocatable output, and with our syntax for display items' arguments.
-- **R9.** What the monitor types back is ours: echoes, results and ?.
-- **R10.** Interrupts: the pen, the Teletype and the frame clock are served directly.
+- **R9.** What the monitor types back is ours: echoes, results and ?; the Teletype takes a whole character at a time, not a bit.
+- **R10.** Interrupts: the pen, the Teletype and the frame clock are served directly; the program interrupt's pivot is ours.
 - **R11.** The pen-hit table's layout and PENHT's code are ours.
 - **R12.** Dash mode draws about ten dashes an inch.
 - **R13.** The tunnel's perspective routine is JavaScript, charged an estimated time.

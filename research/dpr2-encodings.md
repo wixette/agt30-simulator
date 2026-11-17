@@ -48,7 +48,7 @@ The arithmetic unit's operations sit in its destinations, 15–17, in bits 2–5
 
 PINT is used only inside a macro, which the pairing does not follow; its value comes from assembling RCD (below).
 
-Not seen on the tripp tape: JSLS, SKAN, SKLS, OPIO, the other multiplies and divides, the Teletype's instructions, and the modifier 'E.
+Not seen on the tripp tape: JSLS, OPIO, the other multiplies and divides, the Teletype's instructions, and the modifier 'E. Their codes, and the meaning of every field, are now known from the processor's manual ([dpr2-manual.md](dpr2-manual.md)).
 
 ## Compared with v0.0.1
 
@@ -67,7 +67,7 @@ Not seen on the tripp tape: JSLS, SKAN, SKLS, OPIO, the other multiplies and div
 
 What the instructions do is not changed by this: only their octal words are, and the numbers of BR and IC. 'L is new.
 
-Applied in v0.0.2 (`ENCODING` and `OPS` in `js/sim/dpr2.js`; the acceptance check CPU-4 pins the values above). The simulator also runs 'L. The instructions the tapes do not show keep codes of ours: JSLS 00120, following JPSR and JSAN (a jump less 20); SKAN 00400, SKLS 00420, OPIO 00600, the Teletype's OPTY 00640 and OPTI 00660; MPYU 15400, MPYL 15420, DIVU 16400, DIVL 16420.
+Applied in v0.0.2 (`ENCODING` and `OPS` in `js/sim/dpr2.js`; the acceptance check CPU-4 pins the values above). The simulator also runs 'L. The codes the tapes do not show were ours at first; the manual has since given them all, and two of ours were wrong (OPTY, OPTI) and two not DPR-2 instructions (SKAN, SKLS): see [dpr2-manual.md](dpr2-manual.md) and CPU-5.
 
 ## Assembling the sources
 
@@ -89,9 +89,9 @@ FACTC's ASCII string settles the LCG1 packing as the manual draws it: four 7-bit
 
 His message showed the resident monitor as his disassembler reads it (MH26). Everything it showed agrees with the pairs: the kind in bits 0–1 (01 memory, 11 'F, 10 'L), the destination in bits 2–5, the source in bits 6–8, 'X in bit 13; JPSR 00020, FPRI 00360, MDAR 21000, ARMD 20100.
 
-## Still open
+## Still open, and what has settled it
 
-- The relocation flags: two bits for each item, read from the left, an entry pair counting as one. 10 marks a relocatable word, 00 an absolute one; what 11 and 01 mark is not clear. The words after the length, marked 60, are not understood. Neither is needed for the layout or the assembler.
+- The relocation flags: settled by ADEPT71 (Appendix C). The word is rotated left one bit before its first two-bit code is read, so ours were read one bit out of step: 00 is absolute, 01 relative to the program, 10 to a common block, 11 a special sub-code. The words marked 60 are "End of program" sub-codes, which pad the last record ([dpr2-manual.md](dpr2-manual.md)).
 - A pair marked 00 (DTRR in ADCR), as above.
-- What AN tests, and what 'H rotates by (R1). AMRMX bears out our reading of LS, of 'B and 'K, and of a conditional transfer, and agrees with that of AN ([amrmx.md](amrmx.md)).
+- What AN tests, and what 'H rotates by: settled by the manual (AR[0]; 15 bits). LS counts −0, which our reading did not ([dpr2-manual.md](dpr2-manual.md)).
 - Instructions the tripp routines do not use: AMRMX on the system pack uses more of them.

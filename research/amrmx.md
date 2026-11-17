@@ -32,7 +32,7 @@ So at NCSU the display was run, at least for text, by a DPR-2 program, as R2 sup
 
 ## Still open
 
-- **PINT.** It comes just before the returns from the monitor's entry routine, which restore pivot 77771; what it does is not clear.
+- **PINT.** It comes just before the returns from the monitor's entry routine, which restore pivot 77771, AR overflow's (DISP2, DPIIO). The processor's manual has since given what PINT does: a request on priority channel 14 ([dpr2-manual.md](dpr2-manual.md)).
 - **PULSE.** The resident monitor does not use it as an instruction.
 - **Destination 07.** What GDD1 does with the words written to it (R7: v0.0.2 uses it only to choose a dial).
 - **The display overlay in full,** and whether the games carry their own display code (R2, R4).

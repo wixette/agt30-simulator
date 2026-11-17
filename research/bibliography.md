@@ -15,6 +15,9 @@ The keys used across the repository: in docs, code comments and the `source` fie
 | GIM72 | *Adage Graphics Systems General Information Manual*, 1972 | <http://www.bitsavers.org/pdf/adage/agt/Adage_Graphics_Systems_General_Information_Manual_1972.pdf> |
 | HT66 | T. G. Hagan, R. Treiber, "Hybrid analog/digital techniques for signal processing applications", *AFIPS Spring Joint Computer Conference* 1966, vol. 28, pp. 379–388 | ACM Digital Library |
 | DPR2BD | "Processor, DPR2 — Subsystem Programming Instructions": its block diagram, one page, scanned in MH25 (`doc/AGT_Architecture.pdf`); transcribed in [dpr2-block-diagram.md](dpr2-block-diagram.md) | MH25 |
+| DPR2SPI | *Digital Processor, DPR2: Subsystem Programming Instructions*, 11/68, some pages revised 1/69 (DPR2/SPI/A, /B). Cited by its printed page numbers. Read in [dpr2-manual.md](dpr2-manual.md) | MH25 (`doc/DPR2-SPI.zip`) |
+| ADEPT71 | *Adage Extendable Program Translator, ADEPT: Programmer's Reference Manual*, Revision I, September 1971 (ADEPT/PRM/I): with the codes of the instructions and the format of relocatable files | MH25 (`doc/ADEPT_PRM.pdf`) |
+| AMRMX71 | *AMOS Resident Monitor, AMRMX: Programmer's Reference Manual*, Revision J, May 1971 (AMRMX/PRM/J) | MH25 (`doc/AMRMX_PRM.pdf`) |
 
 ## Others
 
@@ -29,4 +32,5 @@ The keys used across the repository: in docs, code comments and the `source` fie
 | RT | L. Shustek, readtape, the program that read the tapes in MH25 | <https://github.com/LenShustek/readtape> |
 | NE26 | N. England, personal communication, November 2026 ([correspondence.md](correspondence.md)) | |
 | MH26 | M. Howard, personal communication, November 2026 ([correspondence.md](correspondence.md)) | |
+| MHN | M. Howard's notes on the DPR-2: the IC register's bits, the sense lines, the priority channels, the sources and destinations (a spreadsheet) | MH25 (`doc/NOTES.xlsx`) |
 | ASR33 | "Teletype Model 33", Wikipedia: the ASR-33's size on its stand | <https://en.wikipedia.org/wiki/Teletype_Model_33> |

@@ -8,7 +8,7 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { assembleOp, disassemble, onesAdd, TIME } from "../sim/dpr2.js";
+import { assembleOp, CHANNEL, disassemble, onesAdd, OPS, PIPVT, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
@@ -365,12 +365,13 @@ export const MODEL_CHECKS = [
   },
   {
     id: "CPU-2",
-    title: "JPSR stores the return at A and continues at A+1; a routine takes its arguments after the call (SRM5 DPR3 p. 6; AMRMX p. 3)",
+    title: "JPSR stores the return at A and continues at A+1; a routine takes its arguments after the call (DPR2SPI pp. 35, 51-53; AMRMX p. 3)",
     run(ctx) {
       const agt = ctx.boot();
-      const r = assemble(agt.core, "S: 0\n MDAR'I'X S\n MDAE'I'X S\n JUMP'I S\nGO: JPSR S; 7; 5\n JUMP GO\n", USER_AT);
+      const r = assemble(agt.core, "S: 0\n MDAR'I S\n MDAE'I'X S\n JUMP'I'X S\nGO: JPSR S; 7; 5\n JUMP GO\n", USER_AT);
       equal(r.errors.length, 0, "assembled");
-      // S adds the two words after the call: it reads them through its return address, stepping it
+      // S adds the two words after the call: it reads them through its return address, which
+      // 'X steps before each use (DPR2SPI pp. 51-53)
       const go = agt.core.addr("GO");
       agt.core.write(go + 3, assembleOp("JUMP", go + 3));
       const run = agt.cpu.run(go, go + 3, 1000);
@@ -380,15 +381,16 @@ export const MODEL_CHECKS = [
   },
   {
     id: "CPU-3",
-    title: "RVCD reads a dial through the array's comparator to 2 LSB, in under 1 ms (SRM5 GHA4; R7)",
+    title: "RVCD reads a dial through GDD1 and ADC5 to 1 LSB: selecting the input starts the conversion, its result is S5[15-29] (DPR2SPI p. 41; DPR2BD; R7)",
     run(ctx) {
       const agt = ctx.boot();
       for (const v of [0.3, -0.71, 0.0005, 0.999]) {
         agt.setDial(2, v);
         const r = agt.cpu.call(agt.core.addr("RVCD"), [2], USER_AT, 10000);
         ok(r.done, "returned");
-        near(fromFrac(agt.cpu.AR & 0o77777), v, 2 * LSB, `dial at ${v}`);
-        ok(r.us < 1000, `in ${r.us} us`);
+        near(fromFrac(agt.cpu.AR & 0o77777), v, LSB, `dial at ${v}`);
+        equal(agt.cpu.AR >= 0o4000000000, v < 0, "its sign through the whole word");
+        ok(r.us < 100, `in ${r.us} us`);
       }
     },
   },
@@ -416,6 +418,148 @@ export const MODEL_CHECKS = [
       agt.cpu.step();
       equal(agt.cpu.AR, 0o1234, "MDAR'L loads the next word");
       equal(agt.cpu.LC, at + 2, "and skips it");
+    },
+  },
+
+  {
+    id: "CPU-5",
+    title: "The special instructions' codes are Adage's (DPR2SPI p. 36, Figure 6; ADEPT71 p. 41; R1)",
+    run() {
+      /** @type {[string, number][]} */
+      const codes = [
+        ["NOOP", 0], ["JPSR", 0o20], ["JUMP", 0o40], ["JSAN", 0o60], ["JPAN", 0o100], ["JSLS", 0o120], ["JPLS", 0o140],
+        ["OPTY", 0o160], ["OPCR", 0o200], ["SKUA", 0o220], ["SKLA", 0o240], ["CNVT", 0o320], ["UPRI", 0o340], ["FPRI", 0o360],
+        ["OPTI", 0o460], ["PINT", 0o560], ["OPIO", 0o600], ["MPYU", 0o15400], ["DIVU", 0o16400], ["MPYL", 0o15420],
+        ["DIVL", 0o16420], ["MPYI", 0o15440], ["DIVI", 0o16440], ["ARRS", 0o17440], ["ARLS", 0o17500], ["NORM", 0o17520],
+        ["ERAR", 0o17540],
+      ];
+      for (const [m, code] of codes) equal(OPS[m], code, m);
+      equal(Object.keys(OPS).length, codes.length, "and no others");
+      equal(assembleOp("PULSE", 0), assembleOp("OPCR", 0), "PULSE, as the NCSU sources name it, is OPCR's code");
+      equal(assembleOp("ANAR", 0o123), 0o01260 * 0o100000 + 0o123, "ANAR, a conditional transfer (C13)");
+      equal(assembleOp("LSIR", 0o123), 0o04300 * 0o100000 + 0o123, "LSIR (C14)");
+    },
+  },
+  {
+    id: "CPU-6",
+    title: "AN is AR[0] set and LS is AR[15-29] not +0, so -0 is both; ANXO takes an absolute value (DPR2SPI pp. 37-38)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      const run = (/** @type {number} */ ar, /** @type {number} */ ins) => {
+        agt.core.write(at, ins);
+        agt.core.write(at + 1, assembleOp("NOOP", 0));
+        cpu.AR = ar;
+        cpu.LC = at;
+        cpu.step();
+        return cpu.LC;
+      };
+      equal(run(0o7777777777, assembleOp("JPAN", at + 5)), at + 5, "JPAN jumps on -0");
+      equal(run(0o7777777777, assembleOp("JPLS", at + 5)), at + 5, "JPLS jumps on -0: its lower half is not +0");
+      equal(run(0o7777700000, assembleOp("JPLS", at + 5)), at + 1, "JPLS does not jump on a lower half of +0");
+      equal(run(5, assembleOp("JPAN", at + 5)), at + 1, "JPAN does not jump on a positive AR");
+      equal(onesAdd(1, 0o7777777776, 30).sum, 0o7777777777, "1 - 1 is -0");
+      // the manual's example: ANXO MM, with -0 in MM, complements AR if it is negative
+      agt.core.write(at + 2, 0o7777777777);
+      equal(run(0o7777777772, assembleOp("ANXO", at + 2)) && cpu.AR, 5, "ANXO: |-5| is 5");
+      equal(run(5, assembleOp("ANXO", at + 2)) && cpu.AR, 5, "and |5| is 5");
+    },
+  },
+  {
+    id: "CPU-7",
+    title: "AS adds the operand's lower half, its sign extended, to all of AR; 'F's operand is the instruction itself; JPSR keeps the word's upper half (DPR2SPI pp. 24, 30, 35)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      const step = (/** @type {number[]} */ words, /** @type {number} */ ar) => {
+        words.forEach((w, i) => agt.core.write(at + i, w));
+        cpu.AR = ar;
+        cpu.LC = at;
+        cpu.step();
+      };
+      step([assembleOp("MDAS", 1, { F: true, N: true })], 0o0000100000);
+      equal(cpu.AR, 0o0000077777, "MDAS'F'N 1 subtracts 1 from all of AR: a borrow from the upper half");
+      step([assembleOp("MDAS", 0o40000, { F: true })], 0);
+      equal(cpu.AR, 0o7777740000, "an operand of 40000 is negative");
+      const w = assembleOp("MDBR", 0o1234, { F: true });
+      step([w], 0);
+      equal(cpu.BR, w, "MDBR'F BETA puts the instruction MDBR'F BETA into BR");
+      agt.core.write(at + 5, assembleOp("JUMP", 0));
+      step([assembleOp("JPSR", at + 5)], 0);
+      equal(agt.core.read(at + 5), assembleOp("JUMP", at + 1), "JPSR leaves JUMP in the word and sets its address to the return");
+      equal(cpu.LC, at + 6, "and continues after it");
+    },
+  },
+  {
+    id: "CPU-8",
+    title: "Indirect addresses chain while each word has 'I; 'X increments the word it points to before it is read (DPR2SPI pp. 32-33)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      const [alpha, beta, gamma, delta, kappa] = [at, at + 10, at + 11, at + 12, at + 20];
+      // the manual's example: ALPHA = OPER'I BETA, BETA = OPER'I'X GAMMA, GAMMA = OPER'I DELTA,
+      // DELTA+1 = OPER KAPPA; the effective argument is (KAPPA)
+      agt.core.write(alpha, assembleOp("MDAR", beta, { I: true }));
+      agt.core.write(beta, assembleOp("NOOP", gamma, { I: true, X: true }));
+      agt.core.write(gamma, assembleOp("NOOP", delta, { I: true }));
+      agt.core.write(delta + 1, assembleOp("NOOP", kappa));
+      agt.core.write(kappa, 0o1234567);
+      cpu.LC = alpha;
+      cpu.step();
+      equal(cpu.AR, 0o1234567, "(KAPPA) is the argument");
+      equal(agt.core.read(gamma), assembleOp("NOOP", delta + 1, { I: true }), "GAMMA became OPER'I DELTA+1");
+      // 'X without 'I: the word is incremented, then read
+      agt.core.write(alpha, assembleOp("MDAR", beta + 2, { X: true }));
+      agt.core.write(beta + 2, 0o77);
+      cpu.LC = alpha;
+      cpu.step();
+      equal(cpu.AR, 0o100, "MDAR'X reads the word as incremented");
+    },
+  },
+  {
+    id: "CPU-9",
+    title: "The EAU: a product in AR[0-28], its sign repeated in AR[29]; a quotient in AR[15-29], the remainder in AR[0-14] (DPR2SPI pp. 43-45, the manual's examples)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      /** @type {[string, number, number, number, number][]} op, AR, operand word, address, result */
+      const cases = [
+        ["MPYU", 0o32173, word(0o25406, 0), 0, word(0o21507, 0o43704)],
+        ["MPYL", 0o57467, 0o33505, 0, word(0o61660, 0o62057)],
+        ["MPYI", 0o24663, 0, 0o53101, word(0o62315, 0o42113)],
+        ["DIVU", word(0o50521, 0o66733), word(0o32440, 0), 0, word(0o25444, 0o43703)],
+        ["DIVL", word(0o74323, 0o64575), 0o06242, 0, word(0o04652, 0o55651)],
+      ];
+      for (const [op, ar, operand, imm, want] of cases) {
+        agt.core.write(at + 10, operand);
+        agt.core.write(at, assembleOp(op, imm || at + 10));
+        cpu.AR = ar;
+        cpu.LC = at;
+        cpu.step();
+        equal(oct(cpu.AR), oct(want), op);
+      }
+    },
+  },
+  {
+    id: "CPU-10",
+    title: "PINT requests priority channel 14, served as JPSR'I PIPVT (DPR2SPI p. 40; DPR2BD; the pivot's address is ours, R10)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      agt.core.write(PIPVT, at + 10);
+      agt.core.write(at, assembleOp("PINT", 0));
+      agt.core.write(at + 1, assembleOp("NOOP", 0));
+      cpu.LC = at;
+      cpu.step();
+      ok(cpu.pri.pending.has(CHANNEL.PINT), "a request on channel 14");
+      cpu.step();
+      equal(cpu.LC, at + 11, "served: the subroutine at the pivot's address is entered");
+      equal(lo(agt.core.read(at + 10)), at + 1, "and given the return");
     },
   },
 
