@@ -22,7 +22,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
 2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
 3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
-4. **Start again** with **Reboot** in the top bar.
+4. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
 
 ## The machine in a few minutes
 
@@ -51,13 +51,14 @@ The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room
 
 **The console strip**, under the picture, holds the dials, the function keys and the light pen.
 
-**The dock** below has three tabs. Drag its top edge to make it taller or shorter.
+**The dock** below has four tabs. Drag the handle above it to make it taller or shorter; it remembers its tab and height.
 - **Program:** the program loaded: what it rebuilds, how to use it, its switches, what in it is ours, and its statements and source.
 - **Teletype:** the paper and the keyboard. Click the paper and type statements yourself, each ended with `!`. Some to try:
   - `DSPLY (V.A)!` shows the letter A; `HALT!` stops the display.
   - `V!` asks the monitor its version.
   - `LIST (, RVCD, RVCD+5)!` lists six words of memory in octal.
 - **Processor:** a look inside the processor as it runs: its registers, and memory read as instructions, as picture items or as plain words. A view the real AGT never had.
+- **References:** where to read more: the history of the NCSU lab, Adage's documents, the tapes of the NCSU lab, and the simulator's own research. About's References button opens it too.
 
 **Seven programs**, from the Programs menu:
 - the letter A, the 1968 paper's first picture;
