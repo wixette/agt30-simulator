@@ -179,7 +179,7 @@ export default {
   "tty.kill.tip": "Throw away the statement being typed",
   "tty.clear": "Clear paper",
   "tty.clear.tip": "Tear off the paper; the machine is not disturbed",
-  "tty.empty": "Nothing has printed yet. Choose a program, or click here and type a statement, such as DSPLY (V.A)!",
+  "tty.empty": "The monitor is ready: it asked the date, and it has been answered for you. Choose a program, or click here and type a statement, such as DSPLY (V.A)!",
   "tty.paper": "The Teletype's paper. Type here to send to the AMOS monitor.",
 
   // ---- the status line (P7) ----

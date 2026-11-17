@@ -9,6 +9,7 @@ What the binary of NCSU's operating system, AMRMX, shows about the DPR-2, as rea
 - **The symbol table.** Cylinder 4, from word 6,656: 624 pairs, each a value then a five-character name. They agree with the labels in M. Howard's message. A value with an upper half names an overlay symbol: the upper half is the overlay's sector (its low nine bits, for the monitor's commands), the lower half the address.
 - **The overlays.** The commands and most handlers are loaded when needed. A call is a `JPSR OVLDR` followed by a word giving the overlay's sector and its load address: 72524 for the monitor's commands (START, LOADA, GOTO, SNAP, …), 70000 for the handlers (tape, disk, card reader, punch, the display). Sector times 104 gives the overlay's place on the pack; every overlay found this way has its routines' entry words where the symbol table puts them.
 - No routine on the pack is called DSPLY.
+- **Its words.** Among the monitor's texts on the pack are the date prompt `MO/DA/YR = ` and `DATE ERROR.`, the AMRMX71 manual's messages as the program types them. The simulator's monitor asks the date in these words (R9).
 
 ## What it settles
 

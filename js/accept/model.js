@@ -611,6 +611,42 @@ export const MODEL_CHECKS = [
       ok(agt.core.words.every((w, i) => w === before[i]), "core as at start");
     },
   },
+  {
+    id: "MON-5",
+    title: "The monitor asks the date when it is loaded, and the simulator answers it, so nothing waits on the reader (AMRMX71 p. 13; R9)",
+    run(ctx) {
+      const agt = ctx.boot();
+      agt.advance(agt.now);
+      ok(/^MO\/DA\/YR = \d\d\/\d\d\/\d\d$/.test(agt.paper.getText().trim()), `the date asked and answered: ${agt.paper.getText().trim()}`);
+      load(ctx, agt, "cube");
+      ok(agt.image !== null, "a program loads straight after, from the Programs menu");
+    },
+  },
+  {
+    id: "MON-6",
+    title: "V! types the version line; CORE!, DEC! and OCT!; MARK! and RLSE!; * for an argument that does not evaluate (AMRMX71 pp. 7-11)",
+    run(ctx) {
+      const agt = ctx.boot();
+      agt.advance(agt.now);
+      const said = (/** @type {string} */ statement) => {
+        const before = agt.paper.getText().length;
+        typeAndRun(agt, statement);
+        return agt.paper.getText().slice(before).split("\n").slice(1).join("\n").trim();
+      };
+      ok(/^STANDARD AMRMX\d \(REV\. [A-Z], [\d/]+\)$/.test(said("V!")), "STANDARD AMRMXn (REV. r, date)");
+      equal(said("CORE (777)!"), "777", "CORE(ARG) in octal");
+      said("DEC!");
+      equal(said("CORE (777)!"), "511", "and, after DEC!, in decimal");
+      said("OCT!");
+      equal(said("MARK!"), "1", "MARK types its number");
+      said("DEFINE (ZZ, 5)!");
+      ok(agt.core.symbols.has("ZZ"), "a symbol defined after the mark");
+      said("RLSE!");
+      ok(!agt.core.symbols.has("ZZ"), "RLSE releases it");
+      ok(said("CORE (NOSUCH)!").startsWith("*"), "an argument that does not evaluate is answered with *");
+      ok(said("DELETE (NOSUCH)!").startsWith("?"), "a symbol DELETE cannot find, with ?");
+    },
+  },
 
   // ---- the assembler ----
   {
@@ -753,12 +789,15 @@ export const MODEL_CHECKS = [
     title: "The ASR-33 runs at 10 characters a second (SRM5 DPR3 p. 11)",
     run(ctx) {
       const agt = ctx.boot();
-      // a character is on the paper once it is struck; the next is struck 0.1 s later
+      // a character is on the paper once it is struck; the next is struck 0.1 s later. The
+      // monitor's date, asked and answered at start, is printed first, at once.
+      agt.advance(agt.now);
+      const before = agt.paper.getText().length;
       agt.type("HALT!");
       agt.advance(agt.now + 350000);
-      equal(agt.paper.getText().trim(), "HALT", "four characters struck by 0.35 s");
+      equal(agt.paper.getText().slice(before).trim(), "HALT", "four characters struck by 0.35 s");
       agt.advance(agt.now + 100000);
-      equal(agt.paper.getText().trim(), "HALT!", "five by 0.45 s");
+      equal(agt.paper.getText().slice(before).trim(), "HALT!", "five by 0.45 s");
     },
   },
   {

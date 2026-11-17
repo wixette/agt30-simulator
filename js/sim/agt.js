@@ -108,9 +108,10 @@ export class Agt30 extends Terminal {
    * A new AGT-30 as it starts (R15): the generated pictures and the resident programs in core,
    * the operator's source files in the monitor's store, the monitor listening.
    * @param {Sources} sources every file in programs/, by name
+   * @param {Date} [date] the date the operator answers the monitor's prompt with (AMRMX71 p. 13)
    * @returns {Agt30}
    */
-  static boot(sources) {
+  static boot(sources, date = new Date()) {
     const agt = new Agt30();
     const end = loadFigures(agt);
     if (end > USER_AT) throw new Error(`the pictures run into the operator's area (${end.toString(8)})`);
@@ -126,6 +127,7 @@ export class Agt30 extends Terminal {
     for (const [name, src] of Object.entries(sources)) if (!RESIDENT.includes(name)) agt.monitor.files.set(name, src);
     agt.monitor.loadAt = USER_AT;
     agt.startCore = { words: agt.core.words.slice(), symbols: new Map(agt.core.symbols) };
+    agt.monitor.greet(date);
     return agt;
   }
 
@@ -147,6 +149,7 @@ export class Agt30 extends Terminal {
     this.errort = "ALL";
     this.dsply.reset();
     this.monitor.loadAt = USER_AT;
+    this.monitor.marks = [];
   }
 
   // ---- inputs (architecture §4) ----
