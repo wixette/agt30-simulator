@@ -378,6 +378,10 @@ code, pre, .mono { font-family: var(--mono); }
   #traces { left: 6px; right: 6px; width: calc(100% - 12px); }
   .dock-pane { padding: 6px 10px 12px; }
   #tty-paper { font-size: 13px; line-height: 20px; padding: 4px 8px; }
+  /* the empty paper's hint: under the date line, not over it, and as wide as the paper in view */
+  #tty-paper { display: flex; flex-direction: column; }
+  #tty-text { order: 1; }
+  .tty-empty { order: 2; position: sticky; left: 0; top: auto; transform: none; width: auto; margin-top: 6px; text-align: left; font-size: 13px; line-height: 1.5; }
   .proc-ours { flex-basis: 100%; font-size: 11px; }
   .proc-line { gap: 10px; padding: 0 6px; }
   #status { padding: 0 10px; }
