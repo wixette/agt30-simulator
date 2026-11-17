@@ -142,13 +142,10 @@
       </div>
       <div id="pane-proc" class="dock-pane" role="tabpanel" aria-labelledby="tab-proc" hidden>
         <div class="proc-bar">
-          <label class="proc-goto"><span data-l10n="proc.goto"></span> <input id="proc-goto" class="mono" type="text" spellcheck="false" autocomplete="off" data-tip-describes data-l10n-tip="proc.goto.tip"></label>
+          <label class="proc-goto" for="proc-goto"><span data-l10n="proc.goto"></span></label>
+          <span class="proc-field"><input id="proc-goto" class="mono" type="text" spellcheck="false" autocomplete="off" data-tip-describes data-l10n-tip="proc.goto.tip"><button id="proc-choices" class="btn icon-only" type="button" aria-haspopup="menu" aria-expanded="false" data-l10n-tip="proc.choices"><i data-icon="keyboard_arrow_down"></i></button></span>
           <button id="proc-go" class="btn small tonal" type="button"><span data-l10n="proc.go"></span></button>
-          <span id="proc-modes" class="proc-modes" role="group">
-            <button id="proc-mode-code" class="btn small" type="button" aria-pressed="true" data-tip-describes data-l10n-tip="proc.mode.code.tip"><span data-l10n="proc.mode.code"></span></button>
-            <button id="proc-mode-items" class="btn small" type="button" aria-pressed="false" data-tip-describes data-l10n-tip="proc.mode.items.tip"><span data-l10n="proc.mode.items"></span></button>
-            <button id="proc-mode-words" class="btn small" type="button" aria-pressed="false" data-tip-describes data-l10n-tip="proc.mode.words.tip"><span data-l10n="proc.mode.words"></span></button>
-          </span>
+          <div id="proc-modes"></div>
           <button id="proc-follow" class="switch" type="button" role="switch" aria-checked="true" data-tip-describes data-l10n-tip="proc.follow.tip"><span class="switch-track"><span class="switch-thumb"></span></span><span data-l10n="proc.follow"></span></button>
           <span class="spacer"></span>
           <span class="proc-ours" data-l10n="proc.ours"></span>

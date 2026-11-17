@@ -195,6 +195,8 @@ export class Dpr2 {
     this.IC = 0;
     this.ER = 0;
     this.LC = 0;
+    /** The address of the last instruction fetched from memory: for the Processor tab, since LC is restored around the CLOCK chain. */
+    this.last = 0;
     /** Sense lines S4. */
     this.S4 = 0;
     /** The analog input GDD1 selects (destination MX), and ADC5's last conversion, S5[15-29]. */
@@ -334,6 +336,7 @@ export class Dpr2 {
     const ch = this.nextRequest();
     if (ch !== null) return this.servePri(ch);
     const ins = this.core.read(this.LC);
+    this.last = this.LC;
     this.LC = (this.LC + 1) & M15;
     this.instructions++;
     // the end of a Jump Subroutine service: the first Jump Indirect or successful conditional jump

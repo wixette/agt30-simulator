@@ -237,8 +237,9 @@ About is a dialog with a title band:
 A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
 - **Registers:** LC, AR, BR, IC, the sense lines S4 and ER, in octal halves; then which program runs, whether interrupts are frozen, the channels in service and waiting, and the instructions so far.
 - **A listing of core** with the assembler's symbols: labels, the words in octal halves, and the words read as DPR-2 instructions, as DSPLY's image items, or as words (octal and AMOS characters). An address operand is written as a symbol, or a symbol plus an octal offset, and is a link to it. The word after an 'L instruction is shown as its operand.
-- **Go to** takes an octal address or a symbol, with or without an offset. The wheel and the arrow keys move through core.
-- **Follow LC** keeps the location counter's line in view, highlighted, a third of the way down, and is on at start. Go to, a link, the wheel or the keys turn it off.
+- **Go to** takes an octal address or a symbol, with or without an offset; empty, it goes back to where the processor is and turns Follow on. Its dropdown offers places to go, from the machine as it is: the processor, the program running, the picture shown and the CLOCK routines; then the resident routines and the pictures in core. A picture opens as image items, a routine as instructions. The wheel and the arrow keys move through core.
+- **The three readings** are one choice, a single-select segmented button (Material 3). *(after the manual check: three separate buttons did not say they excluded each other.)*
+- **Follow** keeps the last instruction the processor executed in view, highlighted, a third of the way down, and is on at start. Go to, a link, the wheel or the keys turn it off. *(after the manual check: it first followed LC, which reads 00000 whenever no program runs, since the registers are restored around the CLOCK chain.)*
 - It is drawn ten times a second, only while it is in view.
 
 *Why look only:* stepping would have to pause the whole terminal (the frame clock, DSPLY, the Teletype), not the processor alone, and editing core is already the monitor's (OPEN). A view that cannot change the machine cannot break a running program.

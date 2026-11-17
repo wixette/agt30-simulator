@@ -129,6 +129,13 @@ export function listing(core, start, count, mode, names = namesByAddress(core)) 
       // a word that is not an item (or one that would read outside core) is shown as "?"
       let len = 1;
       let text = "?";
+      const name = label ? unpackText([w, core.read((a + 1) & M15)]).trim() : "";
+      if (label && name === label) {
+        // a picture's header: its name, two words of text (DSPLY p. 12)
+        lines.push({ addr: a, len: 2, label, words: [w, core.read((a + 1) & M15)], text: `TEXT /${name}/`, operand: "", ref: null });
+        a = (a + 2) & M15;
+        continue;
+      }
       try {
         const d = decode(core, a);
         len = Math.max(1, Math.min(d.len, 8));

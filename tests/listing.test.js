@@ -21,8 +21,11 @@ describe("listings", () => {
     assert.equal(lines[4].ref, null, "a shift count is not an address");
   });
 
-  it("read a picture as its items", () => {
+  it("read a picture as its items, its name first", () => {
     const agt = boot();
+    const [head] = listing(agt.core, agt.core.addr("V.CUBE"), 1, "items");
+    assert.equal(head.text, "TEXT /V.CUBE/");
+    assert.equal(head.len, 2);
     const lines = listing(agt.core, agt.core.addr("V.CUBE") + 2, 3, "items");
     assert.ok(lines.every((l) => /^[A-Z0-9]+/.test(l.text)), lines.map((l) => l.text).join("; "));
     assert.ok(lines[1].addr === lines[0].addr + lines[0].len, "each line starts after the last");

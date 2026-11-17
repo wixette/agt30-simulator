@@ -197,6 +197,65 @@ document.addEventListener("pointerdown", (e) => {
 });
 window.addEventListener("resize", closeMenu);
 
+// ---- segmented buttons (Material 3, single select; WAI-ARIA radio group) ------------------------
+/**
+ * @typedef {object} Segment
+ * @property {string} id
+ * @property {string} label
+ * @property {string} [tip]
+ */
+
+/**
+ * Fills a host with a single-select segmented button: one choice of a few, always one chosen,
+ * the chosen one marked with a check. Arrow keys, Home and End move the choice.
+ * @param {HTMLElement} host
+ * @param {string} name the group's screen-reader name
+ * @param {Segment[]} segments
+ * @param {(id: string) => void} onChange called when the reader chooses another segment
+ * @returns {(id: string) => void} sets the choice, without calling onChange
+ */
+export function segmented(host, name, segments, onChange) {
+  host.classList.add("segmented");
+  host.setAttribute("role", "radiogroup");
+  host.setAttribute("aria-label", name);
+  const buttons = segments.map((sg) => {
+    const b = el("button", { type: "button", role: "radio", "data-id": sg.id }, [el("span", { class: "segment-check" }, [icon("check")]), el("span", { text: sg.label })]);
+    if (sg.tip) {
+      b.setAttribute("data-tip-describes", "");
+      setTip(b, sg.tip);
+    }
+    return b;
+  });
+  host.replaceChildren(...buttons);
+  /** @param {string} id */
+  const set = (id) => {
+    for (const b of buttons) {
+      const on = b.dataset.id === id;
+      b.setAttribute("aria-checked", String(on));
+      b.tabIndex = on ? 0 : -1;
+    }
+  };
+  /** @param {number} i */
+  const choose = (i) => {
+    const id = /** @type {string} */ (buttons[i].dataset.id);
+    if (buttons[i].getAttribute("aria-checked") === "true") return;
+    set(id);
+    onChange(id);
+  };
+  buttons.forEach((b, i) => b.addEventListener("click", () => choose(i)));
+  host.addEventListener("keydown", (e) => {
+    const i = buttons.indexOf(/** @type {HTMLButtonElement} */ (document.activeElement));
+    if (i < 0) return;
+    const n = buttons.length;
+    const j = { ArrowRight: (i + 1) % n, ArrowDown: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, ArrowUp: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
+    if (j === undefined) return;
+    e.preventDefault();
+    buttons[j].focus();
+    choose(j);
+  });
+  return set;
+}
+
 // ---- tabs (WAI-ARIA tabs, automatic activation) -------------------------------------------------
 /**
  * @param {HTMLElement} list the role="tablist" element

@@ -6,7 +6,8 @@
 // monitor's OPEN does that). A view the real AGT never had (P9).
 
 import { t, num } from "../l10n/l10n.js";
-import { listing, MODES, namesByAddress, parseAddress } from "../sim/listing.js";
+import { listing, MODES, namesByAddress, parseAddress, symbolic } from "../sim/listing.js";
+import { segmented, showMenu } from "../ui/components.js";
 import { hi, lo, oct } from "../sim/words.js";
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
@@ -18,6 +19,8 @@ const REDRAW_MS = 100;
 const LINES = 96;
 /** With Follow on, at most how many lines are shown above LC's. */
 const ABOVE = 4;
+/** The resident routines (R15) offered as places to go: those of RESIDENT that are code. */
+const ROUTINES = ["RVCD", "DIALS", "PENHT", "RANDN"];
 /** A line's height in the listing, px (css/style.css, .proc-list). */
 const LINE_PX = 18;
 
@@ -39,9 +42,17 @@ export function buildProcessor(machine, say, shown) {
   const regs = /** @type {HTMLElement} */ (document.getElementById("proc-regs"));
   const state = /** @type {HTMLElement} */ (document.getElementById("proc-state"));
   const list = /** @type {HTMLElement} */ (document.getElementById("proc-list"));
+  const choices = /** @type {HTMLButtonElement} */ (document.getElementById("proc-choices"));
   goto.placeholder = t("proc.goto.placeholder");
-  /** @type {HTMLElement} */ (document.getElementById("proc-modes")).setAttribute("aria-label", t("proc.modes"));
-  const modeButtons = /** @type {HTMLButtonElement[]} */ (MODES.map((m) => document.getElementById(`proc-mode-${m}`)));
+  const setModeShown = segmented(
+    /** @type {HTMLElement} */ (document.getElementById("proc-modes")),
+    t("proc.modes"),
+    MODES.map((m) => ({ id: m, label: t(`proc.mode.${m}`), tip: t(`proc.mode.${m}.tip`) })),
+    (id) => {
+      mode = /** @type {Mode} */ (id);
+      render(true);
+    },
+  );
   /** @type {Mode} */
   let mode = "code";
   let following = true;
@@ -54,7 +65,7 @@ export function buildProcessor(machine, say, shown) {
   };
   const setMode = (/** @type {Mode} */ m) => {
     mode = m;
-    modeButtons.forEach((b, i) => b.setAttribute("aria-pressed", String(MODES[i] === m)));
+    setModeShown(m);
     render(true);
   };
   /** @param {number} a */
@@ -64,12 +75,21 @@ export function buildProcessor(machine, say, shown) {
     render(true);
   };
 
-  modeButtons.forEach((b, i) => b.addEventListener("click", () => setMode(MODES[i])));
   follow.addEventListener("click", () => {
     setFollow(!following);
     render(true);
   });
+  const followLC = () => {
+    setFollow(true);
+    render(true);
+    say(t("proc.following"));
+  };
   const go = () => {
+    // an empty field goes back to where the processor is
+    if (!goto.value.trim()) {
+      followLC();
+      return;
+    }
     const a = parseAddress(goto.value, machine().core);
     if (a === null) {
       say(t("proc.goto.none", { text: goto.value.trim().toUpperCase() }));
@@ -85,6 +105,46 @@ export function buildProcessor(machine, say, shown) {
     }
   });
   /** @type {HTMLElement} */ (document.getElementById("proc-go")).addEventListener("click", go);
+
+  /**
+   * A choice from the menu: shows an address in the reading that suits it.
+   * @param {string} name as the field shows it
+   * @param {number} a
+   * @param {Mode} m
+   */
+  const pick = (name, a, m) => {
+    goto.value = name;
+    if (m !== mode) setMode(m);
+    jump(a);
+    say(t("proc.goto.done", { addr: oct(a, 5) }));
+  };
+  // the choices come from the machine as it is: what runs and what is shown now, then what is in
+  // core, so they hold whatever the reader has typed on the Teletype
+  choices.addEventListener("click", () => {
+    const agt = machine();
+    const core = agt.core;
+    const names = namesByAddress(core);
+    /** @type {import("../ui/components.js").MenuItem[]} */
+    const items = [{ label: t("proc.choice.lc", { addr: oct(agt.cpu.last, 5) }), run: () => { goto.value = ""; followLC(); }, divider: t("proc.group.now") }];
+    if (agt.program) {
+      const a = core.symbols.get(agt.program.name);
+      if (a !== undefined) items.push({ label: t("proc.choice.program", { name: agt.program.name }), run: () => pick(agt.program?.name ?? "", a, "code") });
+    }
+    if (agt.image !== null) {
+      const at = agt.image;
+      const name = symbolic(at, names);
+      items.push({ label: t("proc.choice.picture", { name }), run: () => pick(name, at, "items") });
+    }
+    for (const c of agt.clockCode) {
+      const name = symbolic(c.routine, names);
+      items.push({ label: t("proc.choice.clock", { name }), run: () => pick(name, c.routine, "code") });
+    }
+    const routines = ROUTINES.filter((n) => core.symbols.has(n));
+    routines.forEach((n, i) => items.push({ label: n, run: () => pick(n, /** @type {number} */ (core.symbols.get(n)), "code"), divider: i === 0 ? t("proc.group.routines") : undefined }));
+    const pictures = [...core.symbols.keys()].filter((n) => n.startsWith("V.")).sort();
+    pictures.forEach((n, i) => items.push({ label: n, run: () => pick(n, /** @type {number} */ (core.symbols.get(n)), "items"), divider: i === 0 ? t("proc.group.pictures") : undefined }));
+    showMenu(choices, items);
+  });
   list.addEventListener("click", (e) => {
     const ref = /** @type {HTMLElement} */ (e.target).closest("[data-ref]");
     if (ref) jump(parseInt(/** @type {string} */ (ref.getAttribute("data-ref")), 8));
@@ -113,7 +173,7 @@ export function buildProcessor(machine, say, shown) {
     const cpu = agt.cpu;
     // with Follow on, LC's line sits a third of the way down whatever height the dock has
     const rows = Math.max(1, Math.floor(list.clientHeight / LINE_PX));
-    if (following) anchor = (cpu.LC - Math.min(ABOVE, Math.floor(rows / 3))) & 0o77777;
+    if (following) anchor = (cpu.last - Math.min(ABOVE, Math.floor(rows / 3))) & 0o77777;
     regs.textContent = [
       `LC ${oct(cpu.LC, 5)}`,
       `AR ${halves(cpu.AR)}`,
@@ -134,7 +194,7 @@ export function buildProcessor(machine, say, shown) {
     const lines = listing(agt.core, anchor, LINES, mode, namesByAddress(agt.core));
     list.innerHTML = lines
       .map((l) => {
-        const here = l.addr === cpu.LC ? " here" : "";
+        const here = l.addr === cpu.last ? " here" : "";
         const label = l.label ? esc(`${l.label}:`) : "";
         const words = l.words.map(halves).join("  ");
         const operand = l.ref === null ? esc(l.operand) : `<button type="button" class="proc-ref" data-ref="${oct(l.ref, 5)}">${esc(l.operand)}</button>`;

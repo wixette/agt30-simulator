@@ -4,6 +4,7 @@
 // message in js/l10n/en.js, and every message there is used. Keys built at run time are listed
 // from the data they come from.
 
+import { MODES } from "../js/sim/listing.js";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
@@ -45,6 +46,7 @@ function dynamicKeys() {
   for (const c of params.cables) keys.add(c.name);
   keys.add("cable.what");
   for (const c of ["doc", "photo", "est", "design"]) keys.add(`confidence.${c}`);
+  for (const m of MODES) keys.add(`proc.mode.${m}`).add(`proc.mode.${m}.tip`);
   for (const v of VIEWS) keys.add(`view.${v}`);
   for (const s of ["waiting", "preparing", "drawing", "moving"]) keys.add(`trace.${s}`);
   for (const s of ["drawing", "moving", "waiting", "off"]) keys.add(`beam.${s}`);
