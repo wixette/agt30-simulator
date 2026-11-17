@@ -142,7 +142,8 @@ code, pre, .mono { font-family: var(--mono); }
 .beam-state { display: block; margin-top: 4px; color: var(--md-on-surface); font-weight: 600; }
 .beam-state[data-on="true"] { color: var(--phosphor); }
 .tube-note { position: absolute; top: 100px; left: 12px; max-width: 300px; margin: 0; padding: 6px 10px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--md-surface-high) 88%, transparent); color: var(--md-on-surface-variant); font-size: 12px; }
-#traces { position: absolute; left: 12px; right: 12px; bottom: 112px; height: 116px; width: calc(100% - 24px); border-radius: var(--radius-m); background: color-mix(in srgb, var(--md-surface-low) 92%, transparent); }
+/* the traces sit just above the console strip, however tall it is (--strip-space, js/app/stage.js) */
+#traces { position: absolute; left: 12px; right: 12px; bottom: calc(var(--strip-space, 128px) - 10px); height: 116px; width: calc(100% - 24px); border-radius: var(--radius-m); background: color-mix(in srgb, var(--md-surface-low) 92%, transparent); }
 #inset { position: absolute; top: 56px; right: 12px; width: 168px; height: 168px; border-radius: 10px; border: 1px solid var(--md-outline-variant); background: var(--crt-face); cursor: pointer; padding: 0; }
 #inset canvas { width: 100%; height: 100%; display: block; border-radius: 9px; }
 
@@ -184,7 +185,13 @@ code, pre, .mono { font-family: var(--mono); }
   border: 1px solid var(--card-edge);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
   z-index: 3;
+  /* never wider than the stage: on a narrow window it scrolls sideways, as the series' strip */
+  max-width: calc(100% - 16px);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+#strip::-webkit-scrollbar { display: none; }
+#strip > * { flex: none; }
 /* three groups of one height: the labels on one line, each group's controls centred under its label */
 .strip-group { display: flex; flex-direction: column; gap: 6px; }
 .strip-group > :last-child { margin-block: auto; }
@@ -337,9 +344,50 @@ code, pre, .mono { font-family: var(--mono); }
 }
 #status-text { overflow: hidden; text-overflow: ellipsis; }
 #status .fps { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--md-outline); }
-.narrow-notice { display: none; }
-@media (max-width: 1023px) {
-  .narrow-notice { display: block; position: absolute; left: 12px; right: 12px; top: 52px; z-index: 6; padding: 8px 12px; border-radius: var(--radius-m); background: var(--md-surface-highest); color: var(--md-on-surface); font-size: 13px; }
+/* ---- narrower windows (P11) ---- */
+/* a tablet, or a narrow desktop window: the tagline goes first */
+@media (max-width: 1100px) {
+  .brand-tag { display: none; }
+}
+/* a phone, upright (P11): the same regions in the same order, packed down */
+@media (max-width: 700px) {
+  :root { --bar-h: 48px; }
+  .brand-name, #topbar .label { display: none; }
+  #topbar { padding: 0 4px 0 10px; gap: 2px; }
+  .brand { margin-right: 4px; }
+  .bar-sep { margin: 0 2px; }
+  #programs-label { max-width: 46vw; }
+  #band { padding: 6px; }
+  .crumb { padding: 0 4px 0 8px; }
+  .tools .btn.icon-only { width: 34px; height: 34px; }
+  #strip { bottom: 6px; gap: 10px; padding: 6px 10px 8px; }
+  .dial { width: 40px; height: 40px; }
+  .dial svg { width: 36px; height: 36px; }
+  .pen { width: 116px; font-size: 11px; }
+  .card { left: 8px; right: 8px; width: auto; top: 50px; }
+  #stage[data-view="tube"] .card { top: 160px; }
+  .tube-time { top: 48px; left: 6px; }
+  .tube-note { top: 90px; left: 6px; max-width: 58%; font-size: 11px; }
+  #inset { top: 48px; right: 6px; width: 96px; height: 96px; }
+  #traces { left: 6px; right: 6px; width: calc(100% - 12px); }
+  .dock-pane { padding: 6px 10px 12px; }
+  #tty-paper { font-size: 13px; line-height: 20px; padding: 4px 8px; }
+  .proc-ours { flex-basis: 100%; font-size: 11px; }
+  .proc-line { gap: 10px; padding: 0 6px; }
+  #status { padding: 0 10px; }
+}
+/* a small phone: the dock's tabs as icons */
+@media (max-width: 480px) {
+  .dock-tab .label { display: none; }
+  .dock-tab { padding: 0 14px; }
+}
+/* a phone on its side: the stage keeps most of the height (js/app/dock.js), the strip packs down */
+@media (max-height: 520px) and (orientation: landscape) {
+  :root { --bar-h: 44px; }
+  #strip { bottom: 4px; padding: 4px 8px 6px; gap: 8px; }
+  .strip-label { display: none; }
+  .dial { width: 36px; height: 36px; }
+  .dial svg { width: 32px; height: 32px; }
 }
 
 /* ---- menus, tooltips, dialogs (P10), the series' ---- */

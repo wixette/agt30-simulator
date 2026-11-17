@@ -60,6 +60,10 @@ Each kind of control is one component, used the same way everywhere: menu, dialo
 - **The keyboard is first-class:** every control is reachable with Tab and has a visible focus ring. The dock's tabs follow the WAI-ARIA tabs pattern.
 - **Motion is short and optional:** camera flights and cross-fades honour `prefers-reduced-motion`.
 
+### P11. A phone gets the same app, not a different one *(v0.0.3)*
+
+Same regions, same order: the top bar packed down to icons and the program's name, the stage across the width, the dock below with its tabs as icons, the status line. The console strip keeps its size and scrolls sideways within the stage. Nothing depends on hover. A desktop comes first: a phone is laid out so that everything works there, not designed for first. As the series' (the TRS-80 simulator's P9).
+
 ## Part 2. Viewpoints
 
 **The stage shows the machine at one level, from one viewpoint at a time.**
@@ -132,9 +136,15 @@ A folded dock opens on Program when a program is chosen; an open one stays on th
 - a dock on the right, as in the Leibniz simulator: that suits a near-square subject, but here it squeezes the 72 columns;
 - a floating card over the stage, which breaks P1.
 
-### U2. Desktop only in v0.0.1
+### U2. Desktops first, phones too
 
-The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop. Recent Chrome, Edge, Safari and Firefox are supported. On a window narrower than 1024 px, a quiet notice says the simulator is made for a desktop browser. The page still works there; it is just not laid out for it. Phones come later, with the same regions in the same order.
+The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop, then phones (P11). Recent Chrome, Edge, Safari and Firefox are supported. The page narrows in steps, as the series' does:
+- **Under 1,100 px:** the tagline goes.
+- **Under 700 px (a phone, upright):** the top bar keeps its icons and the program's name; the band's buttons and the strip pack down; a part's card spans the stage; the Tube's inset shrinks; the stage keeps at least 55 % of the height.
+- **Under 480 px:** the dock's tabs show only their icons.
+- **A phone on its side** (520 px tall or less): the stage keeps 65 % of the height, the dock opens folded at first, and the strip drops its labels.
+
+*(v0.0.3: until then a window under 1,024 px showed a notice that the page was made for a desktop browser.)*
 
 ### U3. The top bar
 

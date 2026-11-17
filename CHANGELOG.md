@@ -2,6 +2,13 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## Unreleased
+
+- The simulator series' look (U10): the theme of neutral greys round an amber primary, and the series' controls, as in the Altair 8800 and TRS-80 simulators: top-bar tool buttons, tabs with icons, the segmented button (now also the Tube's time), fields, menus, tooltips, dialogs and the status line.
+- The dock's handle is a row of its own, lit while dragged; dragging keeps the dock's foot where it is; the dock remembers its tab, height and fold (U1).
+- Phones (P11, U2): the same app, packed down in steps; the console strip scrolls sideways; the notice that the page was made for a desktop is gone.
+- The Tube's traces sit just above the console strip, however tall it is.
+
 ## 0.0.2
 
 The processor becomes the real DPR-2. Since v0.0.1, M. Howard's images of NCSU's tapes, with real ADEPT source and binaries, and Adage's own manual for the processor have come to light; the simulator now follows both, and a new tab shows the processor at work.

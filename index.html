@@ -91,11 +91,9 @@
         <div class="bezel"><canvas id="crt" data-l10n-tip="view.screen.label"></canvas></div>
       </div>
       <div id="tube-overlay" hidden>
-        <div class="tube-time" role="group" data-l10n-tip="tube.time.tip">
+        <div class="tube-time">
           <span class="strip-label" data-l10n="tube.time"></span>
-          <button class="btn small" type="button" data-scale="0.00001" data-l10n="tube.time.slowest"></button>
-          <button class="btn small" type="button" data-scale="0.001" data-l10n="tube.time.slow"></button>
-          <button class="btn small" type="button" data-scale="1" data-l10n="tube.time.real"></button>
+          <div id="tube-scale"></div>
         </div>
         <p class="tube-note"><span data-l10n="tube.ours"></span><strong id="beam-state" class="beam-state"></strong></p>
         <canvas id="traces"></canvas>
@@ -113,7 +111,6 @@
       </nav>
       <aside id="card" class="card" hidden></aside>
       <div id="strip" role="group" aria-label="Console"></div>
-      <p class="narrow-notice" data-l10n="app.narrow"></p>
     </main>
 
     <div id="dock-handle" role="separator" aria-orientation="horizontal" tabindex="0" data-l10n-tip="dock.resize"></div>

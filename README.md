@@ -6,7 +6,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 
 > **A pre-release (v0.0.2).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below.
 
-**[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser: recent Chrome, Edge, Safari or Firefox.
+**[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser (recent Chrome, Edge, Safari or Firefox), and it works on a phone too.
 
 ![The Room: the AGT-30 installation in 3D, Fig. 12's random lines on the scope, the console's dials and function keys below it, and the session on the Teletype's paper](./images/readme/room.jpg)
 

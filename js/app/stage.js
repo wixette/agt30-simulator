@@ -7,7 +7,7 @@
 // and a live inset of the screen (V4, V5); under Screen the 3D view stops rendering (V8).
 
 import * as THREE from "three";
-import { el, icon, setTip, showMenu } from "../ui/components.js";
+import { el, icon, segmented, setTip, showMenu } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 import { CrtView } from "../view/crt.js";
 import { phosphorById } from "../view/phosphor.js";
@@ -112,7 +112,7 @@ export class Stage {
       if (e.key === "Escape" && !document.querySelector("dialog[open], .menu")) this.up();
     });
     new ResizeObserver(() => this.refit()).observe(this.stage);
-    // the Screen's picture keeps clear of the strip, however tall the strip is
+    // the Screen's picture and the Tube's traces keep clear of the strip, however tall the strip is
     const strip = /** @type {HTMLElement} */ (document.getElementById("strip"));
     new ResizeObserver(() => {
       const s = this.stage.getBoundingClientRect();
@@ -416,19 +416,26 @@ export class Stage {
   // ---- the Tube (V4, V5) ----
 
   wireTube() {
-    for (const b of /** @type {NodeListOf<HTMLButtonElement>} */ (this.tubeEl.querySelectorAll("[data-scale]"))) {
-      b.addEventListener("click", () => {
-        const s = Number(b.dataset.scale);
-        this.ops.setScale(s);
-        this.markTime(s);
-      });
-    }
+    // the time is one choice of three: the series' segmented button
+    this.setTimeShown = segmented(
+      /** @type {HTMLElement} */ (document.getElementById("tube-scale")),
+      t("tube.time.tip"),
+      // how fast simulated time runs (V5), slowest first
+      [
+        { id: String(TUBE_SCALE), label: t("tube.time.slowest") },
+        { id: "0.001", label: t("tube.time.slow") },
+        { id: "1", label: t("tube.time.real") },
+      ],
+      (id) => {
+        this.ops.setScale(Number(id));
+      },
+    );
     /** @type {HTMLElement} */ (document.getElementById("inset")).addEventListener("click", () => this.go("screen"));
   }
 
   /** @param {number} scale */
   markTime(scale) {
-    for (const b of /** @type {NodeListOf<HTMLButtonElement>} */ (this.tubeEl.querySelectorAll("[data-scale]"))) b.setAttribute("aria-pressed", String(Number(b.dataset.scale) === scale));
+    this.setTimeShown?.(String(scale));
   }
 
   // ---- painting ----
