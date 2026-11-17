@@ -207,7 +207,7 @@ window.addEventListener("resize", closeMenu);
 
 /**
  * Fills a host with a single-select segmented button: one choice of a few, always one chosen,
- * the chosen one marked with a check. Arrow keys, Home and End move the choice.
+ * the chosen one tinted (the simulator series' segmented button). Arrow keys, Home and End move the choice.
  * @param {HTMLElement} host
  * @param {string} name the group's screen-reader name
  * @param {Segment[]} segments
@@ -219,7 +219,7 @@ export function segmented(host, name, segments, onChange) {
   host.setAttribute("role", "radiogroup");
   host.setAttribute("aria-label", name);
   const buttons = segments.map((sg) => {
-    const b = el("button", { type: "button", role: "radio", "data-id": sg.id }, [el("span", { class: "segment-check" }, [icon("check")]), el("span", { text: sg.label })]);
+    const b = el("button", { type: "button", role: "radio", "data-id": sg.id }, [el("span", { text: sg.label })]);
     if (sg.tip) {
       b.setAttribute("data-tip-describes", "");
       setTip(b, sg.tip);
@@ -296,16 +296,34 @@ export function tabs(list, onSelect) {
 /**
  * Opens a modal dialog with a title band and a body; Escape, the close button or a click on the
  * scrim closes it, and the focus goes back where it was.
+ * Actions, if any, are buttons at its foot, right-aligned, as the series' dialogs: each closes the
+ * dialog and then runs; the primary one is filled and has the focus.
  * @param {string} title
  * @param {Node[]} body
+ * @param {{ label: string, run?: () => void, primary?: boolean }[]} [actions]
  * @returns {HTMLDialogElement}
  */
-export function showDialog(title, body) {
+export function showDialog(title, body, actions = []) {
   const close = el("button", { class: "btn icon-only", type: "button" }, [icon("close")]);
   setTip(close, t("card.close"));
+  /** @type {HTMLButtonElement | null} */
+  let first = null;
+  const foot = el(
+    "div",
+    { class: "dialog-actions" },
+    actions.map((a) => {
+      const b = /** @type {HTMLButtonElement} */ (el("button", { class: `btn${a.primary ? " filled" : ""}`, type: "button" }, [el("span", { text: a.label })]));
+      b.addEventListener("click", () => {
+        d.close();
+        a.run?.();
+      });
+      if (a.primary) first = b;
+      return b;
+    }),
+  );
   const d = el("dialog", { class: "dialog", "aria-label": title }, [
     el("div", { class: "dialog-head" }, [el("h2", { text: title }), close]),
-    el("div", { class: "dialog-body" }, body),
+    el("div", { class: "dialog-body" }, [...body, ...(actions.length ? [foot] : [])]),
   ]);
   close.addEventListener("click", () => d.close());
   d.addEventListener("click", (e) => {
@@ -314,6 +332,7 @@ export function showDialog(title, body) {
   d.addEventListener("close", () => d.remove());
   document.body.appendChild(d);
   d.showModal();
+  /** @type {HTMLButtonElement | null} */ (first)?.focus();
   return d;
 }
 

@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { RECONSTRUCTIONS, SOURCE_URL } from "../js/app/aboutData.js";
+import { RECONSTRUCTIONS, REFERENCES, SOURCE_URL } from "../js/app/aboutData.js";
 
 const ROOT = new URL("../", import.meta.url);
 /** @param {string} dir @param {string[]} ends @returns {string[]} */
@@ -30,14 +30,15 @@ describe("the page (APP)", () => {
     }
   });
 
-  it("APP-3: the only outside address is the source repository's link, in About", () => {
+  it("APP-3: the outside addresses are the source repository's and the references', in aboutData.js", () => {
     const files = [...walk("js", [".js"]), "index.html"];
     const urls = new Set();
     for (const f of files) {
-      if (f.startsWith("js/accept/") || f.startsWith("js/sim/")) continue;
+      if (f.startsWith("js/accept/") || f.startsWith("js/sim/") || f === "js/app/aboutData.js") continue;
       // addresses in strings and attributes, not in comments
       for (const m of readFileSync(new URL(f, ROOT), "utf8").matchAll(/["'`](https?:\/\/[^"'`\s]+)["'`]/g)) urls.add(m[1]);
     }
     assert.deepEqual([...urls].filter((u) => u !== SOURCE_URL && !u.startsWith("http://www.w3.org/")), []);
+    for (const [, items] of REFERENCES) for (const [, href] of items) assert.match(href, /^https?:\/\/[^\s]+$/);
   });
 });

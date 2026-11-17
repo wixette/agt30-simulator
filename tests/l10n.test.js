@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import en from "../js/l10n/en.js";
-import { RECONSTRUCTIONS } from "../js/app/aboutData.js";
+import { RECONSTRUCTIONS, REFERENCES } from "../js/app/aboutData.js";
 import { VIEWS } from "../js/app/link.js";
 import { PROGRAMS } from "./boot.js";
 
@@ -47,6 +47,10 @@ function dynamicKeys() {
   keys.add("cable.what");
   for (const c of ["doc", "photo", "est", "design"]) keys.add(`confidence.${c}`);
   for (const m of MODES) keys.add(`proc.mode.${m}`).add(`proc.mode.${m}.tip`);
+  for (const [g, items] of REFERENCES) {
+    keys.add(`refs.${g}`);
+    for (const [id] of items) keys.add(`refs.${g}.${id}`);
+  }
   for (const v of VIEWS) keys.add(`view.${v}`);
   for (const s of ["waiting", "preparing", "drawing", "moving"]) keys.add(`trace.${s}`);
   for (const s of ["drawing", "moving", "waiting", "off"]) keys.add(`beam.${s}`);

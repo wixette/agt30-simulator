@@ -2,6 +2,28 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## 0.0.3
+
+The simulator series' look, and phones. While the machine waits on M. Howard's answers, this release is about the page: it now looks and works like the series' other simulators (the Altair 8800 and the TRS-80), and it works on a phone.
+
+**The look**
+- The series' theme (U10): neutral greys round an amber primary, and the series' controls: top-bar tool buttons, tabs with icons, the segmented button (now also the Tube's time), fields, menus, tooltips, dialogs and the status line.
+- The dock's handle is a row of its own, lit while dragged; dragging keeps the dock's foot where it is; the dock remembers its tab, height and fold (U1).
+- The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one centre line.
+- The Program tab's choices: the cards in a row are the same height.
+
+**Phones** (P11, U2)
+- The same app, packed down in steps; the console strip scrolls sideways; the notice that the page was made for a desktop is gone.
+- The Tube on a phone: the overlays pack down to the top and the foot, the traces to a slim box, and the view is framed between them; the strip is left to the other viewpoints. The note and the traces let touches through to the 3D view, at every size.
+- The Teletype's hint on empty paper sits under the date line, as wide as the paper in view.
+
+**Finding your way**
+- A way back (U17): the Programs menu ticks the program loaded and ends with Unload the program; the program card has Unload beside its title. Both reboot the terminal and show the list of programs again.
+- About has References and Close buttons at its foot, as in the series; a new References tab lists the history, Adage's documents, M. Howard's tapes and documents, and the simulator's source and research (U16).
+
+**Fixed**
+- The Tube's traces sit just above the console strip, however tall it is; they had been partly covered.
+
 ## 0.0.2
 
 The processor becomes the real DPR-2. Since v0.0.1, M. Howard's images of NCSU's tapes, with real ADEPT source and binaries, and Adage's own manual for the processor have come to light; the simulator now follows both, and a new tab shows the processor at work.

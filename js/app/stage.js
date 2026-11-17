@@ -7,7 +7,7 @@
 // and a live inset of the screen (V4, V5); under Screen the 3D view stops rendering (V8).
 
 import * as THREE from "three";
-import { el, icon, setTip, showMenu } from "../ui/components.js";
+import { el, icon, segmented, setTip, showMenu } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 import { CrtView } from "../view/crt.js";
 import { phosphorById } from "../view/phosphor.js";
@@ -24,6 +24,8 @@ import { pressKey, turner } from "./strip.js";
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
 
 /** Each viewpoint's parent, for the breadcrumb and for Escape (V2). */
+/** The phone's layouts (P11), as css/style.css has them: upright, or on its side. */
+const PHONE = "(max-width: 700px), (max-height: 520px) and (orientation: landscape)";
 const PARENT = /** @type {Record<View, View | null>} */ ({ room: null, console: "room", screen: "console", tube: "console" });
 /** Each viewpoint's icon, on the viewpoint menu's button and in its list; the Room's is Home's. */
 const VIEW_ICONS = /** @type {const} */ ({ room: "home", console: "desk", screen: "monitor", tube: "frame_inspect" });
@@ -112,11 +114,15 @@ export class Stage {
       if (e.key === "Escape" && !document.querySelector("dialog[open], .menu")) this.up();
     });
     new ResizeObserver(() => this.refit()).observe(this.stage);
-    // the Screen's picture keeps clear of the strip, however tall the strip is
+    // the Screen's picture and the Tube's traces keep clear of the strip, however tall the strip is
     const strip = /** @type {HTMLElement} */ (document.getElementById("strip"));
     new ResizeObserver(() => {
       const s = this.stage.getBoundingClientRect();
-      this.stage.style.setProperty("--strip-space", `${Math.ceil(s.bottom - strip.getBoundingClientRect().top) + 16}px`);
+      const r = strip.getBoundingClientRect();
+      // a strip not shown (the Tube on a phone, P11) leaves only the margin
+      this.stage.style.setProperty("--strip-space", `${r.height ? Math.ceil(s.bottom - r.top) + 16 : 16}px`);
+      // the traces moved with it, and the Tube's view is framed above them
+      if (this.view === "tube") this.refit();
     }).observe(strip);
   }
 
@@ -174,17 +180,27 @@ export class Stage {
     const s = this.stage.getBoundingClientRect();
     const band = /** @type {HTMLElement} */ (document.getElementById("band")).getBoundingClientRect();
     const strip = /** @type {HTMLElement} */ (document.getElementById("strip")).getBoundingClientRect();
-    const top = band.bottom - s.top;
+    let top = band.bottom - s.top;
     const traces = /** @type {HTMLElement} */ (document.getElementById("traces")).getBoundingClientRect();
     const inset = /** @type {HTMLElement} */ (document.getElementById("inset")).getBoundingClientRect();
     const tube = this.view === "tube";
-    const bottom = (tube ? traces.top : strip.top) - s.top;
+    let bottom = (tube ? traces.top : strip.top) - s.top;
     // a part's card floats over the stage's edge and is not counted: opening it never moves
     // the view (V1: a click selects, only actions move). A close look, an action, frames its
     // part beside the card, so that the card describing it does not cover it.
     let right = s.width;
     if (this.closeLook && !this.card.hidden) right = this.card.getBoundingClientRect().left - s.left - 8;
-    if (tube) right = Math.min(right, inset.left - s.left - 8);
+    if (tube) {
+      // on a desktop the inset is at the top right and the view keeps to its left; on a phone
+      // (P11) the overlays keep to the top and the foot, and the view is framed between them
+      if (matchMedia(PHONE).matches) {
+        const note = /** @type {HTMLElement} */ (this.stage.querySelector(".tube-note")).getBoundingClientRect();
+        const time = /** @type {HTMLElement} */ (this.stage.querySelector(".tube-time")).getBoundingClientRect();
+        const atTop = inset.top < s.top + s.height / 2;
+        top = Math.max(top, note.bottom - s.top, time.bottom - s.top, atTop ? inset.bottom - s.top : 0) + 4;
+        if (!atTop) bottom = Math.min(bottom, inset.top - s.top);
+      } else right = Math.min(right, inset.left - s.left - 8);
+    }
     return { left: 8, top, width: Math.max(80, right - 8), height: Math.max(80, bottom - top) };
   }
 
@@ -416,19 +432,26 @@ export class Stage {
   // ---- the Tube (V4, V5) ----
 
   wireTube() {
-    for (const b of /** @type {NodeListOf<HTMLButtonElement>} */ (this.tubeEl.querySelectorAll("[data-scale]"))) {
-      b.addEventListener("click", () => {
-        const s = Number(b.dataset.scale);
-        this.ops.setScale(s);
-        this.markTime(s);
-      });
-    }
+    // the time is one choice of three: the series' segmented button
+    this.setTimeShown = segmented(
+      /** @type {HTMLElement} */ (document.getElementById("tube-scale")),
+      t("tube.time.tip"),
+      // how fast simulated time runs (V5), slowest first
+      [
+        { id: String(TUBE_SCALE), label: t("tube.time.slowest") },
+        { id: "0.001", label: t("tube.time.slow") },
+        { id: "1", label: t("tube.time.real") },
+      ],
+      (id) => {
+        this.ops.setScale(Number(id));
+      },
+    );
     /** @type {HTMLElement} */ (document.getElementById("inset")).addEventListener("click", () => this.go("screen"));
   }
 
   /** @param {number} scale */
   markTime(scale) {
-    for (const b of /** @type {NodeListOf<HTMLButtonElement>} */ (this.tubeEl.querySelectorAll("[data-scale]"))) b.setAttribute("aria-pressed", String(Number(b.dataset.scale) === scale));
+    this.setTimeShown?.(String(scale));
   }
 
   // ---- painting ----

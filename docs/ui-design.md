@@ -60,12 +60,16 @@ Each kind of control is one component, used the same way everywhere: menu, dialo
 - **The keyboard is first-class:** every control is reachable with Tab and has a visible focus ring. The dock's tabs follow the WAI-ARIA tabs pattern.
 - **Motion is short and optional:** camera flights and cross-fades honour `prefers-reduced-motion`.
 
+### P11. A phone gets the same app, not a different one *(v0.0.3)*
+
+Same regions, same order: the top bar packed down to icons and the program's name, the stage across the width, the dock below with its tabs as icons, the status line. The console strip keeps its size and scrolls sideways within the stage. Nothing depends on hover. A desktop comes first: a phone is laid out so that everything works there, not designed for first. As the series' (the TRS-80 simulator's P9).
+
 ## Part 2. Viewpoints
 
 **The stage shows the machine at one level, from one viewpoint at a time.**
 - A viewpoint is a camera position with its overlays and, for some viewpoints, a 2D surface at the end of the flight.
 - The dock holds the tools.
-- The console strip stays under the stage whatever the viewpoint.
+- The console strip stays under the stage whatever the viewpoint, except the Tube on a phone (U2).
 
 ### The viewpoints of v0.0.1
 
@@ -118,12 +122,13 @@ The page is a fixed frame: top bar, stage, dock, status line. The page itself ne
 
 ## Part 4. Decisions
 
-### U1. The dock below the stage, three tools: Program, Teletype and Processor
+### U1. The dock below the stage, four tools: Program, Teletype, Processor and References
 
-The dock is full width under the stage, resizable by its top edge, and folds to its tab bar.
+The dock is full width under the stage, resizable by the handle above it, and folds to its tab bar. As in the series, the handle is a row of its own that lights amber while pointed at or dragged; dragging keeps the dock's foot where it is; and the dock remembers its tab, its height and whether it is folded. *(v0.0.3)*
 - **Program** is the loaded program's card (U7).
 - **Teletype** is the paper and keyboard (U9).
 - **Processor** looks into the DPR-2 (U15). *(v0.0.2)*
+- **References** lists where to read more (U16). *(v0.0.3)*
 
 A folded dock opens on Program when a program is chosen; an open one stays on the tab the reader chose, and the other tab gets an activity dot. *(build, after the manual check: choosing a program first switched an open dock back to Program, away from the Teletype the reader was watching.)* Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4). The dock starts at 30 % of the window's height, and never below 210 px, so the Teletype shows a dozen lines or more. *(v0.0.2, after the manual check: a fixed 210 px showed only four lines of paper on a large window.)*
 
@@ -132,14 +137,22 @@ A folded dock opens on Program when a program is chosen; an open one stays on th
 - a dock on the right, as in the Leibniz simulator: that suits a near-square subject, but here it squeezes the 72 columns;
 - a floating card over the stage, which breaks P1.
 
-### U2. Desktop only in v0.0.1
+### U2. Desktops first, phones too
 
-The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop. Recent Chrome, Edge, Safari and Firefox are supported. On a window narrower than 1024 px, a quiet notice says the simulator is made for a desktop browser. The page still works there; it is just not laid out for it. Phones come later, with the same regions in the same order.
+The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop, then phones (P11). Recent Chrome, Edge, Safari and Firefox are supported. The page narrows in steps, as the series' does:
+- **Under 700 px (a phone, upright):** the top bar keeps its icons and the program's name; the band's buttons and the strip pack down, and Back keeps only its arrow; a part's card spans the stage; the stage keeps at least 55 % of the height.
+- **The Tube on a phone** (upright or on its side): the overlays keep to the top and the foot and the view is framed between them. Time is a compact segmented button without its label; the note is one short line (the beam's state is in the traces' status line); the inset shrinks; the traces pack down to a slim box, each lane named by its letter, the status one sentence. The console strip is not shown there: the dials and keys are in the other viewpoints. On its side, Time and the note share a row and the inset sits at the foot beside the traces. The note and the traces let touches through to the 3D view, at every size. *(after the manual check: on a phone the overlays covered the Tube, leaving the view no room and no way to turn it.)*
+- **Under 480 px:** the dock's tabs show only their icons.
+- **A phone on its side** (520 px tall or less): the stage keeps 65 % of the height, the dock opens folded at first, and the strip drops its labels.
+
+*(v0.0.3: until then a window under 1,024 px showed a notice that the page was made for a desktop browser.)*
 
 ### U3. The top bar
 
 - **Left** (the machine): the logo and title, the **Programs** menu, whose button names the program loaded (*A cube turned by the dials ▾*), so it is in sight in every viewpoint, the Screen included, or says *Programs* with none *(build, after the manual check)*, and, set apart from it, **Reboot**, with the power icon, which reboots the whole terminal: core as at start, the display dark, the paper torn off, no program loaded. *(build, after the manual check: it was called Reset, which beside Programs read as "reset this program"; one reboots a machine, never a program.)*
 - **Right** (the app): **About**.
+
+The Programs menu ticks the program loaded; with one loaded, **Unload the program** follows, after a line (U17). *(v0.0.3)*
 
 There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
 
@@ -167,7 +180,7 @@ Cards are text that can be selected and copied.
 ### U7. The program card
 
 In this order:
-1. The program's title, and what it rebuilds (*FJCC68 Fig. 7*).
+1. The program's title, with **Unload** beside it (U17), and what it rebuilds (*FJCC68 Fig. 7*).
 2. How to use it, naming the controls: *Turn dials 0–2.*
 3. Its actions: a switch for a setting that is on or off (*Depth cueing*, on every 3D program's card, typing a VIEW whose range fits that picture; it shows the machine's own state, so a VIEW typed by hand moves it too), and buttons for the rest. Each types a statement (U8). *(build, after the manual check: the tunnel had two buttons, on and off, which did not show which state it was in)*
 4. *What is ours*: the program's reconstructions, linked to About's list.
@@ -197,13 +210,12 @@ The keyboard is active when the Teletype tab has the focus. Keys a PC keyboard l
 
 ### U10. The theme
 
-The theme is a dark Material 3 scheme, with tokens copied from the graduated simulators' `css/theme.css`, never linked.
-- **The brightest thing on screen is the phosphor.** The interface around it is cool and quiet.
+The theme is the simulator series' (the Altair 8800 and TRS-80 simulators'): a dark Material 3 scheme of neutral greys round an amber primary, with the series' controls (buttons, top-bar tool buttons, tabs, the segmented button, the switch, the field, menus, tooltips, dialogs, the dock's handle). *(v0.0.3: until then the AGT had a scheme of its own, cool blues, which set it apart from its siblings.)*
+- **The brightest thing on screen is the phosphor.** The interface around it is quiet.
 - **One colour has one meaning:**
-  - blue: the instrument;
-  - blue-grey: the machine's controls;
-  - amber: your turn;
-  - green: done;
+  - amber: what to press, and where you are (the open tab, the chosen reading, the processor's line, a part selected);
+  - green: on, and done;
+  - blue: the story and the data (links, symbols, the traces' X, the digital cables);
   - red: refused, or a fault.
 - **Every colour is a token** in `css/theme.css`. The canvas and three.js views read the same tokens.
 
@@ -230,7 +242,8 @@ About is a dialog with a title band:
 - one line saying that where the documents stop the simulator reconstructs, that each program's card says what is ours in it, and a link to the whole list in the README's *What is reconstructed* *(build, after the manual check: About first listed all twenty reconstructions, too long for an About; the README lists them, and tests/app.test.js keeps that list complete)*;
 - credits: sources, people and libraries;
 - the licences, one per line;
-- a link to the source repository.
+- a link to the source repository;
+- at its foot, as the series' About: **References**, which opens the References tab (U16), and **Close**, filled, which has the focus. *(v0.0.3)*
 
 ### U15. The Processor tab: a look into the DPR-2 *(v0.0.2)*
 
@@ -246,3 +259,15 @@ A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
 *Why:* since v0.0.2 the words in core are the real DPR-2's (R1); typing LIST and OPEN on the Teletype is how an operator read them, but not how a visitor today expects to.
 It is labelled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
 
+### U16. The References tab *(v0.0.3)*
+
+A fourth dock tool, as the series' References: one column of links down the middle of the dock, to be looked up rather than read in order. The machine and its lab (N. England's history of the NCSU lab, graphics-history.org, Adage's brochures); Adage's documents on bitsavers.org; NCSU's tapes (M. Howard's repository, its documents, readtape); then the simulator's source, research and bibliography. About's References button opens it.
+
+*Why:* the people and documents the simulator rests on deserve a place a reader can find, and About stays short. The addresses are kept in one file, `js/app/aboutData.js`, and are the only outside addresses the page names (tests/app.test.js, APP-3).
+
+### U17. Each way in has its way back: Unload *(v0.0.3)*
+
+A program is loaded from the Programs menu or from a card in the Program tab, and each path leads back the way it came: the menu, with a program loaded, ends with **Unload the program**; the card has **Unload** beside its title. Both do what Reboot does (core as at start, the display dark, the paper torn off) and the Program tab shows the list of programs again. The status line names the program unloaded.
+
+*Why a reboot:* loading a program types its statements into the monitor, which builds the picture in core; the real terminal had no command to forget them, and anything gentler would leave a picture on the screen with no program named for it. The default state is the one the page opens in.
+*Rejected:* a Back on the card that shows the list while the program goes on running: two states (a program running, the list shown) that look like one, and a list headed "Choose a program to run" while one runs.

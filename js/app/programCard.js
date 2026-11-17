@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// The program card, the dock's Program tab (docs/ui-design.md, U7): the program's title and
-// what it rebuilds, how to use it, its actions (each types a statement, U8), what is ours, the
+// The program card, the dock's Program tab (docs/ui-design.md, U7): the program's title, with
+// Unload beside it, the way back to the list (U17), and what it rebuilds, how to use it, its actions (each types a statement, U8), what is ours, the
 // statements, and the ADEPT source, folded.
 
-import { el } from "../ui/components.js";
+import { el, icon, setTip } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 
 /** @typedef {import("../sim/programs.js").Program} Program */
@@ -14,7 +14,7 @@ import { t } from "../l10n/l10n.js";
  * @param {HTMLElement} host
  * @param {Program | null} p
  * @param {Record<string, string>} sources the ADEPT files, by name
- * @param {{ type: (statement: string, label: string) => void; busy: boolean; programs: Program[]; load: (p: Program) => void }} ops
+ * @param {{ type: (statement: string, label: string) => void; busy: boolean; programs: Program[]; load: (p: Program) => void; unload: () => void }} ops
  */
 export function renderProgramCard(host, p, sources, ops) {
   if (!p) {
@@ -33,6 +33,9 @@ export function renderProgramCard(host, p, sources, ops) {
     return;
   }
   const title = t(`program.${p.id}.title`);
+  const unload = el("button", { class: "btn small has-icon program-unload", type: "button", "data-tip-describes": "" }, [icon("eject"), el("span", { text: t("program.unload") })]);
+  setTip(unload, t("program.unload.tip"));
+  unload.addEventListener("click", () => ops.unload());
   // a switch per setting: it types the statement for the other state; its state is the machine's
   const toggles = p.toggles.map((g) => {
     const label = t(`program.toggle.${g.id}`);
@@ -59,7 +62,7 @@ export function renderProgramCard(host, p, sources, ops) {
   );
   host.replaceChildren(
     el("div", { class: "program-card" }, [
-      el("h2", { text: title }),
+      el("div", { class: "program-head" }, [el("h2", { text: title }), unload]),
       el("p", { class: "rebuilds", text: t("program.rebuilds", { source: p.source }) }),
       el("p", { text: t(`program.${p.id}.what`) }),
       el("h3", { text: t("program.use") }),
