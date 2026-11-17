@@ -16,14 +16,14 @@ V.RAND: TEXT /V.RAND/
 [ 4000.  EACH DRAW IS TWO WORDS; THE FIRST IS AT RAND.D.
 RANDN:  0                       [ THE RETURN ADDRESS GOES HERE
         MDAR NLINES
-        MDAE'F'N 1
+        MDAS'F'N 1
         JPAN RN.LO              [ FEWER THAN 1
         MDAR NLINES
-        MDAE'F'N 4000.
+        MDAS'F'N 4000.
         JPAN RN.OK              [ FEWER THAN 4000
-        MDAR'F 4000.
+        MDAR'L; 4000.
         JUMP RN.SET
-RN.LO:  MDAR'F 1
+RN.LO:  MDAR'L; 1
         JUMP RN.SET
 RN.OK:  MDAR NLINES
 RN.SET: ARMD RN.C               [ THE COUNT TO SHOW
@@ -35,7 +35,7 @@ RN.MV:  MDAR RN.SV
         MDAR RN.C
         ARMD RN.N
         MDAS RN.C               [ TWO WORDS A LINE
-        MDAS'F RAND.D
+        MDAE'L; RAND.D
         ARMD RN.P               [ WHERE THE NEXT DRAW STARTS
         MDAR'I RN.P
         ARMD RN.SV              [ KEEP ITS COMMAND WORD

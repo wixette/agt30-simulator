@@ -5,6 +5,8 @@
 // the carriage where it really is, and sends the keys typed while it has the focus. Lower case
 // goes as upper case; the ASR-33 had none.
 
+import { DATE_PROMPT } from "../sim/amos.js";
+
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
 
 /** The AMOS monitor's own editing characters (js/sim/amos.js): rub out, and kill the line. */
@@ -74,7 +76,8 @@ export function buildTeletype(machine, onPrint) {
     if (last.length < tty.column) last += " ".repeat(tty.column - last.length);
     out.push(`${esc(last.slice(0, tty.column))}<span class="tty-cursor">${esc(last.charAt(tty.column) || " ")}</span>${esc(last.slice(tty.column + 1))}`);
     text.innerHTML = out.join("\n");
-    empty.hidden = !(lines.length === 1 && lines[0] === "" && tty.column === 0);
+    // nothing printed yet but the monitor's date, which it asked and the simulator answered
+    empty.hidden = !(lines.length <= 2 && lines[0].startsWith(DATE_PROMPT) && (lines[1] ?? "") === "" && tty.column === 0) && !(lines.length === 1 && lines[0] === "" && tty.column === 0);
     paper.scrollTop = paper.scrollHeight;
     if (grew) onPrint();
   }

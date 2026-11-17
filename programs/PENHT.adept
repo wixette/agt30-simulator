@@ -7,7 +7,7 @@
 [ THE TABLE'S LAYOUT IS OURS: PHT HOLDS THE NUMBER OF HITS SO FAR, THEN
 [ TWO WORDS AN ENTRY.  A PROGRAM WAITING FOR A HIT WATCHES PHT CHANGE.
 PENHT:  0                       [ THE RETURN ADDRESS GOES HERE
-        MDAR'I'X PENHT          [ THE ADDRESS OF N; STEP PAST IT
+        MDAR'I PENHT            [ THE ADDRESS OF N
         ARMD PH.A
         MDAR'I PH.A
         ARMD PH.N               [ N
@@ -17,13 +17,13 @@ PENHT:  0                       [ THE RETURN ADDRESS GOES HERE
         MDAR'A PH.M             [ MODULO 16: THE ENTRY
         ARMD PH.T
         MDAS PH.T               [ TWO WORDS AN ENTRY
-        MDAS'F PHT+1
+        MDAE'L; PHT+1
         ARMD PH.P
-        MDAR'I'X PH.P
-        ARMD PH.I               [ THE ITEM
         MDAR'I PH.P
+        ARMD PH.I               [ THE ITEM
+        MDAR'I'X PH.P
         ARMD PH.J               [ THE IMAGE
-        MDAR'I'X PENHT
+        MDAR'I'X PENHT          [ 'X STEPS TO THE NEXT ARGUMENT FIRST
         ARMD PH.A
         MDAR PH.I
         ARMD'I PH.A             [ TO ITA
@@ -31,7 +31,7 @@ PENHT:  0                       [ THE RETURN ADDRESS GOES HERE
         ARMD PH.A
         MDAR PH.J
         ARMD'I PH.A             [ TO IMA
-        JUMP'I PENHT
+        JUMP'I'X PENHT          [ RETURN PAST THE LAST ARGUMENT
 PH.A:   0
 PH.N:   0
 PH.T:   0

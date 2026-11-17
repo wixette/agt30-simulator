@@ -3,8 +3,8 @@
    with its band, card and console strip floating over it), the dock below (U1), the status
    line. The page never scrolls. */
 
-@import url("theme.css?v=0.0.1");
-@import url("fonts.css?v=0.0.1");
+@import url("theme.css?v=0.0.2");
+@import url("fonts.css?v=0.0.2");
 
 :root {
   font-family: var(--font);
@@ -246,6 +246,42 @@ code, pre, .mono { font-family: var(--mono); }
 
 /* the Teletype: paper and keyboard (U9), after the 8800 simulator's */
 #pane-tty:not([hidden]) { display: flex; flex-direction: column; }
+
+/* a segmented button (Material 3, single select): connected segments, the chosen one filled and checked */
+.segmented { display: inline-flex; height: 32px; border: 1px solid var(--md-outline); border-radius: var(--radius-full); overflow: hidden; }
+.segmented button { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border: 0; border-left: 1px solid var(--md-outline); background: none; color: var(--md-on-surface); font: inherit; font-size: 13px; font-weight: 560; cursor: pointer; }
+.segmented button:first-child { border-left: 0; }
+.segmented button::before { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity 120ms var(--ease); }
+.segmented button:hover::before { opacity: var(--state-hover); }
+.segmented button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: -3px; }
+.segmented button[aria-checked="true"] { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.segmented .segment-check { display: none; }
+.segmented .segment-check .icon { width: 18px; height: 18px; }
+.segmented button[aria-checked="true"] .segment-check { display: inline-flex; }
+
+/* ---- the Processor tab (U15) ---- */
+#pane-proc:not([hidden]) { display: flex; flex-direction: column; overflow: hidden; }
+.proc-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: none; margin: 4px 0 6px; }
+.proc-goto { display: inline-flex; align-items: center; gap: 6px; color: var(--md-on-surface-variant); font-weight: 560; }
+/* the field and its choices: an outlined text field with a trailing dropdown button (Material 3) */
+.proc-field { display: inline-flex; align-items: center; height: 32px; border: 1px solid var(--md-outline); border-radius: var(--radius-s); background: var(--md-surface-highest); }
+.proc-field:focus-within { outline: 2px solid var(--md-primary); outline-offset: 1px; }
+.proc-field input { width: 16ch; height: 100%; padding: 0 4px 0 8px; border: 0; background: none; color: var(--md-on-surface); font-size: 13px; text-transform: uppercase; outline: none; }
+.proc-field input::placeholder { text-transform: none; color: var(--md-outline); font-family: var(--font); }
+.proc-field .btn.icon-only { width: 30px; height: 30px; }
+.proc-ours { font-size: 12px; color: var(--md-outline); }
+.proc-regs { flex: none; font-size: 13px; color: var(--md-on-surface); white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.proc-state { flex: none; margin: 2px 0 6px; font-size: 12px; color: var(--md-on-surface-variant); }
+.proc-list { flex: 1; min-height: 0; overflow: hidden; font-size: 13px; line-height: 18px; background: var(--md-surface); border-radius: var(--radius-s); padding: 4px 0; }
+.proc-list:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 1px; }
+.proc-line { display: flex; gap: 16px; padding: 0 10px; white-space: pre; }
+.proc-line.here { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+.proc-addr { color: var(--md-outline); }
+.proc-label { width: 7ch; color: var(--md-primary); }
+.proc-words { width: 11ch; color: var(--md-on-surface-variant); overflow: hidden; }
+.proc-text { color: var(--md-on-surface); }
+.proc-ref { padding: 0; border: 0; background: none; color: var(--md-primary); font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.proc-ref:hover { color: var(--md-on-primary-container); }
 .tty-keys { display: flex; gap: 6px; flex: none; margin: 4px 0 8px; }
 #tty-paper {
   position: relative;
@@ -298,6 +334,9 @@ code, pre, .mono { font-family: var(--mono); }
 .menu button:hover, .menu button:focus-visible { background: color-mix(in srgb, var(--md-on-surface) 10%, transparent); outline: none; }
 .menu .check { width: 20px; }
 .menu-divider { height: 1px; margin: 6px 0; background: var(--md-outline-variant); }
+/* a divider with a heading: the heading under the line, small, as Material 3's menu sections */
+.menu-divider:has(span) { height: auto; margin: 6px 0 2px; padding: 8px 14px 4px; background: none; border-top: 1px solid var(--md-outline-variant); font-size: 12px; font-weight: 560; color: var(--md-outline); }
+.menu-divider:first-child { border-top: 0; margin-top: 0; padding-top: 4px; }
 .tooltip { position: fixed; z-index: 60; max-width: 300px; padding: 6px 10px; border-radius: 6px; background: #e0e3e9; color: #1b2026; font-size: 12px; pointer-events: none; }
 .dialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 64px); padding: 0; border: 0; border-radius: var(--radius-l); background: var(--md-surface-high); color: var(--md-on-surface); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6); }
 .dialog::backdrop { background: var(--md-scrim); }

@@ -32,7 +32,7 @@ On the AGT-30 the DPR-2 walks the image in software (DSPLY), on interrupts from 
 
 A picture refreshed 40 times a second on a 60 Hz display is then shown as it was: refreshed 40 times a second, and decaying in between.
 
-**D3. DSPLY is JavaScript, charged at the documented time.** DSPLY was DPR-2 code, and that code is lost (R2). Our interpreter follows the manual's definition of every item, bit for bit. It charges the processor time each step cost: documented where documented (5.5 µs a table vector, SNCOS 178 µs), estimated otherwise, with every estimate listed. Frame times, overruns and the BUMP rate therefore behave as documented.
+**D3. DSPLY is JavaScript, charged at the documented time.** DSPLY was DPR-2 code, and that code has not been found (R2). Our interpreter follows the manual's definition of every item, bit for bit. It charges the processor time each step cost: documented where documented (5.5 µs a table vector, SNCOS 178 µs), estimated otherwise, with every estimate listed. Frame times, overruns and the BUMP rate therefore behave as documented.
 
 **D4. User programs run on the DPR-2.** The CLOCK routines, JSR items and the programs started from the monitor run as DPR-2 instructions, at their documented times. They share the processor the way the real one did:
 - DSPLY's work comes first;
@@ -41,7 +41,7 @@ A picture refreshed 40 times a second on a 60 Hz display is then shown as it was
 
 So a heavy picture slows a program, and a busy program never slows the picture.
 
-**D5. The encodings are one table.** The DPR-2's mnemonics, meanings and times are documented, but its bit layout is not (R1). The layout is one table (`ENCODING` in `js/sim/dpr2.js`). If the real layout is found, only that table changes, and every program's source keeps working.
+**D5. The encodings are one table.** The DPR-2's mnemonics, meanings and times are documented, but its bit layout is not; the NCSU tapes show it (R1). The layout and the operation codes are one table (`ENCODING` and `OPS` in `js/sim/dpr2.js`). When the layout changed in v0.0.2, from ours to the tapes', only that table changed, and every program's source kept working.
 
 **D6. Programs are files, not code.** Each program is an ADEPT source file in `programs/`, and `programs/index.json` names its statements, controls and card text keys. The assembler reads the same file in the browser (by `fetch`) and in Node (from disk). The pictures whose data is generated rather than written by hand (the stroke font, Fig. 12's random lines, the tunnel's items) are built into core at start by `js/sim/figures.js`; the rest, and the resident routines, are ADEPT files assembled at start (R15).
 
@@ -61,7 +61,7 @@ js/sim/        the machine: no DOM, no three.js
                  handles SKIP / ALL / CUT / BUMP, the pen-hit table
   frameclock.js  120 / (RATE + 1) frames a second
   terminal.js    the display terminal: core, DSPLY, array, vector generator, clock
-  dpr2.js        the processor: registers, transfer bus, EAU, PRI, timings; ENCODING
+  dpr2.js        the processor: registers, transfer bus, EAU, PRI, timings; ENCODING, OPS
   adept.js       the ADEPT subset assembler
   amos.js        the AMOS monitor subset; amoscode.js: the 6-bit code
   teletype.js    the ASR-33's paper model (from the 8800 simulator)

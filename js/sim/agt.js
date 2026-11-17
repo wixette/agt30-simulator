@@ -66,8 +66,6 @@ export class Agt30 extends Terminal {
       /** PULSE 1, the manual interrupt, held down; in v0.0.1 it requests no service (R10) */
       pulse1: false,
     };
-    /** @type {number[]} characters typed on the keyboard and not yet read by a program (AMOS codes) */
-    this.keys = [];
     /** The paper. */
     this.paper = new Teletype();
     /** @type {{ ch: string; at: number }[]} characters waiting to print, with when each starts */
@@ -85,7 +83,6 @@ export class Agt30 extends Terminal {
         this.print(code === 0o15 ? "\r\n" : (TTY[code] ?? ""));
         return true;
       },
-      key: () => this.keys.shift() ?? null,
       switches: () => this.dev.switches,
       analog: (ch) => (ch < DIALS ? this.dev.dials[ch] : 0),
     });
@@ -111,9 +108,10 @@ export class Agt30 extends Terminal {
    * A new AGT-30 as it starts (R15): the generated pictures and the resident programs in core,
    * the operator's source files in the monitor's store, the monitor listening.
    * @param {Sources} sources every file in programs/, by name
+   * @param {Date} [date] the date the operator answers the monitor's prompt with (AMRMX71 p. 13)
    * @returns {Agt30}
    */
-  static boot(sources) {
+  static boot(sources, date = new Date()) {
     const agt = new Agt30();
     const end = loadFigures(agt);
     if (end > USER_AT) throw new Error(`the pictures run into the operator's area (${end.toString(8)})`);
@@ -129,6 +127,7 @@ export class Agt30 extends Terminal {
     for (const [name, src] of Object.entries(sources)) if (!RESIDENT.includes(name)) agt.monitor.files.set(name, src);
     agt.monitor.loadAt = USER_AT;
     agt.startCore = { words: agt.core.words.slice(), symbols: new Map(agt.core.symbols) };
+    agt.monitor.greet(date);
     return agt;
   }
 
@@ -150,6 +149,7 @@ export class Agt30 extends Terminal {
     this.errort = "ALL";
     this.dsply.reset();
     this.monitor.loadAt = USER_AT;
+    this.monitor.marks = [];
   }
 
   // ---- inputs (architecture §4) ----
@@ -260,15 +260,10 @@ export class Agt30 extends Terminal {
 
   /**
    * One character reaches the computer from the keyboard. The monitor always listens (it runs
-   * in the background, AMRMX p. 1); a running program may also read it (OPTI).
+   * in the background, AMRMX p. 1).
    * @param {string} ch
    */
   key(ch) {
-    if (this.program) {
-      const code = TTY.indexOf(ch.toUpperCase());
-      this.keys.push(code < 0 ? 0 : code);
-      if (this.keys.length > 64) this.keys.shift();
-    }
     this.monitor.input(ch);
   }
 

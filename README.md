@@ -4,7 +4,7 @@
 
 The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processor that walked a structured picture every frame, a hybrid analog array that turned it in three dimensions in under 4 microseconds a point, and a refreshed vector CRT, with its console and its Teletype.
 
-> **An early pre-release (v0.0.1).** The simulator is small and still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below. A full README, with a guide to using it, comes with 1.0.0.
+> **A pre-release (v0.0.2).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below.
 
 **[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser: recent Chrome, Edge, Safari or Firefox.
 
@@ -17,19 +17,57 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 </tr>
 </table>
 
-## What is in it
+## Quick start
 
-- **The installation in 3D:** the operator's desk with the 21-inch scope and the console's devices, the ASR-33 Teletype, four racks, two tape drives and two disk drives, and the cables between them. Click a part for its card.
-- **Four viewpoints:** the Room; the Console, from the operator's seat; the Screen, the picture close up, where the light pen works; and the Tube, the scope cut open, with the beam drawing in time slowed 100,000 times, and its X, Y and Z signals traced.
-- **Seven programs**, from the Programs menu, each typed on the Teletype as an operator would have typed it:
-  - the letter A, the 1968 paper's first picture;
-  - a cube turned by the dials, and the same cube in perspective, computed by the processor;
-  - the tunnel, with and without depth cueing;
-  - a town built from one house;
-  - 3-D tic-tac-toe, played with the light pen;
-  - 1,000 random lines, the paper's measure of the array, which you can push until the picture no longer fits a frame.
-- **The console:** six dials, sixteen function keys and PULSE 1, and the light pen.
-- **The Teletype and the AMOS monitor:** type statements yourself, such as `DSPLY (V.CUBE, 2)!`.
+1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
+2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
+3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
+4. **Start again** with **Reboot** in the top bar.
+
+## The machine in a few minutes
+
+The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room of equipment for drawing and turning three-dimensional pictures in real time, decades before graphics cards. It worked very differently from a computer today. These are the ideas the simulator shows, with the nearest thing today.
+
+| Then | What it was | The nearest thing today |
+|---|---|---|
+| **The vector CRT** (the scope) | A cathode-ray tube whose electron beam draws straight lines from point to point, like a pen, instead of sweeping out rows of pixels. There is no frame buffer: a line glows only for a moment after the beam passes. | An oscilloscope; a laser light show |
+| **Refresh** | So every picture is drawn again and again, about 40 times a second. A picture with too many lines no longer fits in one refresh, and flickers. | A game's frame rate |
+| **The image** | A picture lives in memory as a structured list: move here, draw a line to there, turn by this angle, draw that sub-picture. | A scene graph, or an SVG file |
+| **DSPLY** | The program that walks the image every frame and sends each line to the scope. | A graphics driver |
+| **The hybrid array** | An analog computer, built of amplifiers, that rotates, scales and moves each point in under 4 microseconds. It is the AGT's speed. | A GPU's vertex shader |
+| **The DPR-2** | The processor: 30-bit words, 32,768 of them in magnetic core memory, about 250,000 instructions a second. Numbers are written in octal (base 8), and negative numbers in one's complement, so there is a −0. | A small microcontroller |
+| **The Teletype** (ASR-33) | A printing terminal: a keyboard and a roll of paper, upper case only, 10 characters a second. | A terminal window |
+| **AMOS** (its monitor, AMRMX) | The operating system's command interpreter. A statement ends with `!`, such as `DSPLY (V.CUBE, 2)!`, "display the picture V.CUBE". | A shell, such as bash |
+| **ADEPT** | The assembler, which turns a program's source into the processor's instructions. | An assembler |
+| **The dials, keys and light pen** | Six knobs, sixteen function keys, and a pen that sees the beam pass under it to pick what is drawn there. | Sliders, buttons and a touch screen |
+
+## Using the simulator
+
+**The stage** is the installation in 3D. Its viewpoints:
+- **Room:** the whole installation: the desk and scope, the Teletype, the racks, the tape and disk drives, and the cables between them.
+- **Console:** from the operator's seat.
+- **Screen:** the picture close up. This is where the light pen works.
+- **Tube:** the scope cut open, the beam drawing in time slowed up to 100,000 times, with its X, Y and Z signals traced.
+
+**The console strip**, under the picture, holds the dials, the function keys and the light pen.
+
+**The dock** below has three tabs. Drag its top edge to make it taller or shorter.
+- **Program:** the program loaded: what it rebuilds, how to use it, its switches, what in it is ours, and its statements and source.
+- **Teletype:** the paper and the keyboard. Click the paper and type statements yourself, each ended with `!`. Some to try:
+  - `DSPLY (V.A)!` shows the letter A; `HALT!` stops the display.
+  - `V!` asks the monitor its version.
+  - `LIST (, RVCD, RVCD+5)!` lists six words of memory in octal.
+- **Processor:** a look inside the processor as it runs: its registers, and memory read as instructions, as picture items or as plain words. A view the real AGT never had.
+
+**Seven programs**, from the Programs menu:
+- the letter A, the 1968 paper's first picture;
+- a cube turned by the dials, and the same cube in perspective, worked out by the processor;
+- the tunnel, with and without depth cueing;
+- a town built from one house;
+- 3-D tic-tac-toe, played with the function keys and the light pen;
+- 1,000 random lines, the paper's measure of the array, which you can push until the picture no longer fits a frame.
+
+**A link** opens a viewpoint and a program: for example [`#view=screen&program=tic-tac-toe`](https://wixette.github.io/agt30-simulator/#view=screen&program=tic-tac-toe).
 
 ## Run it on your own machine
 
@@ -45,18 +83,18 @@ Then open <http://localhost:8000/>. (Opening `index.html` from disk does not wor
 
 ## What is reconstructed
 
-No AGT program and no listing of the AGT's software are known to survive in public, and some of the hardware is documented only in part. Where the documents stop, the simulator chooses. Each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each.
+Much of the AGT is documented, but not all of it. Where the documents stop, the simulator chooses, and each choice is listed here; [design/reconstructions.md](design/reconstructions.md) gives the sources, the reasons, and what would settle each. Since v0.0.2 the processor follows Adage's own manual for it, and real software from North Carolina State University's AGT-30, which M. Howard recovered from tape, bears it out ([research/](research/)).
 
-- **R1.** The DPR-2's instruction encodings: the mnemonics and times are documented, the bit layout is ours.
+- **R1.** Settled: the DPR-2's instruction encodings and what each instruction does are the processor's manual's, which the NCSU tapes bear out.
 - **R2.** DSPLY is JavaScript, charged at the documented processor time; some of its times are estimates.
 - **R3.** Three gaps in the image format are filled our way.
-- **R4.** The programs are ours: no AGT program survives in public.
+- **R4.** The programs are ours, written before we knew of the NCSU tapes.
 - **R5.** The array's analog drift is modelled but off.
-- **R6.** The multiply unit's product is the integer product of two 15-bit numbers.
-- **R7.** A dial is read by comparing it with the array's X register.
-- **R8.** The assembler is a subset of ADEPT, with our syntax for display items' arguments.
-- **R9.** What the monitor types back is ours: echoes, results and ?.
-- **R10.** Interrupts: the pen, the Teletype and the frame clock are served directly.
+- **R6.** Settled: the multiply unit's results are as the processor's manual gives them.
+- **R7.** A dial is read through the array's input selector and converter, as on the AGT/30; how the selector's word chooses the dial is ours.
+- **R8.** The assembler is ADEPT as its manual describes it, without action operators or relocatable output, and with our syntax for display items' arguments.
+- **R9.** What the monitor types back is ours: echoes, results and ?; the Teletype takes a whole character at a time, not a bit.
+- **R10.** Interrupts: the pen, the Teletype and the frame clock are served directly; the program interrupt's pivot is ours.
 - **R11.** The pen-hit table's layout and PENHT's code are ours.
 - **R12.** Dash mode draws about ten dashes an inch.
 - **R13.** The tunnel's perspective routine is JavaScript, charged an estimated time.
@@ -68,9 +106,15 @@ No AGT program and no listing of the AGT's software are known to survive in publ
 - **R19.** The cables are a diagram of the signal paths, not the real cabling.
 - **R20.** The cutaway and the visible beam are views the real AGT never had.
 
+## More
+
+- [CHANGELOG.md](CHANGELOG.md): what changed in each release.
+- [docs/development.md](docs/development.md): how to run the checks, change the simulator and release it.
+- [research/](research/): what we have learned from the sources, and our correspondence with people who knew the machine.
+
 ## Sources and credits
 
-The simulator rests on T. G. Hagan, R. J. Nixon and L. J. Schaefer's paper "The Adage graphics terminal" (AFIPS Fall Joint Computer Conference, 1968); Adage's manuals and brochures, kept by [bitsavers.org](http://www.bitsavers.org/pdf/adage/agt/); N. England's [history of the NCSU graphics lab](https://graphicshistory.org/ncsu/index.htm); and M. Howard's recollections on the cctalk list. Every source is listed in [research/bibliography.md](research/bibliography.md).
+The simulator rests on T. G. Hagan, R. J. Nixon and L. J. Schaefer's paper "The Adage graphics terminal" (AFIPS Fall Joint Computer Conference, 1968); Adage's manuals and brochures, kept by [bitsavers.org](http://www.bitsavers.org/pdf/adage/agt/); N. England's [history of the NCSU graphics lab](https://www.graphics-history.org/ncsu/index.htm); and M. Howard's recollections and [the NCSU tapes he recovered](https://github.com/cramcram/AGT-30). Every source is listed in [research/bibliography.md](research/bibliography.md).
 
 It is built with [three.js](https://threejs.org/), [Roboto Flex](https://github.com/googlefonts/roboto-flex) and [Material Symbols](https://github.com/google/material-design-icons).
 

@@ -6,65 +6,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="The Adage Graphics Terminal AGT-30 (1968) in your browser: a 3D picture turned by a hybrid analog array and drawn on a refreshed vector CRT, with its Teletype and console.">
     <title>AGT-30 Simulator</title>
-    <link rel="icon" href="images/favicon.svg?v=0.0.1" type="image/svg+xml">
-    <link rel="stylesheet" href="css/style.css?v=0.0.1">
+    <link rel="icon" href="images/favicon.svg?v=0.0.2" type="image/svg+xml">
+    <link rel="stylesheet" href="css/style.css?v=0.0.2">
     <!-- Every file name here carries the version (?v=), and so does each module the
          scripts import, through this map. pnpm version writes them, or pnpm stamp
          (tools/stamp.mjs); do not edit them by hand. -->
     <script type="importmap">
     {
       "imports": {
-        "three": "./vendor/three/build/three.module.js?v=0.0.1",
-        "three/addons/controls/OrbitControls.js": "./vendor/three/examples/jsm/controls/OrbitControls.js?v=0.0.1",
-        "three/addons/utils/BufferGeometryUtils.js": "./vendor/three/examples/jsm/utils/BufferGeometryUtils.js?v=0.0.1",
-        "./js/accept/check.js": "./js/accept/check.js?v=0.0.1",
-        "./js/accept/crt.js": "./js/accept/crt.js?v=0.0.1",
-        "./js/accept/model.js": "./js/accept/model.js?v=0.0.1",
-        "./js/accept/scene.js": "./js/accept/scene.js?v=0.0.1",
-        "./js/app/about.js": "./js/app/about.js?v=0.0.1",
-        "./js/app/aboutData.js": "./js/app/aboutData.js?v=0.0.1",
-        "./js/app/dock.js": "./js/app/dock.js?v=0.0.1",
-        "./js/app/link.js": "./js/app/link.js?v=0.0.1",
-        "./js/app/main.js": "./js/app/main.js?v=0.0.1",
-        "./js/app/programCard.js": "./js/app/programCard.js?v=0.0.1",
-        "./js/app/runner.js": "./js/app/runner.js?v=0.0.1",
-        "./js/app/selftest.js": "./js/app/selftest.js?v=0.0.1",
-        "./js/app/stage.js": "./js/app/stage.js?v=0.0.1",
-        "./js/app/strip.js": "./js/app/strip.js?v=0.0.1",
-        "./js/app/teletype.js": "./js/app/teletype.js?v=0.0.1",
-        "./js/l10n/en.js": "./js/l10n/en.js?v=0.0.1",
-        "./js/l10n/l10n.js": "./js/l10n/l10n.js?v=0.0.1",
-        "./js/scene/terminal3d.js": "./js/scene/terminal3d.js?v=0.0.1",
-        "./js/scene/viewer.js": "./js/scene/viewer.js?v=0.0.1",
-        "./js/sim/adept.js": "./js/sim/adept.js?v=0.0.1",
-        "./js/sim/agt.js": "./js/sim/agt.js?v=0.0.1",
-        "./js/sim/amos.js": "./js/sim/amos.js?v=0.0.1",
-        "./js/sim/amoscode.js": "./js/sim/amoscode.js?v=0.0.1",
-        "./js/sim/array.js": "./js/sim/array.js?v=0.0.1",
-        "./js/sim/dpr2.js": "./js/sim/dpr2.js?v=0.0.1",
-        "./js/sim/dsply.js": "./js/sim/dsply.js?v=0.0.1",
-        "./js/sim/figures.js": "./js/sim/figures.js?v=0.0.1",
-        "./js/sim/font.js": "./js/sim/font.js?v=0.0.1",
-        "./js/sim/frameclock.js": "./js/sim/frameclock.js?v=0.0.1",
-        "./js/sim/image.js": "./js/sim/image.js?v=0.0.1",
-        "./js/sim/programs.js": "./js/sim/programs.js?v=0.0.1",
-        "./js/sim/teletype.js": "./js/sim/teletype.js?v=0.0.1",
-        "./js/sim/terminal.js": "./js/sim/terminal.js?v=0.0.1",
-        "./js/sim/vecgen.js": "./js/sim/vecgen.js?v=0.0.1",
-        "./js/sim/words.js": "./js/sim/words.js?v=0.0.1",
-        "./js/ui/components.js": "./js/ui/components.js?v=0.0.1",
-        "./js/view/beam.js": "./js/view/beam.js?v=0.0.1",
-        "./js/view/crt.js": "./js/view/crt.js?v=0.0.1",
-        "./js/view/phosphor.js": "./js/view/phosphor.js?v=0.0.1",
-        "./js/view/theme.js": "./js/view/theme.js?v=0.0.1",
-        "./js/view/traces.js": "./js/view/traces.js?v=0.0.1",
-        "./package.json": "./package.json?v=0.0.1",
-        "./params/terminal.json": "./params/terminal.json?v=0.0.1",
-        "./vendor/material-symbols/icons.js": "./vendor/material-symbols/icons.js?v=0.0.1",
-        "./vendor/three/build/three.core.js": "./vendor/three/build/three.core.js?v=0.0.1",
-        "./vendor/three/build/three.module.js": "./vendor/three/build/three.module.js?v=0.0.1",
-        "./vendor/three/examples/jsm/controls/OrbitControls.js": "./vendor/three/examples/jsm/controls/OrbitControls.js?v=0.0.1",
-        "./vendor/three/examples/jsm/utils/BufferGeometryUtils.js": "./vendor/three/examples/jsm/utils/BufferGeometryUtils.js?v=0.0.1"
+        "three": "./vendor/three/build/three.module.js?v=0.0.2",
+        "three/addons/controls/OrbitControls.js": "./vendor/three/examples/jsm/controls/OrbitControls.js?v=0.0.2",
+        "three/addons/utils/BufferGeometryUtils.js": "./vendor/three/examples/jsm/utils/BufferGeometryUtils.js?v=0.0.2",
+        "./js/accept/check.js": "./js/accept/check.js?v=0.0.2",
+        "./js/accept/crt.js": "./js/accept/crt.js?v=0.0.2",
+        "./js/accept/model.js": "./js/accept/model.js?v=0.0.2",
+        "./js/accept/scene.js": "./js/accept/scene.js?v=0.0.2",
+        "./js/app/about.js": "./js/app/about.js?v=0.0.2",
+        "./js/app/aboutData.js": "./js/app/aboutData.js?v=0.0.2",
+        "./js/app/dock.js": "./js/app/dock.js?v=0.0.2",
+        "./js/app/link.js": "./js/app/link.js?v=0.0.2",
+        "./js/app/main.js": "./js/app/main.js?v=0.0.2",
+        "./js/app/processor.js": "./js/app/processor.js?v=0.0.2",
+        "./js/app/programCard.js": "./js/app/programCard.js?v=0.0.2",
+        "./js/app/runner.js": "./js/app/runner.js?v=0.0.2",
+        "./js/app/selftest.js": "./js/app/selftest.js?v=0.0.2",
+        "./js/app/stage.js": "./js/app/stage.js?v=0.0.2",
+        "./js/app/strip.js": "./js/app/strip.js?v=0.0.2",
+        "./js/app/teletype.js": "./js/app/teletype.js?v=0.0.2",
+        "./js/l10n/en.js": "./js/l10n/en.js?v=0.0.2",
+        "./js/l10n/l10n.js": "./js/l10n/l10n.js?v=0.0.2",
+        "./js/scene/terminal3d.js": "./js/scene/terminal3d.js?v=0.0.2",
+        "./js/scene/viewer.js": "./js/scene/viewer.js?v=0.0.2",
+        "./js/sim/adept.js": "./js/sim/adept.js?v=0.0.2",
+        "./js/sim/agt.js": "./js/sim/agt.js?v=0.0.2",
+        "./js/sim/amos.js": "./js/sim/amos.js?v=0.0.2",
+        "./js/sim/amoscode.js": "./js/sim/amoscode.js?v=0.0.2",
+        "./js/sim/array.js": "./js/sim/array.js?v=0.0.2",
+        "./js/sim/dpr2.js": "./js/sim/dpr2.js?v=0.0.2",
+        "./js/sim/dsply.js": "./js/sim/dsply.js?v=0.0.2",
+        "./js/sim/figures.js": "./js/sim/figures.js?v=0.0.2",
+        "./js/sim/font.js": "./js/sim/font.js?v=0.0.2",
+        "./js/sim/frameclock.js": "./js/sim/frameclock.js?v=0.0.2",
+        "./js/sim/image.js": "./js/sim/image.js?v=0.0.2",
+        "./js/sim/listing.js": "./js/sim/listing.js?v=0.0.2",
+        "./js/sim/programs.js": "./js/sim/programs.js?v=0.0.2",
+        "./js/sim/teletype.js": "./js/sim/teletype.js?v=0.0.2",
+        "./js/sim/terminal.js": "./js/sim/terminal.js?v=0.0.2",
+        "./js/sim/vecgen.js": "./js/sim/vecgen.js?v=0.0.2",
+        "./js/sim/words.js": "./js/sim/words.js?v=0.0.2",
+        "./js/ui/components.js": "./js/ui/components.js?v=0.0.2",
+        "./js/view/beam.js": "./js/view/beam.js?v=0.0.2",
+        "./js/view/crt.js": "./js/view/crt.js?v=0.0.2",
+        "./js/view/phosphor.js": "./js/view/phosphor.js?v=0.0.2",
+        "./js/view/theme.js": "./js/view/theme.js?v=0.0.2",
+        "./js/view/traces.js": "./js/view/traces.js?v=0.0.2",
+        "./package.json": "./package.json?v=0.0.2",
+        "./params/terminal.json": "./params/terminal.json?v=0.0.2",
+        "./vendor/material-symbols/icons.js": "./vendor/material-symbols/icons.js?v=0.0.2",
+        "./vendor/three/build/three.core.js": "./vendor/three/build/three.core.js?v=0.0.2",
+        "./vendor/three/build/three.module.js": "./vendor/three/build/three.module.js?v=0.0.2",
+        "./vendor/three/examples/jsm/controls/OrbitControls.js": "./vendor/three/examples/jsm/controls/OrbitControls.js?v=0.0.2",
+        "./vendor/three/examples/jsm/utils/BufferGeometryUtils.js": "./vendor/three/examples/jsm/utils/BufferGeometryUtils.js?v=0.0.2"
       }
     }
     </script>
@@ -72,7 +74,7 @@
   <body>
     <header id="topbar">
       <div class="brand">
-        <img class="brand-mark" src="images/logo.svg?v=0.0.1" alt="">
+        <img class="brand-mark" src="images/logo.svg?v=0.0.2" alt="">
         <span class="brand-name" data-l10n="app.name">AGT-30 Simulator</span>
         <span class="brand-tag" data-l10n="app.tagline"></span>
       </div>
@@ -120,6 +122,7 @@
         <div id="dock-tabs" role="tablist">
           <button id="tab-program" class="dock-tab" role="tab" aria-controls="pane-program" type="button"><span data-l10n="dock.program"></span><span class="dot" hidden></span></button>
           <button id="tab-tty" class="dock-tab" role="tab" aria-controls="pane-tty" type="button"><span data-l10n="dock.teletype"></span><span class="dot" hidden></span></button>
+          <button id="tab-proc" class="dock-tab" role="tab" aria-controls="pane-proc" type="button"><span data-l10n="dock.processor"></span><span class="dot" hidden></span></button>
         </div>
         <span class="spacer"></span>
         <button id="dock-fold" class="btn icon-only" type="button" data-l10n-tip="dock.fold"><i data-icon="keyboard_arrow_down"></i></button>
@@ -137,9 +140,23 @@
           <pre id="tty-text"></pre>
         </div>
       </div>
+      <div id="pane-proc" class="dock-pane" role="tabpanel" aria-labelledby="tab-proc" hidden>
+        <div class="proc-bar">
+          <label class="proc-goto" for="proc-goto"><span data-l10n="proc.goto"></span></label>
+          <span class="proc-field"><input id="proc-goto" class="mono" type="text" spellcheck="false" autocomplete="off" data-tip-describes data-l10n-tip="proc.goto.tip"><button id="proc-choices" class="btn icon-only" type="button" aria-haspopup="menu" aria-expanded="false" data-l10n-tip="proc.choices"><i data-icon="keyboard_arrow_down"></i></button></span>
+          <button id="proc-go" class="btn small tonal" type="button"><span data-l10n="proc.go"></span></button>
+          <div id="proc-modes"></div>
+          <button id="proc-follow" class="switch" type="button" role="switch" aria-checked="true" data-tip-describes data-l10n-tip="proc.follow.tip"><span class="switch-track"><span class="switch-thumb"></span></span><span data-l10n="proc.follow"></span></button>
+          <span class="spacer"></span>
+          <span class="proc-ours" data-l10n="proc.ours"></span>
+        </div>
+        <div id="proc-regs" class="proc-regs mono"></div>
+        <div id="proc-state" class="proc-state"></div>
+        <div id="proc-list" class="proc-list mono" tabindex="0" data-l10n-tip="proc.list.tip"></div>
+      </div>
     </section>
 
     <footer id="status" role="status" aria-live="polite"><span id="status-text"></span><span id="fps" class="fps"></span></footer>
-    <script type="module" src="js/app/main.js?v=0.0.1"></script>
+    <script type="module" src="js/app/main.js?v=0.0.2"></script>
   </body>
 </html>

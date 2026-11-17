@@ -13,7 +13,7 @@
 [ SEEN), THEN SHOWS ITS MARK THROUGH AN IMG ITEM: THE PROGRAM PLACES A MARK
 [ BY STORING ONE WORD, IMG (XMARK) OR IMG (OMARK), OVER IT.  EACH LAYER
 [ SAVES THE TRANSFORM ONCE AND STEPS FROM CELL TO CELL WITH DV.
-BOARD:  TEXT /BOARD/
+BOARD:  TEXT /BOARD/; 0
 [ THE TITLE: EACH LETTER IS A SUB-IMAGE OF THE STROKE FONT (CH84 IS T),
 [ SCALED AND PLACED BY THE ARRAY.  IT IS IN THE CUBE'S SPACE, SO IT TURNS
 [ WITH THE CUBE.
@@ -86,14 +86,14 @@ WINL:   IMG (EMPTY)             [ THE WINNING LINE, WHEN THERE IS ONE
 [ THE MARKS.  EACH FIRST LOADS A ZERO ROTATION (LDRX: THE ROTATION IS
 [ REPLACED, THE PLACE KEPT), SO IT FACES THE VIEWER HOWEVER THE CUBE IS
 [ TURNED.  EACH LINE IS DRAWN TWICE, SO IT GLOWS BRIGHTER THAN THE GRID.
-EMPTY:  TEXT /EMPTY/
+EMPTY:  TEXT /EMPTY/; 0
         RET
-XMARK:  TEXT /XMARK/
+XMARK:  TEXT /XMARK/; 0
         LDRX (0DEG)
         MOVE (0, -.09, -.09); DRAW (0, .09, .09); MOVE (0, -.09, .09); DRAW (0, .09, -.09)
         MOVE (0, -.09, -.09); DRAW (0, .09, .09); MOVE (0, -.09, .09); DRAW (0, .09, -.09)
         RET
-OMARK:  TEXT /OMARK/
+OMARK:  TEXT /OMARK/; 0
         LDRX (0DEG)
         REPEAT 2
         MOVE (0, .09, .04); DRAW (0, .09, -.04); DRAW (0, .04, -.09); DRAW (0, -.04, -.09)
@@ -103,7 +103,7 @@ OMARK:  TEXT /OMARK/
         RET
 [ THE WINNING LINE: THE PROGRAM COPIES THE FIRST AND LAST CELLS' PLACES
 [ INTO W1 TO W4, TWICE, SO IT TOO GLOWS BRIGHTER.
-WIN:    TEXT /WIN/
+WIN:    TEXT /WIN/; 0
 W1:     MOVE (0, 0, 0)
 W2:     DRAW (0, 0, 0)
 W3:     MOVE (0, 0, 0)
@@ -111,7 +111,7 @@ W4:     DRAW (0, 0, 0)
         RET
 [ THE VIEW: WHOSE TURN IT IS, IN THE CORNER, THEN THE CUBE, TURNED BY THE
 [ DIALS FROM A VIEW A LITTLE FROM ABOVE AND TO THE SIDE
-V.TTT:  TEXT /V.TTT/
+V.TTT:  TEXT /V.TTT/; 0
         ANDMB (65600)
         SAVT; DV (0, -.8, .8); TURN: IMG (XMARK); REST
         RXYZ'IRL (DIALZ'DIR, DIALX'DIR, DIALY'DIR)
@@ -123,9 +123,9 @@ V.TTT:  TEXT /V.TTT/
 [ THE PROGRAM.  THE BOARD IS 27 WORDS: 0 EMPTY, 1 X, 5 O.  A LINE ADDS UP TO 3
 [ WHEN X HOLDS IT, 17 (15 DECIMAL) WHEN O DOES.
 TTT:    0                       [ THE RETURN ADDRESS GOES HERE
-        MDAR'F BRD
+        MDAR'L; BRD-1           [ 'X STEPS A POINTER BEFORE IT IS USED
         ARMD G.P
-        MDAR'F MKS
+        MDAR'L; MKS-1
         ARMD G.Q
         ARXO
         ARMD G.K
@@ -139,11 +139,11 @@ G.CLR:  ARXO
         MDAR G.K
         MDAS'F 1
         ARMD G.K
-        MDXO'F 27.
+        MDXO'L; 27.
         JPLS G.CLR              [ COUNT UP TO 27: NO -0 TO WORRY ABOUT
         MDAR G.IE
         ARMD WINL               [ NO WINNING LINE
-        MDAR'F 1
+        MDAR'L; 1
         ARMD G.WHO              [ X PLAYS FIRST
         MDAR G.IX
         ARMD TURN
@@ -169,16 +169,16 @@ G.WAIT: S5AR'H                  [ THE FUNCTION KEYS, KEY 0 AT THE TOP
         JUMP G.WAIT
 G.K0:   ARXO
         JUMP G.KL
-G.K1:   MDAR'F 1
+G.K1:   MDAR'L; 1
         JUMP G.KL
-G.K2:   MDAR'F 2
+G.K2:   MDAR'L; 2
 G.KL:   ARMD G.LAY
         JPSR G.SETL
         JUMP G.WAIT
 G.HIT:  MDAR PHT
         ARMD G.LAST
         JPSR PENHT; G.N; G.IT; G.IM
-        MDAR'F TKS              [ WHICH CELL'S TICK WAS SEEN?
+        MDAR'L; TKS-1           [ WHICH CELL'S TICK WAS SEEN?
         ARMD G.Q
         ARXO
         ARMD G.C
@@ -189,23 +189,23 @@ G.FND:  MDAR'I'X G.Q
 G.NX:   MDAR G.C
         MDAS'F 1
         ARMD G.C
-        MDXO'F 27.
+        MDXO'L; 27.
         JPLS G.FND
         JUMP G.WAIT             [ NOT A CELL: A MARK
 G.GOT:  MDAR G.C
-        MDAS'F BRD
+        MDAE'L; BRD
         ARMD G.A
         MDAR'I G.A
         JPLS G.WAIT             [ TAKEN
         MDAR G.WHO
         ARMD'I G.A              [ THE BOARD
         MDAR G.C
-        MDAS'F MKS
+        MDAE'L; MKS
         ARMD G.B
         MDAR'I G.B
         ARMD G.B                [ THE CELL'S IMG ITEM
         MDAR G.WHO
-        MDXO'F 1
+        MDXO'L; 1
         JPLS G.PO
         MDAR G.IX
         JUMP G.PUT
@@ -216,14 +216,14 @@ G.PUT:  ARMD'I G.B              [ ITS PICTURE: IMG (XMARK) OR IMG (OMARK)
         MDAR G.MV
         MDAS'F 1
         ARMD G.MV
-        MDXO'F 27.
+        MDXO'L; 27.
         JPLS G.NEXT
         JPSR G.TYP; G.MD        [ ALL 27 CELLS TAKEN (ON THIS BOARD A LINE COMES FIRST)
         JUMP'I TTT
-G.NEXT: MDAR'F 6
+G.NEXT: MDAR'L; 6
         MDAS'N G.WHO            [ THE OTHER PLAYER: 1 <-> 5
         ARMD G.WHO
-        MDXO'F 1
+        MDXO'L; 1
         JPLS G.TO
         MDAR G.IX
         JUMP G.TS
@@ -232,7 +232,7 @@ G.TS:   ARMD TURN
         JUMP G.WAIT
 G.WON:  JPSR G.LINE             [ DRAW THE WINNING LINE
         MDAR G.WHO
-        MDXO'F 1
+        MDXO'L; 1
         JPLS G.OW
         JPSR G.TYP; G.MX
         JUMP'I TTT
@@ -243,9 +243,9 @@ G.OW:   JPSR G.TYP; G.MO
 [ TWO WHOLE ITEMS OVER ITS D AND ITS P: SOLID AND PEN ON FOR THE CHOSEN
 [ LAYER, DASHED AND PEN OFF FOR THE OTHERS.
 G.SETL: 0
-        MDAR'F DLS
+        MDAR'L; DLS-1
         ARMD G.P
-        MDAR'F PLS
+        MDAR'L; PLS-1
         ARMD G.Q
         ARXO
         ARMD G.K
@@ -268,15 +268,15 @@ G.SO:   MDAR G.DSH
 G.SN:   MDAR G.K
         MDAS'F 1
         ARMD G.K
-        MDXO'F 3
+        MDXO'L; 3
         JPLS G.SL
         JUMP'I G.SETL
 [
 [ G.CHK: ADD UP EACH OF THE 49 LINES.  RETURN AR = 1 IF A LINE IS ALL ONE
-[ PLAYER'S, 0 IF NONE; G.LP IS THEN JUST PAST THAT LINE.  REPEAT WRITES
+[ PLAYER'S, 0 IF NONE; G.LP IS THEN AT THAT LINE'S LAST CELL.  REPEAT WRITES
 [ THE ADDITION OUT THREE TIMES.
 G.CHK:  0
-        MDAR'F LNS
+        MDAR'L; LNS-1
         ARMD G.LP
         ARXO
         ARMD G.LK
@@ -284,27 +284,27 @@ G.LN:   ARXO
         ARMD G.S
         REPEAT 3
         MDAR'I'X G.LP           [ THE NEXT CELL OF THE LINE
-        MDAS'F BRD
+        MDAE'L; BRD
         ARMD G.A
         MDAR'I G.A
         MDAS G.S
         ARMD G.S
         ENDR
-        MDXO'F 3
+        MDXO'L; 3
         JPLS G.L2
         JUMP G.YES              [ THREE X
 G.L2:   MDAR G.S
-        MDXO'F 17
+        MDXO'L; 17
         JPLS G.L3
         JUMP G.YES              [ THREE O
 G.L3:   MDAR G.LK
         MDAS'F 1
         ARMD G.LK
-        MDXO'F 49.
+        MDXO'L; 49.
         JPLS G.LN
         ARXO
         JUMP'I G.CHK
-G.YES:  MDAR'F 1
+G.YES:  MDAR'L; 1
         JUMP'I G.CHK
 [
 [ G.LINE: COPY THE WINNING LINE'S FIRST AND LAST CELLS INTO WIN, AS A MOVE
@@ -312,24 +312,18 @@ G.YES:  MDAR'F 1
 [ SHOW WIN.
 G.LINE: 0
         MDAR G.LP
-        MDAS'F'N 3              [ BACK TO THE LINE'S FIRST CELL
+        MDAS'F'N 2              [ BACK TO THE LINE'S FIRST CELL
         ARMD G.A
         MDAR'I G.A
         JPSR G.CP; WMV; W1
         MDAR G.LP
-        MDAS'F'N 3
+        MDAS'F'N 2
         ARMD G.A
         MDAR'I G.A
         JPSR G.CP; WMV; W3
-        MDAR G.LP
-        MDAS'F'N 1              [ THE LAST CELL
-        ARMD G.A
-        MDAR'I G.A
+        MDAR'I G.LP             [ THE LAST CELL
         JPSR G.CP; WDR; W2
-        MDAR G.LP
-        MDAS'F'N 1
-        ARMD G.A
-        MDAR'I G.A
+        MDAR'I G.LP
         JPSR G.CP; WDR; W4
         MDAR G.IW
         ARMD WINL
@@ -339,19 +333,20 @@ G.LINE: 0
 G.CP:   0
         ARMD G.T
         MDAS G.T                [ TWO WORDS A CELL
-        MDAS'I'X G.CP           [ + THE TABLE
+        MDAE'I G.CP             [ + THE TABLE
         ARMD G.R
         MDAR'I'X G.CP
         ARMD G.D                [ THE DESTINATION
-        MDAR'I'X G.R
-        ARMD'I'X G.D
         MDAR'I G.R
         ARMD'I G.D
-        JUMP'I G.CP
+        MDAR'I'X G.R
+        ARMD'I'X G.D
+        JUMP'I'X G.CP
 [
 [ G.TYP: TYPE A LINE.  CALL:  JPSR G.TYP; TEXT'S ADDRESS
 G.TYP:  0
-        MDAR'I'X G.TYP
+        MDAR'I G.TYP
+        MDAS'F'N 1              [ 'X STEPS THE POINTER BEFORE IT IS USED
         ARMD G.TP
 G.TW:   MDAR'I'X G.TP
         ARMD G.TC
@@ -368,24 +363,24 @@ G.TT:   OPTY
         MDAR G.TK
         MDAS'F 1
         ARMD G.TK
-        MDXO'F 5
+        MDXO'L; 5
         JPLS G.TCH
         JUMP G.TW
-G.TE:   MDAR'F 15
+G.TE:   MDAR'L; 15
 G.TE2:  OPTY
         JUMP G.TE2
-        JUMP'I G.TYP
+        JUMP'I'X G.TYP
 G.TP:   0
 G.TC:   0
 G.TK:   0
 G.T77:  77
-G.M0:   TEXT /X PLAYS FIRST./      [ SHORT: THE GAME WAITS UNTIL IT IS PRINTED
+G.M0:   STRING /X PLAYS FIRST./      [ SHORT: THE GAME WAITS UNTIL IT IS PRINTED
         0
-G.MX:   TEXT /X WINS./
+G.MX:   STRING /X WINS./
         0
-G.MO:   TEXT /O WINS./
+G.MO:   STRING /O WINS./
         0
-G.MD:   TEXT /A DRAW./
+G.MD:   STRING /A DRAW./
         0
 [ WHOLE ITEMS AND WORDS THE PROGRAM STORES
 G.IE:   IMG (EMPTY)

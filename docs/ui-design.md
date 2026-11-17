@@ -105,7 +105,7 @@ The installation seen whole is much wider than it is tall, so, as in the 8800 si
 │                                                               │ Look at screen │ │
 │ ╭ dials ◯◯◯◯◯◯ │ keys ▢▢▢▢ ▢▢▢▢ ▢▢▢▢ ▢▢▢▢ │ pen ✎ ╮              └────────────────┘ │  console strip
 ├════════════════════════════════ drag ════════════════════════════════════════════┤
-│ Program •   Teletype                                                           ▾ │  dock tabs
+│ Program •   Teletype   Processor                                               ▾ │  dock tabs
 │ THE ADAGE GRAPHICS TERMINAL                                                      │
 │ DSPLY (V.CUBE, 2)!                                                               │  (paper, 72 columns)
 │ CLOCK (DIALS+1, DI.EX)!                                                          │
@@ -118,13 +118,14 @@ The page is a fixed frame: top bar, stage, dock, status line. The page itself ne
 
 ## Part 4. Decisions
 
-### U1. The dock below the stage, two tools: Program and Teletype
+### U1. The dock below the stage, three tools: Program, Teletype and Processor
 
 The dock is full width under the stage, resizable by its top edge, and folds to its tab bar.
 - **Program** is the loaded program's card (U7).
 - **Teletype** is the paper and keyboard (U9).
+- **Processor** looks into the DPR-2 (U15). *(v0.0.2)*
 
-A folded dock opens on Program when a program is chosen; an open one stays on the tab the reader chose, and the other tab gets an activity dot. *(build, after the manual check: choosing a program first switched an open dock back to Program, away from the Teletype the reader was watching.)* Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4).
+A folded dock opens on Program when a program is chosen; an open one stays on the tab the reader chose, and the other tab gets an activity dot. *(build, after the manual check: choosing a program first switched an open dock back to Program, away from the Teletype the reader was watching.)* Its tab carries an activity dot meanwhile (as in the 8800 simulator). The stage keeps at least 320 px of height. Growing the dock shrinks the stage, and the 3D view refits (U4). The dock starts at 30 % of the window's height, and never below 210 px, so the Teletype shows a dozen lines or more. *(v0.0.2, after the manual check: a fixed 210 px showed only four lines of paper on a large window.)*
 
 *Why below:* the room is a wide, flat subject, so a dock on the right would letterbox it. The Teletype needs the width.
 *Rejected:*
@@ -230,3 +231,18 @@ About is a dialog with a title band:
 - credits: sources, people and libraries;
 - the licences, one per line;
 - a link to the source repository.
+
+### U15. The Processor tab: a look into the DPR-2 *(v0.0.2)*
+
+A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
+- **Registers:** LC, AR, BR, IC, the sense lines S4 and ER, in octal halves; then which program runs, whether interrupts are frozen, the channels in service and waiting, and the instructions so far.
+- **A listing of core** with the assembler's symbols: labels, the words in octal halves, and the words read as DPR-2 instructions, as DSPLY's image items, or as words (octal and AMOS characters). An address operand is written as a symbol, or a symbol plus an octal offset, and is a link to it. The word after an 'L instruction is shown as its operand.
+- **Go to** takes an octal address or a symbol, with or without an offset; empty, it goes back to where the processor is and turns Follow on. Its dropdown offers places to go, from the machine as it is: the processor, the program running, the picture shown and the CLOCK routines; then the resident routines and the pictures in core. A picture opens as image items, a routine as instructions. The wheel and the arrow keys move through core.
+- **The three readings** are one choice, a single-select segmented button (Material 3). *(after the manual check: three separate buttons did not say they excluded each other.)*
+- **Follow** keeps the last instruction the processor executed in view, highlighted, a third of the way down, and is on at start. Go to, a link, the wheel or the keys turn it off. *(after the manual check: it first followed LC, which reads 00000 whenever no program runs, since the registers are restored around the CLOCK chain.)*
+- It is drawn ten times a second, only while it is in view.
+
+*Why look only:* stepping would have to pause the whole terminal (the frame clock, DSPLY, the Teletype), not the processor alone, and editing core is already the monitor's (OPEN). A view that cannot change the machine cannot break a running program.
+*Why:* since v0.0.2 the words in core are the real DPR-2's (R1); typing LIST and OPEN on the Teletype is how an operator read them, but not how a visitor today expects to.
+It is labelled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
+

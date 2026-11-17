@@ -20,6 +20,7 @@ import { Runner } from "./runner.js";
 import { selftestRequested, runSelftest } from "./selftest.js";
 import { Stage } from "./stage.js";
 import { buildStrip } from "./strip.js";
+import { buildProcessor } from "./processor.js";
 import { buildTeletype } from "./teletype.js";
 
 /** @typedef {import("../sim/programs.js").Program} Program */
@@ -77,10 +78,15 @@ async function start() {
     setPen: (on) => strip.setPen(on),
   }, query.get("phosphor"));
   if (query.has("debug")) Object.defineProperty(window, "stage", { value: stage });
-  const dock = buildDock(() => stage.refit());
+  /** @type {{ render: (force?: boolean) => void } | null} */
+  let proc = null;
+  const dock = buildDock(() => stage.refit(), (id) => {
+    if (id === "proc") proc?.render(true);
+  });
   const tty = buildTeletype(machine, () => {
     if (!dock.ttyShown()) dock.mark("tty");
   });
+  proc = buildProcessor(machine, say, () => dock.procShown());
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
   // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu
@@ -139,6 +145,7 @@ async function start() {
     program = null;
     drawCard();
     tty.render();
+    proc?.render(true);
     writeLink();
     say(t("status.reset"));
   });
@@ -156,6 +163,7 @@ async function start() {
     strip.update();
     syncSwitches(programCard, agt);
     tty.render();
+    proc?.render();
     if (agt.typing !== wasBusy) {
       wasBusy = agt.typing;
       drawCard();

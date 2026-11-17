@@ -2,6 +2,27 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## 0.0.2
+
+The processor becomes the real DPR-2. Since v0.0.1, M. Howard's images of NCSU's tapes, with real ADEPT source and binaries, and Adage's own manual for the processor have come to light; the simulator now follows both, and a new tab shows the processor at work.
+
+**The machine**
+- The DPR-2 follows its manual (DPR2SPI; [research/dpr2-manual.md](research/dpr2-manual.md)), which the NCSU tapes bear out ([research/dpr2-encodings.md](research/dpr2-encodings.md)): the instruction layout and every code (R1, settled); AN and LS as defined, so −0 is negative and has lower significance; AS adding a sign-extended lower half to all of AR; 'F's operand the instruction itself; 'L, the operand in the next word; indirect chains, and 'X incrementing a word before it is read; JPSR keeping its word's upper half; the EAU's product and quotient as fractions, checked against the manual's examples (R6, settled); PINT on channel 14 (R10). The octal words in core are now the real machine's.
+- A dial is read as on the AGT/30: GDD1 selects it, and the converter ADC5 puts it in S5 (R7).
+- The assembler is ADEPT as its manual describes it (R8): macros, REPEAT and IREPEAT, conditional translation, STRING and ASCII, `.`, `$` externals, a space between terms as `+`, rotations, mnemonics as values, and the NCSU sources' instructions. All 34 routines of the NCSU tripp tape assemble to their binaries' words. TEXT fills only the words it needs.
+- The monitor follows the 1971 AMRMX manual (R9): at start it asks the date, `MO/DA/YR = `, and the simulator answers it at once, so nothing waits on a new reader; it takes `V!`, `CORE!`, `DEC!`, `OCT!`, `MARK!` and `RLSE`, and answers `*` for an argument that does not evaluate.
+- The programs' sources follow the real instruction set: a routine takes its arguments with `MDAR'I S`, then `MDAR'I'X S`, and returns with `JUMP'I'X S`; whole constants are loaded with 'L; loops count up, since 1 − 1 is −0.
+
+**The page**
+- A third dock tab, **Processor** (U15): the DPR-2's registers and interrupts, and core listed with the programs' symbols, read as instructions, display items or words; Go to an address or a symbol, places to go chosen from what runs and what is shown, and Follow, which keeps the processor's last instruction in view. It only looks. A view the real AGT never had.
+- The dock starts at a share of the window's height, so the Teletype shows a dozen lines or more.
+- The README is written for new users: a quick start, the machine's ideas beside the nearest thing today, and a guide to the page.
+
+**Research and tools**
+- Notes on the NCSU tapes, the DPR-2's block diagram and manual, and AMRMX on NCSU's system pack ([research/](research/)), and a log of our correspondence.
+- `tools/amos-tape.mjs` reads the NCSU tape images; `tools/dpr2-pairs.mjs` pairs their source with their binaries; `tools/adept-check.mjs` assembles their sources and compares. The tapes themselves are not in the repository.
+- `pnpm check` runs 113 tests, among them CPU-5 to CPU-10 and MON-5 to MON-6 for the above. The headless launcher never leaves Chrome running.
+
 ## 0.0.1
 
 The first pre-release: small, honest about what it reconstructs, and good enough to show people who know the machine. It is public from the first commit, so nothing in it is there only to collect feedback (U12).

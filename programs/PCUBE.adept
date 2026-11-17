@@ -51,14 +51,14 @@ PCUBE:  0
         JPSR PC.SIN
         ARMD SY
         MDAR DIALY
-        MDAE'F 20000            [ COS A = SIN (A + 1/2)
+        MDAS'F 20000            [ COS A = SIN (A + 1/2)
         JPSR PC.SIN
         ARMD CY
         MDAR DIALX
         JPSR PC.SIN
         ARMD SX
         MDAR DIALX
-        MDAE'F 20000
+        MDAS'F 20000
         JPSR PC.SIN
         ARMD CX
         MDAR'N SY
@@ -69,16 +69,16 @@ PCUBE:  0
         ARMD M22                [ CY CX
 [ EACH CORNER: ITS DEPTH RZ, THEN ITS SCALE DIVIDED BY 1.5,
 [ 1 / (1.5 - .75 RZ) = (1/2) / (.75 - .375 RZ) = 2**27 / (.75 - .375 RZ)
-[ IN THESE UNITS.
-        MDAR'F 8.
-        ARMD PC.N
-        MDAR'F VX
+[ IN THESE UNITS; THE EAU DIVIDES BY TWICE ITS DIVISOR, SO 2**28.
+        ARXO
+        ARMD PC.N               [ COUNT THE CORNERS UP: 1 - 1 IS -0, AND LS SEES -0
+        MDAR'L; VX-1            [ 'X STEPS A POINTER BEFORE IT IS USED
         ARMD P.VX
-        MDAR'F VY
+        MDAR'L; VY-1
         ARMD P.VY
-        MDAR'F VZ
+        MDAR'L; VZ-1
         ARMD P.VZ
-        MDAR'F S0
+        MDAR'L; S0-1
         ARMD P.S
 PC.V:   MDAR'I'X P.VX
         ARMD CRX
@@ -99,71 +99,73 @@ PC.V:   MDAR'I'X P.VX
         MDAR K75
         MDAE'N T3
         ARMD DEN                [ .75 - .375 RZ
-        MDAR TWO27
-        DIVL DEN
+        MDAR TWO28
+        DIVL DEN                [ THE QUOTIENT IN THE LOWER HALF
+        MDAR'A'L; 77777         [ (THE REMAINDER, IN THE UPPER, DROPPED)
         ARMD'I'X P.S            [ THE CORNER'S SCALE
         MDAR PC.N
-        MDAE'F'N 1
+        MDAS'F 1
         ARMD PC.N
+        MDXO'L; 8.
         JPLS PC.V
 PC.EX:  NOOP                    [ CLOCK PUTS THE RETURN HERE
 [
 [ PC.MUL: AR = A TIMES B, TWO FRACTIONS.  CALL:  JPSR PC.MUL; A; B
 [ (A AND B ARE THE WORDS' ADDRESSES)
 PC.MUL: 0
-        MDAR'I'X PC.MUL
+        MDAR'I PC.MUL
         ARMD PM.A
         MDAR'I'X PC.MUL
         ARMD PM.B
         MDAR'I PM.A
-        MPYL'I PM.B             [ 2**14 TIMES 2**14
-        ARRS 14.
-        JUMP'I PC.MUL
+        MPYL'I PM.B             [ 2**14 TIMES 2**14, TIMES 2
+        ARRS 15.
+        JUMP'I'X PC.MUL
 [
 [ PC.SIN: AR = SIN (PI AR), AR A FRACTION OF PI FROM -3/2 TO 3/2.  IT IS
 [ BROUGHT INTO -1/2 .. 1/2 BY SIN (PI X) = SIN (PI (1 - X)), THEN AN ODD
 [ POLYNOMIAL OF DEGREE 7 IN X, ITS COEFFICIENTS TIMES 2**11.
 PC.SIN: 0
         ARMD PS.X
-        MDAE'F'N 20000          [ X - 1/2
+        MDAS'F'N 20000          [ X - 1/2
         JPAN PS.A
-        MDAR'F 40000            [ X >= 1/2: 1 - X
+        MDAR'L; 40000           [ X >= 1/2: 1 - X
         MDAE'N PS.X
         ARMD PS.X
         JUMP PS.B
 PS.A:   MDAR PS.X
-        MDAE'F 20000            [ X + 1/2
+        MDAS'F 20000            [ X + 1/2
         JPAN PS.N
         JUMP PS.B
-PS.N:   MDAR'F'N 40000          [ X < -1/2: -1 - X
+PS.N:   MDAR'L'N; 40000         [ X < -1/2: -1 - X
         MDAE'N PS.X
         ARMD PS.X
 PS.B:   MDAR PS.X
         MPYL PS.X
-        ARRS 14.
+        ARRS 15.
         ARMD PS.X2              [ X SQUARED
         MPYL PS.C7
-        ARRS 14.
+        ARRS 15.
         MDAE PS.C5
         MPYL PS.X2
-        ARRS 14.
+        ARRS 15.
         MDAE PS.C3
         MPYL PS.X2
-        ARRS 14.
+        ARRS 15.
         MDAE PS.C1
         MPYL PS.X
-        ARRS 11.
+        ARRS 12.
         ARMD PS.R               [ KEPT WITHIN A FRACTION: -1 < SIN < 1
-        MDAE'F'N 37777
+        MDAS'F'N 37777
         JPAN PS.UP
-        MDAR'F 37777
+        MDAR'L; 37777
         JUMP'I PC.SIN
 PS.UP:  MDAR PS.R
-        MDAE'F 37777
+        MDAS'F 37777
         JPAN PS.LO
         MDAR PS.R
         JUMP'I PC.SIN
-PS.LO:  MDAR'F'N 37777
+PS.LO:  MDAR'L'N; 37777
         JUMP'I PC.SIN
 PS.C1:  6434.                   [ PI
 PS.C3:  -10583.                 [ - PI**3 / 6
@@ -176,4 +178,4 @@ PC.N: 0; P.VX: 0; P.VY: 0; P.VZ: 0; P.S: 0
 PM.A: 0; PM.B: 0; PS.X: 0; PS.X2: 0; PS.R: 0
 K375:   .375
 K75:    .75
-TWO27:  1000000000              [ 2**27
+TWO28:  2000000000              [ 2**28

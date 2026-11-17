@@ -8,13 +8,14 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { assembleOp, onesAdd, TIME } from "../sim/dpr2.js";
+import { assembleOp, CHANNEL, disassemble, onesAdd, OPS, PIPVT, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
 import { Teletype } from "../sim/teletype.js";
 import { vectorTime } from "../sim/vecgen.js";
-import { bits, fromAngle, fromFrac, fromOnes15, oct, toFrac, toOnes15, word } from "../sim/words.js";
+import { bits, fromAngle, fromFrac, fromOnes15, hi, lo, oct, toFrac, toOnes15, word } from "../sim/words.js";
+import { packText } from "../sim/amoscode.js";
 import { equal, load, near, ok, typeAndRun } from "./check.js";
 
 /** @typedef {import("./check.js").Check} Check */
@@ -45,6 +46,17 @@ function lastFrame(agt) {
   const f = agt.frames.at(-1);
   ok(f, "no frame was drawn");
   return agt.segs.filter((s) => s.t0 >= f.start && s.t0 < f.end + 1);
+}
+
+/**
+ * A disassembled word back as assembleOp's arguments.
+ * @param {string} text
+ * @returns {[string, number, import("../sim/dpr2.js").Mods]}
+ */
+function disassembleOp(text) {
+  const [op, addr] = text.split(" ");
+  const [m, ...mods] = op.split("'");
+  return [m, parseInt(addr, 8), Object.fromEntries(mods.map((k) => [k, true]))];
 }
 
 /** @type {Check[]} */
@@ -156,7 +168,7 @@ export const MODEL_CHECKS = [
       const agt = ctx.boot();
       show(
         agt,
-        `T:  TEXT /T/
+        `T:  TEXT /T/; 0
              DRAW'IRL (Z0'DIR, P'I, Y0'DIR)
              RET
          Z0: 0
@@ -203,7 +215,7 @@ export const MODEL_CHECKS = [
     run(ctx) {
       const agt = ctx.boot();
       // a point on +X, turned 90 degrees about Z, lands on +Y
-      show(agt, "T: TEXT /T/\n ROTZ (90DEG)\n DRAW (0, .5, 0)\n RET\n");
+      show(agt, "T: TEXT /T/; 0\n ROTZ (90DEG)\n DRAW (0, .5, 0)\n RET\n");
       const s = lastFrame(agt).find((g) => g.vis);
       ok(s, "a stroke");
       const ps = fromFrac(agt.dsply.ps) * 10;
@@ -292,12 +304,12 @@ export const MODEL_CHECKS = [
     title: "Depth cueing: at full DIM a line at z'm = 0 is 10 times dimmer than at the front, and blanked in front of FRONT (FJCC68 p. 753, Fig. 14)",
     run(ctx) {
       const agt = ctx.boot();
-      show(agt, "T: TEXT /T/\n MOVE (0, -.5, 0)\n DRAW (0, .5, 0)\n RET\n", "VIEW (37777, 40000, 37777)!");
+      show(agt, "T: TEXT /T/; 0\n MOVE (0, -.5, 0)\n DRAW (0, .5, 0)\n RET\n", "VIEW (37777, 40000, 37777)!");
       const mid = lastFrame(agt).find((g) => g.vis);
       ok(mid, "a stroke at z' = 0");
       near(mid.i0, 0.1, 0.002, "intensity at z'm = 0");
       const front = ctx.boot();
-      show(front, "T: TEXT /T/\n MOVE (.9, -.5, 0)\n DRAW (.9, .5, 0)\n RET\n", "VIEW (.1, 40000, 37777)!");
+      show(front, "T: TEXT /T/; 0\n MOVE (.9, -.5, 0)\n DRAW (.9, .5, 0)\n RET\n", "VIEW (.1, 40000, 37777)!");
       ok(!lastFrame(front).some((g) => g.vis), "a line in front of FRONT is blanked");
     },
   },
@@ -308,8 +320,8 @@ export const MODEL_CHECKS = [
       /** @param {number} depth */
       const nest = (depth) => {
         let src = "";
-        for (let k = 0; k < depth; k++) src += `S${k}: TEXT /S${k}/\n IMG (S${k + 1})\n RET\n`;
-        src += `S${depth}: TEXT /END/\n MOVE (0, 0, 0)\n DRAW (0, .1, .1)\n RET\n`;
+        for (let k = 0; k < depth; k++) src += `S${k}: TEXT /S${k}/; 0\n IMG (S${k + 1})\n RET\n`;
+        src += `S${depth}: TEXT /END/; 0\n MOVE (0, 0, 0)\n DRAW (0, .1, .1)\n RET\n`;
         return src;
       };
       const ok16 = ctx.boot();
@@ -326,7 +338,7 @@ export const MODEL_CHECKS = [
     title: "SAVT and REST bracket a change of transform (DSPLY p. 24)",
     run(ctx) {
       const agt = ctx.boot();
-      show(agt, "T: TEXT /T/\n SAVT\n DX (.5)\n REST\n DRAW (0, 0, .5)\n RET\n");
+      show(agt, "T: TEXT /T/; 0\n SAVT\n DX (.5)\n REST\n DRAW (0, 0, .5)\n RET\n");
       const s = lastFrame(agt).find((g) => g.vis);
       ok(s, "a stroke");
       near(s.x1, 0, 2 * LSB * 10, "the move along X was undone");
@@ -353,12 +365,13 @@ export const MODEL_CHECKS = [
   },
   {
     id: "CPU-2",
-    title: "JPSR stores the return at A and continues at A+1; a routine takes its arguments after the call (SRM5 DPR3 p. 6; AMRMX p. 3)",
+    title: "JPSR stores the return at A and continues at A+1; a routine takes its arguments after the call (DPR2SPI pp. 35, 51-53; AMRMX p. 3)",
     run(ctx) {
       const agt = ctx.boot();
-      const r = assemble(agt.core, "S: 0\n MDAR'I'X S\n MDAE'I'X S\n JUMP'I S\nGO: JPSR S; 7; 5\n JUMP GO\n", USER_AT);
+      const r = assemble(agt.core, "S: 0\n MDAR'I S\n MDAE'I'X S\n JUMP'I'X S\nGO: JPSR S; 7; 5\n JUMP GO\n", USER_AT);
       equal(r.errors.length, 0, "assembled");
-      // S adds the two words after the call: it reads them through its return address, stepping it
+      // S adds the two words after the call: it reads them through its return address, which
+      // 'X steps before each use (DPR2SPI pp. 51-53)
       const go = agt.core.addr("GO");
       agt.core.write(go + 3, assembleOp("JUMP", go + 3));
       const run = agt.cpu.run(go, go + 3, 1000);
@@ -368,16 +381,185 @@ export const MODEL_CHECKS = [
   },
   {
     id: "CPU-3",
-    title: "RVCD reads a dial through the array's comparator to 2 LSB, in under 1 ms (SRM5 GHA4; R7)",
+    title: "RVCD reads a dial through GDD1 and ADC5 to 1 LSB: selecting the input starts the conversion, its result is S5[15-29] (DPR2SPI p. 41; DPR2BD; R7)",
     run(ctx) {
       const agt = ctx.boot();
       for (const v of [0.3, -0.71, 0.0005, 0.999]) {
         agt.setDial(2, v);
         const r = agt.cpu.call(agt.core.addr("RVCD"), [2], USER_AT, 10000);
         ok(r.done, "returned");
-        near(fromFrac(agt.cpu.AR & 0o77777), v, 2 * LSB, `dial at ${v}`);
-        ok(r.us < 1000, `in ${r.us} us`);
+        near(fromFrac(agt.cpu.AR & 0o77777), v, LSB, `dial at ${v}`);
+        equal(agt.cpu.AR >= 0o4000000000, v < 0, "its sign through the whole word");
+        ok(r.us < 100, `in ${r.us} us`);
       }
+    },
+  },
+  {
+    id: "CPU-4",
+    title: "Instruction words as the NCSU tapes' binaries show them, and 'L takes the next word (MH25; R1)",
+    run(ctx) {
+      /** @type {[string, import("../sim/dpr2.js").Mods, number][]} */
+      const words = [
+        ["MDAR", {}, 0o21000], ["ARMD", {}, 0o20100], ["MDAR", { I: true, X: true }, 0o21003], ["MDAR", { A: true }, 0o21010],
+        ["MDAR", { H: true, O: true }, 0o21064], ["ARXO", { F: true }, 0o77100], ["S5AR", { H: true, A: true, F: true }, 0o61570],
+        ["MDBR", { K: true }, 0o22040], ["MDIC", { A: true }, 0o23010], ["MDIR", { X: true }, 0o24002], ["MDAE", { N: true }, 0o36014],
+        ["MDAS", { F: true, N: true }, 0o75014], ["JPSR", {}, 0o20], ["JUMP", { I: true }, 0o41], ["JPAN", {}, 0o100], ["JPLS", {}, 0o140],
+        ["FPRI", {}, 0o360], ["UPRI", {}, 0o340], ["ARRS", {}, 0o17440], ["MPYI", {}, 0o15440], ["DIVI", {}, 0o16440],
+      ];
+      for (const [m, mods, upper] of words) {
+        const w = assembleOp(m, 0o123, mods);
+        equal(w, upper * 0o100000 + 0o123, `${m}${Object.keys(mods).map((k) => `'${k}`).join("")}`);
+        equal(assembleOp(...disassembleOp(disassemble(w))), w, `${disassemble(w)} disassembles and assembles back`);
+      }
+      const agt = ctx.boot();
+      const at = USER_AT;
+      [0o4100000000, 0o1234, assembleOp("NOOP", 0)].forEach((w, i) => agt.core.write(at + i, w));
+      agt.cpu.LC = at;
+      agt.cpu.step();
+      equal(agt.cpu.AR, 0o1234, "MDAR'L loads the next word");
+      equal(agt.cpu.LC, at + 2, "and skips it");
+    },
+  },
+
+  {
+    id: "CPU-5",
+    title: "The special instructions' codes are Adage's (DPR2SPI p. 36, Figure 6; ADEPT71 p. 41; R1)",
+    run() {
+      /** @type {[string, number][]} */
+      const codes = [
+        ["NOOP", 0], ["JPSR", 0o20], ["JUMP", 0o40], ["JSAN", 0o60], ["JPAN", 0o100], ["JSLS", 0o120], ["JPLS", 0o140],
+        ["OPTY", 0o160], ["OPCR", 0o200], ["SKUA", 0o220], ["SKLA", 0o240], ["CNVT", 0o320], ["UPRI", 0o340], ["FPRI", 0o360],
+        ["OPTI", 0o460], ["PINT", 0o560], ["OPIO", 0o600], ["MPYU", 0o15400], ["DIVU", 0o16400], ["MPYL", 0o15420],
+        ["DIVL", 0o16420], ["MPYI", 0o15440], ["DIVI", 0o16440], ["ARRS", 0o17440], ["ARLS", 0o17500], ["NORM", 0o17520],
+        ["ERAR", 0o17540],
+      ];
+      for (const [m, code] of codes) equal(OPS[m], code, m);
+      equal(Object.keys(OPS).length, codes.length, "and no others");
+      equal(assembleOp("PULSE", 0), assembleOp("OPCR", 0), "PULSE, as the NCSU sources name it, is OPCR's code");
+      equal(assembleOp("ANAR", 0o123), 0o01260 * 0o100000 + 0o123, "ANAR, a conditional transfer (C13)");
+      equal(assembleOp("LSIR", 0o123), 0o04300 * 0o100000 + 0o123, "LSIR (C14)");
+    },
+  },
+  {
+    id: "CPU-6",
+    title: "AN is AR[0] set and LS is AR[15-29] not +0, so -0 is both; ANXO takes an absolute value (DPR2SPI pp. 37-38)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      const run = (/** @type {number} */ ar, /** @type {number} */ ins) => {
+        agt.core.write(at, ins);
+        agt.core.write(at + 1, assembleOp("NOOP", 0));
+        cpu.AR = ar;
+        cpu.LC = at;
+        cpu.step();
+        return cpu.LC;
+      };
+      equal(run(0o7777777777, assembleOp("JPAN", at + 5)), at + 5, "JPAN jumps on -0");
+      equal(run(0o7777777777, assembleOp("JPLS", at + 5)), at + 5, "JPLS jumps on -0: its lower half is not +0");
+      equal(run(0o7777700000, assembleOp("JPLS", at + 5)), at + 1, "JPLS does not jump on a lower half of +0");
+      equal(run(5, assembleOp("JPAN", at + 5)), at + 1, "JPAN does not jump on a positive AR");
+      equal(onesAdd(1, 0o7777777776, 30).sum, 0o7777777777, "1 - 1 is -0");
+      // the manual's example: ANXO MM, with -0 in MM, complements AR if it is negative
+      agt.core.write(at + 2, 0o7777777777);
+      equal(run(0o7777777772, assembleOp("ANXO", at + 2)) && cpu.AR, 5, "ANXO: |-5| is 5");
+      equal(run(5, assembleOp("ANXO", at + 2)) && cpu.AR, 5, "and |5| is 5");
+    },
+  },
+  {
+    id: "CPU-7",
+    title: "AS adds the operand's lower half, its sign extended, to all of AR; 'F's operand is the instruction itself; JPSR keeps the word's upper half (DPR2SPI pp. 24, 30, 35)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      const step = (/** @type {number[]} */ words, /** @type {number} */ ar) => {
+        words.forEach((w, i) => agt.core.write(at + i, w));
+        cpu.AR = ar;
+        cpu.LC = at;
+        cpu.step();
+      };
+      step([assembleOp("MDAS", 1, { F: true, N: true })], 0o0000100000);
+      equal(cpu.AR, 0o0000077777, "MDAS'F'N 1 subtracts 1 from all of AR: a borrow from the upper half");
+      step([assembleOp("MDAS", 0o40000, { F: true })], 0);
+      equal(cpu.AR, 0o7777740000, "an operand of 40000 is negative");
+      const w = assembleOp("MDBR", 0o1234, { F: true });
+      step([w], 0);
+      equal(cpu.BR, w, "MDBR'F BETA puts the instruction MDBR'F BETA into BR");
+      agt.core.write(at + 5, assembleOp("JUMP", 0));
+      step([assembleOp("JPSR", at + 5)], 0);
+      equal(agt.core.read(at + 5), assembleOp("JUMP", at + 1), "JPSR leaves JUMP in the word and sets its address to the return");
+      equal(cpu.LC, at + 6, "and continues after it");
+    },
+  },
+  {
+    id: "CPU-8",
+    title: "Indirect addresses chain while each word has 'I; 'X increments the word it points to before it is read (DPR2SPI pp. 32-33)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      const [alpha, beta, gamma, delta, kappa] = [at, at + 10, at + 11, at + 12, at + 20];
+      // the manual's example: ALPHA = OPER'I BETA, BETA = OPER'I'X GAMMA, GAMMA = OPER'I DELTA,
+      // DELTA+1 = OPER KAPPA; the effective argument is (KAPPA)
+      agt.core.write(alpha, assembleOp("MDAR", beta, { I: true }));
+      agt.core.write(beta, assembleOp("NOOP", gamma, { I: true, X: true }));
+      agt.core.write(gamma, assembleOp("NOOP", delta, { I: true }));
+      agt.core.write(delta + 1, assembleOp("NOOP", kappa));
+      agt.core.write(kappa, 0o1234567);
+      cpu.LC = alpha;
+      cpu.step();
+      equal(cpu.AR, 0o1234567, "(KAPPA) is the argument");
+      equal(agt.core.read(gamma), assembleOp("NOOP", delta + 1, { I: true }), "GAMMA became OPER'I DELTA+1");
+      // 'X without 'I: the word is incremented, then read
+      agt.core.write(alpha, assembleOp("MDAR", beta + 2, { X: true }));
+      agt.core.write(beta + 2, 0o77);
+      cpu.LC = alpha;
+      cpu.step();
+      equal(cpu.AR, 0o100, "MDAR'X reads the word as incremented");
+    },
+  },
+  {
+    id: "CPU-9",
+    title: "The EAU: a product in AR[0-28], its sign repeated in AR[29]; a quotient in AR[15-29], the remainder in AR[0-14] (DPR2SPI pp. 43-45, the manual's examples)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      /** @type {[string, number, number, number, number][]} op, AR, operand word, address, result */
+      const cases = [
+        ["MPYU", 0o32173, word(0o25406, 0), 0, word(0o21507, 0o43704)],
+        ["MPYL", 0o57467, 0o33505, 0, word(0o61660, 0o62057)],
+        ["MPYI", 0o24663, 0, 0o53101, word(0o62315, 0o42113)],
+        ["DIVU", word(0o50521, 0o66733), word(0o32440, 0), 0, word(0o25444, 0o43703)],
+        ["DIVL", word(0o74323, 0o64575), 0o06242, 0, word(0o04652, 0o55651)],
+      ];
+      for (const [op, ar, operand, imm, want] of cases) {
+        agt.core.write(at + 10, operand);
+        agt.core.write(at, assembleOp(op, imm || at + 10));
+        cpu.AR = ar;
+        cpu.LC = at;
+        cpu.step();
+        equal(oct(cpu.AR), oct(want), op);
+      }
+    },
+  },
+  {
+    id: "CPU-10",
+    title: "PINT requests priority channel 14, served as JPSR'I PIPVT (DPR2SPI p. 40; DPR2BD; the pivot's address is ours, R10)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      agt.core.write(PIPVT, at + 10);
+      agt.core.write(at, assembleOp("PINT", 0));
+      agt.core.write(at + 1, assembleOp("NOOP", 0));
+      cpu.LC = at;
+      cpu.step();
+      ok(cpu.pri.pending.has(CHANNEL.PINT), "a request on channel 14");
+      cpu.step();
+      equal(cpu.LC, at + 11, "served: the subroutine at the pivot's address is entered");
+      equal(lo(agt.core.read(at + 10)), at + 1, "and given the return");
     },
   },
 
@@ -429,6 +611,42 @@ export const MODEL_CHECKS = [
       ok(agt.core.words.every((w, i) => w === before[i]), "core as at start");
     },
   },
+  {
+    id: "MON-5",
+    title: "The monitor asks the date when it is loaded, and the simulator answers it, so nothing waits on the reader (AMRMX71 p. 13; R9)",
+    run(ctx) {
+      const agt = ctx.boot();
+      agt.advance(agt.now);
+      ok(/^MO\/DA\/YR = \d\d\/\d\d\/\d\d$/.test(agt.paper.getText().trim()), `the date asked and answered: ${agt.paper.getText().trim()}`);
+      load(ctx, agt, "cube");
+      ok(agt.image !== null, "a program loads straight after, from the Programs menu");
+    },
+  },
+  {
+    id: "MON-6",
+    title: "V! types the version line; CORE!, DEC! and OCT!; MARK! and RLSE!; * for an argument that does not evaluate (AMRMX71 pp. 7-11)",
+    run(ctx) {
+      const agt = ctx.boot();
+      agt.advance(agt.now);
+      const said = (/** @type {string} */ statement) => {
+        const before = agt.paper.getText().length;
+        typeAndRun(agt, statement);
+        return agt.paper.getText().slice(before).split("\n").slice(1).join("\n").trim();
+      };
+      ok(/^STANDARD AMRMX\d \(REV\. [A-Z], [\d/]+\)$/.test(said("V!")), "STANDARD AMRMXn (REV. r, date)");
+      equal(said("CORE (777)!"), "777", "CORE(ARG) in octal");
+      said("DEC!");
+      equal(said("CORE (777)!"), "511", "and, after DEC!, in decimal");
+      said("OCT!");
+      equal(said("MARK!"), "1", "MARK types its number");
+      said("DEFINE (ZZ, 5)!");
+      ok(agt.core.symbols.has("ZZ"), "a symbol defined after the mark");
+      said("RLSE!");
+      ok(!agt.core.symbols.has("ZZ"), "RLSE releases it");
+      ok(said("CORE (NOSUCH)!").startsWith("*"), "an argument that does not evaluate is answered with *");
+      ok(said("DELETE (NOSUCH)!").startsWith("?"), "a symbol DELETE cannot find, with ?");
+    },
+  },
 
   // ---- the assembler ----
   {
@@ -467,6 +685,103 @@ export const MODEL_CHECKS = [
       ok(/NOWHERE/.test(r.errors[0].message), "naming the symbol");
     },
   },
+  {
+    id: "ASM-4",
+    title: "Expressions: . is the location, a space between terms adds, !H rotates, a mnemonic is its word, $NAME an external (ADEPT pp. 8-9, 17)",
+    run() {
+      const core = new Core();
+      core.symbols.set("EXT", 0o4321);
+      const r = assemble(core, "A: .+2\n 77737!H 77777\n JPSR!H\n MDAR-JUMP-2\n -(60400!H)\n JPSR $EXT\nB = C+1\nC: 0\n", 0o200);
+      equal(r.errors.length, 0, "assembled");
+      equal(core.read(0o200), 0o202, ". is the location");
+      equal(core.read(0o201), 0o7773777777, "two halves, side by side");
+      equal(core.read(0o202), 0o20, "JPSR!H: the word rotated");
+      equal(core.read(0o203), 0o2073777776, "MDAR-JUMP-2");
+      equal(core.read(0o204), 0o1737777777, "a negative is complemented in 30 bits");
+      equal(core.read(0o205), assembleOp("JPSR", 0o4321), "an external from the monitor's symbols");
+      equal(core.addr("B"), 0o207, "a forward definition makes no word");
+      const chained = new Core();
+      assemble(chained, " JPSR $X\n JPSR $Y\n JPSR $X\n", 0o100, { externals: "chain" });
+      equal(lo(chained.read(0o100)), 0, "chained as a relocatable binary holds them: the first use 0");
+      equal(lo(chained.read(0o102)), 0o100, "each later use the address of the one before");
+    },
+  },
+  {
+    id: "ASM-5",
+    title: "Macros: arguments in parentheses or to the end of the statement, \"...\" quotes, \\ concatenates; ENDM may end a line (ADEPT pp. 10-12, 18)",
+    run() {
+      const core = new Core();
+      const src = [
+        "MACRO TEST (AA, BB)",
+        " MDXO'F AA",
+        " JPLS .+2",
+        " JUMP BB",
+        "ENDM",
+        "MACRO ONE; \"$ONE\" ENDM",
+        "MACRO1 TAG (N); N\\1: N\\2: 0; ENDM",
+        "GO: TEST(5, GO)",
+        " TEST 7, GO",
+        " MDAR ONE",
+        " TAG X",
+      ].join("\n");
+      core.symbols.set("ONE", 0o1);
+      const r = assemble(core, src, 0o200);
+      equal(r.errors.length, 0, "assembled");
+      equal(core.read(0o200), assembleOp("MDXO", 5, { F: true }), "an argument in parentheses");
+      equal(core.read(0o202), assembleOp("JUMP", 0o200), "and another");
+      equal(core.read(0o203), assembleOp("MDXO", 7, { F: true }), "arguments to the end of the statement");
+      equal(core.read(0o206), assembleOp("MDAR", 1), "a quoted body: $ONE, not ONE again");
+      equal(core.addr("X1"), 0o207, "N\\1 concatenates");
+      equal(core.addr("X2"), 0o207, "both tags");
+    },
+  },
+  {
+    id: "ASM-6",
+    title: "REPEAT, IREPEAT and conditional translation: IFZERO, IFNEGATIVE, IFPASS1, IFSAME, ELSE, ENDC (ADEPT pp. 12-14)",
+    run() {
+      const core = new Core();
+      const src = [
+        "IREPEAT X, (1, 2, 3)",
+        " X",
+        "ENDI",
+        "IFZERO 0; 4; ELSE 5; ENDC",
+        "IFNEGATIVE 1; 6; ELSE 7; ENDC",
+        "IFSAME (A) (A); 10; ENDC",
+        "IFSAME (A) (B); 11; ENDC",
+        "IFPASS1; TYPEOUT /PASS 1/; ENDC",
+        "N = 2",
+        "REPEAT N+1; 12; ENDR",
+      ].join("\n");
+      const r = assemble(core, src, 0o200);
+      equal(r.errors.length, 0, "assembled");
+      const words = r.listing.flatMap((l) => l.words);
+      equal(words.join(" "), [1, 2, 3, 4, 7, 0o10, 0o12, 0o12, 0o12].join(" "), "the words scanned");
+      equal(r.typed.join(), "PASS 1", "TYPEOUT in pass 1 only");
+    },
+  },
+  {
+    id: "ASM-7",
+    title: "Strings: TEXT fills its words, STRING ends with a null, ASCII packs four LCG1 characters a word; a string may run over lines (ADEPT pp. 6-7)",
+    run() {
+      const core = new Core();
+      const r = assemble(core, "A: TEXT /ABCDE/\nB: STRING /ABCDE/\nC: STRING *X\nY*\nD: ASCII *AB@015*\nE: 0\n", 0o200);
+      equal(r.errors.length, 0, "assembled");
+      equal(core.addr("B") - core.addr("A"), 1, "TEXT: five characters, one word");
+      equal(core.addr("C") - core.addr("B"), 2, "STRING: and a null word");
+      equal(core.read(core.addr("C")), packText("X\nY")[0], "over a line, the carriage return kept");
+      equal(core.read(core.addr("D")), (0o101 * 2 ** 23) + (0o102 * 2 ** 16) + 2 ** 15 + (0o15 * 2 ** 8), "A, B, CR; bit 14 ends the string");
+    },
+  },
+  {
+    id: "ASM-8",
+    title: "The NCSU sources' instructions: conditional transfers, numbered destinations, 'L, PINT (MH25; research/dpr2-encodings.md)",
+    run() {
+      const core = new Core();
+      const r = assemble(core, " ANAR'O 5\n LSAS 5\n MD10'A 5\n ARMD'L\n 0\n PINT\n", 0);
+      equal(r.errors.length, 0, "assembled");
+      equal([0, 1, 2, 3, 5].map((a) => hi(core.read(a)).toString(8)).join(" "), "1264 15300 30010 40100 560", "as the tapes show them");
+    },
+  },
 
   // ---- the Teletype ----
   {
@@ -474,12 +789,15 @@ export const MODEL_CHECKS = [
     title: "The ASR-33 runs at 10 characters a second (SRM5 DPR3 p. 11)",
     run(ctx) {
       const agt = ctx.boot();
-      // a character is on the paper once it is struck; the next is struck 0.1 s later
+      // a character is on the paper once it is struck; the next is struck 0.1 s later. The
+      // monitor's date, asked and answered at start, is printed first, at once.
+      agt.advance(agt.now);
+      const before = agt.paper.getText().length;
       agt.type("HALT!");
       agt.advance(agt.now + 350000);
-      equal(agt.paper.getText().trim(), "HALT", "four characters struck by 0.35 s");
+      equal(agt.paper.getText().slice(before).trim(), "HALT", "four characters struck by 0.35 s");
       agt.advance(agt.now + 100000);
-      equal(agt.paper.getText().trim(), "HALT!", "five by 0.45 s");
+      equal(agt.paper.getText().slice(before).trim(), "HALT!", "five by 0.45 s");
     },
   },
   {

@@ -2,18 +2,16 @@
 //
 // The DPR-2 processor at instruction level.
 //
-// Documented (SRM5 DPR3 pp. 1-14; ADEPT App. B; AMRMX): 30-bit one's-complement words;
-// a 2 us memory cycle; a transfer bus from 8 sources to 16 destinations that can AND, OR and
-// complement and rotate left by 1, 6 or 15 bits on the way; instructions named source-then-
-// destination (MDAR loads AR from memory, ARMD stores it, MDAE adds to AR, MDXO exclusive-ors);
-// 13 bits of operation, an indirect bit, an index bit that increments the word it reads, and 15
-// bits of address or operand; the jumps, skips, OPIO, the EAU's multiply and divide; and the
-// times of each.
-//
-// Not documented: where those fields sit in the word. ENCODING below is our reconstruction
-// (R1), in one place (D5), so that the real layout can replace it if Volume II or a tape turns
-// up. Programs assembled here run the same either way; only their octal words would change.
-// The EAU's product is R6; reading a dial through the comparator is R7.
+// As Adage's DPR2 Subsystem Programming Instructions describe it (DPR2SPI; research/dpr2-manual.md),
+// with times from SRM5 DPR3: 30-bit one's-complement words; a 2 us memory cycle; a transfer bus
+// from 8 sources to 16 destinations that can AND, OR and complement and rotate left by 1, 6 or 15
+// bits on the way; instructions named source-then-destination (MDAR loads AR from memory, ARMD
+// stores it, MDAS and MDAE add to AR, MDXO exclusive-ors); the instruction layout and codes
+// (DPR2SPI pp. 20, 36; ADEPT71 p. 41), which the NCSU tapes' binaries bear out (MH25;
+// research/dpr2-encodings.md); indirect chains and pre-incrementing indexes (pp. 32-34); the
+// conditional jumps and transfers (pp. 37-38); the EAU's multiply, divide and shifts (pp. 43-46).
+// ENCODING and OPS below hold the layout and codes, in one place (D5). How the Teletype is
+// driven is still ours (R9), and so is the pivot of the program interrupt (R10).
 
 import { Core } from "./image.js";
 import { hi, lo, M15, M30, word } from "./words.js";
@@ -21,45 +19,97 @@ import { hi, lo, M15, M30, word } from "./words.js";
 /** @typedef {readonly [number, number]} Field bits from..to */
 
 /**
- * The reconstructed instruction layout (bit 0 is the leftmost of 30).
- * @type {Record<"kind" | "immediate" | "source" | "destination" | "logic" | "rotate" | "op" | "variant" | "index" | "indirect", Field>}
+ * The instruction layout (bit 0 is the leftmost of 30), as the NCSU tapes show it.
+ * @type {Record<"kind" | "destination" | "source" | "rotate" | "logic" | "op" | "index" | "indirect", Field>}
  */
 export const ENCODING = {
-  /** bit 0: 0 = a transfer on the bus, 1 = any other instruction */
-  kind: [0, 0],
-  /** transfers: bit 1 = 'F (the address field is the operand: no memory cycle) */
-  immediate: [1, 1],
-  source: [2, 4],
-  destination: [5, 8],
-  /** 0 plain, 1 'A (AND into the destination), 2 'O (OR), 3 'N (complement) */
-  logic: [9, 10],
+  /** bits 0-1: one of KIND */
+  kind: [0, 1],
+  destination: [2, 5],
+  source: [6, 8],
   /** 0 none, 1 'B (1 bit), 2 'K (6 bits), 3 'H (15 bits): left rotation on the bus */
-  rotate: [11, 12],
-  /** other instructions: bits 1-4 the operation, bits 5-12 its variant */
-  op: [1, 4],
-  variant: [5, 12],
-  /** 'X: increment the lower half of the word read */
+  rotate: [9, 10],
+  /** 0 plain, 1 'O (OR into the destination), 2 'A (AND), 3 'N (complement) */
+  logic: [11, 12],
+  /** not a transfer: bits 0-12 together name the operation (OPS) */
+  op: [0, 12],
+  /** 'X: increment the lower half of the word about to be read (DPR2SPI pp. 32-33) */
   index: [13, 13],
   /** 'I: indirect (bit 14, as an image item's address mode I is the same bit) */
   indirect: [14, 14],
 };
 
-/** Sources on the transfer bus (AGT/5 assignments, SRM5 Table 1). */
-export const SOURCES = { MD: 0, AR: 1, IC: 2, BR: 3, S4: 4, S5: 5, S6: 6, S7: 7 };
-/** Destinations (SRM5 Table 1; IR from ADEPT's mnemonics). */
-export const DESTS = { MD: 0, AR: 1, IC: 2, BR: 3, IR: 4, XY: 5, CZ: 6, X0: 7, CT: 8, MX: 9, LP: 10, HS: 12, AS: 13, AE: 14, XO: 15 };
-/** The non-transfer operations, numbered in the reconstruction. */
-export const OPS2 = { JUMP: 0, JPAN: 1, JPLS: 2, JPSR: 3, JSAN: 4, JSLS: 5, SKUA: 6, SKLA: 7, SKAN: 8, SKLS: 9, OPIO: 10, EAU: 11, SPEC: 12 };
-/** EAU variants (SRM5 DPR3 p. 5). */
-export const EAU = { MPYU: 0, MPYL: 1, MPYI: 2, DIVU: 3, DIVL: 4, DIVI: 5, ARRS: 6, ARLS: 7, NORM: 8, ERAR: 9 };
-/** Special variants: NOOP, FPRI and UPRI (ADEPT App. B), PINT (programmed interrupt), and the Teletype's OPTY / OPTI. */
-export const SPEC = { NOOP: 0, FPRI: 1, UPRI: 2, PINT: 3, OPTY: 4, OPTI: 5 };
+/**
+ * The kinds of instruction, bits 0-1 (DPR2SPI p. 20, "M"): a special instruction; a transfer
+ * whose operand is the word at the address; 'L, the next word; 'F, no memory cycle: the operand
+ * is MD as fetched, the instruction itself (p. 30).
+ */
+export const KIND = { OTHER: 0, MEMORY: 1, NEXT: 2, IMMEDIATE: 3 };
+
+/** Sources on the transfer bus, octal (DPR2SPI p. 20). S4 is the sense lines; S5 holds the function switches [0-14] and the converter ADC5 [15-29] (DPR2BD). */
+export const SOURCES = { MD: 0, AR: 1, BR: 2, IC: 3, S4: 4, S5: 5, S6: 6, S7: 7 };
+/**
+ * Destinations, octal (DPR2SPI p. 20). 05-14 go to the subsystems (DPR2BD): XY is D5, the
+ * array's X and Y data; MX is D7, GDD1, which selects the array's analog input and starts a
+ * conversion (DPR2SPI p. 41; R7).
+ */
+export const DESTS = { MD: 0, AR: 1, BR: 2, IC: 3, IR: 4, XY: 5, MX: 7, AS: 0o15, AE: 0o16, XO: 0o17 };
+
+/**
+ * The special instructions, by their upper half with 'X and 'I clear (DPR2SPI p. 36, Figure 6;
+ * ADEPT71 pp. 41-42). The tripp tape's binaries show the same codes.
+ * @type {Record<string, number>}
+ */
+export const OPS = {
+  NOOP: 0, JPSR: 0o20, JUMP: 0o40, JSAN: 0o60, JPAN: 0o100, JSLS: 0o120, JPLS: 0o140, OPTY: 0o160,
+  OPCR: 0o200, SKUA: 0o220, SKLA: 0o240, CNVT: 0o320, UPRI: 0o340, FPRI: 0o360, OPTI: 0o460, PINT: 0o560,
+  OPIO: 0o600, MPYU: 0o15400, MPYL: 0o15420, MPYI: 0o15440, DIVU: 0o16400, DIVL: 0o16420, DIVI: 0o16440,
+  ARRS: 0o17440, ARLS: 0o17500, NORM: 0o17520, ERAR: 0o17540,
+};
+/**
+ * Other names for the same codes, which the assembler takes: PULSE, as the NCSU sources name
+ * OPCR's code; GI15, as ADEPT71 p. 41 names CNVT's.
+ * @type {Record<string, string>}
+ */
+export const ALIASES = { PULSE: "OPCR", GI15: "CNVT" };
+/**
+ * The conditional transfers, ANDD and LSDD (C13, C14; DPR2SPI pp. 36-38): the destination in
+ * bits 2-5, the condition in bits 6-10, and 'O, 'A, 'N, 'X and 'I as in a transfer. If AR is
+ * negative (AN: AR[0] is 1) or has lower significance (LS: AR[15-29] is not +0), the word at the
+ * address goes to the destination, unrotated.
+ * @type {Record<string, number>}
+ */
+export const CONDITIONS = { AN: 0o260, LS: 0o300 };
+/** @type {Map<number, string>} */
+const OP_NAMES = new Map(Object.entries(OPS).map(([k, v]) => [v, k]));
+
+/**
+ * The name of an instruction that is not a transfer, or undefined.
+ * @param {number} ins
+ * @returns {string | undefined}
+ */
+export const opName = (ins) => OP_NAMES.get(get(ins, ENCODING.op) * 4);
+
+/**
+ * The condition of a conditional transfer, or undefined.
+ * @param {number} ins
+ * @returns {string | undefined}
+ */
+const conditionOf = (ins) => {
+  const c = (get(ins, ENCODING.op) * 4) & 0o760;
+  return Object.keys(CONDITIONS).find((k) => CONDITIONS[k] === c);
+};
 
 /** Times in microseconds (SRM5 DPR3 pp. 4-6, 10). */
 export const TIME = { memory: 4, immediate: 3, jump: 3, jpsr: 5, skip: 3, opio: 6, indirect: 2, mul: 6, div: 8, shift: 5 };
 
-/** Sense line bits (S4), numbered from the left. Bit 0: AR overflow (FJCC68 Fig. 17 channel 0); bit 24: the array's comparator (SRM5 GHA4). */
-export const SENSE = { OVERFLOW: 0, COMPARATOR: 24 };
+/** Sense line bits (S4), numbered from the left. Bit 0: AR overflow (FJCC68 Fig. 17 channel 0); bit 29: ADC5 overflow (DPR2BD). */
+export const SENSE = { OVERFLOW: 0, ADC: 29 };
+
+/** The priority channels the processor itself requests (DPR2BD): 14, the program interrupt (PINT). */
+export const CHANNEL = { PINT: 14 };
+/** The program interrupt's pivot, PIPVT (DPR2SPI p. 40). Where it sits on the AGT-30 is not known: ours (R10). */
+export const PIPVT = 0o77770;
 
 /**
  * Places a field's value into a word.
@@ -122,16 +172,15 @@ const wval = (n) => (n >= 0 ? n % 0o4000000000 : M30 - (-n % 0o4000000000));
 
 /**
  * The devices the processor can reach: the Teletype, the function switches, the dials through
- * the array's multiplexer and comparator.
+ * the array's input selector and converter.
  * @typedef {object} Devices
  * @property {(code: number) => boolean} type types a 6-bit AMOS character; false while the Teletype is busy
- * @property {() => number | null} key the next character typed, or null
- * @property {() => number} switches the function switches and pedals (S5): bits 0-15 keys, 16-17 pedals
+ * @property {() => number} switches the function switches (S5): key n is bit n
  * @property {(channel: number) => number} analog an analog input, -1..1 (dials, joystick)
  */
 
 /** @type {Devices} */
-const NO_DEVICES = { type: () => true, key: () => null, switches: () => 0, analog: () => 0 };
+const NO_DEVICES = { type: () => true, switches: () => 0, analog: () => 0 };
 
 export class Dpr2 {
   /**
@@ -146,11 +195,13 @@ export class Dpr2 {
     this.IC = 0;
     this.ER = 0;
     this.LC = 0;
+    /** The address of the last instruction fetched from memory: for the Processor tab, since LC is restored around the CLOCK chain. */
+    this.last = 0;
     /** Sense lines S4. */
     this.S4 = 0;
-    /** The multiplexer channel (destination MX) and the X data register (destination XY), for the comparator. */
+    /** The analog input GDD1 selects (destination MX), and ADC5's last conversion, S5[15-29]. */
     this.mux = 0;
-    this.xdata = 0;
+    this.adc = 0;
     this.time = 0;
     this.instructions = 0;
     /** @type {string | null} why the processor stopped */
@@ -210,11 +261,11 @@ export class Dpr2 {
     this.pri.pending.delete(ch);
     this.pri.served.set(ch, (this.pri.served.get(ch) ?? 0) + 1);
     const lc = this.LC;
-    const transfer = get(ins, ENCODING.kind) === 0;
-    const op = transfer ? -1 : get(ins, ENCODING.op);
+    const kind = get(ins, ENCODING.kind);
+    const op = kind === KIND.OTHER ? opName(ins) : undefined;
     let us = this.execute(ins) - 1;
-    if (transfer && get(ins, ENCODING.immediate) === 1) us += 1;
-    if ((op === OPS2.JPSR || op === OPS2.JSAN || op === OPS2.JSLS) && this.LC !== lc) this.pri.service.push(ch);
+    if (kind === KIND.IMMEDIATE) us += 1;
+    if ((op === "JPSR" || op === "JSAN" || op === "JSLS") && this.LC !== lc) this.pri.service.push(ch);
     this.instructions++;
     this.time += us;
     return us;
@@ -228,25 +279,53 @@ export class Dpr2 {
   }
 
   /**
-   * The effective address of an instruction: indirect chains, and the index increment.
+   * Increments the lower half of a word in memory, modulo 2^15 (DPR2SPI p. 32).
+   * @param {number} a
+   */
+  index(a) {
+    const w = this.core.read(a);
+    this.core.write(a, word(hi(w), lo(w) + 1));
+  }
+
+  /**
+   * The effective address of an instruction (DPR2SPI pp. 32-33). While the word in hand has 'I,
+   * its 'X first increments the word it points to, which is then read, and the next level's 'X
+   * and 'I are that word's. What is left at the end: the address, the last word read (MD), and
+   * a final 'X, which a memory cycle of the execute cycle applies.
    * @param {number} ins
-   * @returns {{ ea: number; us: number }}
+   * @returns {{ ea: number; md: number; x: boolean; us: number }}
    */
   address(ins) {
     let ea = lo(ins);
+    let md = ins;
     let us = 0;
-    const x = get(ins, ENCODING.index) === 1;
-    if (get(ins, ENCODING.indirect) === 1) {
-      // follow the chain while each pointer word has its own indirect bit set
-      for (let n = 0; n < 64; n++) {
-        const p = this.core.read(ea);
-        us += TIME.indirect;
-        if (x && n === 0) this.core.write(ea, word(hi(p), lo(p) + 1));
-        ea = lo(p);
-        if (get(p, ENCODING.indirect) !== 1) break;
-      }
+    let x = get(ins, ENCODING.index) === 1;
+    let i = get(ins, ENCODING.indirect) === 1;
+    for (let n = 0; i && n < 64; n++) {
+      if (x) this.index(ea);
+      md = this.core.read(ea);
+      us += TIME.indirect;
+      ea = lo(md);
+      x = get(md, ENCODING.index) === 1;
+      i = get(md, ENCODING.indirect) === 1;
     }
-    return { ea: ea & M15, us };
+    return { ea: ea & M15, md, x, us };
+  }
+
+  /**
+   * AN: AR is negative, AR[0] is 1 (DPR2SPI p. 37). One's complement -0 is negative.
+   * @returns {boolean}
+   */
+  negative() {
+    return this.AR >= 0o4000000000;
+  }
+
+  /**
+   * LS: AR has lower significance, AR[15-29] is not +0 (DPR2SPI p. 37). -0 has.
+   * @returns {boolean}
+   */
+  lowerSignificance() {
+    return lo(this.AR) !== 0;
   }
 
   /**
@@ -257,15 +336,14 @@ export class Dpr2 {
     const ch = this.nextRequest();
     if (ch !== null) return this.servePri(ch);
     const ins = this.core.read(this.LC);
+    this.last = this.LC;
     this.LC = (this.LC + 1) & M15;
     this.instructions++;
     // the end of a Jump Subroutine service: the first Jump Indirect or successful conditional jump
     let ends = false;
-    if (this.pri.service.length && get(ins, ENCODING.kind) === 1) {
-      const op = get(ins, ENCODING.op);
-      const neg = this.AR >= 0o4000000000 && this.AR !== M30;
-      const lowNz = lo(this.AR) !== 0 && lo(this.AR) !== M15;
-      ends = (op === OPS2.JUMP && get(ins, ENCODING.indirect) === 1) || (op === OPS2.JPAN && neg) || (op === OPS2.JPLS && lowNz);
+    if (this.pri.service.length && get(ins, ENCODING.kind) === KIND.OTHER) {
+      const op = opName(ins);
+      ends = (op === "JUMP" && get(ins, ENCODING.indirect) === 1) || (op === "JPAN" && this.negative()) || (op === "JPLS" && this.lowerSignificance());
     }
     const us = this.execute(ins);
     this.time += us;
@@ -280,97 +358,123 @@ export class Dpr2 {
    * @returns {number} us
    */
   execute(ins) {
-    if (get(ins, ENCODING.kind) === 0) return this.transfer(ins);
-    const op = get(ins, ENCODING.op);
-    const v = get(ins, ENCODING.variant);
+    if (get(ins, ENCODING.kind) !== KIND.OTHER) return this.transfer(ins);
+    const op = opName(ins);
+    const neg = this.negative();
+    const lowNz = this.lowerSignificance();
+    const c = op === undefined ? conditionOf(ins) : undefined;
+    if (c) {
+      // ANDD, LSDD: the word at the address to the destination, if the condition holds
+      if (!(c === "AN" ? neg : lowNz)) return TIME.skip;
+      let t = put(put(ins, ENCODING.kind, KIND.MEMORY), ENCODING.source, SOURCES.MD);
+      t = put(t, ENCODING.rotate, 0);
+      return this.transfer(t);
+    }
     const a = this.address(ins);
-    const neg = this.AR >= 0o4000000000 && this.AR !== M30;
-    const lowNz = lo(this.AR) !== 0 && lo(this.AR) !== M15;
     switch (op) {
-      case OPS2.JUMP:
+      case "JUMP":
         this.LC = a.ea;
         return TIME.jump + a.us;
-      case OPS2.JPAN:
+      case "JPAN":
         if (neg) this.LC = a.ea;
         return TIME.jump + a.us;
-      case OPS2.JPLS:
+      case "JPLS":
         if (lowNz) this.LC = a.ea;
         return TIME.jump + a.us;
-      case OPS2.JPSR:
-      case OPS2.JSAN:
-      case OPS2.JSLS:
-        if (op === OPS2.JPSR || (op === OPS2.JSAN && neg) || (op === OPS2.JSLS && lowNz)) {
-          this.core.write(a.ea, word(0, this.LC));
+      case "JPSR":
+      case "JSAN":
+      case "JSLS":
+        if (op === "JPSR" || (op === "JSAN" && neg) || (op === "JSLS" && lowNz)) {
+          // the return replaces the address half; the rest of the word is left as it was (p. 35)
+          this.core.write(a.ea, word(hi(this.core.read(a.ea)), this.LC));
           this.LC = (a.ea + 1) & M15;
         }
         return TIME.jpsr + a.us;
-      case OPS2.SKUA:
+      case "SKUA":
         if ((hi(this.S4) & a.ea) !== 0) this.LC = (this.LC + 1) & M15;
         return TIME.skip;
-      case OPS2.SKLA:
+      case "SKLA":
         if ((lo(this.S4) & a.ea) !== 0) this.LC = (this.LC + 1) & M15;
         return TIME.skip;
-      case OPS2.SKAN:
-        if (neg) this.LC = (this.LC + 1) & M15;
-        return TIME.skip;
-      case OPS2.SKLS:
-        if (lowNz) this.LC = (this.LC + 1) & M15;
-        return TIME.skip;
-      case OPS2.EAU:
-        return this.eau(v, a.ea) + a.us;
-      case OPS2.SPEC:
-        if (v === SPEC.OPTY) {
-          // type the character in AR[24-29]; skip when the Teletype took it
-          if (this.devices.type(this.AR % 64)) this.LC = (this.LC + 1) & M15;
-          return TIME.opio;
-        }
-        if (v === SPEC.OPTI) {
-          const k = this.devices.key();
-          if (k !== null) {
-            this.AR = k;
-            this.LC = (this.LC + 1) & M15;
-          }
-          return TIME.opio;
-        }
-        if (v === SPEC.FPRI) this.pri.frozen = true;
-        if (v === SPEC.UPRI) this.pri.frozen = false;
-        return TIME.immediate;
-      case OPS2.OPIO:
+      case "MPYU":
+      case "MPYL":
+      case "MPYI":
+      case "DIVU":
+      case "DIVL":
+      case "DIVI":
+      case "ARRS":
+      case "ARLS":
+      case "NORM":
+      case "ERAR":
+        return this.eau(op, a.ea) + a.us;
+      case "OPTY":
+        // The real OPTY strobes BR[22] out to the Teletype, a bit at a time (DPR2SPI p. 43).
+        // Ours types the character in AR[24-29] whole, and skips when the Teletype took it (R9).
+        if (this.devices.type(this.AR % 64)) this.LC = (this.LC + 1) & M15;
         return TIME.opio;
-      default:
+      case "CNVT":
+        this.convert();
+        return TIME.opio;
+      case "FPRI":
+        this.pri.frozen = true;
+        return TIME.immediate;
+      case "UPRI":
+        this.pri.frozen = false;
+        return TIME.immediate;
+      case "PINT":
+        // a request on channel 14, served as JPSR'I PIPVT (DPR2SPI p. 40)
+        this.request(CHANNEL.PINT, assembleOp("JPSR", PIPVT, { I: true }));
+        return TIME.immediate;
+      case "NOOP":
+        return TIME.immediate;
+      case "OPCR":
+      case "OPTI":
+      case "OPIO":
+        // the card reader, the telephone line and the other devices are not fitted
+        return TIME.opio;
+      default: {
         this.stopped = `no such instruction ${ins.toString(8).padStart(10, "0")} at ${((this.LC - 1) & M15).toString(8).padStart(5, "0")}`;
         return TIME.immediate;
+      }
     }
   }
 
   /**
-   * A transfer on the bus: source, rotation, logic, destination.
+   * A transfer on the bus: source, rotation, logic, destination (DPR2SPI pp. 19-34). Its memory
+   * operand is the word at the effective address, read through any indirect chain and after any
+   * index; with 'L, the word after the instruction, which is then skipped; with 'F, MD as fetched:
+   * the instruction itself, or the last word of its indirect chain.
    * @param {number} ins
    * @returns {number} us
    */
   transfer(ins) {
+    const kind = get(ins, ENCODING.kind);
     const src = get(ins, ENCODING.source);
     const dst = get(ins, ENCODING.destination);
     const logic = get(ins, ENCODING.logic);
     const rot = [0, 1, 6, 15][get(ins, ENCODING.rotate)];
-    const imm = get(ins, ENCODING.immediate) === 1;
-    let us = imm ? TIME.immediate : TIME.memory;
-    /** @type {number} */
-    let ea = lo(ins);
-    const needsMemory = !imm && (src === SOURCES.MD || dst === DESTS.MD);
-    if (needsMemory) {
+    let us = kind === KIND.IMMEDIATE ? TIME.immediate : TIME.memory;
+    let ea = 0;
+    let md = ins;
+    if (kind === KIND.NEXT) {
+      ea = this.LC;
+      this.LC = (this.LC + 1) & M15;
+      md = this.core.read(ea);
+    } else {
       const a = this.address(ins);
-      ea = a.ea;
       us += a.us;
+      ea = a.ea;
+      md = a.md;
+      if (kind === KIND.MEMORY) {
+        // a read/index/store memory cycle in place of read/restore (p. 19)
+        if (a.x && dst !== DESTS.MD) this.index(ea);
+        if (dst !== DESTS.MD) md = this.core.read(ea);
+      }
     }
     let v;
     switch (src) {
       case SOURCES.MD:
-        v = imm ? lo(ins) : this.core.read(ea);
-        if (!imm && get(ins, ENCODING.index) === 1 && get(ins, ENCODING.indirect) !== 1) {
-          // the index bit increments the lower half of the word read (SRM5 DPR3 p. 4)
-          this.core.write(ea, word(hi(v), lo(v) + 1));
-        }
+        v = md;
         break;
       case SOURCES.AR:
         v = this.AR;
@@ -385,7 +489,7 @@ export class Dpr2 {
         v = this.S4;
         break;
       case SOURCES.S5:
-        v = this.devices.switches();
+        v = or30(this.devices.switches(), this.adc);
         break;
       default:
         v = 0;
@@ -393,7 +497,7 @@ export class Dpr2 {
     if (rot) v = rotl(v, rot);
     if (logic === 3) v = M30 - v;
     /** @param {number} old @returns {number} */
-    const combine = (old) => (logic === 1 ? and30(old, v) : logic === 2 ? or30(old, v) : v);
+    const combine = (old) => (logic === 2 ? and30(old, v) : logic === 1 ? or30(old, v) : v);
     switch (dst) {
       case DESTS.MD:
         this.core.write(ea, combine(this.core.read(ea)));
@@ -410,30 +514,27 @@ export class Dpr2 {
       case DESTS.IR:
         us += this.execute(v);
         break;
-      case DESTS.XY: {
-        // the X data register: compared, through the multiplexer, with an analog input (SRM5 GHA4)
-        this.xdata = lo(v);
-        const x = (this.xdata & 0o40000 ? -(~this.xdata & M15) : this.xdata) / 0o40000;
-        this.setSense(SENSE.COMPARATOR, this.devices.analog(this.mux) - x < 0);
-        break;
-      }
       case DESTS.MX:
+        // GDD1 selects the input; on the AGT/30 the selection also starts a conversion (p. 41)
         this.mux = lo(v) & 0o17;
+        this.convert();
         break;
       case DESTS.AS: {
-        const r = onesAdd(lo(this.AR), lo(v), 15);
-        this.AR = word(hi(this.AR), r.sum);
+        // the operand's lower half, its sign extended, added to all of AR (p. 24)
+        const b = lo(combine(this.AR));
+        const r = onesAdd(this.AR, b & 0o40000 ? word(M15, b) : b, 30);
+        this.AR = r.sum;
         if (r.overflow) this.setSense(SENSE.OVERFLOW, true);
         break;
       }
       case DESTS.AE: {
-        const r = onesAdd(this.AR, v, 30);
+        const r = onesAdd(this.AR, combine(this.AR), 30);
         this.AR = r.sum;
         if (r.overflow) this.setSense(SENSE.OVERFLOW, true);
         break;
       }
       case DESTS.XO:
-        this.AR = xor30(this.AR, v);
+        this.AR = xor30(this.AR, combine(this.AR));
         break;
       default:
         break;
@@ -442,45 +543,59 @@ export class Dpr2 {
   }
 
   /**
-   * The EAU option (SRM5 DPR3 p. 5). Products are of 15-bit numbers; MPYI multiplies by the
-   * address field itself. The product is a 30-bit integer in AR (AR's upper half is then the
-   * product of two fractions, halved: shift left one for a fraction).
-   * @param {number} v
+   * ADC5 converts the selected input to S5[15-29], a 15-bit fraction (DPR2BD; DPR2SPI p. 40).
+   * The conversion is taken as done at once.
+   */
+  convert() {
+    const f = Math.max(-1, Math.min(1, this.devices.analog(this.mux)));
+    const n = Math.round(f * 0o40000);
+    if (n >= 0o40000) this.setSense(SENSE.ADC, true);
+    const c = Math.max(-0o37777, Math.min(0o37777, n));
+    this.adc = c >= 0 ? c : M15 + c;
+  }
+
+  /**
+   * The EAU's special instructions (DPR2SPI pp. 43-46). Multiplication takes AR[15-29] by a 15-bit
+   * operand, both fractions: the product appears in AR[0-28], and AR[29] repeats its sign.
+   * Division takes all of AR by a 15-bit operand: the quotient appears in AR[15-29], the
+   * remainder, in absolute value, in AR[0-14]. MPYI and DIVI take the address field itself.
+   * @param {string} op
    * @param {number} ea
    * @returns {number} us
    */
-  eau(v, ea) {
+  eau(op, ea) {
     const s15 = (/** @type {number} */ h) => (h & 0o40000 ? -(~h & M15) : h);
     const ar15 = s15(lo(this.AR));
     const m = this.core.read(ea);
-    switch (v) {
-      case EAU.MPYU:
-      case EAU.MPYL:
-      case EAU.MPYI: {
-        const b = v === EAU.MPYU ? s15(hi(m)) : v === EAU.MPYL ? s15(lo(m)) : s15(ea);
-        this.AR = wval(ar15 * b);
+    switch (op) {
+      case "MPYU":
+      case "MPYL":
+      case "MPYI": {
+        const b = op === "MPYU" ? s15(hi(m)) : op === "MPYL" ? s15(lo(m)) : s15(ea);
+        this.AR = wval(2 * ar15 * b);
         return TIME.mul;
       }
-      case EAU.DIVU:
-      case EAU.DIVL:
-      case EAU.DIVI: {
-        const b = v === EAU.DIVU ? s15(hi(m)) : v === EAU.DIVL ? s15(lo(m)) : s15(ea);
+      case "DIVU":
+      case "DIVL":
+      case "DIVI": {
+        const b = op === "DIVU" ? s15(hi(m)) : op === "DIVL" ? s15(lo(m)) : s15(ea);
         const a = sval(this.AR);
-        if (b === 0) {
+        const q = b === 0 ? Infinity : Math.trunc(a / (2 * b));
+        if (Math.abs(q) > 0o37777) {
           this.setSense(SENSE.OVERFLOW, true);
           return TIME.div;
         }
-        this.ER = wval(a % b);
-        this.AR = wval(Math.trunc(a / b));
+        const r = Math.abs(a - 2 * b * q);
+        this.AR = word(r, q >= 0 ? q : M15 + q);
         return TIME.div;
       }
-      case EAU.ARRS:
+      case "ARRS":
         this.AR = wval(Math.trunc(sval(this.AR) / 2 ** Math.min(29, ea)));
         return TIME.shift;
-      case EAU.ARLS:
+      case "ARLS":
         this.AR = wval(sval(this.AR) * 2 ** Math.min(29, ea));
         return TIME.shift;
-      case EAU.NORM: {
+      case "NORM": {
         let a = sval(this.AR);
         let n = 0;
         while (a !== 0 && Math.abs(a) < 0o2000000000 && n < 29) {
@@ -491,7 +606,7 @@ export class Dpr2 {
         this.ER = n;
         return TIME.shift;
       }
-      case EAU.ERAR:
+      case "ERAR":
         this.AR = this.ER;
         return TIME.immediate;
       default:
@@ -558,14 +673,26 @@ const or30 = (a, b) => word(hi(a) | hi(b), lo(a) | lo(b));
 const xor30 = (a, b) => word(hi(a) ^ hi(b), lo(a) ^ lo(b));
 
 /**
- * The modifiers an instruction may carry after quotes: 'I indirect, 'X index, 'F immediate,
+ * The modifiers an instruction may carry after quotes: 'I indirect, 'X index, 'F immediate, 'L next word,
  * 'A 'O 'N logic, 'B 'K 'H rotation (ADEPT App. B lists the letters).
- * @typedef {{ I?: boolean; X?: boolean; F?: boolean; A?: boolean; O?: boolean; N?: boolean; B?: boolean; K?: boolean; H?: boolean }} Mods
+ * @typedef {{ I?: boolean; X?: boolean; F?: boolean; L?: boolean; A?: boolean; O?: boolean; N?: boolean; B?: boolean; K?: boolean; H?: boolean }} Mods
  */
 
 /** The transfer mnemonics' two halves. */
-const SRC_NAMES = /** @type {Record<string, number>} */ ({ MD: 0, AR: 1, IC: 2, BR: 3, S4: 4, S5: 5, S6: 6, S7: 7 });
-const DST_NAMES = /** @type {Record<string, number>} */ ({ MD: 0, AR: 1, IC: 2, BR: 3, IR: 4, AS: 13, AE: 14, XO: 15, XY: 5, MX: 9 });
+const SRC_NAMES = /** @type {Record<string, number>} */ (SOURCES);
+const DST_NAMES = /** @type {Record<string, number>} */ (DESTS);
+
+/**
+ * A destination by name, or by number as ADEPT writes one (MD10, AR07: octal).
+ * @param {string} d
+ * @returns {number | undefined}
+ */
+const destination = (d) => (/^[0-7]{2}$/.test(d) ? parseInt(d, 8) & 0o17 : DST_NAMES[d]);
+
+/** @param {string} m @returns {boolean} */
+const isTransfer = (m) => m.length === 4 && m.slice(0, 2) in SRC_NAMES && destination(m.slice(2)) !== undefined;
+/** @param {string} m @returns {boolean} */
+const isConditional = (m) => m.length === 4 && m.slice(0, 2) in CONDITIONS && destination(m.slice(2)) !== undefined;
 
 /**
  * Whether a mnemonic is a DPR-2 instruction.
@@ -573,9 +700,7 @@ const DST_NAMES = /** @type {Record<string, number>} */ ({ MD: 0, AR: 1, IC: 2, 
  * @returns {boolean}
  */
 export function isInstruction(m) {
-  if (m in OPS2 && m !== "EAU" && m !== "SPEC") return true;
-  if (m in EAU || m in SPEC) return true;
-  return m.length === 4 && m.slice(0, 2) in SRC_NAMES && m.slice(2) in DST_NAMES;
+  return m in OPS || m in ALIASES || isTransfer(m) || isConditional(m);
 }
 
 /**
@@ -587,25 +712,19 @@ export function isInstruction(m) {
  */
 export function assembleOp(m, address, mods = {}) {
   let w = address & M15;
-  if (m.length === 4 && m.slice(0, 2) in SRC_NAMES && m.slice(2) in DST_NAMES) {
-    w = put(w, ENCODING.kind, 0);
+  if (isTransfer(m)) {
+    w = put(w, ENCODING.kind, mods.F ? KIND.IMMEDIATE : mods.L ? KIND.NEXT : KIND.MEMORY);
     w = put(w, ENCODING.source, SRC_NAMES[m.slice(0, 2)]);
-    w = put(w, ENCODING.destination, DST_NAMES[m.slice(2)]);
-    w = put(w, ENCODING.immediate, mods.F ? 1 : 0);
-    w = put(w, ENCODING.logic, mods.A ? 1 : mods.O ? 2 : mods.N ? 3 : 0);
+    w = put(w, ENCODING.destination, /** @type {number} */ (destination(m.slice(2))));
+    w = put(w, ENCODING.logic, mods.O ? 1 : mods.A ? 2 : mods.N ? 3 : 0);
     w = put(w, ENCODING.rotate, mods.B ? 1 : mods.K ? 2 : mods.H ? 3 : 0);
-  } else {
-    w = put(w, ENCODING.kind, 1);
-    if (m in EAU) {
-      w = put(w, ENCODING.op, OPS2.EAU);
-      w = put(w, ENCODING.variant, EAU[/** @type {keyof typeof EAU} */ (m)]);
-    } else if (m in SPEC) {
-      w = put(w, ENCODING.op, OPS2.SPEC);
-      w = put(w, ENCODING.variant, SPEC[/** @type {keyof typeof SPEC} */ (m)]);
-    } else if (m in OPS2) {
-      w = put(w, ENCODING.op, OPS2[/** @type {keyof typeof OPS2} */ (m)]);
-    } else throw new Error(`unknown instruction ${m}`);
-  }
+  } else if (isConditional(m)) {
+    w = put(w, ENCODING.op, CONDITIONS[m.slice(0, 2)] / 4);
+    w = put(w, ENCODING.destination, /** @type {number} */ (destination(m.slice(2))));
+    w = put(w, ENCODING.logic, mods.O ? 1 : mods.A ? 2 : mods.N ? 3 : 0);
+  } else if (m in OPS || m in ALIASES) {
+    w = put(w, ENCODING.op, OPS[ALIASES[m] ?? m] / 4);
+  } else throw new Error(`unknown instruction ${m}`);
   w = put(w, ENCODING.index, mods.X ? 1 : 0);
   w = put(w, ENCODING.indirect, mods.I ? 1 : 0);
   return w;
@@ -619,16 +738,19 @@ export function assembleOp(m, address, mods = {}) {
 export function disassemble(w) {
   const mods = (get(w, ENCODING.index) ? "'X" : "") + (get(w, ENCODING.indirect) ? "'I" : "");
   const a = lo(w).toString(8).padStart(5, "0");
-  if (get(w, ENCODING.kind) === 0) {
+  const kind = get(w, ENCODING.kind);
+  if (kind !== KIND.OTHER) {
     const s = Object.keys(SRC_NAMES).find((k) => SRC_NAMES[k] === get(w, ENCODING.source)) ?? "??";
-    const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? "??";
-    const lg = ["", "'A", "'O", "'N"][get(w, ENCODING.logic)];
+    const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? get(w, ENCODING.destination).toString(8).padStart(2, "0");
+    const lg = ["", "'O", "'A", "'N"][get(w, ENCODING.logic)];
     const rt = ["", "'B", "'K", "'H"][get(w, ENCODING.rotate)];
-    return `${s}${d}${get(w, ENCODING.immediate) ? "'F" : ""}${lg}${rt}${mods} ${a}`;
+    const k = ["", "", "'L", "'F"][kind];
+    return `${s}${d}${k}${lg}${rt}${mods} ${a}`;
   }
-  const op = get(w, ENCODING.op);
-  const v = get(w, ENCODING.variant);
-  const name =
-    op === OPS2.EAU ? Object.keys(EAU).find((k) => EAU[/** @type {keyof typeof EAU} */ (k)] === v) : op === OPS2.SPEC ? Object.keys(SPEC).find((k) => SPEC[/** @type {keyof typeof SPEC} */ (k)] === v) : Object.keys(OPS2).find((k) => OPS2[/** @type {keyof typeof OPS2} */ (k)] === op);
-  return `${name ?? "?"}${mods} ${a}`;
+  const c = opName(w) === undefined ? conditionOf(w) : undefined;
+  if (c) {
+    const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? get(w, ENCODING.destination).toString(8).padStart(2, "0");
+    return `${c}${d}${["", "'O", "'A", "'N"][get(w, ENCODING.logic)]}${mods} ${a}`;
+  }
+  return `${opName(w) ?? "?"}${mods} ${a}`;
 }

@@ -17,6 +17,7 @@ The repository follows the [REUSE](https://reuse.software) specification. `REUSE
   - the Material Symbols icons (Apache-2.0). The page's icons are gathered into one module, as they are.
 - **The Teletype's paper model** comes from the [Altair 8800 Simulator](https://github.com/wixette/8800-simulator) (Apache-2.0, the same author), adapted, and keeps its copyright line.
 - **Adage's documents** (the 1968 paper, the brochures and the manuals) are cited, not copied. Facts and numbers taken from them are used with a citation. No page, figure or photograph from them is in the repository.
+- **M. Howard's repository** of NCSU's tapes (MH25) states no licence. It is studied and cited: facts found in it (formats, file lists, addresses) are used with a citation, and no tape image, listing or tool from it is in the repository.
 - **Photographs** (NCSU's, the brochures') were used as references for sizes only, and none is in the repository. A third-party 3D model of the ASR-33 was used the same way: it was measured, and no part of it is included (R17 in [../design/reconstructions.md](../design/reconstructions.md)).
 
 Each third-party path gets its own annotation in `REUSE.toml`, and its licence text goes in `LICENSES/`.

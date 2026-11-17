@@ -12,20 +12,17 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 ## The processor and its software
 
-**R1. The DPR-2's instruction encodings.**
-- *Sources:* every mnemonic (ADEPT App. B); the meanings and times of most (the AGT/5's DPR3, SRM5 DPR3 pp. 1–14); the split of the word into 13 + 2 + 15 bits (SRM5 DPR3 p. 4); the AGT/5's source and destination numbers (SRM5 Table 1). No document found gives a single instruction's octal value. Volume II of the Programmer's Reference Manual (hardware) has not been found.
-- *We:* place the fields ourselves, in one table:
-  - bit 0 says transfer or not; then F, source (3 bits), destination (4), logic (2), rotation (2); X is bit 13, I bit 14;
-  - we number the non-transfer operations;
-  - we read the modifiers our way: 'A, 'O and 'N act on the destination; 'B, 'K and 'H rotate by 1, 6 and 15 bits; 'X steps the lower half of the word read.
-  
-  A program's source is the same as on a real DPR-2; its octal words are not.
-- *Settled by:* any octal listing beside its ADEPT source; Volume II; the DPR-2 subsystem documents that Volume I cites.
+**R1. The DPR-2's instruction encodings.** *Settled* (v0.0.2).
+- *Sources:* the processor's manual gives the layout, the registers' numbers, the special instructions' codes and what each does (DPR2SPI pp. 19–46; [../research/dpr2-manual.md](../research/dpr2-manual.md)); ADEPT71 p. 41 lists the same codes. The routines on the NCSU tapes that survive as both source and binary show the same layout and codes (MH25; [../research/dpr2-encodings.md](../research/dpr2-encodings.md)), and so do AMRMX on the system pack ([../research/amrmx.md](../research/amrmx.md)) and M. Howard's disassembly (MH26).
+- *We:* follow the manual: the layout (the instruction mode in bits 0–1, the destination in 2–5, the source in 6–8, rotation, logic, 'X, 'I); the codes; AN as AR[0] set and LS as AR[15–29] not +0, so that −0 is both; the conditional transfers; AS adding the operand's lower half, its sign extended, to all of AR; 'F's operand being the instruction itself; indirect chains, with 'X incrementing each word before it is read; JPSR keeping the upper half of the word it writes.
+
+  Until v0.0.1 the layout and codes were ours. v0.0.2 first took them from the tapes, then from the manual: SKAN and SKLS are not DPR-2 instructions, and OPTY (00160) and OPTI (00460) had codes of ours that were wrong. Our programs' sources changed where the semantics did: 'X increments before the read, 'F gives the whole instruction, and −0 counts for LS.
 
 **R2. DSPLY is JavaScript.**
-- *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code is lost.
+- *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code has not been found.
 - *We:* interpret the format in JavaScript, and charge the documented processor time where it is documented. The estimates are: 12 µs a MOVE or DRAW item, 8 µs to dispatch any item, 3 µs an array register, 64 µs to save or restore a transform. With these, the documented vector counts per frame come out right.
 - *Settled by:* a DSPLY listing.
+- *Since v0.0.1:* no DSPLY is among the files catalogued on the NCSU tapes. DISP2, the AGT-10's display routine (1971), survives as source and binary, and the pack's system area has no DSPLY either. AMRMX's handler that puts text on the screen drives AVG1 from the DPR-2 through destinations 05, 06, 07 and 10 and the vector interrupts, as DSPLY would ([../research/ncsu-tapes.md](../research/ncsu-tapes.md), [../research/amrmx.md](../research/amrmx.md)).
 
 **R3. Gaps in the image format.**
 - *Sources:* the command word, opcodes, data types and address modes are documented to the bit (DSPLY pp. 12–41).
@@ -36,7 +33,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Settled by:* a DSPLY listing, or an image dump.
 
 **R4. The programs are ours.**
-- *Sources:* no complete AGT program is known to survive in public in any form. Volume I gives calling sequences and fragments only. Tapes from NCSU's AGT-30 exist but, as of the last public report, are unread (CCT20).
+- *Sources:* when v0.0.1 was written, we knew of no complete AGT program surviving in public. Volume I gives calling sequences and fragments only. Tapes from NCSU's AGT-30 were last reported unread (CCT20).
 - *We:* every v0.0.1 program does a job the manuals describe, written the way the manuals write. Each program's card says what is ours:
   - the letter's proportions;
   - the tunnel's grid and proportions;
@@ -45,32 +42,41 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   
   RVCD (reading a dial) is Adage's routine name, with our code and calling sequence. RANDN, which ends Fig. 12's picture after NLINES lines, is ours.
 - *Settled by:* the tapes, or any listing.
+- *Since v0.0.1:* NCSU's programs survive: games as core images, more on a system pack, and the display part of 3-D tic-tac-toe as source (MH25; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). The v0.0.1 programs were written before we knew of them.
 
 **R5. The array's analog error.**
 - *Sources:* 15-bit inputs; settling to 0.01 % in 2 µs (SRM5 GHA4); "about once a year it had to be re-calibrated" (CCT20).
 - *We:* quantise to 15 bits. Drift is modelled as a gain error of up to ± 1.2 % per multiplier and an offset of up to ± 0.4 % per row after a year, but it is not shown in v0.0.1.
 - *Settled by:* calibration records, or the memories of people who did the calibration.
 
-**R6. The EAU's product** is the 30-bit integer product of two 15-bit numbers (shift left one for fractions).
-- *Sources:* the instructions and their times (SRM5 DPR3 p. 5).
+**R6. The EAU's product.** *Settled* (v0.0.2).
+- *Sources:* the instructions and their times (SRM5 DPR3 p. 5); their results, with worked examples (DPR2SPI pp. 43–46).
+- *We:* as the manual: a product of two 15-bit fractions in AR[0–28], AR[29] repeating its sign; a quotient in AR[15–29] and the remainder, in absolute value, in AR[0–14]. Five of the manual's examples are checked to the bit (CPU-9; [../research/dpr2-manual.md](../research/dpr2-manual.md)).
+- *Until v0.0.2:* the product was the 30-bit integer product, and the quotient AR's whole value over the divisor.
 
-**R7. Reading a dial.**
-- *Sources:* the array's multiplexer and comparator make an AD converter, read by successive approximation (SRM5 GHA4).
-- *We:* compare the multiplexed voltage with the X data register directly, not with the array's transformed output. The program sees the same result.
+**R7. Reading a dial.** *Mostly settled* (v0.0.2).
+- *Sources:* on the AGT/30, selecting a multiplexer channel starts an analog-to-digital conversion, and CNVT starts one too (DPR2SPI p. 41); GDD1, destination 07, selects the array's input, and ADC5 converts it to S5[15–29], its overflow on sense line 29; the six dials are channel 1 of the inputs (DPR2BD; [../research/dpr2-block-diagram.md](../research/dpr2-block-diagram.md)).
+- *We:* do so: RVCD sends the dial's number to destination 07 and reads S5. Ours: which bits of GDD1's word choose the input (we take the low four as its number); the conversion is done at once; the function switches in S5's upper half share bit 15 with the converter's sign.
+- *Until v0.0.2:* the AGT/5's way (SRM5 GHA4): the dial compared with the array's X register, sense line 24, by successive approximation.
+- *Settled by:* GDD1's documentation (the DPR2 Subsystem Programming Specification).
 
-**R8. The ADEPT subset.**
-- *We implement:* statements, tags, comments, radix, decimal points, `+ − & * /`, `!H !K !B`, LOC, OCTAL, DECIMAL, TEXT, ENTRY, TITLE, TERMINATE, `=`, REPEAT/ENDR, the DPR-2 mnemonics, and the display codes.
-- *We do not implement:* macros, conditional assembly, action operators, relocation.
+**R8. ADEPT.** *Mostly settled* (v0.0.2).
+- *Sources:* the manual (ADEPT, Revision G); the NCSU sources and their binaries (MH25).
+- *We implement:* what the manual describes for programs: statements, tags, comments, radix, decimal points, `+ − & * / //`, a space between terms as `+`, `!H !K !B` (rotations), `.`, `$` externals, LOC, OCTAL, DECIMAL, TEXT, STRING, ASCII, ENTRY, TITLE, EXPUNGE, ABSOLUTE, TERMINATE, `=`; string substitution: macros (MACRO, MACRO1, MACRO2, `"…"`, `\`, `%`), REPEAT, IREPEAT, IFZERO, IFNEGATIVE, IFPASS1, IFSAME, ELSE, ENDC, STOP; TYPEOUT, TYPEOCT, TYPEDEC; LINKAGE, from the NCSU sources; the DPR-2 mnemonics, and the display codes. The NCSU routines assemble to their binaries' words, all 34 of them ([../research/dpr2-encodings.md](../research/dpr2-encodings.md)).
+- *We do not implement:* action operators (DEFINE), COMMON, TYPEIN, the `#` operators, relocatable output (externals resolve from the monitor's symbols, or are chained as a binary holds them, for the check).
 - *Our own syntax:* how a display item's arguments are written (`DRAW (Z, X, Y)`); `'DIR` on an IRL argument; fractions written with a point (`.5`) and angles in degrees (`30DEG`).
+- *Since v0.0.1:* TEXT fills only the words it needs, as the manual says; an image's two-word name is written `TEXT /A/; 0` where it is short.
 
 **R9. What AMOS types.**
-- *Sources:* the statements (DSPLY pp. 7–11; AMRMX).
-- *We:* type only echoes, results and `?`, with no prompt. OPEN and LIST type a cell as AMRMX pp. 8–9 describe (its address in octal, a colon, its contents in the current MODE); the MODE at start is O, octal, our choice. RESET! returns core, the symbols, DSPLY's settings and the CLOCK chain to their state at start, which is how we read "logically equivalent to that immediately after loading the Monitor" (AMRMX p. 11).
-- *Settled by:* anyone who used the monitor.
+- *Sources:* the statements (DSPLY pp. 7–11; AMRMX); a later revision of the monitor's manual, with its messages (AMRMX71 pp. 11–13).
+- *We:* type only echoes, results, `?` and `*`, with no prompt. At start the monitor asks the date, `MO/DA/YR = `, in the words AMRMX on the NCSU pack uses ([../research/amrmx.md](../research/amrmx.md)), and the simulator answers it with today's date at once, so that a new reader never waits on it. From AMRMX71 (since v0.0.2): `V!` (its version number, 5, is ours), `CORE!` and `CORE(ARG)!`, `DEC!` and `OCT!`, `MARK!` and `RLSE`, `*` for an argument that does not evaluate, and `?` for a symbol DELETE cannot find or bounds out of order. OPEN and LIST type a cell as AMRMX pp. 8–9 describe (its address in octal, a colon, its contents in the current MODE); the MODE at start is O, octal, our choice. RESET! returns core, the symbols, DSPLY's settings and the CLOCK chain to their state at start, which is how we read "logically equivalent to that immediately after loading the Monitor" (AMRMX p. 11).
+- *The Teletype:* the real OPTY strobes BR[22] out to the Teletype a bit at a time, and the monitor takes the keyboard's bits from S4[14] under interrupts (DPR2SPI p. 43). Ours types a whole character from AR[24–29] and skips when the Teletype takes it, and the monitor reads the keyboard directly.
+- *Settled by:* anyone who used the monitor; the DPR2 Subsystem Programming Specification for the Teletype's timing.
 
 **R10. Interrupts.**
 - *Sources:* the priority interrupt system (SRM5 DPR3 pp. 7–9).
 - *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (In v0.0.1 PULSE 1 is on the strip and the desk and goes down when pressed, but requests no interrupt: no program of v0.0.1 uses it, and the status line says so.)
+- *Since v0.0.1:* the AGT-30's fifteen channels are known (PULSE 1 is 1, the Teletype 5, the frame clock 8, the light pen 10, AVG1 11; DPR2BD; MHN), and so are the pivots the software uses (77755 the frame clock, 77760 the light pen, 77776 PULSE 1, 77771 AR overflow; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). Not yet applied to the devices. Since v0.0.2 PINT requests channel 14, which executes `JPSR'I PIPVT` (DPR2SPI p. 40); the pivot's address, 77770, is ours.
 
 **R11. The pen-hit table and PENHT.**
 - *Sources:* DSPLY keeps "a circular table with 16 entries" of pen hits, and PENHT reads it (DSPLY p. 30).
@@ -94,6 +100,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
   - The paper's pictures, DIALS, RVCD and the monitor's routines are in core when the terminal starts, as if loaded from disk.
   - The simulated machine has 32K words, as NCSU's had after its upgrade (NCSU); the standard AGT-30 had 8K (BRO69).
   - User programs are assembled after the pictures, from 40000 octal; the resident routines are at 60000, the monitor's work area at 67700.
+- *Since v0.0.1:* the real monitor sits higher: AMLD0 enters it at 73400, its resident part starts at 74000, and the disk's pivots are 77720–77726 (MH25, MH26). Not yet applied.
 
 ## The installation in 3D
 
