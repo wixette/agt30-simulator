@@ -10,9 +10,11 @@ import { t } from "../l10n/l10n.js";
 
 /** The stage's least height, px (U1). */
 const STAGE_MIN = 320;
-/** The dock's least open height, and its height at start, px. */
+/** The dock's least open height, px. */
 const DOCK_MIN = 120;
-const DOCK_START = 210;
+/** Its height at start: this share of the window, so the Teletype shows a dozen lines or more, and never less than DOCK_START_MIN px. */
+const DOCK_START_SHARE = 0.36;
+const DOCK_START_MIN = 210;
 /** One arrow key's step on the handle, px. */
 const KEY_STEP = 24;
 
@@ -38,7 +40,7 @@ export function buildDock(onResize, onShow = () => {}) {
   const dock = /** @type {HTMLElement} */ (document.getElementById("dock"));
   const handle = /** @type {HTMLElement} */ (document.getElementById("dock-handle"));
   const fold = /** @type {HTMLButtonElement} */ (document.getElementById("dock-fold"));
-  let height = DOCK_START;
+  let height = Math.max(DOCK_START_MIN, Math.round(window.innerHeight * DOCK_START_SHARE));
   let folded = false;
   /** @type {Tool} */
   let current = "program";
