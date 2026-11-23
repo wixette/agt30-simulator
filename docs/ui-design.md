@@ -36,13 +36,13 @@ Space that is always there is for things that change while you watch: the pictur
 | The machine: the Teletype's paper, the AMOS statements, ADEPT source, the marks on the console | UPPER CASE where the machine was | No: the ASR-33 and AMOS had no lower case, and statements are code |
 | The instrument: top bar, viewpoint menu, cards, dock, status line | Sentence case | Yes |
 
-### P6. Unavailable is greyed and explained, never hidden
+### P6. Unavailable is grayed and explained, never hidden
 
-A control that cannot be used right now stays where it is, greyed. When used, it answers in the status line with the reason. For example: the light pen works only on the Screen viewpoint.
+A control that cannot be used right now stays where it is, grayed. When used, it answers in the status line with the reason. For example: the light pen works only on the Screen viewpoint.
 
 ### P7. One status line, always visible
 
-It says what just happened, and why something is greyed.
+It says what just happened, and why something is grayed.
 
 ### P8. A link is a public contract (from 1.0.0)
 
@@ -50,15 +50,15 @@ Once released, a link format may gain fields, but an existing field is never ren
 
 ### P9. Faithful first; our views say so
 
-What a 1968 operator saw and touched is the primary surface. Anything the real AGT never had (the cutaway tube, the cables that glow with their traffic, slowed time) is labelled as ours where the reader meets it. Nothing on the page exists only to collect feedback (U12).
+What a 1968 operator saw and touched is the primary surface. Anything the real AGT never had (the cutaway tube, the cables that glow with their traffic, slowed time) is labeled as ours where the reader meets it. Nothing on the page exists only to collect feedback (U12).
 
 ### P10. One component for each kind of thing
 
-Each kind of control is one component, used the same way everywhere: menu, dialog, icon button, tab, card, chip. They follow Material Design 3 (states, shapes, elevation, motion), in our own colours.
+Each kind of control is one component, used the same way everywhere: menu, dialog, icon button, tab, card, chip. They follow Material Design 3 (states, shapes, elevation, motion), in our own colors.
 - **Icons are Material Symbols, as inline SVG.** No icon fonts, and no fonts or scripts from a CDN: the page needs no network but its own site.
 - **Every icon button has a tooltip and a screen-reader name.**
 - **The keyboard is first-class:** every control is reachable with Tab and has a visible focus ring. The dock's tabs follow the WAI-ARIA tabs pattern.
-- **Motion is short and optional:** camera flights and cross-fades honour `prefers-reduced-motion`.
+- **Motion is short and optional:** camera flights and cross-fades honor `prefers-reduced-motion`.
 
 ### P11. A phone gets the same app, not a different one *(v0.0.3)*
 
@@ -75,7 +75,7 @@ Same regions, same order: the top bar packed down to icons and the program's nam
 
 | Name (the link's `view=`) | The stage shows | Reached from | Its own controls |
 |---|---|---|---|
-| `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables; seen a little from above (about 17°), straight at the scope, which stands at the installation's middle, so its screen is centred and faces the reader *(build, after the manual check)* | Start; the viewpoint menu | none *(build: Connections, which dimmed the machines and lit the cables, was dropped from v0.0.1 after the manual check: not worth a place in the interface; the cables still glow faintly with their traffic)* |
+| `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables; seen a little from above (about 17°), straight at the scope, which stands at the installation's middle, so its screen is centered and faces the reader *(build, after the manual check)* | Start; the viewpoint menu | none *(build: Connections, which dimmed the machines and lit the cables, was dropped from v0.0.1 after the manual check: not worth a place in the interface; the cables still glow faintly with their traffic)* |
 | `console` | The desk from the operator's seat: the scope, the dials, the keys, the light pen, the joystick | The desk's or the scope's card; the viewpoint menu | none |
 | `screen` (2D) | The camera flies to face the scope, then cross-fades to the full-resolution 2D picture in a thin bezel | The scope's card, *Look at the screen* | The light pen (V3) |
 | `tube` | The scope cut open: the gun, the yoke, the beam, the picture on the inside of the glass, with the X, Y and Z traces under it | The scope's card, *Cut it open* | Time: 1/100,000 on entry, then 1/1,000 or real |
@@ -154,7 +154,7 @@ The targets are a 1366 × 768 laptop and a 1920 × 1080 desktop, then phones (P1
 
 The Programs menu ticks the program loaded; with one loaded, **Unload the program** follows, after a line (U17). *(v0.0.3)*
 
-There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces greying them, which left a visitor waiting up to 8 seconds for nothing.)*
+There is no language menu while there is one language. Choosing a program, or rebooting, while the Teletype is still typing stops the typing (U8). *(build: this replaces graying them, which left a visitor waiting up to 8 seconds for nothing.)*
 
 ### U4. Each viewpoint fits its subject into the stage's free area
 
@@ -162,11 +162,11 @@ The stage's top band (viewpoint menu, view tools), the console strip and an open
 
 ### U5. The console strip: dials, function keys, light pen
 
-The strip floats at the bottom of the stage, centred, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
+The strip floats at the bottom of the stage, centered, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
 
-- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its centre, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* A small button on the *Dials* label line turns all six back to the centre at once, a convenience of ours: the operator turned each by hand. It is not the top bar's *Reboot*, which restarts the whole terminal. §6).
+- **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its center, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* A small button on the *Dials* label line turns all six back to the center at once, a convenience of ours: the operator turned each by hand. It is not the top bar's *Reboot*, which restarts the whole terminal. §6).
 - **Sixteen function keys** in a 4 × 4 grid, the last column set apart, and **PULSE 1** above them, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard. A key pressed here goes down on the desk in 3D and turns amber there, and one pressed on the desk shows down here (P2). PULSE 1 is there because it is on the box; no program of v0.0.1 uses it, so pressing it says so in the status line (R10). *(build, after the manual check)*
-- **The light pen.** It shows its state: *pen: point at the screen* on Screen, greyed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
+- **The light pen.** It shows its state: *pen: point at the screen* on Screen, grayed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
 
 The joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so.
 
@@ -210,14 +210,14 @@ The keyboard is active when the Teletype tab has the focus. Keys a PC keyboard l
 
 ### U10. The theme
 
-The theme is the simulator series' (the Altair 8800 and TRS-80 simulators'): a dark Material 3 scheme of neutral greys round an amber primary, with the series' controls (buttons, top-bar tool buttons, tabs, the segmented button, the switch, the field, menus, tooltips, dialogs, the dock's handle). *(v0.0.3: until then the AGT had a scheme of its own, cool blues, which set it apart from its siblings.)*
+The theme is the simulator series' (the Altair 8800 and TRS-80 simulators'): a dark Material 3 scheme of neutral grays round an amber primary, with the series' controls (buttons, top-bar tool buttons, tabs, the segmented button, the switch, the field, menus, tooltips, dialogs, the dock's handle). *(v0.0.3: until then the AGT had a scheme of its own, cool blues, which set it apart from its siblings.)*
 - **The brightest thing on screen is the phosphor.** The interface around it is quiet.
-- **One colour has one meaning:**
+- **One color has one meaning:**
   - amber: what to press, and where you are (the open tab, the chosen reading, the processor's line, a part selected);
   - green: on, and done;
   - blue: the story and the data (links, symbols, the traces' X, the digital cables);
   - red: refused, or a fault.
-- **Every colour is a token** in `css/theme.css`. The canvas and three.js views read the same tokens.
+- **Every color is a token** in `css/theme.css`. The canvas and three.js views read the same tokens.
 
 ### U11. Every text is a message key, in English only
 
@@ -241,7 +241,7 @@ About is a dialog with a title band:
 - the logo, the version and what the simulator is;
 - one line saying that where the documents stop the simulator reconstructs, that each program's card says what is ours in it, and a link to the whole list in the README's *What is reconstructed* *(build, after the manual check: About first listed all twenty reconstructions, too long for an About; the README lists them, and tests/app.test.js keeps that list complete)*;
 - credits: sources, people and libraries;
-- the licences, one per line;
+- the licenses, one per line;
 - a link to the source repository;
 - at its foot, as the series' About: **References**, which opens the References tab (U16), and **Close**, filled, which has the focus. *(v0.0.3)*
 
@@ -257,7 +257,7 @@ A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
 
 *Why look only:* stepping would have to pause the whole terminal (the frame clock, DSPLY, the Teletype), not the processor alone, and editing core is already the monitor's (OPEN). A view that cannot change the machine cannot break a running program.
 *Why:* since v0.0.2 the words in core are the real DPR-2's (R1); typing LIST and OPEN on the Teletype is how an operator read them, but not how a visitor today expects to.
-It is labelled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
+It is labeled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
 
 ### U16. The References tab *(v0.0.3)*
 

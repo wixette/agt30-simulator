@@ -47,7 +47,7 @@ So a heavy picture slows a program, and a busy program never slows the picture.
 
 **D7. The 3D installation is built from parameters in JavaScript.** Every part is a handful of boxes, profiles and cylinders, built in the page from `params/terminal.json`. Each part carries a size, a source and a confidence (`doc`, `measured`, `est`, `design`). There is no Blender step and no `.glb`, so the repository needs no Git LFS, and Node tests check the same geometry the page shows.
 
-**D8. Analog error is modelled, and off by default.** The array computes exactly on 15-bit one's-complement inputs. Quantisation always applies. Drift is in the model (R5) but is not exposed in v0.0.1.
+**D8. Analog error is modeled, and off by default.** The array computes exactly on 15-bit one's-complement inputs. Quantization always applies. Drift is in the model (R5) but is not exposed in v0.0.1.
 
 ## 3. Modules
 
@@ -55,7 +55,7 @@ So a heavy picture slows a program, and a busy program never slows the picture.
 js/sim/        the machine: no DOM, no three.js
   words.js       30-bit words, 15-bit halves, one's complement, octal, fractions and angles
   image.js       the DSPLY image format: items, data types, address modes; a builder for figures
-  array.js       the hybrid array: PS[D + SC(R x)] per row, quantised; drift (off)
+  array.js       the hybrid array: PS[D + SC(R x)] per row, quantized; drift (off)
   vecgen.js      AVG1 timing per vector, short mode, clamping, blanking, dash mode
   dsply.js       DSPLY: walks an image each frame, loads the array, sends strokes, charges time,
                  handles SKIP / ALL / CUT / BUMP, the pen-hit table

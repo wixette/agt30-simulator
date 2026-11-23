@@ -37,7 +37,7 @@ The design rests on one division of labour:
 - **The vector generator draws.** It takes each transformed point and moves the CRT's beam to it in a straight line, bright for a line and dark for a move.
 - **Nothing stores the picture but core and the phosphor.** There is no frame buffer. A line glows only for a moment after the beam passes, so the whole picture is drawn again every frame. A picture with too many lines no longer fits in a frame and flickers.
 
-**The installation** filled a room: four racks, two 7-track tape drives, two disk drives, a Teletype, and the console desk with the scope, the dials, the function keys, the light pen and foot pedals (NCSU). At NCSU it shared the room with a Varian 620 minicomputer, an Ambilog 200 (Adage's earlier hybrid computer), a drum plotter and a colour raster display of the lab's own making.
+**The installation** filled a room: four racks, two 7-track tape drives, two disk drives, a Teletype, and the console desk with the scope, the dials, the function keys, the light pen and foot pedals (NCSU). At NCSU it shared the room with a Varian 620 minicomputer, an Ambilog 200 (Adage's earlier hybrid computer), a drum plotter and a color raster display of the lab's own making.
 
 Adage named every unit with letters and a number, and the documents use these names constantly:
 
@@ -133,7 +133,7 @@ Mode 0 holds the instructions that are not transfers (DPR2SPI pp. 35–46):
 - **JUMP** goes to the address. **JPSR**, jump to subroutine, writes the return address into the address half of the word at the address, leaving its upper half as it was (normally a JUMP), and continues at the next word. So a subroutine's first word is a jump back, and `MDIR` of that word, or `JUMP'I` through it, returns.
 - **JPAN, JSAN, JPLS, JSLS** are JUMP and JPSR made conditional: on AN, "AR negative" (bit 0 set), or on LS, "lower significance" (AR's lower half is not +0; note that −0 counts as non-zero).
 - **ANDD and LSDD** are conditional transfers under the same two conditions: `ANIR X` executes the word at X only if AR is negative. **SKUA and SKLA** skip the next instruction if chosen sense lines are set.
-- **The EAU's operations**: multiplication and division of 15-bit fractions (MPY, DIV in three forms), shifts (ARRS, ARLS), normalisation (NORM).
+- **The EAU's operations**: multiplication and division of 15-bit fractions (MPY, DIV in three forms), shifts (ARRS, ARLS), normalization (NORM).
 - **Device commands**: OPTY sends a bit to the Teletype (section 6); CNVT starts the converter; OPCR strobes the card reader; OPIO and OPTI drive other devices.
 - **Interrupt control**: FPRI freezes interrupts and UPRI releases them; PINT asks for the lowest-priority interrupt (section 4).
 
@@ -363,14 +363,14 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 | DSPLY's code | no listing found; the format is interpreted in JavaScript, at the documented times | R2, R3 |
 | How a dial's input is chosen | GDD1's word is undocumented | R7 |
 | The Teletype's bit timing | the manual it refers to is missing | R9 |
-| How the simulator serves some interrupts, and PIPVT | not yet modelled; the address is undocumented | R10 |
+| How the simulator serves some interrupts, and PIPVT | not yet modeled; the address is undocumented | R10 |
 | The phosphor | undocumented; M. Howard's memory now gives a lead | R14 |
 | The monitor | AMRMX's source is lost; a subset is written in JavaScript | R9, R15 |
 | The installation's sizes and shapes | photographs and the period's common sizes | R16–R18 |
 
 **Open questions** (and asked of M. Howard where marked; [../research/correspondence.md](../research/correspondence.md)):
 
-- the phosphor's colour and afterglow (asked);
+- the phosphor's color and afterglow (asked);
 - what timed the Teletype's bits (asked);
 - what destination 07 takes in its word (asked), and what destinations 05 and 06 carry besides x, y and z;
 - where PIPVT is (asked);

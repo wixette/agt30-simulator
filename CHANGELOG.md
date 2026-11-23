@@ -11,9 +11,9 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 The simulator series' look, and phones. While the machine waits on M. Howard's answers, this release is about the page: it now looks and works like the series' other simulators (the Altair 8800 and the TRS-80), and it works on a phone.
 
 **The look**
-- The series' theme (U10): neutral greys round an amber primary, and the series' controls: top-bar tool buttons, tabs with icons, the segmented button (now also the Tube's time), fields, menus, tooltips, dialogs and the status line.
+- The series' theme (U10): neutral grays round an amber primary, and the series' controls: top-bar tool buttons, tabs with icons, the segmented button (now also the Tube's time), fields, menus, tooltips, dialogs and the status line.
 - The dock's handle is a row of its own, lit while dragged; dragging keeps the dock's foot where it is; the dock remembers its tab, height and fold (U1).
-- The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one centre line.
+- The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one center line.
 - The Program tab's choices: the cards in a row are the same height.
 
 **Phones** (P11, U2)
@@ -62,7 +62,7 @@ The first pre-release: small, honest about what it reconstructs, and good enough
 **The page**
 - The installation in 3D, built from parameters with sizes measured from photographs or estimated (R16-R19): the desk and scope, the console's devices, the Teletype, four racks, two tape drives, two disk drives and the cables. Every part has a card and a close look.
 - Four viewpoints, chosen from one menu: Room, Console, Screen (the picture close up, where the light pen works) and Tube (the scope cut open, the beam drawing in time slowed up to 100,000 times, with its X, Y and Z signals).
-- The console strip: six dials, turned round their centre or by small arrows; sixteen function keys and PULSE 1, in step with the desk in 3D; the light pen's state.
+- The console strip: six dials, turned around their center or by small arrows; sixteen function keys and PULSE 1, in step with the desk in 3D; the light pen's state.
 - The dock: the program's card, with its actions, a depth cueing switch, what is ours, its statements and source (with no program loaded, the list of programs to choose from); and the Teletype's paper and keyboard.
 - The top bar: the Programs menu, its button naming the program loaded; Reboot; About.
 - English only, every text a message (U11); desktop browsers only (U2).

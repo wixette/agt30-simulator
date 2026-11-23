@@ -38,7 +38,7 @@ pnpm check        # all three below, in order
 pnpm check:refs   # no private references, local paths or broken links
 pnpm typecheck    # the JSDoc types, checked strictly; nothing is compiled
 pnpm test         # the model, the programs, the scene and the page's data
-reuse lint        # every file's licence is declared (REUSE.toml, LICENSES/)
+reuse lint        # every file's license is declared (REUSE.toml, LICENSES/)
 ```
 
 `reuse` is a Python tool; without installing it, `uvx --from 'reuse[charset-normalizer]' reuse lint` runs it.
@@ -73,5 +73,5 @@ GitHub Pages keeps everything for 10 minutes, so a release reaches everyone ther
 | [../design/reconstructions.md](../design/reconstructions.md) | Every reconstruction, and what would settle it |
 | [ui-design.md](ui-design.md) | Principles, viewpoints and decisions for the page |
 | [conventions.md](conventions.md) | Units, names, code, programs, tests, references |
-| [licensing.md](licensing.md) | Licences and attribution |
+| [licensing.md](licensing.md) | Licenses and attribution |
 | [../research/bibliography.md](../research/bibliography.md) | Sources by key |
