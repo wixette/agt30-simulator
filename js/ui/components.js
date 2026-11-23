@@ -13,7 +13,7 @@ import { t } from "../l10n/l10n.js";
 const SVG = "http://www.w3.org/2000/svg";
 
 /**
- * A Material Symbol as an inline SVG element, in the current text colour.
+ * A Material Symbol as an inline SVG element, in the current text color.
  * @param {IconName} name
  * @returns {SVGSVGElement}
  */
@@ -80,7 +80,7 @@ let tipTimer;
 
 /**
  * Give an element a tooltip (shown on hover and keyboard focus) and a screen-reader name. An
- * element with its own visible label (data-tip-describes: a text button, a labelled field) keeps
+ * element with its own visible label (data-tip-describes: a text button, a labeled field) keeps
  * that label as its name, and the tooltip describes it.
  * @param {HTMLElement} e
  * @param {string} text

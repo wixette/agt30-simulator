@@ -19,7 +19,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # No private references, local paths or broken links (tools/check-refs.mjs).
       - run: pnpm check:refs
-      # Every file's licence is declared (REUSE.toml, LICENSES/).
+      # Every file's license is declared (REUSE.toml, LICENSES/).
       - uses: fsfe/reuse-action@v6
       # The JSDoc types, checked strictly against the code (tsconfig.json).
       - run: pnpm typecheck

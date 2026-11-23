@@ -189,7 +189,7 @@ export const MODEL_CHECKS = [
   // ---- the array ----
   {
     id: "ARR-1",
-    title: "x' = PS [D + SC (R x)] for every row, exact on the quantised numbers (FJCC68 eqs. 5-7; D8)",
+    title: "x' = PS [D + SC (R x)] for every row, exact on the quantized numbers (FJCC68 eqs. 5-7; D8)",
     run() {
       const a = new HybridArray();
       let seed = 7;

@@ -43,7 +43,7 @@ export const COST = {
   saveTransform: 64,
 };
 
-/** The standard picture scales (DSPLY p. 33): a full-scale cube can turn about its centre in the visible square. */
+/** The standard picture scales (DSPLY p. 33): a full-scale cube can turn about its center in the visible square. */
 export const PS3D = toFrac(1 / (1 + Math.sqrt(3)));
 export const PS2D = toFrac(1 / (1 + Math.SQRT2));
 
@@ -59,7 +59,7 @@ export const SR = { SC0: 0, SC1: 1, VEL0: 2, VEL1: 3, PE: 4, WE: 5, FLAG1: 6, FL
 
 /**
  * A stroke of the beam, as the scope draws it: times in microseconds from the start of the run,
- * positions in inches from the centre of the screen.
+ * positions in inches from the center of the screen.
  * @typedef {object} Seg
  * @property {number} t0
  * @property {number} t1

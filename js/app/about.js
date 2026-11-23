@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // About (docs/ui-design.md, U14): what the simulator is and its version; where the list of what it
-// reconstructs is (the README); credits; the licences; the source. As the series' About, its foot
+// reconstructs is (the README); credits; the licenses; the source. As the series' About, its foot
 // has References, which opens the References tab, and Close.
 
 import { el, showDialog } from "../ui/components.js";
@@ -22,11 +22,11 @@ export function openAbout(version, references) {
     el("h3", { text: t("about.credits") }),
     el("p", { text: t("about.credits.sources") }),
     el("p", { text: t("about.credits.libs") }),
-    el("h3", { text: t("about.licences") }),
+    el("h3", { text: t("about.licenses") }),
     el(
       "ul",
       {},
-      ["code", "content", "three", "font", "icons"].map((k) => el("li", { text: t(`about.licence.${k}`) })),
+      ["code", "content", "three", "font", "icons"].map((k) => el("li", { text: t(`about.license.${k}`) })),
     ),
     el("p", {}, [el("a", { href: SOURCE_URL, target: "_blank", rel: "noopener", text: t("about.source") })]),
   ], [

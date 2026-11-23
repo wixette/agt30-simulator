@@ -1,7 +1,7 @@
 {
   "about": "The Adage AGT-30: documented facts the simulator rests on, each with its source key (research/bibliography.md). Octal values are strings. confidence: 'doc' = stated in a document and read from the scan; 'inference' = derived from documented facts. Reconstructions are not here: they are in design/reconstructions.md.",
   "processor": {
-    "name": "DPR-2; its behaviour from the AGT/5's DPR3, of the same family",
+    "name": "DPR-2; its behavior from the AGT/5's DPR3, of the same family",
     "word_bits": { "value": 30, "source": "FJCC68 p. 748; SRM5 DPR3 p. 1", "confidence": "doc" },
     "arithmetic": { "value": "one's complement; a 29-bit and a 14-bit add, each with a sign", "source": "SRM5 DPR3 p. 4", "confidence": "doc" },
     "memory_cycle_us": { "value": 2, "source": "FJCC68 p. 748; SRM5 DPR3 p. 1", "confidence": "doc" },

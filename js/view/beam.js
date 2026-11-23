@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Where the beam is at an instant, and what the three signals that steer it are doing: X and Y
-// (the deflection, inches from the centre) and Z (the beam on, and how bright, or blanked).
+// (the deflection, inches from the center) and Z (the beam on, and how bright, or blanked).
 // For the Tube viewpoint: its beam and its traces (R20).
 
 /** @typedef {import("../sim/dsply.js").Seg} Seg */
 
 /**
  * @typedef {object} BeamState
- * @property {number} x inches from the centre
+ * @property {number} x inches from the center
  * @property {number} y
  * @property {number} z the beam's brightness, 0..1; 0 when blanked
  * @property {boolean} drawing a stroke is being drawn now (not a move, not waiting)

@@ -41,7 +41,7 @@ const LOOK_DIRECTIONS = {
   ],
 };
 /**
- * Points of the part a close look must see, as fractions of its box from the centre: the
+ * Points of the part a close look must see, as fractions of its box from the center: the
  * corners of the face its controls are on (the front, +Z, the operator's side; or the top), 5 %
  * in, and the face's middle.
  */
@@ -54,10 +54,10 @@ const LOOK_SAMPLES = {
 const GRAB_PX = 16;
 /** How near a key, in pixels, a press on the function switch box's top presses it. */
 const KEY_GRAB_PX = 10;
-/** How far a function key goes down when pressed, metres (est). */
+/** How far a function key goes down when pressed, meters (est). */
 const KEY_TRAVEL_M = 0.0035;
 
-/** A dial's travel each side of its centre, degrees: a potentiometer's 300 degrees in all. */
+/** A dial's travel each side of its center, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
 
 /**
@@ -196,7 +196,7 @@ export class TerminalView {
     this.lastLook = null;
     /** The six knobs on the desk, turned as the dials are. */
     this.knobs = Array.from({ length: 6 }, (_, n) => this.built.root.getObjectByName(`console.dials.knob.${n}`));
-    /** A pressed key's colour (U10). */
+    /** A pressed key's color (U10). */
     this.amber = new THREE.Color(token("--attention", "#ffb74d"));
     /** The function switch box's keys on the desk, by name, and where each rests when up. */
     /** @type {Map<string, THREE.Object3D>} */
@@ -227,7 +227,7 @@ export class TerminalView {
   }
 
   /**
-   * Sets the free area, and moves the projection's centre to its centre.
+   * Sets the free area, and moves the projection's center to its center.
    * @param {Rect} rect
    */
   setFree(rect) {
@@ -238,14 +238,14 @@ export class TerminalView {
 
   /**
    * Sets the free area for the next flight without moving the picture now: the flight moves the
-   * picture's centre there in step with the camera, so nothing jumps before it starts.
+   * picture's center there in step with the camera, so nothing jumps before it starts.
    * @param {Rect} rect
    */
   setFreeForFlight(rect) {
     this.free = rect;
   }
 
-  /** @returns {{ x: number; y: number }} the view offset that centres the projection on the free area */
+  /** @returns {{ x: number; y: number }} the view offset that centers the projection on the free area */
   offsetFor() {
     const W = this.host.clientWidth || 1;
     const H = this.host.clientHeight || 1;
@@ -281,7 +281,7 @@ export class TerminalView {
     const back = dir.clone().normalize();
     const right = new THREE.Vector3(0, 1, 0).cross(back).normalize();
     const up = back.clone().cross(right).normalize();
-    // each corner, at its own depth, must fall inside the free area: at distance D a metre is
+    // each corner, at its own depth, must fall inside the free area: at distance D a meter is
     // H / (2 D tan) pixels, and a corner nearer the camera by b is at D = d - b
     const tan = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) / 2);
     let d = 0;
@@ -482,7 +482,7 @@ export class TerminalView {
   }
 
   /**
-   * Where a desk dial's knob is on the screen, for turning it round its centre.
+   * Where a desk dial's knob is on the screen, for turning it round its center.
    * @param {number} n
    * @returns {[number, number]}
    */
@@ -619,7 +619,7 @@ export class TerminalView {
     for (const [name, k] of this.fnKeys) {
       const down = name.endsWith(".pulse1") ? agt.dev.pulse1 : agt.keyDown(Number(name.split(".").pop()));
       k.position.y = k.userData.restY - (down ? KEY_TRAVEL_M : 0);
-      // and amber, the colour of "your turn" (U10), as the strip shows it
+      // and amber, the color of "your turn" (U10), as the strip shows it
       /** @type {THREE.MeshStandardMaterial} */ (/** @type {THREE.Mesh} */ (k).material).color.copy(down ? this.amber : k.userData.restColor);
     }
     this.built.lamps.forEach((l, i) => {
@@ -647,7 +647,7 @@ export class TerminalView {
   }
 }
 
-/** The materials' colours, from the theme's tokens (U10). */
+/** The materials' colors, from the theme's tokens (U10). */
 function palette() {
   return {
     enamel: token("--enamel", "#9aa7b3"),
