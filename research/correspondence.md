@@ -27,15 +27,37 @@ What we have learned from people who knew the machine, and what they have allowe
 - **2026-11-16.** We sent the results, briefly: the encodings from the tripp tape agree with his disassembler; our assembler reproduces all 34 tripp routines; AMRMX and its symbol table are on the pack, and its display handler drives AVG1 from the DPR-2 ([dpr2-encodings.md](dpr2-encodings.md), [amrmx.md](amrmx.md)). We said that most of the analysis was done with an AI model (Claude), and that his memory is what checks it. Two questions: what destination 07 (GDD1) does with the words written to it, and whether the games drew through a system routine or their own code. The rest are below.
 
 - **2026-11-17.** He replied that he had added documents to MH25 that answer some of our questions: the DPR2 processor's manual (DPR2SPI), later manuals of ADEPT (ADEPT71) and AMRMX (AMRMX71), and his notes (MHN). What they settle is in [dpr2-manual.md](dpr2-manual.md). A call is being arranged.
+- **2026-11-19.** A video call of about an hour. He went through SRM5, DPR2BD, DPR2SPI and PRM1 on screen, with photographs from N. England's page and three colour photographs of an AGT being brought up, which he believes were taken at Adage's factory. What he said, as it bears on the simulator:
+  - **Use and credit.** We may use the code, binaries and documents in MH25 under any licence; he wants them out in the world. He sees no copyright concern in Adage's code of the time, which carries no notice. Credit him for what he contributed, and Adage's authors by the initials at the head of their sources (HDK, and another like RPN; one author was a Nixon, likely R. J. Nixon of FJCC68).
+  - **PULSE 1** is the operator's Ctrl-C: it aborts the program and returns to the monitor. It is a button on the Operator's Control Panel (OCP; SRM5 p. 12, Figure 4) and a single button by the function keys. It jams into the instruction register whatever the OCP's 30 PRI switches hold, normally 24000 77776, which decodes as `MDIR 77776`: execute the word at PULSE 1's pivot. One of the colour photographs shows the switches set so. They were changed only to debug a machine (BR to AR, say).
+  - **PINT** is the lowest-priority interrupt: a background task keeps it pending, and releasing it returns to the main-line program.
+  - **The instruction set.** 'B, 'K and 'H rotate by a bit, a character and a half word; the 15-bit add was used mostly to modify (relocate) instructions. The transfer logic passes the operand straight, negated, ANDed or ORed "into the destination", for most destinations; our reading has it act with AR ([dpr2-manual.md](dpr2-manual.md)), to be checked. An endless indirect chain cannot be halted, only powered off (DPR2SPI p. 15 has no exit). 'I'X steps through an array.
+  - **Booting.** The OCP's BTSP button reads an 80-word bootstrap, five tape frames a word, from the Teletype or a fast reader into core from 0; RUN at 0 then rolls the monitor in from the first cylinders of the pack (MONIT, PRM1 FILE I/O). NCSU added ROMs and a button that wrote the 80 words directly. No source or binary of the bootstrap survives; the monitor running shows as a banner of about two lines.
+  - **The Teletype** on AGTs was usually an ASR-35, not an ASR-33 (SRM5 Figure 3: TTY1-P2, Model ASR-35).
+  - **The phosphor** was "P7 or P30" as heard (perhaps P31): a cool white that decays towards green, with a very long afterglow. Text was uncomfortable to read beyond five or six lines; rooms were darkened to watch it. Characters were stroked in italics.
+  - **The disk.** Each drive took two packs on one shaft, mounted together (he believes ICT's "twin disk"); a pack has two surfaces, 8 sectors of 104 words a track, 203 cylinders (PRM1 DSKIO). The seeks were loud and rhythmic, and he would like to hear them again. The dump leaves out the highest cylinders, which were scratch. NCSU ran donated drives of the same type.
+  - **NCSU's machine.** Its own control panel, PULSE 1 box, function buttons and six dials (15-turn potentiometers); core replaced by 32K words of Fabri-Tek memory; a CalComp drum plotter, a card reader, a synchronous modem line, a Diablo printer, foot pedals; the Varian 620 and the Ambilog 200 (a 2 × 2 hybrid predecessor with tape only) beside it.
+  - **The array** he describes as a 4 × 3 matrix multiplier with a perspective divide and Z intensity modulation, its converters of about 14 bits.
+  - **Software that survives with him.** AMRMX only as the binary on the pack; ADEPT as a printed listing (it carries its own symbol table, hence EXPUNGE at the head of sources; he once retargeted it to a TMS9900); EDIT, the scope editor; the FORTRAN IV compiler and its libraries; QUBIC by D. Ogden for both the Ambilog and the AGT. The listings resist OCR. On the pack: LIFE (the simplest display, to run first), BROSE (a spirograph), Space War, a Lunar Lander that barely works, and an unfinished Pong. Whether the games drew through DSPLY or directly, he does not know. He has never seen a Volume II of the Programmer's Reference Manual.
+  - **Next.** Boot the monitor from the pack image and look for its banner, then LIFE. He hopes to search the Computer History Museum's Adage folders for AGT material.
+- **2026-11-23.** We thanked him and proposed a credit line; said we would change the Teletype to an ASR-35, correct the phosphor, add the OCP and boot from his pack; and asked for the colour photographs' source and permission, a further document in his collection (ADAGE_SLS), his judgement of a side-by-side of our green and a P7-like white, and the three questions below that the call did not reach.
 
 ## Open questions
 
-For the call with M. Howard. Answers go above, with the date.
+Answers go above, with the date. Asked on 2026-11-23:
 
-- **Use and credit.** May facts and code from MH25 be used in this Apache-2.0 project, and how would he like it credited? Who else should be (the Computer History Museum; readtape)? Could the public page one day run the original programs, and who else might hold rights in them?
-- **What the manual leaves open (R7, R9, R10; [dpr2-manual.md](dpr2-manual.md)).** Does he have the *DPR2 Subsystem Programming Specification* the manual refers to, or Volume II of the Programmer's Reference Manual? How did the Teletype's bits get timed, sent by OPTY from BR[22] and read from S4[14]? Where was the program interrupt's pivot, PIPVT? What does GDD1, destination 07, take in its word (AMRMX's display handler writes full words to it)? Were destinations 05 and 06 the array's XY and Z (his notes), AVG1's flags and command (DPR2BD), or both? How do sixteen function keys fit S5[0–14]? In ADCR's binary, what is the pair marked 00 (DTRR)?
-- **Software.** Which programs survive as both source and binary? Are DSPLY, ADEPT or AMRMX on any tape as source? Is 3DTTT D. Ogden's game, and where is `$TTT3D`? Who wrote the games on the pack, and how were they played?
-- **Starting the machine.** How was it booted: did AMLD0 come from paper tape, or from the switches?
-- **The display (R2).** Was the display list run by a DPR-2 program (DSPLY, as we read PRM1), or mostly by hardware, as he remembers it?
-- **The array (R5, R7).** Does our model, x' = PS [D + SC (R x)], match what he knows? Did NCSU's GHA2 read the dials through ADC5 (DPR2BD)? How was the array calibrated?
-- **Use.** The phosphor's colour and persistence, and the flicker (R14); what AMOS typed (R9); how the light pen and PULSE 1 were used; NCSU's configuration (core, disks, tapes, keyboards).
+- **The phosphor (R14).** Is a P7-like white closer than our green, and how strong is the green afterglow?
+- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits?
+- **GDD1 (R7).** What does destination 07 take in the word written to it (AMRMX's display handler writes full words)?
+- **The program interrupt's pivot (R10).** Where is PIPVT?
+- **The colour photographs.** Where are they from, and may we use them? And the document ADAGE_SLS.
+
+Not yet asked:
+
+- **The transfer logic.** Do 'A and 'O act on the operand and AR, or on the destination?
+- **Destinations 05 and 06.** The array's XY and Z (his notes), AVG1's flags and command (DPR2BD), or both?
+- **The function keys.** How do sixteen keys fit S5[0–14]? And in ADCR's binary, what is the pair marked 00 (DTRR)?
+- **The display (R2).** Was the display list walked by a DPR-2 program (DSPLY, as we read PRM1), or mostly by hardware?
+- **The array (R5).** Does our model, x' = PS [D + SC (R x)], match what he knows? How was it calibrated?
+- **Software.** Is 3DTTT D. Ogden's game, and where is `$TTT3D`? Who wrote the other games, and how were they played?
+- **Credit.** Who else should be credited (the Computer History Museum; readtape; the program authors by name, once known)?
