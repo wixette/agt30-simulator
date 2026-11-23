@@ -108,8 +108,11 @@ export const SENSE = { OVERFLOW: 0, ADC: 29 };
 
 /** The priority channels the processor itself requests (DPR2BD): 14, the program interrupt (PINT). */
 export const CHANNEL = { PINT: 14 };
-/** The program interrupt's pivot, PIPVT (DPR2SPI p. 40). Where it sits on the AGT-30 is not known: ours (R10). */
-export const PIPVT = 0o77770;
+/**
+ * The program interrupt's pivot, PIPVT (DPR2SPI p. 40): 77743, where AMRMX on NCSU's pack puts its
+ * task dispatcher and through which it runs PINT (research/amrmx.md; R10).
+ */
+export const PIPVT = 0o77743;
 
 /**
  * Places a field's value into a word.
@@ -211,7 +214,7 @@ export class Dpr2 {
     /**
      * The priority interrupt (PRI) subsystem (SRM5 DPR3 pp. 7-9): requests waiting, each with the
      * instruction its device supplies on S8; the channels whose Jump Subroutine service is under
-     * way (it ends at the first Jump Indirect or successful conditional jump); FPRI's freeze; and,
+     * way (it ends at the first Jump Indirect; R10); FPRI's freeze; and,
      * for the simulator, a hold while the CLOCK chain runs.
      */
     this.pri = {
@@ -341,12 +344,12 @@ export class Dpr2 {
     this.last = this.LC;
     this.LC = (this.LC + 1) & M15;
     this.instructions++;
-    // the end of a Jump Subroutine service: the first Jump Indirect or successful conditional jump
+    // the end of a Jump Subroutine service: the first Jump Indirect. The Model 5 manual adds "or
+    // successful conditional jump" (SRM5 DPR3 p. 8), but AMRMX's interrupt routines take
+    // conditional jumps before their Jump Indirect, and run as written only if those do not end
+    // the service (research/amrmx.md; R10)
     let ends = false;
-    if (this.pri.service.length && get(ins, ENCODING.kind) === KIND.OTHER) {
-      const op = opName(ins);
-      ends = (op === "JUMP" && get(ins, ENCODING.indirect) === 1) || (op === "JPAN" && this.negative()) || (op === "JPLS" && this.lowerSignificance());
-    }
+    if (this.pri.service.length && get(ins, ENCODING.kind) === KIND.OTHER) ends = opName(ins) === "JUMP" && get(ins, ENCODING.indirect) === 1;
     const us = this.execute(ins);
     this.time += us;
     if (ends) this.pri.service.pop();

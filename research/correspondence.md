@@ -47,10 +47,12 @@ What we have learned from people who knew the machine, and what they have allowe
 Answers go above, with the date. Asked on 2026-11-23:
 
 - **The phosphor (R14).** Is a P7-like white closer than our green, and how strong is the green afterglow?
-- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits?
+- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits? *(The pack shows a bit clock behind IC bit 29 that interrupts once a bit, through pivots 77750 and 77751: [amrmx.md](amrmx.md). Its rate is still the question.)*
 - **GDD1 (R7).** What does destination 07 take in the word written to it (AMRMX's display handler writes full words)?
-- **The program interrupt's pivot (R10).** Where is PIPVT?
+- **The program interrupt's pivot (R10).** Where is PIPVT? *(Since found on the pack: 77743, [amrmx.md](amrmx.md).)*
 - **The color photographs.** Where are they from, and may we use them? And the document ADAGE_SLS.
+
+- **The console on the scope.** AMRMX sends its text to the screen when its display handler is loaded. Was the scope the usual console at NCSU, with the Teletype for when the display was not in use?
 
 Not yet asked:
 

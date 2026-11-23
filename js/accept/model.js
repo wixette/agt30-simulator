@@ -546,7 +546,7 @@ export const MODEL_CHECKS = [
   },
   {
     id: "CPU-10",
-    title: "PINT requests priority channel 14, served as JPSR'I PIPVT (DPR2SPI p. 40; DPR2BD; the pivot's address is ours, R10)",
+    title: "PINT requests priority channel 14, served as JPSR'I PIPVT, at 77743 as AMRMX has it (DPR2SPI p. 40; DPR2BD; R10)",
     run(ctx) {
       const agt = ctx.boot();
       const cpu = agt.cpu;
