@@ -2,7 +2,7 @@
 
 An overview of the Adage Graphics Terminal, model 30, for someone who knows today's computers and not this one. It explains what each part of the machine did and how the parts worked together. It gives enough detail to read the manuals, follow the simulator's code, and talk with the people who used the machine.
 
-**How to read it.** The sections build on each other, but each can be read alone; the glossary at the end explains every Adage name in a line. Numbers are octal unless they say otherwise, as on the machine: 77776 is octal, 32,768 is decimal. Bit 0 is a word's leftmost bit. Sources are cited by key, such as DPR2SPI p. 20; Appendix C says what each key is. Where the documents stop and the simulator has to choose, the text says so and gives the entry in [../design/reconstructions.md](../design/reconstructions.md), such as R7.
+**How to read it.** The sections build on each other, but each can be read alone; the glossary, Appendix A, explains every Adage name in a line. Numbers are octal unless they say otherwise, as on the machine: 77776 is octal, 32,768 is decimal. Bit 0 is a word's leftmost bit. Sources are cited by key, such as DPR2SPI p. 20; Appendix D says what each key is. Where the documents stop and the simulator has to choose, the text says so and gives the entry in [../design/reconstructions.md](../design/reconstructions.md), such as R7.
 
 **Status:** draft, 2026-11-23, for review by M. Howard.
 
@@ -18,9 +18,8 @@ An overview of the Adage Graphics Terminal, model 30, for someone who knows toda
 8. [Disks and tapes](#8-disks-and-tapes)
 9. [The software](#9-the-software)
 10. [What is known, and what is not](#10-what-is-known-and-what-is-not)
-11. [Glossary](#11-glossary)
 
-Appendices: [A. The instructions](#appendix-a-the-instructions) · [B. Statements and picture items](#appendix-b-statements-and-picture-items) · [C. The sources](#appendix-c-the-sources)
+Appendices: [A. Glossary](#appendix-a-glossary) · [B. The instructions](#appendix-b-the-instructions) · [C. Statements and picture items](#appendix-c-statements-and-picture-items) · [D. The sources](#appendix-d-the-sources)
 
 ## 1. The machine at a glance
 
@@ -102,7 +101,7 @@ An instruction is one word (DPR2SPI p. 20):
 - **X and I** (bits 13, 14): index and indirect.
 - **The address** (bits 15–29).
 
-ADEPT, the assembler (section 9), writes a transfer as its source then its destination, with modifiers after apostrophes. Appendix A lists every source, destination and instruction.
+ADEPT, the assembler (section 9), writes a transfer as its source then its destination, with modifiers after apostrophes. Appendix B lists every source, destination and instruction.
 
 | ADEPT | What it does |
 |---|---|
@@ -215,7 +214,7 @@ Because a sub-image is drawn under the transform in force when it is called, one
 
 DSPLY is a DPR-2 program. Each frame it walks the image from the top, loads the array's registers as transforms come, and for each point writes x and y to destination 05 and z to destination 06, as we read the block diagram; the array transforms the point and the vector generator draws to it. The vector generator interrupts when a vector is done, and DSPLY sends the next (SRM5 p. 2; [../research/amrmx.md](../research/amrmx.md)).
 
-The operator starts a picture from the monitor: `DSPLY (V.CUBE, 2)!` shows the image V.CUBE at RATE 2. The frame clock ticks 120 / (RATE + 1) times a second: 60, 40, 30, 24 or 20 frames for RATE 1 to 5 (DSPLY pp. 7–10). At each tick DSPLY starts the picture again from the top, and the CLOCK routines are run once. They are small user routines chained to the frame, such as DIALS, which reads the dials into words that the picture's LD… items use. They run at the PINT level, below DSPLY and the vector generator, so they use the moments while vectors are being drawn and do not delay the picture (DSPLY p. 10). What is left of the frame goes to the user's program. Appendix B lists DSPLY's statements.
+The operator starts a picture from the monitor: `DSPLY (V.CUBE, 2)!` shows the image V.CUBE at RATE 2. The frame clock ticks 120 / (RATE + 1) times a second: 60, 40, 30, 24 or 20 frames for RATE 1 to 5 (DSPLY pp. 7–10). At each tick DSPLY starts the picture again from the top, and the CLOCK routines are run once. They are small user routines chained to the frame, such as DIALS, which reads the dials into words that the picture's LD… items use. They run at the PINT level, below DSPLY and the vector generator, so they use the moments while vectors are being drawn and do not delay the picture (DSPLY p. 10). What is left of the frame goes to the user's program. Appendix C lists DSPLY's statements.
 
 ![One frame at RATE 2](overview/frame.svg)
 
@@ -397,9 +396,9 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 - how sixteen function keys fit S5's 15 bits;
 - why the dump of M. Howard's pack holds about 61 cylinders' worth of words while its directory places volumes as far as cylinder 179.
 
-## 11. Glossary
+## Appendix A. Glossary
 
-Adage's names for units, registers and ideas. The instructions and their modifiers are in Appendix A; the monitor's statements and the picture items in Appendix B.
+Adage's names for units, registers and ideas. The instructions and their modifiers are in Appendix B; the monitor's statements and the picture items in Appendix C.
 
 | Term | Meaning |
 |---|---|
@@ -451,7 +450,7 @@ Adage's names for units, registers and ideas. The instructions and their modifie
 | VCD1 | the dials |
 | volume | a run of disk cylinders holding files |
 
-## Appendix A. The instructions
+## Appendix B. The instructions
 
 From DPR2SPI pp. 19–46 and ADEPT71 p. 41, as the simulator implements them (`js/sim/dpr2.js`).
 
@@ -551,7 +550,7 @@ The conditional transfers, ANDD and LSDD, are written with the condition in plac
 | 17520 | NORM | shift AR left until its top bits differ; the count goes to ER |
 | 17540 | ERAR | copy ER, the normalizing count, to AR |
 
-## Appendix B. Statements and picture items
+## Appendix C. Statements and picture items
 
 ### DSPLY's statements
 
@@ -596,7 +595,7 @@ By kind (DSPLY pp. 17–41; the item format is in section 5). Each takes its arg
 | Control | IMG (call a sub-image), RET, SAVT, REST, JMP, JSR, LOOP, ENDL, NUL; the conditional CJMP, CJSR, WJMP, WJSR; LONG, SHORT (vector mode); LDMB, ORMB, ANDMB, LDSN, LDLS |
 | View | DEPTH, LDW, MVW, LWS, LDPS |
 
-## Appendix C. The sources
+## Appendix D. The sources
 
 The keys used in this document. Full entries, with links, are in [../research/bibliography.md](../research/bibliography.md).
 
