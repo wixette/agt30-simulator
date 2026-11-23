@@ -4,7 +4,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 
 ## Unreleased
 
-- The Teletype is an ASR-35, the heavy-duty console that AGTs used, at its documented size (R17). Adage's 1969 brochure lists an ASR-33; its Model 5 manual and M. Howard's memory say ASR-35.
+- The Teletype is an ASR-35, the console desk AGTs used, at its documented size and in the shape photographs of one show (R17). Adage's 1969 brochure lists an ASR-33; its Model 5 manual and M. Howard's memory say ASR-35. The ASR-33 is kept, chosen by the part's `model`.
 - The pack image is understood: the dump on tape is the pack's first 984 sectors in order, with the monitor and the games LIFE, QUBIC, Space War and BROSE ([research/ncsu-tapes.md](research/ncsu-tapes.md)).
 - The overview: the array's size, a 19-inch rack of multiplying DACs (CCT21c).
 

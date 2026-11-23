@@ -110,7 +110,8 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R17. The Teletype.**
 - *Sources:* Adage's 1969 brochure lists an ASR-33 as the AGT-30's standard Teletype (BRO69). The Model 5 manual shows the heavy-duty ASR-35 (SRM5 DPR3 Figure 3), and M. Howard remembers AGTs using the ASR-35, rarely the ASR-33 (MH26). The ASR-35's overall size is documented: 38.5 in high, 40 in wide and 24 in deep, without the paper (TTY35). The two models print alike: 72 columns, 10 characters a second, upper case.
-- *We:* show an ASR-35, at its documented size: a floor-standing console with the printer and keyboard at the right and the tape reader and punch at the left, as photographs of AGT installations show it (MH26). The sizes of its parts are our estimate. *(v0.0.5; until then an ASR-33, its parts' proportions measured from a third-party 3D model used only as a reference.)*
+- *We:* show an ASR-35 at its documented size, its shape and the places of its parts measured on photographs of a Model 35 ASR from the front and the side (TTY35P): a console desk on two sled feet, the body overhanging the cabinet, its top sloping to the front edge; the tape tray and reader at the left, the printer's cover with the punch's window, the dome over the paper, the keyboard in the deck. The photographs were used as references only; none is in the repository. *(v0.0.5.)*
+- *Also kept:* the ASR-33 on its stand, shown until v0.0.5, its parts' proportions measured from a third-party 3D model used only as a reference (Comugi's "Teletype ASR-33 (USA:1963)" in 3D Warehouse), scaled to its documented size (ASR33). A part's `model` in `params/terminal.json` chooses which is built, so either can be shown, or taken for another project.
 
 **R18. The console's devices.**
 - *Sources:* six dials (SRM5 VCD1); sixteen function keys and PULSE 1 (SRM5 FNS1); two foot pedals that act as function keys (SRM5 FNS1); a joystick (BRO69).

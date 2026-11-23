@@ -34,4 +34,5 @@ The keys used across the repository: in docs, code comments and the `source` fie
 | MH26 | M. Howard, personal communication, November 2026 ([correspondence.md](correspondence.md)) | |
 | MHN | M. Howard's notes on the DPR-2: the IC register's bits, the sense lines, the priority channels, the sources and destinations (a spreadsheet) | MH25 (`doc/NOTES.xlsx`) |
 | ASR33 | "Teletype Model 33", Wikipedia: the ASR-33's size on its stand (the model shown until v0.0.5) | <https://en.wikipedia.org/wiki/Teletype_Model_33> |
-| TTY35 | "Teletype Corporation", Wikipedia: the Model 35 ASR's size, 38.5 × 40 × 24 in (height, width, depth) | <https://en.wikipedia.org/wiki/Teletype_Corporation> |
+| TTY35 | "Teletype Corporation", Wikipedia: the Model 35 ASR's size, 38.5 × 40 × 24 in (height, width, depth), in its text | <https://en.wikipedia.org/wiki/Teletype_Corporation> |
+| TTY35P | Christie's, "A Teletype ASR 35, Teletype Corporation, 1976", lot 130 of *Firsts: The History of Computing from the Paul G. Allen Collection*: photographs from the front, the sides, the back and open | <https://onlineonly.christies.com/s/firsts-history-computing-paul-g-allen-collection/teletype-asr-35-130/230068> |
