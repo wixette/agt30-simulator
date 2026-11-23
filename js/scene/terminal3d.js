@@ -750,22 +750,43 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     g.add(slope);
     /** a distance up the slope for a depth t @param {number} t */
     const up = (t) => ((1 - t) / 0.9) * Math.hypot(run, rise);
-    // the keyboard, set into the deck in front of the cover, a knob on each side
-    const kx = x + 83;
-    box(slope, [250, up(0.76) - up(0.95), 4], [kx, (up(0.76) + up(0.95)) / 2, 0], "ttyKey", `${p.name}.keyboard.plate`);
-    const keys = [];
-    for (let r = 0; r < 4; r++) {
-      const ky = up(0.935) + ((up(0.775) - up(0.935)) * r) / 3;
-      const n = r === 3 ? 10 : 11;
-      for (let i = 0; i < n; i++) {
-        const k = new THREE.CylinderGeometry(0.0075, 0.0075, 0.014, 12);
-        k.translate((kx - 105 + (210 * i) / 10 + (r === 3 ? 10 : 0)) / 1000, 0.011, -ky / 1000);
-        keys.push(k);
-      }
+    // the keyboard, set into the deck in front of the cover, measured on the front photo (TTY35P):
+    // its plate 261 mm wide, centered 157 mm right of the middle; keys on a 18.5 mm pitch in four
+    // rows of twelve, then a row of red keys, a blank and the space bar
+    const kx = x + 157;
+    const kb = [up(0.76), up(0.95)];
+    /** a distance up the slope, a fraction f of the plate from its back edge @param {number} f */
+    const kf = (f) => kb[0] + f * (kb[1] - kb[0]);
+    box(slope, [261, kb[0] - kb[1], 4], [kx, (kb[0] + kb[1]) / 2, 0], "ttyKey", `${p.name}.keyboard.plate`);
+    /** @type {Record<string, THREE.BufferGeometry[]>} */
+    const keys = { ttyKey: [], tty35Dark: [], switchRed: [] };
+    /** a key on the plate, by its offset across from the plate's middle @param {number} dx @param {number} f @param {string} m @param {number} [hgt] */
+    const key = (dx, f, m, hgt = 14) => {
+      const k = new THREE.CylinderGeometry(0.0065, 0.0065, hgt / 1000, 14);
+      k.translate((kx + dx) / 1000, (4 + hgt / 2) / 1000, -kf(f) / 1000);
+      keys[m].push(k);
+    };
+    const pitch = 18.5;
+    // the digits; Q to LINE FEED with a blank before and RETURN after; CTRL and A to RUB OUT;
+    // SHIFT, Z to /, SHIFT
+    for (let i = 0; i < 12; i++) key(-99 + i * pitch, 0.1, "ttyKey");
+    key(-110.5, 0.275, "ttyKey", 2);
+    for (let i = 0; i < 11; i++) key(-91 + i * pitch, 0.275, "ttyKey");
+    key(115.5, 0.275, "ttyKey");
+    key(-106.5, 0.46, "tty35Dark");
+    for (let i = 0; i < 11; i++) key(-88 + i * pitch, 0.46, "ttyKey");
+    key(-98, 0.64, "tty35Dark");
+    for (let i = 0; i < 10; i++) key(-79 + i * pitch, 0.64, "ttyKey");
+    key(115, 0.64, "tty35Dark");
+    // the front row: BRK RLS and LOC LF, a blank, the space bar, LOC CR, LOC B SP and REPT
+    for (const dx of [-116, -97, 74, 94, 114]) key(dx, 0.825, "switchRed", 18);
+    key(-77, 0.825, "ttyKey", 2);
+    for (const [m, list] of Object.entries(keys)) {
+      const mesh = new THREE.Mesh(mergeGeometries(list), mat(m));
+      mesh.name = `${p.name}.keyboard${m === "ttyKey" ? "" : m === "switchRed" ? ".red" : ".gray"}`;
+      slope.add(mesh);
     }
-    const keyboard = new THREE.Mesh(mergeGeometries(keys), mat("ttyKey"));
-    keyboard.name = `${p.name}.keyboard`;
-    slope.add(keyboard);
+    box(slope, [112, 12, 6], [kx, kf(0.825), 12], "tty35Dark", `${p.name}.keyboard.space`);
     /** a round button standing on the slope @param {number} r @param {number} hgt @param {number} px @param {number} py @param {string} material @param {string} name */
     const knob = (r, hgt, px, py, material, name) => {
       const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r / 1000, r / 1000, hgt / 1000, 16), mat(material));
@@ -773,11 +794,11 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       mesh.name = `${p.name}.${name}`;
       slope.add(mesh);
     };
-    // the red keys at the keyboard's front corners
-    for (const [i, rx] of [kx - 110, kx - 90, kx + 70, kx + 90, kx + 110].entries()) knob(8, 18, rx, up(0.935), "switchRed", `keyboard.red.${i}`);
-    box(slope, [130, 12, 6], [kx, up(0.945), 4], "ttyKey", `${p.name}.keyboard.space`);
-    for (const [i, nx] of [kx - 127, kx + 237].entries()) knob(14, 20, nx, up(0.86), "ttyKey", `knob.${i}`);
-    knob(6, 12, kx - 203, up(0.84), "switchRed", "reader.start");
+    // left of the keyboard, READER START and the mode dial; right of it, a dial and BREAK below it
+    knob(4, 10, x - 125, kf(0.42), "switchRed", "reader.start");
+    knob(12.5, 20, x - 47, kf(0.42), "ttyKey", "knob.0");
+    knob(12.5, 20, x + 334, kf(0.42), "ttyKey", "knob.1");
+    knob(7, 14, x + 341, kf(0.76), "ttyKey", "break");
     // the tape reader just in front of the tray: a wedge, its top level, its back meeting the
     // slope, a short upright wall at its front
     const rdT = [0.46, 0.6];
@@ -785,7 +806,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     prism([[at(rdT[0]), rdTop], [at(rdT[1]), rdTop], [at(rdT[1]), deckZ(rdT[1])], [at(rdT[0]) + 1, deckZ(rdT[0]) - 1]], x - 445, x - 275, "metal", "reader");
     box(g, [14, 30, 10], [x - 300, at(0.53), rdTop], "switchRed", `${p.name}.reader.lever`);
     // the plate at the right
-    box(slope, [120, up(0.15) - up(0.85), 6], [x + 415, (up(0.15) + up(0.85)) / 2, 0], "tty35", `${p.name}.plate`);
+    box(slope, [125, up(0.15) - up(0.85), 6], [x + 436, (up(0.15) + up(0.85)) / 2, 0], "tty35", `${p.name}.plate`);
 
     // the printer's cover: upright sides and front behind the keyboard, 150 mm high at the front,
     // its top falling toward the back to meet the slope
