@@ -180,6 +180,7 @@ const wval = (n) => (n >= 0 ? n % 0o4000000000 : M30 - (-n % 0o4000000000));
  * @property {(code: number) => boolean} type types a 6-bit AMOS character; false while the Teletype is busy
  * @property {() => number} switches the function switches (S5): key n is bit n
  * @property {(channel: number) => number} analog an analog input, -1..1 (dials, joystick)
+ * @property {(dst: number, v: number, logic: number) => boolean} [write] a transfer to a subsystem's destination (05-14): the word after rotation and 'N, and the logic, 1 'O or 2 'A, for the subsystem to apply; true if a subsystem took it
  */
 
 /** @type {Devices} */
@@ -520,6 +521,8 @@ export class Dpr2 {
         us += this.execute(v);
         break;
       case DESTS.MX:
+        // with IC bit 10 clear, a device may take it for the array's registers (avg1.js, R22)
+        if (this.devices.write?.(dst, v, logic)) break;
         // GDD1 selects the input; on the AGT/30 the selection also starts a conversion (p. 41)
         this.mux = lo(v) & 0o17;
         this.convert();
@@ -542,6 +545,8 @@ export class Dpr2 {
         this.AR = xor30(this.AR, combine(this.AR));
         break;
       default:
+        // 05, 06, 10-14: the subsystems' registers (DPR2BD), which do their own 'O and 'A
+        this.devices.write?.(dst, v, logic);
         break;
     }
     return us;
@@ -597,9 +602,15 @@ export class Dpr2 {
       case "ARRS":
         this.AR = wval(Math.trunc(sval(this.AR) / 2 ** Math.min(29, ea)));
         return TIME.shift;
-      case "ARLS":
-        this.AR = wval(sval(this.AR) * 2 ** Math.min(29, ea));
+      case "ARLS": {
+        // the shifter NORM uses (p. 46): each place moves AR[0-29] left and fills AR[29] with the
+        // sign AR[0] had, so bits pass into AR[0]; AMRMX's display handler packs a character into
+        // AR[0-6] so (research/amrmx.md; R1)
+        let a = this.AR;
+        for (let k = Math.min(29, ea); k > 0; k--) a = ((a * 2) % 2 ** 30) + (a >= 0o4000000000 ? 1 : 0);
+        this.AR = a;
         return TIME.shift;
+      }
       case "NORM": {
         let a = sval(this.AR);
         let n = 0;

@@ -6,7 +6,7 @@
 // tests/app.test.js keeps the lists the same); the source repository; and the references, the
 // only other addresses the page names (tests/app.test.js, APP-3).
 
-export const RECONSTRUCTIONS = Array.from({ length: 21 }, (_, i) => `R${i + 1}`);
+export const RECONSTRUCTIONS = Array.from({ length: 22 }, (_, i) => `R${i + 1}`);
 
 /** The source repository. */
 export const SOURCE_URL = "https://github.com/wixette/agt30-simulator";

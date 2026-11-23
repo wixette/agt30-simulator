@@ -107,6 +107,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R19.** The cables are a diagram of the signal paths, not the real cabling.
 - **R20.** The cutaway and the visible beam are views the real AGT never had.
 - **R21.** The operator's panel works on the simulated machine; its monitor is JavaScript, so HALT, RUN and STEP act on what the processor runs, and PULSE 1's pivot leads to a trap.
+- **R22.** AVG1 and the array at register level, for programs that drive the display themselves (AMRMX): vector words on D05, the next sent on each end-of-vector interrupt, array registers loaded through D07; which register number is which is ours, from what AMRMX does with them.
 
 ## More
 

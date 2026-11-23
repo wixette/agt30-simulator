@@ -8,7 +8,8 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { assembleOp, CHANNEL, disassemble, onesAdd, OPS, PIPVT, TIME } from "../sim/dpr2.js";
+import { Avg1, EOLPV, EOVPV } from "../sim/avg1.js";
+import { assembleOp, CHANNEL, disassemble, Dpr2, onesAdd, OPS, PIPVT, rotl, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
@@ -19,6 +20,36 @@ import { packText } from "../sim/amoscode.js";
 import { equal, load, near, ok, typeAndRun } from "./check.js";
 
 /** @typedef {import("./check.js").Check} Check */
+
+/**
+ * A bare DPR-2 with AVG1 and the array on its destinations (R22).
+ * @returns {{ core: Core; cpu: Dpr2; avg: Avg1; run: (n: number) => void }}
+ */
+function bareAvg() {
+  const core = new Core();
+  /** @type {Avg1} */
+  let avg;
+  const cpu = new Dpr2(core, { type: () => true, switches: () => 0, analog: () => 0, write: (d, v, l) => avg.write(d, v, l) });
+  avg = new Avg1(cpu, new HybridArray());
+  avg.clear();
+  const run = (/** @type {number} */ n) => {
+    for (let i = 0; i < n; i++) {
+      avg.poll();
+      cpu.step();
+    }
+  };
+  return { core, cpu, avg, run };
+}
+
+/**
+ * A vector word as DSPLY's tables and D05 take it: X in bits 0-13, end of list 14, Y 15-28, draw 29.
+ * @param {number} x fraction
+ * @param {number} y fraction
+ * @param {boolean} draw
+ * @param {boolean} eol
+ * @returns {number}
+ */
+const vword = (x, y, draw, eol) => Math.round(x * 0o20000) * 2 ** 16 + (eol ? 2 ** 15 : 0) + Math.round(y * 0o20000) * 2 + (draw ? 1 : 0);
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
 
 /** One unit in the last place of a 15-bit fraction. */
@@ -560,6 +591,99 @@ export const MODEL_CHECKS = [
       cpu.step();
       equal(cpu.LC, at + 11, "served: the subroutine at the pivot's address is entered");
       equal(lo(agt.core.read(at + 10)), at + 1, "and given the return");
+    },
+  },
+
+  {
+    id: "CPU-11",
+    title: "ARLS shifts as NORM does: bits pass into AR[0], and AR[29] takes the sign; AMRMX packs a character into AR[0-6] so (DPR2SPI p. 46; R6)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      agt.core.write(at, assembleOp("ARLS", 23));
+      agt.core.write(at + 1, assembleOp("ARLS", 1));
+      cpu.AR = 0o123;
+      cpu.LC = at;
+      cpu.step();
+      equal(oct(cpu.AR), oct(0o123 * 2 ** 23), "ASCII S in AR[0-6]: its top bit is the sign");
+      cpu.AR = 0o7777777776;
+      cpu.step();
+      equal(oct(cpu.AR), oct(0o7777777775), "-1 shifted once is -2: the sign fills AR[29]");
+    },
+  },
+
+  // ---- AVG1 and the array at register level (R22) ----
+  {
+    id: "AVG-1",
+    title: "A list sent through the end-of-vector pivot: each vector's end on channel 11 executes MDIR'X 77756, the next word, until the end-of-list flag calls JPSR'I 77757 (DISP2; R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      const list = [vword(0.25, 0.5, false, false), vword(0.5, 0.5, true, false), vword(0.5, 0.25, true, true)];
+      list.forEach((w, i) => core.write(0o2000 + i, w));
+      core.write(EOVPV, assembleOp("MDXY", 0o2000));
+      core.write(EOLPV, 0o3000);
+      core.write(0o3001, assembleOp("JUMP", 0o3000, { I: true }));
+      core.write(0o1000, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1001, word(0o60400, 0));
+      core.write(0o1002, assembleOp("MDIR", EOVPV));
+      core.write(0o1003, assembleOp("JUMP", 0o1003));
+      cpu.LC = 0o1000;
+      run(200);
+      const segs = avg.take();
+      equal(segs.length, 3, "three vectors");
+      ok(!segs[0].vis && segs[1].vis && segs[2].vis, "a move, then two draws");
+      near(segs[1].x1, 5, 0.01, "through the array at the identity: 0.5 of full scale is 5 in");
+      near(segs[2].y1, 2.5, 0.01, "and 0.25 is 2.5 in");
+      equal(lo(core.read(EOVPV)), 0o2002, "the pivot stepped to the last word");
+      equal(lo(core.read(0o3000)), 0o1003, "the end-of-list routine was called, and returned");
+      ok(segs[1].t0 >= segs[0].t1 && segs[2].t0 >= segs[1].t1, "one vector at a time");
+    },
+  },
+  {
+    id: "AVG-2",
+    title: "A rotation in the pivot ('K) applies to every word of its list, as AMRMX's digits and punctuation need (R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      const list = [vword(0.1, 0.1, false, false), vword(0.3, 0.1, true, true)];
+      list.forEach((w, i) => core.write(0o2000 + i, rotl(w, 24)));
+      core.write(EOVPV, assembleOp("MDXY", 0o2000, { K: true }));
+      core.write(0o1000, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1001, word(0o60400, 0));
+      core.write(0o1002, assembleOp("MDIR", EOVPV));
+      core.write(0o1003, assembleOp("JUMP", 0o1003));
+      cpu.LC = 0o1000;
+      run(100);
+      const segs = avg.take();
+      equal(segs.length, 2, "both words, the second ending the list");
+      near(segs[1].x1, 3, 0.01, "the second word read rotated, as the first");
+    },
+  },
+  {
+    id: "AVG-3",
+    title: "D07 with IC bit 10 clear loads an array register (05 SC, 15 DX; 100 resets to the identity); with it set, D07 selects GDD1's input (DPR2BD; R7, R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1001, word(0o105, 0o20000));
+      core.write(0o1002, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1003, word(0o15, 0o10000));
+      core.write(0o1004, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1005, word(0o60400, 0));
+      core.write(0o1006, assembleOp("MDXY", 0, { L: true }));
+      core.write(0o1007, vword(0.5, 0, true, true));
+      core.write(0o1010, assembleOp("JUMP", 0o1010));
+      cpu.LC = 0o1000;
+      run(12);
+      const s = avg.take()[0];
+      near(s.x1, 10 * (0.25 + 0.5 * 0.5), 0.01, "x' = DX + SC x, with PS at full scale");
+      equal(avg.loaded[0o05], 0o20000, "the register's value is kept by number");
+      cpu.IC = 2 ** (29 - 10);
+      core.write(0o1011, assembleOp("MDMX", 3, { F: true }));
+      cpu.LC = 0o1011;
+      cpu.step();
+      equal(cpu.mux, 3, "with IC bit 10 set, the input selector");
+      equal(avg.loaded[0o03], 0, "and no register loaded");
     },
   },
 
