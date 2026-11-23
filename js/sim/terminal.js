@@ -53,6 +53,8 @@ export class Terminal {
     this.errort = "ALL";
     /** When the next frame starts. */
     this.nextTick = 0;
+    /** The processor is stopped (HALT, PAUSE, power off on the panel): no frame is drawn, the picture fades. */
+    this.held = false;
     /** @type {Seg[]} strokes with absolute times, oldest first, kept KEEP_US */
     this.segs = [];
     /** @type {FrameRecord[]} recent frames, newest last */
@@ -95,7 +97,7 @@ export class Terminal {
    */
   advance(until) {
     let guard = 0;
-    while (this.image !== null && this.nextTick <= until && guard++ < 1000) this.runFrame();
+    while (this.image !== null && !this.held && this.nextTick <= until && guard++ < 1000) this.runFrame();
     this.now = until;
     const keep = until - KEEP_US;
     let i = 0;

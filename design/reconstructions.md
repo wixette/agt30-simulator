@@ -76,6 +76,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 **R10. Interrupts.**
 - *Sources:* the priority interrupt system (SRM5 DPR3 pp. 7–9).
 - *We:* run PULSE 1 as the hardware did. The light pen, the Teletype and the frame clock are served by the simulator directly. (In v0.0.1 PULSE 1 is on the strip and the desk and goes down when pressed, but requests no interrupt: no program of v0.0.1 uses it, and the status line says so.)
+- *Since v0.0.5:* PULSE 1, on the console and on the operator's panel, requests channel 1 with the PRI switches' instruction (R21).
 - *Since v0.0.1:* the AGT-30's fifteen channels are known (PULSE 1 is 1, the Teletype 5, the frame clock 8, the light pen 10, AVG1 11; DPR2BD; MHN), and so are the pivots the software uses (77755 the frame clock, 77760 the light pen, 77776 PULSE 1, 77771 AR overflow; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)). Not yet applied to the devices. Since v0.0.2 PINT requests channel 14, which executes `JPSR'I PIPVT` (DPR2SPI p. 40); the pivot's address, 77770, is ours.
 
 **R11. The pen-hit table and PENHT.**
@@ -120,3 +121,14 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 **R19. The cables** are a diagram of the documented signal paths: one tube per link, routed on the floor, colored blue for digital words and orange for analog voltages. They are not the real cabling, which is undocumented. They glow with their traffic, a view the real AGT never had.
 
 **R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection center to the spot, only while it draws: blanked, for a move or between frames, no electrons flow, and none is drawn; the Tube's note says which. A real beam is invisible and curves through the field. Both are views the real AGT never had.
+
+**R21. The operator's control panel.**
+- *Sources:* the panel's controls and what each does (SRM5 DPR3 pp. 12–14; figure 7 of [../docs/agt30-overview.md](../docs/agt30-overview.md)); the PRI switches' usual setting, 24000 77776, `MDIR 77776`, and PULSE 1 returning to the monitor (MH26).
+- *We:* the panel works on the simulated machine, in the Panel tab and on the processor rack in 3D. Since this version's monitor is JavaScript, not code in core, what "the processor runs" means is the display's frames, the CLOCK chain, a foreground program, and the monitor answering the Teletype:
+  - **HALT** stops all of them: no frame is drawn, so the picture fades; characters typed wait until **RUN**. **RUN** goes on from the next tick, without catching up the frames missed. **PAUSE** is HALT that still serves PULSE 1.
+  - **STEP** obeys one instruction of a foreground program, or a waiting PULSE 1. **CYCLE**, one machine cycle, is the same here: the simulator works at instruction level.
+  - **PULSE 1**'s pivot, 77776, holds `JUMP 67775`, a trap where the processor stops and the monitor takes over: the program stops and the display halts, as AMRMX's HALT! does to the display. Another instruction on the switches is obeyed as it is (`MDBR X` shows a word in BR, `BRMD X` stores BR's buttons); one that jumps while no program runs starts one there.
+  - **RESET** clears AR, BR, IC, ER, LC and the interrupts, stops the program and the display, and halts; **RUN** then goes back to the monitor. **OFF** takes both buttons within two seconds; **ON** powers up in HALT with core kept.
+  - **BTSP** sets PAUSE and IC bit 28, but no bootstrap tape is fitted yet. **TE** never lights, since the Teletype is served at once. The selector's **HUB 1** and **HUB 2** have nothing connected.
+  - In 3D the panel is laid out as figure 7, on the processor rack's lamp panel; its controls take clicks in the Panel viewpoint only.
+- *Settled by:* booting the real monitor from the pack (planned for v0.0.5), after which PULSE 1 and RUN act on AMRMX itself.

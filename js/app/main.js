@@ -20,6 +20,7 @@ import { Runner } from "./runner.js";
 import { selftestRequested, runSelftest } from "./selftest.js";
 import { Stage } from "./stage.js";
 import { buildStrip } from "./strip.js";
+import { buildPanel } from "./panel.js";
 import { buildProcessor } from "./processor.js";
 import { buildReferences } from "./references.js";
 import { buildTeletype } from "./teletype.js";
@@ -81,14 +82,18 @@ async function start() {
   if (query.has("debug")) Object.defineProperty(window, "stage", { value: stage });
   /** @type {{ render: (force?: boolean) => void } | null} */
   let proc = null;
+  /** @type {{ render: (force?: boolean) => void } | null} */
+  let panel = null;
   buildReferences(/** @type {HTMLElement} */ (document.getElementById("pane-refs")));
   const dock = buildDock(() => stage.refit(), (id) => {
     if (id === "proc") proc?.render(true);
+    if (id === "panel") panel?.render(true);
   });
   const tty = buildTeletype(machine, () => {
     if (!dock.ttyShown()) dock.mark("tty");
   });
   proc = buildProcessor(machine, say, () => dock.procShown());
+  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown());
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
   // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu
@@ -148,6 +153,7 @@ async function start() {
     drawCard();
     tty.render();
     proc?.render(true);
+    panel?.render(true);
     writeLink();
     say(was ? t("status.unloaded", { title: t(`program.${was.id}.title`) }) : t("status.reset"));
   };
@@ -174,12 +180,14 @@ async function start() {
     syncSwitches(programCard, agt);
     tty.render();
     proc?.render();
+    panel?.render();
     if (agt.typing !== wasBusy) {
       wasBusy = agt.typing;
       drawCard();
       if (!wasBusy && program) say(t("status.loaded", { title: t(`program.${program.id}.title`) }));
     }
-    fpsEl.textContent = agt.image === null ? t("status.halted") : runner.scale < 1 ? t("status.slowed", { rate: agt.rate }) : t("status.fps", { fps: num(Math.round(agt.stats().fps)), rate: agt.rate });
+    const p = agt.panel;
+    fpsEl.textContent = !p.power ? t("status.powerOff") : !p.running ? t(`status.cpu.${p.mode}`) : agt.image === null ? t("status.halted") : runner.scale < 1 ? t("status.slowed", { rate: agt.rate }) : t("status.fps", { fps: num(Math.round(agt.stats().fps)), rate: agt.rate });
   });
 
   // ---- the link (U13): a viewpoint and a program ----

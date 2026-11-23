@@ -563,6 +563,113 @@ export const MODEL_CHECKS = [
     },
   },
 
+  // ---- the operator's control panel (R21) ----
+  {
+    id: "OCP-1",
+    title: "PULSE 1 at the usual setting, MDIR 77776, returns to the monitor: the program stops and the display halts (MH26; R10)",
+    run(ctx) {
+      const agt = ctx.boot();
+      equal(agt.panel.pri, word(0o24000, 0o77776), "the PRI switches' usual setting");
+      equal(disassemble(agt.panel.pri), "MDIR 77776", "decodes as MDIR 77776");
+      agt.core.write(USER_AT, assembleOp("JUMP", USER_AT));
+      agt.startProgram(USER_AT, 0o67777, "LOOP");
+      agt.start(/** @type {number} */ (agt.core.symbols.get("V.CUBE")));
+      agt.advance(agt.now + 100000);
+      ok(agt.program && agt.image !== null, "a program runs and a picture is shown");
+      equal(agt.setPulse1(true), "monitor", "PULSE 1");
+      agt.setPulse1(false);
+      ok(agt.program === null, "the program stopped");
+      ok(agt.image === null, "the display halted");
+    },
+  },
+  {
+    id: "OCP-2",
+    title: "The PRI switches read and write core through BR: MDBR X shows a word, BRMD X stores BR's buttons (SRM5 DPR3 p. 13)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.core.write(USER_AT, word(0o12345, 0o54321));
+      p.setPri(assembleOp("MDBR", USER_AT));
+      equal(agt.setPulse1(true), "served", "PULSE 1");
+      agt.setPulse1(false);
+      equal(agt.cpu.BR, word(0o12345, 0o54321), "BR shows the word");
+      p.resetBR();
+      for (const bit of [0, 14, 29]) p.pressBR(bit);
+      p.setPri(assembleOp("BRMD", USER_AT + 1));
+      agt.setPulse1(true);
+      equal(agt.core.read(USER_AT + 1), word(0o40001, 0o00001), "the word at X is BR's buttons");
+    },
+  },
+  {
+    id: "OCP-3",
+    title: "HALT stops the processor: no frames, the keyboard waits, PULSE 1 waits lit; RUN goes on from the next tick (SRM5 DPR3 p. 13)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.start(/** @type {number} */ (agt.core.symbols.get("V.CUBE")));
+      agt.advance(agt.now + 100000);
+      p.halt();
+      const n = agt.frames.length;
+      agt.type("HALT!");
+      agt.advance(agt.now + 2000000);
+      equal(agt.frames.length, n, "no frame while halted");
+      ok(agt.sending.length > 0, "the characters typed wait");
+      equal(agt.setPulse1(true), "halted", "PULSE 1 while halted");
+      ok(p.pulse1Lit, "its lamp is lit");
+      p.setPri(assembleOp("NOOP", 0));
+      p.run();
+      ok(!p.pulse1Lit, "served at RUN");
+      agt.advance(agt.now + 100000);
+      ok(agt.frames.length - n <= Math.ceil(100000 / tickUs(agt.rate)) + 1, "the frames missed are not caught up");
+      for (let guard = 0; agt.busy && guard < 100; guard++) agt.advance(agt.now + 100000);
+      ok(agt.image === null, "the monitor took HALT! once it ran");
+    },
+  },
+  {
+    id: "OCP-4",
+    title: "STEP obeys one instruction of a halted program; CYCLE, at instruction level, does the same (SRM5 DPR3 p. 13; R21)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.core.write(USER_AT, assembleOp("NOOP", 0));
+      agt.core.write(USER_AT + 1, assembleOp("NOOP", 0));
+      agt.core.write(USER_AT + 2, assembleOp("JUMP", USER_AT));
+      agt.startProgram(USER_AT, 0o67777, "STEPS");
+      p.halt();
+      equal(p.step(), "stepped", "STEP");
+      equal(agt.cpu.LC, USER_AT + 1, "one instruction");
+      equal(p.cycle(), "stepped", "CYCLE");
+      equal(agt.cpu.LC, USER_AT + 2, "one more");
+      p.step();
+      equal(agt.cpu.LC, USER_AT, "the jump");
+      p.run();
+      equal(p.step(), "nothing", "STEP does nothing while the processor runs");
+    },
+  },
+  {
+    id: "OCP-5",
+    title: "RESET clears the registers and halts; OFF takes both buttons; ON stops in HALT with core kept (SRM5 DPR3 pp. 13-14)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.cpu.AR = 5;
+      p.pressBR(3);
+      p.reset();
+      equal(agt.cpu.AR + agt.cpu.BR, 0, "AR and BR cleared");
+      equal(p.mode, "halt", "halted");
+      p.run();
+      equal(p.off(0, 0), "armed", "one OFF");
+      ok(p.power, "the power stays on");
+      equal(p.off(0, 3000), "armed", "the same OFF again, later");
+      equal(p.off(1, 3500), "ok", "the other OFF with it");
+      ok(!p.power && !p.lamps().run, "power off, lamps dark");
+      const kept = agt.core.read(USER_AT);
+      equal(p.on(), "halted", "ON");
+      equal(p.mode, "halt", "the processor stops in HALT");
+      equal(agt.core.read(USER_AT), kept, "core kept");
+    },
+  },
+
   // ---- the monitor ----
   {
     id: "MON-1",

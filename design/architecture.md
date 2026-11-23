@@ -66,6 +66,7 @@ js/sim/        the machine: no DOM, no three.js
   amos.js        the AMOS monitor subset; amoscode.js: the 6-bit code
   teletype.js    the Teletype's paper model (from the 8800 simulator's ASR-33)
   agt.js         the AGT-30 as a whole: terminal + DPR-2 + devices + Teletype + monitor
+  panel.js       the operator's control panel: BR, the PRI switches, RUN / HALT / STEP, PULSE 1 (R21)
   figures.js     the generated pictures, built into core; font.js: the stroke font
   programs.js    reads programs/index.json and the .adept files (the caller supplies the reading)
 js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (the face, the pen's
@@ -73,7 +74,8 @@ js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (t
 js/scene/      three.js: terminal3d.js (built from params), viewer.js (framing, flights, picking,
                the cutaway and the beam)
 js/app/        the page: main.js, runner.js (time), stage.js (viewpoints, their menu, cards),
-               strip.js, dock.js, programCard.js, teletype.js, about.js, link.js, selftest.js
+               strip.js, dock.js, programCard.js, teletype.js, processor.js, panel.js (the
+               operator's panel, R21), about.js, link.js, selftest.js
 js/ui/         components.js: icons, tooltips, menus, tabs, dialogs
 js/l10n/       l10n.js (lookup) and en.js
 js/accept/     acceptance checks shared by tests/ and ?selftest

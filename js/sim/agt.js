@@ -16,9 +16,10 @@
 
 import { assemble } from "./adept.js";
 import { TTY } from "./amoscode.js";
-import { Dpr2 } from "./dpr2.js";
+import { assembleOp, Dpr2 } from "./dpr2.js";
 import { loadFigures } from "./figures.js";
 import { CALL_AREA, Monitor } from "./amos.js";
+import { MONITOR_ENTRY, Panel, PULSE1_PIVOT } from "./panel.js";
 import { Terminal } from "./terminal.js";
 import { Teletype } from "./teletype.js";
 import { word } from "./words.js";
@@ -63,7 +64,7 @@ export class Agt30 extends Terminal {
       dials: new Float64Array(DIALS),
       /** sixteen function keys (FNS1) on S5, key n as bit n in Adage's numbering from the left */
       switches: 0,
-      /** PULSE 1, the manual interrupt, held down; in v0.0.1 it requests no service (R10) */
+      /** PULSE 1, the manual interrupt, held down: the console's button and the panel's are one (R10) */
       pulse1: false,
     };
     /** The paper. */
@@ -102,6 +103,9 @@ export class Agt30 extends Terminal {
     this.typeout = (/** @type {string} */ text) => this.print(text);
     this.dsply.machine = (addr) => this.callRoutine(addr);
     this.dsply.pen.aperture = PEN_APERTURE_IN;
+    /** The processor's operator's control panel (R21). */
+    this.panel = new Panel(this);
+    this.cpu.breakAt = MONITOR_ENTRY;
   }
 
   /**
@@ -125,6 +129,8 @@ export class Agt30 extends Terminal {
     }
     if (at > CALL_AREA) throw new Error("the resident programs run into the monitor");
     for (const [name, src] of Object.entries(sources)) if (!RESIDENT.includes(name)) agt.monitor.files.set(name, src);
+    // PULSE 1's pivot leads back to the monitor, so the PRI switches' usual MDIR 77776 does (R21)
+    agt.core.write(PULSE1_PIVOT, assembleOp("JUMP", MONITOR_ENTRY));
     agt.monitor.loadAt = USER_AT;
     agt.startCore = { words: agt.core.words.slice(), symbols: new Map(agt.core.symbols) };
     agt.monitor.greet(date);
@@ -184,12 +190,24 @@ export class Agt30 extends Terminal {
   }
 
   /**
-   * Presses or releases PULSE 1. It is drawn and pressed as on the box, but no program of v0.0.1
-   * uses it, so it requests no interrupt (R10).
+   * Presses or releases PULSE 1, on the console or the panel: pressed, it asks for the PRI
+   * switches' instruction on channel 1 (R10, R21).
    * @param {boolean} down
+   * @returns {import("./panel.js").Outcome | null} what the press did; null for a release
    */
   setPulse1(down) {
+    const was = this.dev.pulse1;
     this.dev.pulse1 = down;
+    return down && !was ? this.panel.pulse1() : null;
+  }
+
+  /**
+   * Back to the monitor, as PULSE 1 at its usual setting returns there: the foreground program
+   * stops and the display halts (AMRMX's HALT! does the same to the display).
+   */
+  abort() {
+    this.stopProgram();
+    this.halt();
   }
 
   /**
@@ -270,7 +288,8 @@ export class Agt30 extends Terminal {
   /** @param {number} until */
   advance(until) {
     if (!this.sending.length) this.sendNext = Math.max(this.sendNext, this.now);
-    while (this.sending.length && this.sendNext <= until) {
+    // the monitor is the processor's: halted, it takes nothing, and the keyboard's characters wait
+    while (this.panel.running && this.sending.length && this.sendNext <= until) {
       this.advanceTo(Math.max(this.sendNext, this.now));
       const c = /** @type {{ ch: string; gapUs: number }} */ (this.sending.shift());
       this.printAtOnce = c.gapUs < TTY_US_PER_CHAR;
@@ -284,7 +303,7 @@ export class Agt30 extends Terminal {
   /** @param {number} until */
   advanceTo(until) {
     // with the display halted, the foreground program has the processor to itself
-    if (this.image === null && this.program) {
+    if (this.image === null && this.program && this.panel.running) {
       this.runBase = this.now;
       this.runCpu = this.cpu.time;
       this.runProgram(until - this.now);
@@ -352,6 +371,10 @@ export class Agt30 extends Terminal {
     const r = this.cpu.resume(this.program.until, us);
     this.programUs += r.us;
     if (r.done) {
+      if (this.cpu.LC === MONITOR_ENTRY && this.program.until !== MONITOR_ENTRY) {
+        this.abort();
+        return;
+      }
       if (this.cpu.stopped) this.print(`${this.cpu.stopped.toUpperCase()}\r\n`);
       this.program = null;
     }

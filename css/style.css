@@ -245,6 +245,37 @@ code, pre, .mono { font-family: var(--mono); }
 .dock-pane { flex: 1; min-height: 0; overflow: auto; padding: 8px 16px 12px; }
 #dock.folded .dock-pane { display: none; }
 
+/* the Panel tab (U18): the operator's control panel, laid out as figure 7 */
+.ocp-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 2px 0 8px; }
+.ocp-word { font-size: 13px; color: var(--md-on-surface); }
+.ocp-state { font-size: 12px; color: var(--md-on-surface-variant); }
+.ocp-scroll { overflow-x: auto; padding-bottom: 4px; }
+.ocp { display: grid; grid-template-columns: auto auto auto; align-items: center; gap: 8px 14px; width: max-content; padding: 12px 16px; border-radius: var(--radius-s); background: var(--ocp-face); color: var(--ocp-label); }
+.ocp-side { font-weight: 700; font-size: 13px; min-width: 28px; }
+.ocp-block { display: flex; gap: 8px; }
+.ocp-group { display: flex; gap: 6px 12px; padding: 6px 10px; border-radius: 4px; background: var(--ocp-group); color: var(--ocp-ink); }
+.ocp-group.bits { display: grid; grid-template-columns: repeat(3, 24px); gap: 2px 8px; }
+.ocp-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ocp-num { font-size: 9px; line-height: 11px; }
+.ocp-name { font-size: 10px; line-height: 12px; font-weight: 700; white-space: nowrap; }
+.ocp-right { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 112px; }
+.ocp-right .ocp-cell { flex-direction: row-reverse; gap: 8px; }
+.ocp-right .ocp-name { color: var(--ocp-label); }
+.ocp-lamp { width: 22px; height: 22px; padding: 0; border: 1px solid var(--ocp-ink); border-radius: 50%; background: var(--ocp-unlit); cursor: pointer; }
+.ocp-lamp.lit { background: var(--lamp-on); box-shadow: 0 0 8px 2px color-mix(in srgb, var(--lamp-on) 70%, transparent); }
+.ocp-lamp:active { transform: scale(0.92); }
+.ocp-toggle { position: relative; width: 14px; height: 26px; padding: 0; border: 1px solid var(--ocp-ink); border-radius: 7px; background: var(--ocp-unlit); cursor: pointer; }
+.ocp-thumb { position: absolute; left: 1px; bottom: 1px; width: 10px; height: 10px; border-radius: 50%; background: #8d7f6c; transition: bottom 0.1s; }
+.ocp-toggle[aria-checked="true"] .ocp-thumb { bottom: 13px; background: var(--ocp-set); }
+.ocp-sel { display: flex; align-items: center; gap: 8px; }
+.ocp-knob { position: relative; width: 30px; height: 30px; padding: 0; border: 2px solid var(--ocp-label); border-radius: 50%; background: #7a6a58; cursor: pointer; }
+.ocp-pointer { position: absolute; left: 50%; top: 50%; width: 2px; height: 12px; margin-left: -1px; background: var(--ocp-label); transform-origin: 50% 0; transform: rotate(-135deg); }
+.ocp-knob[data-pos="hub1"] .ocp-pointer { transform: rotate(-90deg); }
+.ocp-knob[data-pos="hub2"] .ocp-pointer { transform: rotate(-45deg); }
+.ocp-sel-labels { display: flex; flex-direction: column; font-size: 10px; line-height: 13px; font-weight: 700; opacity: 0.75; }
+.ocp-sel-labels .on { opacity: 1; color: var(--lamp-on); }
+.ocp button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+
 /* the program card (U7) */
 .program-card { max-width: 980px; }
 .program-head { display: flex; align-items: center; gap: 12px; justify-content: space-between; }

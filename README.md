@@ -106,6 +106,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R18.** The console's devices: shapes from photographs; the pedals as the period's foot switches.
 - **R19.** The cables are a diagram of the signal paths, not the real cabling.
 - **R20.** The cutaway and the visible beam are views the real AGT never had.
+- **R21.** The operator's panel works on the simulated machine; its monitor is JavaScript, so HALT, RUN and STEP act on what the processor runs, and PULSE 1's pivot leads to a trap.
 
 ## More
 

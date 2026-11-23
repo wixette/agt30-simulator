@@ -5,6 +5,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 ## Unreleased
 
 - The Teletype is an ASR-35, the console desk AGTs used, at its documented size and in the shape photographs of one show (R17). Adage's 1969 brochure lists an ASR-33; its Model 5 manual and M. Howard's memory say ASR-35. The ASR-33 is kept, chosen by the part's `model`.
+- The operator's control panel works: BR's lamp-buttons, the PRI switches, PULSE 1, RUN, HALT, PAUSE, STEP, CYCLE, RESET, ON and OFF, BTSP, IC 0 and IC 1, in a new Panel tab and on the processor rack in 3D, with a Panel viewpoint (R21). PULSE 1 at the switches' usual setting, `MDIR 77776`, returns to the monitor, as M. Howard describes.
 - The pack image is understood: the dump on tape is the pack's first 984 sectors in order, with the monitor and the games LIFE, QUBIC, Space War and BROSE ([research/ncsu-tapes.md](research/ncsu-tapes.md)).
 - The overview: the array's size, a 19-inch rack of multiplying DACs (CCT21c).
 

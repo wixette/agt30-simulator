@@ -206,6 +206,8 @@ export class Dpr2 {
     this.instructions = 0;
     /** @type {string | null} why the processor stopped */
     this.stopped = null;
+    /** An address that ends a run as `until` does, or -1: where PULSE 1's pivot leads back to the monitor. */
+    this.breakAt = -1;
     /**
      * The priority interrupt (PRI) subsystem (SRM5 DPR3 pp. 7-9): requests waiting, each with the
      * instruction its device supplies on S8; the channels whose Jump Subroutine service is under
@@ -638,6 +640,7 @@ export class Dpr2 {
     this.stopped = null;
     while (us < maxUs) {
       if (this.LC === until && this.nextRequest() === null) return { us, done: true };
+      if (this.LC === this.breakAt) return { us, done: true };
       us += this.step();
       if (this.stopped) return { us, done: true };
     }

@@ -78,9 +78,10 @@ Same regions, same order: the top bar packed down to icons and the program's nam
 | `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables; seen a little from above (about 17°), straight at the scope, which stands at the installation's middle, so its screen is centered and faces the reader *(build, after the manual check)* | Start; the viewpoint menu | none *(build: Connections, which dimmed the machines and lit the cables, was dropped from v0.0.1 after the manual check: not worth a place in the interface; the cables still glow faintly with their traffic)* |
 | `console` | The desk from the operator's seat: the scope, the dials, the keys, the light pen, the joystick | The desk's or the scope's card; the viewpoint menu | none |
 | `screen` (2D) | The camera flies to face the scope, then cross-fades to the full-resolution 2D picture in a thin bezel | The scope's card, *Look at the screen* | The light pen (V3) |
+| `panel` *(v0.0.5)* | The operator's control panel on the processor rack, square on; its lamps show BR and the machine's state, and its controls take clicks here (R21) | The processor rack's card, *Go to the operator's panel*; the viewpoint menu | The panel's controls |
 | `tube` | The scope cut open: the gun, the yoke, the beam, the picture on the inside of the glass, with the X, Y and Z traces under it | The scope's card, *Cut it open* | Time: 1/100,000 on entry, then 1/1,000 or real |
 
-A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*), with its icon, and lists all four with theirs, the current one checked (Room ⌂, the same as Home's; Console, a desk; Screen, a monitor; Tube, a magnifier over a frame); any can be reached from any other. *Back* and Escape climb one level: Screen and Tube to Console, Console to Room. *(build, after the first manual check: this replaces a breadcrumb, Room › Console › Screen. The tree is three levels of four viewpoints, so the breadcrumb added a notion of levels without helping anyone find a way; and Screen and Tube, both close-ups of the scope, appeared at different places in its lists. Its dropdown's tooltip also covered the dropdown.)*
+A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*), with its icon, and lists all of them with theirs, the current one checked (Room ⌂, the same as Home's; Console, a desk; Screen, a monitor; Tube, a magnifier over a frame); any can be reached from any other. *Back* and Escape climb one level: Screen and Tube to Console, Console to Room. *(build, after the first manual check: this replaces a breadcrumb, Room › Console › Screen. The tree is three levels of four viewpoints, so the breadcrumb added a notion of levels without helping anyone find a way; and Screen and Tube, both close-ups of the scope, appeared at different places in its lists. Its dropdown's tooltip also covered the dropdown.)*
 
 ### Rules
 
@@ -258,6 +259,14 @@ A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
 *Why look only:* stepping would have to pause the whole terminal (the frame clock, DSPLY, the Teletype), not the processor alone, and editing core is already the monitor's (OPEN). A view that cannot change the machine cannot break a running program.
 *Why:* since v0.0.2 the words in core are the real DPR-2's (R1); typing LIST and OPEN on the Teletype is how an operator read them, but not how a visitor today expects to.
 It is labeled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
+
+### U18. The Panel tab: the operator's control panel *(v0.0.5)*
+
+A fifth dock tool, laid out as the overview's figure 7 (SRM5 DPR3 p. 12): BR's 30 lamp-buttons in five groups of three columns, the 30 PRI switches below them, the machine's buttons along the bottom (OFF, ON, RESET; STEP, CYCLE; HALT, RUN, PAUSE; BTSP, TE; IC 0, IC 1), and at the right RESET BR, the request selector, PULSE 1 and the second OFF. Above it, the switches' word in octal and as an instruction, **Usual setting** while they are not at 24000 77776, and the machine's state. Every control says what it did in the status line. On a phone the panel scrolls sideways in the dock rather than shrink below a finger's width.
+
+The same panel stands on the processor rack in 3D, and the Panel viewpoint frames it; its controls work there too. The strip's and the desk's PULSE 1 are the same button. What each control does to a machine whose monitor is JavaScript is R21.
+
+*Why both:* the tab is where the panel is easiest to use; the rack is where it was, and the operator's walk from the Teletype to it is part of starting the machine. *Why not look only, as the Processor tab:* the panel is the real machine's own, not a view it never had (P9).
 
 ### U16. The References tab *(v0.0.3)*
 

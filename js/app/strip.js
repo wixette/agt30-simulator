@@ -5,6 +5,7 @@
 // on the desk in 3D are two ways to one operation (P2): both call the machine's setDial and
 // setKey. Its words come from the messages (U11).
 
+import { pulseText } from "./panel.js";
 import { el, icon, setTip } from "../ui/components.js";
 import { t } from "../l10n/l10n.js";
 import { DIALS, KEYS } from "../sim/agt.js";
@@ -72,8 +73,8 @@ const REPEAT_MS = 70;
  */
 export function pressKey(agt, id, down, say) {
   if (id === "pulse1") {
-    agt.setPulse1(down);
-    if (down) say(t("status.pulse"));
+    const r = agt.setPulse1(down);
+    if (r) say(pulseText(agt, r));
   } else {
     agt.setKey(id, down);
     if (down) say(t("status.key", { n: id }));

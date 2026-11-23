@@ -52,6 +52,7 @@ export const ICONS = [
   "power_settings_new",
   "restart_alt",
   "terminal",
+  "toggle_on",
   "zoom_in",
   "zoom_out",
 ];

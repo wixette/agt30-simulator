@@ -8,6 +8,10 @@
 // The params' frame: millimeters, +X to the operator's right, +Y away from the operator, +Z up.
 // three.js: meters, Y up, the operator looking along -Z (docs/conventions.md).
 
+import { BUTTONS as BUTTON_GROUPS } from "../sim/panel.js";
+
+/** The panel's buttons' names as printed on it, where not the control's name in capitals (figure 7). */
+const CONTROL_NAMES = /** @type {Record<string, string>} */ ({ off0: "OFF", ic0: "IC 0", ic1: "IC 1" });
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
@@ -109,6 +113,10 @@ export const DEFAULT_PALETTE = {
   crt: "#050806",
   lampOff: "#4a4033",
   lampOn: "#ffd36b",
+  ocpFace: "#5b4a3a",
+  ocpGroup: "#d8ccb4",
+  ocpUnlit: "#f4f0e6",
+  ocpSet: "#2f62a8",
   analog: "#ffb86b",
   digital: "#9ecaff",
   floor: "#1b2026",
@@ -126,11 +134,21 @@ export const DEFAULT_PALETTE = {
 export const v3 = (x, y, z) => new THREE.Vector3(x / 1000, z / 1000, -y / 1000);
 
 /**
+ * The operator's control panel on the processor rack (figure 7; R21). Its meshes are named
+ * rack.dpr2.ocp.<control>: br.NN, pri.NN, and the names in js/sim/panel.js CONTROLS, and selector.
+ * @typedef {object} Ocp
+ * @property {THREE.Mesh[]} pri the 30 PRI switches' levers, bit 0 first
+ * @property {Map<string, THREE.Mesh>} controls the buttons, by control name, and the selector
+ * @property {THREE.Mesh | null} face the panel's face, for framing it
+ */
+
+/**
  * @typedef {object} Built
  * @property {THREE.Group} root
  * @property {Map<string, THREE.Object3D>} parts by name (the params' names)
  * @property {Map<string, THREE.Group>} cables
- * @property {THREE.Mesh[]} lamps the DPR-2 panel's 30 lamps, bit 0 first
+ * @property {THREE.Mesh[]} lamps the DPR-2 panel's 30 BR lamps, bit 0 first
+ * @property {Ocp} ocp the rest of the operator's control panel
  * @property {THREE.Mesh} face the CRT face
  * @property {Map<string, THREE.MeshStandardMaterial>} materials
  * @property {Tube | null} tube the scope's tube, hidden until the cutaway shows it
@@ -173,6 +191,8 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   const parts = new Map();
   /** @type {THREE.Mesh[]} */
   const lamps = [];
+  /** @type {Ocp} */
+  const ocp = { pri: [], controls: new Map(), face: null };
   /** @type {THREE.Mesh | null} */
   let face = null;
   /** @type {Tube | null} */
@@ -994,6 +1014,124 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   }
 
   /**
+   * The DPR-2's operator's control panel, as figure 7 lays it out (SRM5 DPR3 p. 12): BR's 30
+   * lamp-buttons in two rows of fifteen, in five groups of three columns; the 30 PRI switches
+   * below them; the machine's buttons along the bottom; RESET BR, the request selector, PULSE 1
+   * and the second OFF at the right (R21).
+   * @param {THREE.Group} g @param {string} name @param {number} x @param {number} front the panel's face
+   * @param {number} w @param {number} z its bottom @param {number} h
+   */
+  function operatorPanel(g, name, x, front, w, z, h) {
+    const id = `${name}.ocp`;
+    const fw = w - 10;
+    const fh = h - 10;
+    ocp.face = box(g, [fw, 3, fh], [x, front - 1.5, z + 5], "ocpFace", `${id}.face`);
+    const f = front - 3;
+    // the face's paint: the group plates and the names, drawn in the params' millimeters from the
+    // face's top left; without a DOM (Node) the plates are blocks and the names are left out
+    const K = 2;
+    const canvas = typeof document === "undefined" ? null : document.createElement("canvas");
+    const ctx = canvas?.getContext("2d") ?? null;
+    if (canvas && ctx) {
+      canvas.width = Math.round(fw * K);
+      canvas.height = Math.round(fh * K);
+      ctx.fillStyle = palette.ocpFace;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    const fx0 = x - fw / 2;
+    const fz1 = z + 5 + fh;
+    /** text on the face at a point (params mm) @param {string} text @param {number} px @param {number} pz @param {number} size mm @param {string} color @param {CanvasTextAlign} [align] */
+    const label = (text, px, pz, size, color, align = "center") => {
+      if (!ctx) return;
+      ctx.fillStyle = color;
+      ctx.font = `bold ${size * K}px Helvetica, Arial, sans-serif`;
+      ctx.textAlign = align;
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, (px - fx0) * K, (fz1 - pz) * K);
+    };
+    const left = x - w / 2 + 40;
+    const gw = 80;
+    const gap = 3;
+    /** a group's left edge @param {number} k */
+    const gx = (k) => left + k * (gw + gap);
+    /** a bit's column center @param {number} bit */
+    const col = (bit) => gx(Math.floor((bit % 15) / 3)) + 18 + (bit % 3) * 22;
+    const top = z + h;
+    /** a beige group plate @param {number} x0 @param {number} x1 @param {number} z0 @param {number} z1 @param {string} n */
+    const plate = (x0, x1, z0, z1, n) => {
+      if (!ctx) return box(g, [x1 - x0, 2, z1 - z0], [(x0 + x1) / 2, f - 1, z0], "ocpGroup", `${id}.plate.${n}`);
+      ctx.fillStyle = palette.ocpGroup;
+      ctx.beginPath();
+      ctx.roundRect((x0 - fx0) * K, (fz1 - z1) * K, (x1 - x0) * K, (z1 - z0) * K, 3 * K);
+      ctx.fill();
+      return null;
+    };
+    const ink = "#3a2f25";
+    const light = "#f2eee4";
+    /** a round lamp-button facing out, with its own material to light @param {number} cx @param {number} cz @param {string} n */
+    const lampButton = (cx, cz, n) => {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(0.0075, 0.0075, 0.006, 16), new THREE.MeshStandardMaterial({ color: palette.ocpUnlit, emissive: palette.lampOn, emissiveIntensity: 0 }));
+      m.rotation.x = Math.PI / 2;
+      m.position.copy(v3(cx, f - 5, cz));
+      m.name = `${id}.${n}`;
+      g.add(m);
+      return m;
+    };
+    for (let k = 0; k < 5; k++) {
+      plate(gx(k), gx(k) + gw, top - 100, top - 22, `br.${k}`);
+      plate(gx(k), gx(k) + gw, top - 205, top - 115, `pri.${k}`);
+    }
+    for (let bit = 0; bit < 30; bit++) {
+      const nn = String(bit).padStart(2, "0");
+      const row = bit < 15 ? 0 : 1;
+      lamps.push(lampButton(col(bit), top - 45 - row * 36, `br.${nn}`));
+      label(String(bit), col(bit), top - 33 - row * 36, 7, ink);
+      label(String(bit), col(bit), top - 128 - row * 40, 7, ink);
+      // a PRI switch: a slot, and a lever that stands up when its bit is 1
+      const sz = top - 147 - row * 40;
+      box(g, [8, 2, 20], [col(bit), f - 3, sz - 10], "rackBlack", `${id}.slot.${nn}`);
+      const lever = box(g, [6, 10, 10], [col(bit), f - 7, sz - 10], "ocpUnlit", `${id}.pri.${nn}`);
+      lever.material = /** @type {THREE.Material} */ (/** @type {THREE.Mesh} */ (lever).material).clone();
+      ocp.pri.push(/** @type {THREE.Mesh} */ (lever));
+    }
+    // the machine's buttons along the bottom, in the same five groups
+    BUTTON_GROUPS.forEach((grp, k) => {
+      plate(gx(k), gx(k) + gw, top - 300, top - 222, `buttons.${k}`);
+      grp.forEach((c, i) => {
+        const cx = gx(k) + ((i + 0.5) * gw) / grp.length;
+        ocp.controls.set(c, lampButton(cx, top - 268, c));
+        label(CONTROL_NAMES[c] ?? c.toUpperCase(), cx, top - 238, 7, ink);
+      });
+    });
+    label("BR", x - w / 2 + 20, top - 62, 11, light);
+    label("PRI", x - w / 2 + 20, top - 160, 11, light);
+    // the right column
+    const rx = gx(5) + 32;
+    ocp.controls.set("resetbr", lampButton(rx, top - 62, "resetbr"));
+    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.012, 20), mat("metal"));
+    knob.rotation.x = Math.PI / 2;
+    knob.position.copy(v3(rx, f - 6, top - 135));
+    knob.name = `${id}.selector`;
+    g.add(knob);
+    box(knob, [3, 14, 2], [0, 0, 0], "rackBlack", `${id}.selector.pointer`).position.set(0, 0.006, -0.007);
+    ocp.controls.set("selector", knob);
+    ocp.controls.set("pulse1", lampButton(rx, top - 185, "pulse1"));
+    ocp.controls.set("off1", lampButton(rx, top - 268, "off1"));
+    label("RESET", rx + 13, top - 57, 7, light, "left");
+    label("BR", rx + 13, top - 67, 7, light, "left");
+    ["PULSE 1", "HUB 1", "HUB 2"].forEach((n, i) => label(n, rx + 19, top - 125 - i * 10, 7, light, "left"));
+    label("PULSE 1", rx + 13, top - 185, 7, light, "left");
+    label("OFF", rx + 13, top - 268, 7, light, "left");
+    if (canvas && ocp.face) {
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const plain = /** @type {THREE.Material} */ (ocp.face.material);
+      // BoxGeometry's faces: +x, -x, +y, -y, +z (the front), -z
+      ocp.face.material = [plain, plain, plain, plain, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }), plain];
+    }
+  }
+
+  /**
    * One front panel of a cabinet, its bottom at z.
    * @param {THREE.Group} g @param {string} name @param {number} i @param {string} style
    * @param {number} x @param {number} front @param {number} w @param {number} z @param {number} h
@@ -1024,19 +1162,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       knob.name = `${id}.knob.${k}`;
       g.add(knob);
     }
-    if (style === "lamps") {
-      // the DPR-2's operator panel: 30 lamps showing AR in groups of three, the 30 toggles of the
-      // PRI instruction register below them, and the RUN, HALT, STEP and other buttons
-      const span = w - 100;
-      const at = (/** @type {number} */ k) => x - span / 2 + (k + Math.floor(k / 3) * 0.6) * (span / (29 + 9 * 0.6));
-      for (let k = 0; k < 30; k++) {
-        const lamp = box(g, [11, 8, 11], [at(k), face - 4, z + h * 0.72], "lampOff", `${name}.lamp.${String(k).padStart(2, "0")}`);
-        lamp.material = new THREE.MeshStandardMaterial({ color: palette.lampOff, emissive: palette.lampOn, emissiveIntensity: 0 });
-        lamps.push(lamp);
-        box(g, [6, 12, 16], [at(k), face - 6, z + h * 0.45], "metal", `${name}.toggle.${String(k).padStart(2, "0")}`);
-      }
-      for (let k = 0; k < 6; k++) box(g, [40, 14, 26], [x - 150 + k * 60, face - 7, z + h * 0.12], "rackWhite", `${name}.button.${k}`);
-    }
+    if (style === "lamps") operatorPanel(g, name, x, face, w, z, h);
     if (style === "array") {
       // a window onto the twelve MDAC cards, 4 x 3: blue the nine rotation ones, orange the three scales
       box(g, [w - 60, 2, h - 60], [x, face - 1, z + 30], "rackBlack", `${id}.window`);
@@ -1187,7 +1313,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   floor.name = "room.floor";
   root.add(floor);
 
-  return { root, parts, cables, lamps, face: /** @type {THREE.Mesh} */ (/** @type {unknown} */ (face)), materials, tube };
+  return { root, parts, cables, lamps, ocp, face: /** @type {THREE.Mesh} */ (/** @type {unknown} */ (face)), materials, tube };
 }
 
 /**

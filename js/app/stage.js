@@ -15,6 +15,7 @@ import { TracesView } from "../view/traces.js";
 import { beamState } from "../view/beam.js";
 import { TerminalView } from "../scene/viewer.js";
 import { v3, boxOf } from "../scene/terminal3d.js";
+import { act } from "./panel.js";
 import { pressKey, turner } from "./strip.js";
 
 /** @typedef {import("./link.js").View} View */
@@ -26,9 +27,9 @@ import { pressKey, turner } from "./strip.js";
 /** Each viewpoint's parent, for the breadcrumb and for Escape (V2). */
 /** The phone's layouts (P11), as css/style.css has them: upright, or on its side. */
 const PHONE = "(max-width: 700px), (max-height: 520px) and (orientation: landscape)";
-const PARENT = /** @type {Record<View, View | null>} */ ({ room: null, console: "room", screen: "console", tube: "console" });
+const PARENT = /** @type {Record<View, View | null>} */ ({ room: null, console: "room", screen: "console", tube: "console", panel: "room" });
 /** Each viewpoint's icon, on the viewpoint menu's button and in its list; the Room's is Home's. */
-const VIEW_ICONS = /** @type {const} */ ({ room: "home", console: "desk", screen: "monitor", tube: "frame_inspect" });
+const VIEW_ICONS = /** @type {const} */ ({ room: "home", console: "desk", screen: "monitor", tube: "frame_inspect", panel: "toggle_on" });
 /** The time a Tube visit starts in (the table in Part 2). */
 export const TUBE_SCALE = 0.00001;
 /** The parts the Console viewpoint frames: the desktop and what stands on it, as the operator sees them. */
@@ -90,6 +91,7 @@ export class Stage {
     if (this.view3d) {
       this.view3d.onPick = (name) => this.openCard(name);
       this.view3d.onKey = (id, down) => pressKey(this.ops.machine(), id, down, this.ops.say);
+      this.view3d.onPanel = (id, down) => act(this.ops.machine(), id, down, this.ops.say);
       /** @type {ReturnType<typeof turner> | null} the desk's dial being turned */
       let knob = null;
       this.view3d.onDial = (n, x, y, start) => {
@@ -248,6 +250,11 @@ export class Stage {
       if (desk) box.expandByPoint(v3(desk[0], desk[1], desk[5])).expandByPoint(v3(desk[3], desk[4], desk[5]));
       return view.frame(box, new THREE.Vector3(0, 0.3, 1));
     }
+    if (v === "panel") {
+      // the operator's control panel on the processor rack, square on, from where the operator stands
+      const ocp = /** @type {THREE.Mesh} */ (view.built.ocp.face);
+      return view.frame(new THREE.Box3().setFromObject(ocp), new THREE.Vector3(0, 0.15, 1));
+    }
     const face = view.built.face;
     face.geometry.computeBoundingBox();
     const fb = /** @type {THREE.Box3} */ (face.geometry.boundingBox).clone().applyMatrix4(face.matrixWorld);
@@ -293,6 +300,8 @@ export class Stage {
     if (v === "tube" && from !== "tube" && this.last) this.insetCrt.paint(this.last.agt.segs, this.last.agt.now, this.last.eyeUs, { beam: this.last.slow });
     this.tubeEl.hidden = v !== "tube";
     this.view3d?.setInside(v === "tube");
+    // the panel's controls take clicks where they can be seen to (R21)
+    if (this.view3d) this.view3d.panelLive = v === "panel";
     // V5: the Tube owns its time; leaving it puts time back to real
     this.ops.setScale(v === "tube" ? TUBE_SCALE : 1);
     this.markTime(v === "tube" ? TUBE_SCALE : 1);
@@ -327,6 +336,7 @@ export class Stage {
     if (name === "console.scope") list = [{ view: "screen", label: t("card.goScreen") }, { view: "tube", label: t("card.goTube") }];
     else if (name.startsWith("console.scope.tube")) list = [{ view: "screen", label: t("card.goScreen") }];
     else if (name.startsWith("console.")) list = [{ view: "console", label: t("card.goConsole") }];
+    else if (name === "rack.dpr2") list = [{ view: "panel", label: t("card.goPanel") }];
     // a card offers no button for the viewpoint already shown, except the desk's: the desk is
     // the console, so at Console its first action reframes Console, as the menu and Home do
     if (name !== "console.desk") list = list.filter((a) => a.view !== this.view);
