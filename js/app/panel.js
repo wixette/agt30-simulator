@@ -36,6 +36,7 @@ export function pulseText(agt, r) {
   if (r === "started") return t(p.running ? "panel.say.started.run" : "panel.say.started", { addr: oct(agt.cpu.LC, 5) });
   if (r === "halted") return t("panel.say.halted");
   if (r === "waiting") return t("panel.say.waiting");
+  if (r === "withdrawn") return t("panel.say.withdrawn");
   return t("panel.say.served", { ins: disassemble(p.pri) });
 }
 
@@ -216,7 +217,7 @@ export function buildPanel(host, machine, say, shown, boot) {
   setTip(bootBtn, t("panel.boot.tip"));
   bootBtn.addEventListener("click", () => boot());
   host.replaceChildren(
-    el("div", { class: "ocp-bar" }, [word, usual, el("span", { class: "spacer" }), state, bootBtn]),
+    el("div", { class: "ocp-bar" }, [word, usual, state, el("span", { class: "spacer" }), bootBtn]),
     el("div", { class: "ocp-scroll" }, [face]),
   );
 
@@ -243,7 +244,9 @@ export function buildPanel(host, machine, say, shown, boot) {
     word.textContent = t("panel.word", { word: halves(p.pri), ins: disassemble(p.pri) });
     // kept in its place while not needed, so that the panel below never moves
     usual.style.visibility = p.pri === PRI_USUAL ? "hidden" : "";
-    state.textContent = (p.power ? t(`panel.state.${p.mode}`) : t("panel.state.off")) + (p.btsp ? ` · ${t("panel.state.btsp")}` : "") + (agt.bare ? ` · ${t("panel.state.amrmx")}` : "");
+    // the processor's state, and always which monitor it runs, so that Boot AMRMX's neighbor is never read as its state
+    const monitor = t(agt.bare ? "panel.state.amrmx" : "panel.state.ours");
+    state.textContent = p.power ? `${t(`panel.state.${p.mode}`)}${p.btsp ? ` · ${t("panel.state.btsp")}` : ""} · ${monitor}` : t("panel.state.off");
   }
   render(true);
   return { render };

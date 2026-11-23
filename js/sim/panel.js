@@ -45,7 +45,7 @@ export const OFF_TOGETHER_MS = 2000;
 /** @typedef {typeof SELECTOR[number]} Selector */
 /**
  * What a control did, for the page to say. "ok" is plain success; the others name a case.
- * @typedef {"ok" | "off" | "halted" | "served" | "waiting" | "hub" | "nothing" | "stepped" | "ended" | "monitor" | "armed" | "started" | "booted"} Outcome
+ * @typedef {"ok" | "off" | "halted" | "served" | "waiting" | "hub" | "nothing" | "stepped" | "ended" | "monitor" | "armed" | "started" | "booted" | "withdrawn"} Outcome
  */
 
 /** @typedef {import("./agt.js").Agt30} Agt30 */
@@ -159,6 +159,12 @@ export class Panel {
   pulse1() {
     if (!this.power) return "off";
     if (this.selector !== "pulse1") return "hub";
+    // "Depressing the switch when the indicator is lit turns off the request and the indicator" (SRM5 DPR3 p. 13)
+    const pending = this.agt.cpu.pri.pending;
+    if (pending.has(PULSE1_CHANNEL)) {
+      pending.delete(PULSE1_CHANNEL);
+      return "withdrawn";
+    }
     this.agt.cpu.request(PULSE1_CHANNEL, this.pri);
     return this.servePending();
   }
