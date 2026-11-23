@@ -339,7 +339,8 @@ export class Stage {
     else if (name === "rack.dpr2") list = [{ view: "panel", label: t("card.goPanel") }];
     // a card offers no button for the viewpoint already shown, except the desk's: the desk is
     // the console, so at Console its first action reframes Console, as the menu and Home do
-    if (name !== "console.desk") list = list.filter((a) => a.view !== this.view);
+    // the processor rack likewise: at Panel its first action reframes the panel, never the rack
+    if (name !== "console.desk" && name !== "rack.dpr2") list = list.filter((a) => a.view !== this.view);
     // the desk's close look is Console itself, which frames it from the operator's seat; a
     // second, framing its legs and the floor, would only be a worse view of the same thing
     if (name !== "console.desk") list.push({ look: true, label: t("card.look") });

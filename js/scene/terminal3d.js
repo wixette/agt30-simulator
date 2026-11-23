@@ -1096,21 +1096,24 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
         socket.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
         socket.name = `${id}.socket.${nn}`;
         g.add(socket);
-        // the lever, pivoted at the socket's center: from the side a short block, then a flat
-        // isosceles taper to the tip; from above a long narrow bar. Out, square to the panel, for 1;
-        // pressed down 45 degrees for 0 (the viewer turns it)
-        const sd = it.d * s;
-        const len = sd * 1.15;
-        const root = sd * 0.2;
-        const thick = sd * 0.36;
-        const shape = new THREE.Shape([
-          [0, -thick / 2], [root, -thick / 2], [len, -thick * 0.12], [len, thick * 0.12], [root, thick / 2], [0, thick / 2],
-        ].map(([u, v]) => new THREE.Vector2(u / 1000, v / 1000)));
-        const width = sd * 0.34;
-        const geo = new THREE.ExtrudeGeometry(shape, { depth: width / 1000, bevelEnabled: false });
-        // the shape's x (outward) to three.js z, out of the panel; its extrusion across, centered
-        geo.translate(0, 0, -width / 2000);
-        geo.rotateY(-Math.PI / 2);
+        // the lever, pivoted at the socket's center: a short block at the root, then a body that
+        // tapers to the tip, thinner and narrower; out, square to the panel, for 1; pressed down 45
+        // degrees for 0 (the viewer turns it). Its length runs along three.js z, out of the panel.
+        const sd = it.d * s / 1000;
+        const len = sd * 0.86;
+        const root = sd * 0.18;
+        const [wb, tb] = [sd * 0.52, sd * 0.38];
+        const [wt, tt] = [sd * 0.3, sd * 0.09];
+        const block = new THREE.BoxGeometry(wb, tb, root).translate(0, 0, root / 2);
+        const body = new THREE.BoxGeometry(wb, tb, len - root).translate(0, 0, root + (len - root) / 2);
+        const pos = body.getAttribute("position");
+        for (let k = 0; k < pos.count; k++) {
+          if (pos.getZ(k) < len - 1e-9) continue;
+          pos.setX(k, (Math.sign(pos.getX(k)) * wt) / 2);
+          pos.setY(k, (Math.sign(pos.getY(k)) * tt) / 2);
+        }
+        body.computeVertexNormals();
+        const geo = mergeGeometries([block, body]);
         const pivot = new THREE.Group();
         pivot.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
         pivot.name = `${id}.lever.${nn}`;

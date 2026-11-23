@@ -186,6 +186,8 @@ export class TerminalView {
       down = null;
     });
     canvas.addEventListener("dblclick", (e) => {
+      // quick presses on the panel are presses, not a double-click on its rack
+      if (this.onPanelFace(e)) return;
       const name = this.hit(e);
       if (name) this.onActivate(name);
     });
@@ -475,6 +477,15 @@ export class TerminalView {
   }
 
   /**
+   * Whether the pointer is on the operator's panel, in the Panel viewpoint.
+   * @param {MouseEvent} e
+   * @returns {boolean}
+   */
+  onPanelFace(e) {
+    return this.panelLive && (this.rawHit(e)?.startsWith("rack.dpr2.ocp.") ?? false);
+  }
+
+  /**
    * The control of the operator's panel under the pointer, in the Panel viewpoint: "br.N",
    * "pri.N", or a control's name; null elsewhere.
    * @param {MouseEvent} e
@@ -572,6 +583,8 @@ export class TerminalView {
 
   /** @param {MouseEvent} e */
   pick(e) {
+    // in the Panel viewpoint a click on the panel works it and never selects the rack (R21)
+    if (this.onPanelFace(e)) return;
     const name = this.hit(e);
     this.select(name);
     this.onPick(name);

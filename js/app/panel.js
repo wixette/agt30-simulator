@@ -233,7 +233,8 @@ export function buildPanel(host, machine, say, shown) {
     for (const [id, b] of lamped) b.classList.toggle("lit", lamps[LAMPED[id]]);
     knob.dataset.pos = p.selector;
     word.textContent = t("panel.word", { word: halves(p.pri), ins: disassemble(p.pri) });
-    usual.hidden = p.pri === PRI_USUAL;
+    // kept in its place while not needed, so that the panel below never moves
+    usual.style.visibility = p.pri === PRI_USUAL ? "hidden" : "";
     state.textContent = (p.power ? t(`panel.state.${p.mode}`) : t("panel.state.off")) + (p.btsp ? ` · ${t("panel.state.btsp")}` : "");
   }
   render(true);
