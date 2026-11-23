@@ -124,7 +124,7 @@ ADEPT, the assembler (section 9), writes a transfer as its source then its desti
 
 **Rotation and logic.** On its way the word can be rotated left, end around, by 1 bit (`'B`), a 6-bit character (`'K`) or a 15-bit half (`'H`, which swaps the halves). It can then be negated (`'N`), or ANDed (`'A`) or ORed (`'O`) as it goes into the destination. The manual and M. Howard describe the logic slightly differently, whether it combines with AR or with the destination itself, and the question is open (section 10).
 
-**Destinations that compute.** Three destinations do arithmetic into AR: AS adds the operand's lower half, with its sign extended, to the whole of AR; AE adds all 30 bits; XO exclusive-ors them. AS was used above all to modify instructions, for example to relocate an address by adding an offset (MH26). Writing to IR executes the word as an instruction, which the monitor uses to return from subroutines (section 3, below).
+**Destinations that compute.** Three destinations do arithmetic into AR: AS adds the operand's lower half, with its sign extended, to the whole of AR; AE adds all 30 bits; XO exclusive-ors them. AS was used above all to modify instructions, for example to relocate an address by adding an offset (MH26). Writing to IR executes the word as an instruction, which the monitor uses to return from subroutines (see JPSR, below).
 
 ### Special instructions
 
@@ -142,12 +142,12 @@ Mode 0 holds the instructions that are not transfers (DPR2SPI pp. 35–46):
 The simulator's routine RVCD reads a dial (section 6). It is ours, written the way the NCSU sources write, and it shows most of the above at work:
 
 ```
-RVCD:   0                       [ JPSR RVCD puts the return address here
-        MDAR'I RVCD             [ the argument: the word after the call, the dial's number
-        ARMX                    [ send it to destination 07: select that input, start the conversion
-        S5AR'H                  [ read the converter's result (S5's lower half) into AR's upper half
-        ARRS 17                 [ shift right 15 (17 octal), extending the sign
-        JUMP'I'X RVCD           [ step the return address past the argument, and return
+RVCD:   0               [ JPSR RVCD leaves the return address here
+        MDAR'I RVCD     [ the argument (the word after the call): a dial
+        ARMX            [ to destination 07: select it, start converting
+        S5AR'H          [ the result, S5's lower half, into AR's upper
+        ARRS 17         [ shift right 15 (17 octal), keeping the sign
+        JUMP'I'X RVCD   [ step past the argument, and return
 ```
 
 A program calls it with `JPSR RVCD` followed by a word holding the dial's number, and gets the dial's setting in AR as a fraction.
