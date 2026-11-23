@@ -8,15 +8,17 @@
 // - the command's upper half names the operation in its 07000 bits: 03000 seeks home; 02000 seeks
 //   by the lower half's number of cylinders times 16, toward cylinder 0 when its bit 0 (40000)
 //   is set; 06000 reads from the sector the lower half gives, counted from the start of the pack;
+//   04000 and 05000 write there (the driver checks a protect bit before them, and its error
+//   codes 4 and 5 name them); 07000, the table's last, is taken as a check of what was written;
 // - the transfer word gives the count in bits 0-12 and, in its lower half, the address before
 //   the first word, which the controller steps as it goes;
 // - the status word, 77722, is 0 when all went well;
 // - an operation ends with a request on channel 3 through its pivot: 77723 a transfer's normal
 //   end, 77725 a seek's.
 //
-// Ours (R24): the times (a seek 15 ms, home 20 ms, a transfer 2 ms and 20 us a word); that the
-// other operations (04000, 05000, 07000, among them a write) end at once and move no data, the
-// pack being read only.
+// Ours (R24): the times (a seek 15 ms, home 20 ms, a transfer 2 ms and 20 us a word); that 04000
+// and 05000 both write and 07000 checks and finds no fault. Writes go to this session's copy of
+// the pack, never back to its source.
 
 import { assembleOp } from "./dpr2.js";
 import { hi, lo, word } from "./words.js";
@@ -38,7 +40,7 @@ export const SENSE_READY = 5;
 export const SECTOR_WORDS = 104;
 export const CYLINDER_SECTORS = 16;
 /** The operations, in the command's upper half. */
-export const OP = { SEEK: 0o02000, HOME: 0o03000, READ: 0o06000 };
+export const OP = { SEEK: 0o02000, HOME: 0o03000, WRITE: 0o04000, WRITE2: 0o05000, READ: 0o06000, CHECK: 0o07000 };
 /** Times, us (R24). */
 export const TIME = { seek: 15000, home: 20000, transfer: 2000, word: 20 };
 
@@ -48,7 +50,7 @@ const icBit = (w, b) => Math.floor(w / 2 ** (29 - b)) % 2 === 1;
 export class Dms2 {
   /**
    * @param {import("./dpr2.js").Dpr2} cpu
-   * @param {Uint32Array} pack the pack's words, 30 bits each
+   * @param {Uint32Array} pack the pack's words, 30 bits each: this session's copy, which writes change
    */
   constructor(cpu, pack) {
     this.cpu = cpu;
@@ -95,13 +97,14 @@ export class Dms2 {
       this.cylinder = Math.max(0, this.cylinder + (hi(cw) & 0o40000 ? -n : n));
       us = TIME.seek;
       pivot = SEEK_PIVOT;
-    } else if (op === OP.READ) {
+    } else if (op === OP.READ || op === OP.WRITE || op === OP.WRITE2) {
       const count = hi(tw) >> 2;
       let at = lo(tw);
       const from = lo(cw) * SECTOR_WORDS;
       for (let k = 0; k < count; k++) {
         at = (at + 1) & 0o77777;
-        core.write(at, this.pack[from + k] ?? 0);
+        if (op === OP.READ) core.write(at, this.pack[from + k] ?? 0);
+        else if (from + k < this.pack.length) this.pack[from + k] = core.read(at);
       }
       core.write(TRANSFER, word(hi(tw), at));
       us += count * TIME.word;

@@ -62,7 +62,8 @@ export class Bare {
     this.avg = new Avg1(cpu, agt.array);
     this.avg.clear();
     this.line = new TtyLine(cpu, (code) => this.printed(code));
-    this.disk = new Dms2(cpu, pack);
+    // a copy: AMRMX writes to its pack, and the pack fetched stays as it came
+    this.disk = new Dms2(cpu, pack.slice());
     cpu.devices.write = (d, v, l) => this.avg.write(d, v, l);
     cpu.devices.strobe = (b) => this.line.strobe(b);
     /** Simulated time less the processor's: it grows while the processor is stopped. */
