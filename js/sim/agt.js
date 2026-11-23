@@ -16,6 +16,7 @@
 
 import { assemble } from "./adept.js";
 import { TTY } from "./amoscode.js";
+import { Bare } from "./bare.js";
 import { assembleOp, Dpr2 } from "./dpr2.js";
 import { loadFigures } from "./figures.js";
 import { CALL_AREA, Monitor } from "./amos.js";
@@ -105,6 +106,8 @@ export class Agt30 extends Terminal {
     this.dsply.pen.aperture = PEN_APERTURE_IN;
     /** The processor's operator's control panel (R21). */
     this.panel = new Panel(this);
+    /** @type {Bare | null} the real monitor booted from the pack, with the devices it drives; null for the simulator's own (U19) */
+    this.bare = null;
     this.cpu.breakAt = MONITOR_ENTRY;
   }
 
@@ -135,6 +138,22 @@ export class Agt30 extends Terminal {
     agt.startCore = { words: agt.core.words.slice(), symbols: new Map(agt.core.symbols) };
     agt.monitor.greet(date);
     return agt;
+  }
+
+  /**
+   * Boots AMRMX from NCSU's system pack (U19, R24): the display and any program stop, the
+   * simulator's monitor stands aside, and the processor runs the real one.
+   * @param {Uint32Array} pack
+   */
+  bootPack(pack) {
+    this.stopProgram();
+    this.halt();
+    this.clockCode = [];
+    this.sending = [];
+    this.bare = new Bare(this, pack);
+    this.panel.btsp = false;
+    this.panel.mode = "run";
+    this.panel.sync();
   }
 
   /**
@@ -227,22 +246,25 @@ export class Agt30 extends Terminal {
    * @param {number} [usPerChar]
    */
   type(text, usPerChar = TTY_US_PER_CHAR) {
+    // AMRMX takes the keys a bit at a time from the line, at the Teletype's pace (R23)
+    if (this.bare) return this.bare.type(text);
     for (const ch of text) this.sending.push({ ch, gapUs: usPerChar });
   }
 
   /** Whether characters are still waiting to be sent. */
   get typing() {
-    return this.sending.length > 0;
+    return this.bare ? this.bare.line.typing : this.sending.length > 0;
   }
 
   /** Throws away what has not been sent yet. */
   cancelTyping() {
     this.sending = [];
+    if (this.bare) this.bare.line.keys = [];
   }
 
   /** Whether the keyboard or the printer is still busy. */
   get busy() {
-    return this.sending.length > 0 || this.printQueue.length > 0;
+    return this.typing || this.printQueue.length > 0;
   }
 
   // ---- the processor's time ----
@@ -302,8 +324,10 @@ export class Agt30 extends Terminal {
 
   /** @param {number} until */
   advanceTo(until) {
+    // the real monitor: the processor runs it and its devices all the time
+    if (this.bare) this.bare.advance(until);
     // with the display halted, the foreground program has the processor to itself
-    if (this.image === null && this.program && this.panel.running) {
+    else if (this.image === null && this.program && this.panel.running) {
       this.runBase = this.now;
       this.runCpu = this.cpu.time;
       this.runProgram(until - this.now);

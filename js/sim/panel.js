@@ -45,7 +45,7 @@ export const OFF_TOGETHER_MS = 2000;
 /** @typedef {typeof SELECTOR[number]} Selector */
 /**
  * What a control did, for the page to say. "ok" is plain success; the others name a case.
- * @typedef {"ok" | "off" | "halted" | "served" | "waiting" | "hub" | "nothing" | "stepped" | "ended" | "monitor" | "armed" | "started"} Outcome
+ * @typedef {"ok" | "off" | "halted" | "served" | "waiting" | "hub" | "nothing" | "stepped" | "ended" | "monitor" | "armed" | "started" | "booted"} Outcome
  */
 
 /** @typedef {import("./agt.js").Agt30} Agt30 */
@@ -171,6 +171,8 @@ export class Panel {
   servePending() {
     const agt = this.agt;
     const cpu = agt.cpu;
+    // the real monitor's processor serves it in its turn, as it runs (U19)
+    if (agt.bare) return !cpu.pri.pending.has(PULSE1_CHANNEL) ? "nothing" : this.mode === "halt" ? "halted" : "served";
     if (this.mode === "halt") return cpu.pri.pending.has(PULSE1_CHANNEL) ? "halted" : "nothing";
     if (cpu.nextRequest() !== PULSE1_CHANNEL) return cpu.pri.pending.has(PULSE1_CHANNEL) ? "waiting" : "nothing";
     const lc = cpu.LC;
@@ -237,6 +239,10 @@ export class Panel {
     if (this.mode === "run") return "nothing";
     const agt = this.agt;
     const cpu = agt.cpu;
+    if (agt.bare) {
+      agt.bare.step();
+      return "stepped";
+    }
     if (cpu.nextRequest() === PULSE1_CHANNEL) {
       const lc = cpu.LC;
       cpu.servePri(PULSE1_CHANNEL);
@@ -330,12 +336,18 @@ export class Panel {
    */
   bootstrap() {
     if (!this.power) return "off";
-    const cpu = this.agt.cpu;
+    const agt = this.agt;
+    const cpu = agt.cpu;
     this.btsp = !this.btsp;
     cpu.IC = withBit(cpu.IC, 28, this.btsp);
     if (this.btsp) {
       this.mode = "pause";
       this.sync();
+      // with the pack mounted, the bootstrap loads the monitor as AMLD0 did; RUN enters it (U19, R24)
+      if (agt.bare) {
+        agt.bare.boot();
+        return "booted";
+      }
     }
     return "ok";
   }

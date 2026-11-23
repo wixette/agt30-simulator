@@ -22,7 +22,8 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
 2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
 3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
-4. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
+4. **Boot the real monitor**, if you like: **Boot AMRMX** in the **Panel** tab runs NCSU's own monitor from its 1976 system pack (fetched from M. Howard's repository). Type the date it asks for on the Teletype, for example `11/23/76` and Return.
+5. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
 
 ## The machine in a few minutes
 
@@ -109,6 +110,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R21.** The operator's panel works on the simulated machine; its monitor is JavaScript, so HALT, RUN and STEP act on what the processor runs, and PULSE 1's pivot leads to a trap.
 - **R22.** AVG1 and the array at register level, for programs that drive the display themselves (AMRMX): vector words on D05, the next sent on each end-of-vector interrupt, array registers loaded through D07; which register number is which is ours, from what AMRMX does with them.
 - **R23.** The Teletype's line at bit level, for AMRMX: one interrupt a bit, OPTY sending BR[22], S4[14] receiving; the rate (110 baud) and the clock's timing are ours.
+- **R24.** The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor as AMLD0 does, without its code; the disk's times are ours.
 
 ## More
 

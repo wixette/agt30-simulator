@@ -6,6 +6,8 @@
 
 import params from "../../params/terminal.json" with { type: "json" };
 import pkg from "../../package.json" with { type: "json" };
+import { readPack } from "../sim/bare.js";
+import { PACK_URL } from "./aboutData.js";
 import { Agt30, FAST_US_PER_CHAR } from "../sim/agt.js";
 import { tickUs } from "../sim/frameclock.js";
 import { readPrograms } from "../sim/programs.js";
@@ -93,7 +95,32 @@ async function start() {
     if (!dock.ttyShown()) dock.mark("tty");
   });
   proc = buildProcessor(machine, say, () => dock.procShown());
-  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown());
+  // ---- the real monitor (U19): NCSU's system pack, fetched once, when asked for ----
+  /** @type {Promise<Uint32Array> | null} */
+  let pack = null;
+  const bootPack = async () => {
+    try {
+      if (!pack) {
+        say(t("status.pack.fetching"));
+        pack = fetch(PACK_URL).then(async (r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return readPack(await r.arrayBuffer());
+        });
+      }
+      const words = await pack;
+      program = null;
+      drawCard();
+      agt.bootPack(words);
+      proc?.render(true);
+      panel?.render(true);
+      stage.go("screen");
+      say(t("status.pack.booted"));
+    } catch (e) {
+      pack = null;
+      say(t("status.pack.failed", { error: /** @type {Error} */ (e).message }));
+    }
+  };
+  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown(), () => void bootPack());
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
   // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu
@@ -128,6 +155,8 @@ async function start() {
    * @param {Program} p
    */
   const load = (p) => {
+    // the programs are the simulator's monitor's: back to it from the real one
+    if (agt.bare) reboot();
     agt.cancelTyping();
     program = p;
     agt.type(p.statements.join(""), FAST_US_PER_CHAR);
@@ -187,7 +216,7 @@ async function start() {
       if (!wasBusy && program) say(t("status.loaded", { title: t(`program.${program.id}.title`) }));
     }
     const p = agt.panel;
-    fpsEl.textContent = !p.power ? t("status.powerOff") : !p.running ? t(`status.cpu.${p.mode}`) : agt.image === null ? t("status.halted") : runner.scale < 1 ? t("status.slowed", { rate: agt.rate }) : t("status.fps", { fps: num(Math.round(agt.stats().fps)), rate: agt.rate });
+    fpsEl.textContent = !p.power ? t("status.powerOff") : !p.running ? t(`status.cpu.${p.mode}`) : agt.bare ? t("status.amrmx") : agt.image === null ? t("status.halted") : runner.scale < 1 ? t("status.slowed", { rate: agt.rate }) : t("status.fps", { fps: num(Math.round(agt.stats().fps)), rate: agt.rate });
   });
 
   // ---- the link (U13): a viewpoint and a program ----

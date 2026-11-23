@@ -67,6 +67,10 @@ js/sim/        the machine: no DOM, no three.js
   teletype.js    the Teletype's paper model (from the 8800 simulator's ASR-33)
   agt.js         the AGT-30 as a whole: terminal + DPR-2 + devices + Teletype + monitor
   panel.js       the operator's control panel: BR, the PRI switches, RUN / HALT / STEP, PULSE 1 (R21)
+  avg1.js        AVG1 and the array as the DPR-2 sees them: D05 vectors, end-of-vector and end-of-list interrupts, D07 array loads, D10 modes (R22)
+  ttyline.js     the Teletype's line at bit level: the bit clock, OPTY's BR[22], S4[14] (R23)
+  dms2.js        the disk as AMRMX drives it (R24)
+  bare.js        the real monitor: the pack read, our bootstrap, the processor run with the devices above (U19)
   figures.js     the generated pictures, built into core; font.js: the stroke font
   programs.js    reads programs/index.json and the .adept files (the caller supplies the reading)
 js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (the face, the pen's

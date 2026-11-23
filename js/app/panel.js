@@ -8,7 +8,7 @@
 import { t } from "../l10n/l10n.js";
 import { disassemble } from "../sim/dpr2.js";
 import { bitOf, LAMPED, PANEL_SIZE, panelLayout, PRI_USUAL } from "../sim/panel.js";
-import { el, setTip } from "../ui/components.js";
+import { el, icon, setTip } from "../ui/components.js";
 import { hi, lo, oct } from "../sim/words.js";
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
@@ -96,8 +96,11 @@ export function act(agt, id, down, say) {
     }
     case "on":
       return say(p.on() === "ok" ? t("panel.say.alreadyOn") : t("panel.say.on"));
-    case "btsp":
-      return tell(p.bootstrap(), () => (p.btsp ? t("panel.say.btsp.on") : t("panel.say.btsp.off")));
+    case "btsp": {
+      const r = p.bootstrap();
+      if (r === "booted") return say(t("panel.say.btsp.booted"));
+      return tell(r, () => (p.btsp ? t("panel.say.btsp.on") : t("panel.say.btsp.off")));
+    }
     case "te":
       return say(t("panel.say.te"));
     case "ic0":
@@ -114,9 +117,10 @@ export function act(agt, id, down, say) {
  * @param {() => Agt30} machine
  * @param {(msg: string) => void} say
  * @param {() => boolean} shown whether the pane is in view
+ * @param {() => void} boot boots AMRMX from the system pack (U19)
  * @returns {{ render: (force?: boolean) => void }}
  */
-export function buildPanel(host, machine, say, shown) {
+export function buildPanel(host, machine, say, shown, boot) {
   /** @type {HTMLButtonElement[]} */
   const brLamps = [];
   /** @type {HTMLButtonElement[]} */
@@ -207,8 +211,12 @@ export function buildPanel(host, machine, say, shown) {
   setTip(usual, t("panel.usual.tip"));
   wire("usual", usual);
   const state = el("span", { class: "ocp-state" });
+  // the real monitor, from NCSU's system pack (U19)
+  const bootBtn = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "btn small has-icon", "data-tip-describes": "" }, [icon("restart_alt"), el("span", { text: t("panel.boot") })]));
+  setTip(bootBtn, t("panel.boot.tip"));
+  bootBtn.addEventListener("click", () => boot());
   host.replaceChildren(
-    el("div", { class: "ocp-bar" }, [word, usual, el("span", { class: "spacer" }), state]),
+    el("div", { class: "ocp-bar" }, [word, usual, el("span", { class: "spacer" }), state, bootBtn]),
     el("div", { class: "ocp-scroll" }, [face]),
   );
 
@@ -235,7 +243,7 @@ export function buildPanel(host, machine, say, shown) {
     word.textContent = t("panel.word", { word: halves(p.pri), ins: disassemble(p.pri) });
     // kept in its place while not needed, so that the panel below never moves
     usual.style.visibility = p.pri === PRI_USUAL ? "hidden" : "";
-    state.textContent = (p.power ? t(`panel.state.${p.mode}`) : t("panel.state.off")) + (p.btsp ? ` · ${t("panel.state.btsp")}` : "");
+    state.textContent = (p.power ? t(`panel.state.${p.mode}`) : t("panel.state.off")) + (p.btsp ? ` · ${t("panel.state.btsp")}` : "") + (agt.bare ? ` · ${t("panel.state.amrmx")}` : "");
   }
   render(true);
   return { render };

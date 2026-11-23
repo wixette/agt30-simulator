@@ -55,7 +55,7 @@ What a 1968 operator saw and touched is the primary surface. Anything the real A
 ### P10. One component for each kind of thing
 
 Each kind of control is one component, used the same way everywhere: menu, dialog, icon button, tab, card, chip. They follow Material Design 3 (states, shapes, elevation, motion), in our own colors.
-- **Icons are Material Symbols, as inline SVG.** No icon fonts, and no fonts or scripts from a CDN: the page needs no network but its own site.
+- **Icons are Material Symbols, as inline SVG.** No icon fonts, and no fonts or scripts from a CDN: the page needs no network but its own site. The one exception is NCSU's system pack, fetched from M. Howard's repository only when the operator boots AMRMX (U19).
 - **Every icon button has a tooltip and a screen-reader name.**
 - **The keyboard is first-class:** every control is reachable with Tab and has a visible focus ring. The dock's tabs follow the WAI-ARIA tabs pattern.
 - **Motion is short and optional:** camera flights and cross-fades honor `prefers-reduced-motion`.
@@ -267,6 +267,14 @@ A fifth dock tool, laid out as the manual's photograph of the panel (SRM5 DPR3 F
 The same panel stands on the processor rack in 3D, and the Panel viewpoint frames it; its controls work there too. The strip's and the desk's PULSE 1 are the same button. What each control does to a machine whose monitor is JavaScript is R21.
 
 *Why both:* the tab is where the panel is easiest to use; the rack is where it was, and the operator's walk from the Teletype to it is part of starting the machine. *Why not look only, as the Processor tab:* the panel is the real machine's own, not a view it never had (P9).
+
+### U19. The real monitor: Boot AMRMX *(v0.0.5)*
+
+The Panel tab's bar has **Boot AMRMX**. It fetches NCSU's system pack, M. Howard's dump of it, from his repository on GitHub at a fixed commit, about 400 KB, once a visit, and boots it. The display and any program stop, and the processor runs AMRMX itself, with the vector generator, the Teletype's line and the disk modeled at register level (R22–R24). The view goes to the Screen, where AMRMX draws its banner and asks the date, and the status line says to type it on the Teletype. From then on every character and every stroke is AMRMX's own. The panel acts on it as on the real machine: HALT stops it, STEP obeys one of its instructions, PULSE 1 is served by its own pivot, and BTSP followed by RUN boots it again. **Reboot** in the top bar, or choosing a program, returns to the simulator's own monitor.
+
+If the pack cannot be fetched, the status line says so and nothing changes.
+
+*Why it is a button, not the default:* a reader who comes for the paper's pictures and the menu's programs finds them as before; the real monitor asks for a date and a command language from 1976, and is there for whoever wants it. *Why fetched, not copied:* until M. Howard confirms how he wishes to be credited, the pack stays in his repository; this is the one file the page fetches from another site, and only when asked (P10).
 
 ### U16. The References tab *(v0.0.3)*
 
