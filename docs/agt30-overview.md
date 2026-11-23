@@ -232,9 +232,14 @@ No DSPLY code has been found, on the NCSU tapes or anywhere else. The simulator 
 
 The array is the AGT's speed. For each point it computes
 
-$$\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix} = PS \left[ \begin{pmatrix} D_x \\ D_y \\ D_z \end{pmatrix} + SC \begin{pmatrix} R_{11} & R_{12} & R_{13} \\ R_{21} & R_{22} & R_{23} \\ R_{31} & R_{32} & R_{33} \end{pmatrix} \begin{pmatrix} x \\ y \\ z \end{pmatrix} \right]$$
+```math
+\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix} = PS \left[
+  \begin{pmatrix} D_x \\ D_y \\ D_z \end{pmatrix} 
+  + SC \begin{pmatrix} R_{11} & R_{12} & R_{13} \\ R_{21} & R_{22} & R_{23} \\ R_{31} & R_{32} & R_{33} \end{pmatrix} 
+  \begin{pmatrix} x \\ y \\ z \end{pmatrix} \right]
+```
 
-that is, $\mathbf{p}' = PS\,(\mathbf{D} + SC\,R\,\mathbf{p})$: a rotation $R$, a scale $SC$, a displacement $\mathbf{D}$ and a picture scale $PS$ (FJCC68 p. 751). In today's terms it is an affine transform, $\mathbf{p}' = M\,(x, y, z, 1)^\mathsf{T}$ with the 3 × 4 matrix $M = PS\,[\,SC\,R \mid \mathbf{D}\,]$, which is what M. Howard calls a 4 × 3 matrix multiplier (MH26). There is no division, so no perspective (below). Each coefficient sits in a register as a 15-bit fraction, loaded by the processor. Each product is a **multiplying digital-to-analog converter**: a DAC whose reference input is the incoming voltage, so its output is the voltage times the digital coefficient. Each sum is an operational amplifier. The nine products and three sums settle together, to 0.01 % in about 2 µs (SRM5 GHA4); a whole transformation takes under 4 µs, overlapped with drawing the previous vector. The arrays of other models differ: the Model 5's only adds an offset to x and y (SRM5 GHA4).
+that is, $`\mathbf{p}' = PS\,(\mathbf{D} + SC\,R\,\mathbf{p})`$: a rotation $`R`$, a scale $`SC`$, a displacement $`\mathbf{D}`$ and a picture scale $`PS`$ (FJCC68 p. 751). In today's terms it is an affine transform, $`\mathbf{p}' = M\,(x, y, z, 1)^\mathsf{T}`$ with the 3 × 4 matrix $`M = PS\,[\,SC\,R \mid \mathbf{D}\,]`$, which is what M. Howard calls a 4 × 3 matrix multiplier (MH26). There is no division, so no perspective (below). Each coefficient sits in a register as a 15-bit fraction, loaded by the processor. Each product is a **multiplying digital-to-analog converter**: a DAC whose reference input is the incoming voltage, so its output is the voltage times the digital coefficient. Each sum is an operational amplifier. The nine products and three sums settle together, to 0.01 % in about 2 µs (SRM5 GHA4); a whole transformation takes under 4 µs, overlapped with drawing the previous vector. The arrays of other models differ: the Model 5's only adds an offset to x and y (SRM5 GHA4).
 
 Analog circuits drift. The array was recalibrated about once a year (CCT20); M. Howard spent a couple of weeks each summer at it, and could tell a particular converter was failing when the characters lost their italic slant (MH26). The simulator computes exactly and models drift, off by default (R5).
 
