@@ -34,7 +34,7 @@ The simulator models the AGT-30 of North Carolina State University's graphics la
 The design rests on one division of labour:
 
 - **The processor walks the picture.** A picture lives in core memory as a structured list (section 5). Forty times a second a program called DSPLY reads it from the top and sends the coordinates of every point to the array.
-- **The array does the arithmetic, in analog.** The hybrid array multiplies each point by a 3 × 3 rotation, scales it and moves it, with amplifiers and multiplying converters, in under 4 µs a point. It takes one point at a time: there is one array, and the points come to it one after another as DSPLY sends them. What happens at once is the arithmetic for that point, all nine products and three sums together (section 5). The array's exact size is not documented; it was one unit among the racks, where a digital multiplier as fast would, in M. Howard's estimate, have filled a rack by itself (MH26).
+- **The array does the arithmetic, in analog.** The hybrid array multiplies each point by a 3 × 3 rotation, scales it and moves it, with amplifiers and multiplying converters, in under 4 µs a point. It takes one point at a time: there is one array, and the points come to it one after another as DSPLY sends them. What happens at once is the arithmetic for that point, all nine products and three sums together (section 5). The array filled a 19-inch rack of its own, "full of 15-bit signed discrete multiplying DACs" (CCT21c); a digital multiplier as fast would, in M. Howard's estimate, have taken a rack of logic for a single 14 × 14-bit product (MH26).
 - **The vector generator draws.** It takes each transformed point and moves the CRT's beam to it in a straight line, bright for a line and dark for a move.
 - **Nothing stores the picture but core and the phosphor.** There is no frame buffer. A line glows only for a moment after the beam passes, so the whole picture is drawn again every frame. A picture with too many lines no longer fits in a frame and flickers.
 
@@ -618,5 +618,5 @@ The keys used in this document. Full entries, with links, are in [../research/bi
 | MH25 | M. Howard's repository of NCSU's tapes and his tools | the surviving software, the system pack |
 | MH26 | M. Howard, personal communication, 2026 (emails and a call) | memories of using and maintaining the machine |
 | MHN | M. Howard's notes on the DPR-2's registers, sense lines and channels | cross-checking the block diagram |
-| CCT20 | M. Howard and others on the cctalk mailing list, 2020 | the tapes before they were read; calibration |
+| CCT20, CCT21c | M. Howard and others on the cctalk and cctech mailing lists, 2020 and 2021 | the tapes before they were read; calibration; the array's rack |
 | RT | L. Shustek, readtape | how the tapes were read |

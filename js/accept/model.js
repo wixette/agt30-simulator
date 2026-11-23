@@ -786,7 +786,7 @@ export const MODEL_CHECKS = [
   // ---- the Teletype ----
   {
     id: "TTY-1",
-    title: "The ASR-33 runs at 10 characters a second (SRM5 DPR3 p. 11)",
+    title: "The Teletype runs at 10 characters a second (SRM5 DPR3 p. 11)",
     run(ctx) {
       const agt = ctx.boot();
       // a character is on the paper once it is struck; the next is struck 0.1 s later. The
@@ -802,7 +802,7 @@ export const MODEL_CHECKS = [
   },
   {
     id: "TTY-2",
-    title: "Carriage return and line feed are separate: CR alone overprints (the ASR-33)",
+    title: "Carriage return and line feed are separate: CR alone overprints (the Teletype)",
     run() {
       const t = new Teletype();
       t.writeText("ABC\rX\r\nD");
@@ -811,7 +811,7 @@ export const MODEL_CHECKS = [
   },
   {
     id: "TTY-3",
-    title: "The paper is 72 columns wide (the ASR-33)",
+    title: "The paper is 72 columns wide (the Teletype)",
     run() {
       const t = new Teletype();
       t.writeText("X".repeat(80));

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // The AGT-30 as a whole: the display terminal (DSPLY, the array, the vector generator, the
-// frame clock) with its DPR-2 processor running programs, the console's devices, the ASR-33
-// Teletype and the AMOS monitor that listens to it.
+// frame clock) with its DPR-2 processor running programs, the console's devices, the Teletype
+// and the AMOS monitor that listens to it.
 //
 // One processor does everything, as on the real machine (D4):
 // - DSPLY's work each frame comes first (the display has the higher interrupt priority,
@@ -23,7 +23,7 @@ import { Terminal } from "./terminal.js";
 import { Teletype } from "./teletype.js";
 import { word } from "./words.js";
 
-/** The ASR-33 prints, and sends, 10 characters a second (SRM5 DPR3 p. 11). */
+/** The Teletype prints, and sends, 10 characters a second (SRM5 DPR3 p. 11). */
 export const TTY_US_PER_CHAR = 100000;
 /**
  * How fast the page's menus send statements: as fast as the monitor takes them, 1 ms a
@@ -203,7 +203,7 @@ export class Agt30 extends Terminal {
   }
 
   /**
-   * Types on the Teletype's keyboard. Characters go out at the ASR-33's 10 a second, each
+   * Types on the Teletype's keyboard. Characters go out at the Teletype's 10 a second, each
    * reaching the monitor in its turn; the page's menus send faster (FAST_US_PER_CHAR, U8).
    * @param {string} text
    * @param {number} [usPerChar]

@@ -3,7 +3,7 @@
 // The Teletype in the dock (docs/ui-design.md, U9): the paper and the keyboard, after the 8800
 // simulator's ASR-33. The paper is the machine's model (js/sim/teletype.js); this draws it, with
 // the carriage where it really is, and sends the keys typed while it has the focus. Lower case
-// goes as upper case; the ASR-33 had none.
+// goes as upper case; the Teletype had none.
 
 import { DATE_PROMPT } from "../sim/amos.js";
 

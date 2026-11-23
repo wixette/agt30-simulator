@@ -209,14 +209,14 @@
       "confidence": "design"
     },
     {
-      "name": "tty.asr33",
+      "name": "tty.asr35",
       "box": [
-        559,
-        470,
-        864
+        1016,
+        610,
+        978
       ],
       "at": [
-        -950,
+        -870,
         -100,
         0
       ],
@@ -537,7 +537,7 @@
     },
     {
       "name": "cable.tty",
-      "from": "tty.asr33",
+      "from": "tty.asr35",
       "to": "rack.dpr2",
       "kind": "digital",
       "activity": "tty"

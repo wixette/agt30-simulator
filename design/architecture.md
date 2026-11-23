@@ -64,7 +64,7 @@ js/sim/        the machine: no DOM, no three.js
   dpr2.js        the processor: registers, transfer bus, EAU, PRI, timings; ENCODING, OPS
   adept.js       the ADEPT subset assembler
   amos.js        the AMOS monitor subset; amoscode.js: the 6-bit code
-  teletype.js    the ASR-33's paper model (from the 8800 simulator)
+  teletype.js    the Teletype's paper model (from the 8800 simulator's ASR-33)
   agt.js         the AGT-30 as a whole: terminal + DPR-2 + devices + Teletype + monitor
   figures.js     the generated pictures, built into core; font.js: the stroke font
   programs.js    reads programs/index.json and the .adept files (the caller supplies the reading)

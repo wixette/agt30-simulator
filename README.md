@@ -36,7 +36,7 @@ The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room
 | **DSPLY** | The program that walks the image every frame and sends each line to the scope. | A graphics driver |
 | **The hybrid array** | An analog computer, built of amplifiers, that rotates, scales and moves each point in under 4 microseconds. It is the AGT's speed. | A GPU's vertex shader |
 | **The DPR-2** | The processor: 30-bit words, 32,768 of them in magnetic core memory, about 250,000 instructions a second. Numbers are written in octal (base 8), and negative numbers in one's complement, so there is a −0. | A small microcontroller |
-| **The Teletype** (ASR-33) | A printing terminal: a keyboard and a roll of paper, upper case only, 10 characters a second. | A terminal window |
+| **The Teletype** (ASR-35) | A printing terminal: a keyboard and a roll of paper, upper case only, 10 characters a second. | A terminal window |
 | **AMOS** (its monitor, AMRMX) | The operating system's command interpreter. A statement ends with `!`, such as `DSPLY (V.CUBE, 2)!`, "display the picture V.CUBE". | A shell, such as bash |
 | **ADEPT** | The assembler, which turns a program's source into the processor's instructions. | An assembler |
 | **The dials, keys and light pen** | Six knobs, sixteen function keys, and a pen that sees the beam pass under it to pick what is drawn there. | Sliders, buttons and a touch screen |

@@ -66,8 +66,8 @@
     "source": "DSPLY pp. 12-26, 39-41 (read from the scan)", "confidence": "doc"
   },
   "teletype": {
-    "model": "ASR-33", "characters_per_second": 10, "columns": 72,
-    "source": "SRM5 DPR3 p. 11; BRO69; ASR33", "confidence": "doc"
+    "model": "ASR-35", "brochure_model": "ASR-33", "characters_per_second": 10, "columns": 72,
+    "source": "SRM5 DPR3 p. 11 and Figure 3; BRO69 (ASR-33); MH26; TTY35; R17", "confidence": "doc"
   },
   "configuration": {
     "agt30_standard": ["DPR digital computer", "3-D coordinate transformation array", "ASR-33 Teletype", "8K core", "vector generator with intensity modulation", "console", "CRT with light pen", "function switches: 16 keys, 2 foot pedals, PULSE 1"],

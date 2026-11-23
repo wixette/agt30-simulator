@@ -108,9 +108,9 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Sources:* only the scope's usable picture is documented (12 × 12 in, SRM5 GDS1).
 - *We:* measured the scope's cabinet from photographs of NCSU's (NCSU) and checked it against Adage's brochures (BRO68, BRO69): 545 × 635 × 870 mm, ± 6 %. The face's curvature (radius 1 m) and the tube inside (640 mm long) are typical of a 21-inch tube of the period. The desk follows the 1969 brochure's photograph. The racks, the tape drives and the disk drives are estimates from NCSU's photographs and the common sizes of the period. Each part's card gives its confidence.
 
-**R17. The Teletype's shape.**
-- *Sources:* the ASR-33's overall size (22 × 18.5 × 34 in on its stand) is documented.
-- *We:* took the proportions of its parts from measurements of a third-party 3D model, Comugi's "Teletype ASR-33 (USA:1963)" in 3D Warehouse, scaled to that size. The model was used as a reference only, and no part of it is included.
+**R17. The Teletype.**
+- *Sources:* Adage's 1969 brochure lists an ASR-33 as the AGT-30's standard Teletype (BRO69). The Model 5 manual shows the heavy-duty ASR-35 (SRM5 DPR3 Figure 3), and M. Howard remembers AGTs using the ASR-35, rarely the ASR-33 (MH26). The ASR-35's overall size is documented: 38.5 in high, 40 in wide and 24 in deep, without the paper (TTY35). The two models print alike: 72 columns, 10 characters a second, upper case.
+- *We:* show an ASR-35, at its documented size: a floor-standing console with the printer and keyboard at the right and the tape reader and punch at the left, as photographs of AGT installations show it (MH26). The sizes of its parts are our estimate. *(v0.0.5; until then an ASR-33, its parts' proportions measured from a third-party 3D model used only as a reference.)*
 
 **R18. The console's devices.**
 - *Sources:* six dials (SRM5 VCD1); sixteen function keys and PULSE 1 (SRM5 FNS1); two foot pedals that act as function keys (SRM5 FNS1); a joystick (BRO69).

@@ -33,7 +33,7 @@ Space that is always there is for things that change while you watch: the pictur
 
 | Surface | Case | Translated (when languages come) |
 |---|---|---|
-| The machine: the Teletype's paper, the AMOS statements, ADEPT source, the marks on the console | UPPER CASE where the machine was | No: the ASR-33 and AMOS had no lower case, and statements are code |
+| The machine: the Teletype's paper, the AMOS statements, ADEPT source, the marks on the console | UPPER CASE where the machine was | No: the Teletype and AMOS had no lower case, and statements are code |
 | The instrument: top bar, viewpoint menu, cards, dock, status line | Sentence case | Yes |
 
 ### P6. Unavailable is grayed and explained, never hidden

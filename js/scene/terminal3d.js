@@ -223,8 +223,8 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       else diskDrive(p, g);
     } else if (p.name === "console.pedals" && p.box) {
       pedals(p, g);
-    } else if (p.name === "tty.asr33" && p.box) {
-      asr33(p, g);
+    } else if (p.name === "tty.asr35" && p.box) {
+      asr35(p, g);
     } else if (p.box && p.wedge) {
       wedgeBox(p, g);
     } else if (p.box) {
@@ -668,119 +668,107 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   }
 
   /**
-   * The Teletype ASR-33 on its stand. The parts and their proportions were measured from a 3D
-   * Warehouse model by Comugi ("Teletype ASR-33 (USA:1963)"), used only as a reference: nothing of
-   * it is copied. That model is about 1.4 times too big, so each axis is scaled to the documented
-   * size on the stand, 22 in wide, 18.5 in deep and 34 in high without the paper (ASR33; R17). The shapes are built in the reference's own millimeters (ASR33_REF), inside a group
-   * scaled to the params' box.
+   * The Teletype ASR-35, a floor-standing console (R17). Its overall size is documented: 38.5 in
+   * high, 40 in wide and 24 in deep, the paper not counted (TTY35). Its parts are read from
+   * photographs of AGT installations (MH26): a closed cabinet on a plinth; at the right the printer
+   * under its cover, the keyboard on a slope in front of it, and the paper rising at the back; at
+   * the left the tape reader at the front and the punch behind it, with its reel of blank tape.
+   * Their sizes are our estimate, in the params' millimeters.
    * @param {PartDef} p
    * @param {THREE.Group} g
    */
-  function asr33(p, g) {
+  function asr35(p, g) {
     const [w, d, h] = /** @type {number[]} */ (p.box);
     const [x, y, z] = p.at;
-    const R = ASR33_REF;
-    const m = new THREE.Group();
-    m.name = `${p.name}.ref`;
-    m.position.copy(v3(x, y, z));
-    // the params' x, z (up), y (depth) to three.js x, y, z
-    m.scale.set(w / R.size[0], h / R.size[2], d / R.size[1]);
-    g.add(m);
-    // the reference's frame: x from -400 (left) to 400, y from -300 (front) to 300, z up from the floor
-    /** @param {number[]} lo @param {number[]} hi @param {string} material @param {string} name */
-    const blk = (lo, hi, material, name) => box(m, [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]], [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2]], material, `${p.name}.${name}`);
+    const front = y - d / 2;
+    const back = y + d / 2;
+    const deck = z + 760;
     /**
-     * A prism whose side profile (y, z points, the reference's mm) runs across x0..x1.
+     * A prism whose side profile (params y, z, mm) runs across x0..x1.
      * @param {number[][]} profile @param {number} x0 @param {number} x1 @param {string} material @param {string} name
      */
     const prism = (profile, x0, x1, material, name) => {
       const shape = new THREE.Shape(profile.map(([py, pz]) => new THREE.Vector2(py / 1000, pz / 1000)));
       const geo = new THREE.ExtrudeGeometry(shape, { depth: (x1 - x0) / 1000, bevelEnabled: false });
-      // turned a quarter about y, the shape's x becomes three.js -z (the params' +y) and the extrusion runs along x
+      // turned a quarter about y, the shape's x becomes three.js -z (the params' +y), and it extrudes along x
       geo.rotateY(Math.PI / 2);
       geo.translate(x0 / 1000, 0, 0);
       const mesh = new THREE.Mesh(geo, mat(material));
       mesh.name = `${p.name}.${name}`;
-      m.add(mesh);
+      g.add(mesh);
       return mesh;
     };
     /**
-     * A cylinder lying along x, or standing (axis "z").
-     * @param {number} r @param {number} len @param {number[]} c center @param {string} material @param {string} name @param {"x" | "z" | "y"} [axis]
+     * A cylinder about an axis, by its center (params mm).
+     * @param {number} r @param {number} len @param {number[]} c @param {string} material @param {string} name @param {"x" | "y" | "z"} axis
      */
-    const cyl = (r, len, c, material, name, axis = "x") => {
-      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r / 1000, r / 1000, len / 1000, 16), mat(material));
+    const cyl = (r, len, c, material, name, axis) => {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r / 1000, r / 1000, len / 1000, 20), mat(material));
       mesh.position.copy(v3(c[0], c[1], c[2]));
       if (axis === "x") mesh.rotation.z = Math.PI / 2;
       if (axis === "y") mesh.rotation.x = Math.PI / 2;
       mesh.name = `${p.name}.${name}`;
-      m.add(mesh);
+      g.add(mesh);
       return mesh;
     };
 
-    // the stand: two feet reaching forward, a pedestal leaning toward the operator (open between
-    // its legs at the bottom), and a top plate
-    for (const [i, fx] of R.feet.entries()) blk([fx - 25, -280, 0], [fx + 25, 300, 50], "ttyStand", `stand.foot.${i}`);
-    const lean = (/** @type {number} */ zz) => R.pedestal.front0 + ((R.pedestal.front1 - R.pedestal.front0) * (zz - 50)) / (R.pedestal.top - 50);
-    const prof = (/** @type {number} */ z0) => [[lean(z0), z0], [R.pedestal.back, z0], [R.pedestal.back, R.pedestal.top], [lean(R.pedestal.top), R.pedestal.top]];
-    const [px0, px1] = R.pedestal.x;
-    prism(prof(R.pedestal.arch), px0 + 50, px1 - 50, "ttyStand", "stand.pedestal");
-    prism(prof(50), px0, px0 + 50, "ttyStand", "stand.leg.l");
-    prism(prof(50), px1 - 50, px1, "ttyStand", "stand.leg.r");
-    blk([-275, -280, R.pedestal.top], [395, 300, R.base[0]], "ttyStand", "stand.top");
+    // the cabinet: a recessed plinth, the body to desk height, its top, and the seams of its doors
+    box(g, [w - 60, d - 50, 70], [x, y + 10, z], "ttyDark", `${p.name}.plinth`);
+    box(g, [w, d, deck - z - 70 - 16], [x, y, z + 70], "tty", `${p.name}.body`);
+    box(g, [w + 10, d + 10, 16], [x, y, deck - 16], "ttyCover", `${p.name}.top`);
+    const split = x - 40;
+    for (const sx of [split, x + w / 2 - 274]) box(g, [4, 2, 520], [sx, front - 1, z + 130], "ttyDark", `${p.name}.seam.${sx === split ? "0" : "1"}`);
 
-    // the machine: its base, the keyboard's sloping nose, the deck under the type cover, the
-    // right shoulder, the paper well behind, the reader and punch deck on the left
-    const [b0, b1] = R.base;
-    blk([-400, -300, b0], [400, 300, b1], "tty", "base");
-    const nose = R.nose;
-    prism([[-300, b1], [-300, nose.front], [nose.back, nose.top], [nose.back, b1]], -396, 396, "tty", "keyboard.nose");
-    blk([-400, nose.back, b1], [400, 300, R.deck], "tty", "deck");
-    blk([R.cover.x[1], nose.back, R.deck], [400, 163, R.shoulder], "tty", "shoulder");
-    blk([R.cover.x[1] + 6, nose.back + 20, R.shoulder], [380, 140, R.shoulder + 2], "ttyStand", "shoulder.panel");
-    blk([R.cover.x[0], R.cover.y[1], R.deck], [R.cover.x[1], 300, R.well], "tty", "well");
-    blk([-300, 246, R.well], [400, 300, R.back], "tty", "back");
-    blk([-400, 127, R.deck], [-390, 300, R.shoulder], "tty", "wall.left");
-    // the type cover over the printer, its top rounded at the front, with the window over the line
-    const [cy0, cy1] = R.cover.y;
-    const ct = R.cover.top;
-    const round = [];
-    for (let i = 0; i <= 6; i++) {
-      const a = (i / 6) * (Math.PI / 2);
-      round.push([cy0 + 30 - 30 * Math.cos(a), ct - 30 + 30 * Math.sin(a)]);
-    }
-    prism([[cy0, R.deck], ...round, [cy1, ct], [cy1, R.deck]], R.cover.x[0], R.cover.x[1], "ttyCover", "cover");
-    blk([R.cover.x[0] + 70, cy0 + 40, ct], [R.cover.x[1] - 70, cy0 + 150, ct + 1], "ttyDark", "cover.window");
-    blk([-226, cy0 - 3, 937], [-142, cy0, 976], "ttyDark", "cover.logo");
-    cyl(12, 30, [R.cover.x[0] - 15, -10, 960], "ttyDark", "platen.knob");
-    // the paper: the roll behind the cover, the sheet rising from the platen
-    cyl(R.roll.r, R.roll.len, R.roll.c, "paper", "paper");
-    blk([R.roll.c[0] - 160, 60, R.well], [R.roll.c[0] + 160, 64, 1060], "paper", "paper.sheet");
-    // the keyboard: four rows of round keys on the slope, and the space bar
+    // the printer, at the right: the keyboard's slope in front, the cover over the type, the paper
+    const px0 = split + 20;
+    const px1 = x + w / 2 - 20;
+    const kb = { y0: front + 10, y1: front + 170, z0: deck + 20, z1: deck + 75 };
+    prism([[kb.y0, deck], [kb.y0, kb.z0], [kb.y1, kb.z1], [kb.y1, deck]], px0, px1, "tty", "keyboard.slope");
     const keys = [];
-    for (const [ky, n, xa, xb, top, dia] of R.keys) {
-      // each row stands on the nose's slope
-      const under = nose.front + ((nose.top - nose.front) * (ky + 300)) / (nose.back + 300);
-      const hgt = Math.max(8, top - under + 6);
+    const rows = [
+      [0.2, 11, 20],
+      [0.42, 12, 20],
+      [0.64, 12, 18],
+      [0.86, 11, 18],
+    ];
+    for (const [t, n, dia] of rows) {
+      const ky = kb.y0 + (kb.y1 - kb.y0) * t;
+      const under = kb.z0 + (kb.z1 - kb.z0) * t;
+      const span = px1 - px0 - 120;
       for (let i = 0; i < n; i++) {
-        const kx = xa + dia / 2 + ((xb - xa - dia) * i) / (n - 1);
-        const k = new THREE.CylinderGeometry(dia / 2000, dia / 2000, hgt / 1000, 12);
-        k.translate(kx / 1000, (under + hgt / 2) / 1000, -ky / 1000);
+        const kx = px0 + 60 + (span * i) / (n - 1);
+        const k = new THREE.CylinderGeometry(dia / 2000, dia / 2000, 0.016, 12);
+        k.translate(kx / 1000, (under + 8) / 1000, -ky / 1000);
         keys.push(k);
       }
     }
-    const kb = new THREE.Mesh(mergeGeometries(keys), mat("ttyKey"));
-    kb.name = `${p.name}.keyboard`;
-    m.add(kb);
-    blk([-70, -278, 846], [40, -266, 856], "ttyKey", "keyboard.space");
-    // the tape reader at the front left (its START / STOP / FREE lever), the tape, the punch with
-    // its four buttons (ON, OFF, REL, B.SP), and the reel of blank tape at the back
-    blk([-380, -265, 856], [-348, -217, 874], "ttyKey", "reader.lever");
-    blk([-347, nose.back, R.deck], [-322, 20, R.deck + 3], "paper", "tape");
-    blk([-382, -117, R.deck], [-300, 3, 937], "ttyKey", "punch");
-    for (let i = 0; i < 4; i++) cyl(5, 10, [-362 + (i % 2) * 40, -85 + Math.floor(i / 2) * 50, 942], "ttyDark", `punch.button.${i}`, "z");
-    cyl(52, 25, [-335, 192, 926], "paper", "reel");
-    cyl(10, 8, [303, -302, 832], "ttyDark", "knob", "y");
+    const keyboard = new THREE.Mesh(mergeGeometries(keys), mat("ttyKey"));
+    keyboard.name = `${p.name}.keyboard`;
+    g.add(keyboard);
+    box(g, [150, 14, 10], [(px0 + px1) / 2, kb.y0 + 12, kb.z0 + 2], "ttyKey", `${p.name}.keyboard.space`);
+    // the cover: its front rounded at the top, a window over the printing line
+    const cy0 = kb.y1;
+    const cy1 = back - 60;
+    const ct = z + h;
+    const round = [];
+    for (let i = 0; i <= 6; i++) {
+      const a = (i / 6) * (Math.PI / 2);
+      round.push([cy0 + 60 - 60 * Math.cos(a), ct - 60 + 60 * Math.sin(a)]);
+    }
+    prism([[cy0, deck], ...round, [cy1, ct], [cy1, deck]], px0, px1, "ttyCover", "cover");
+    box(g, [px1 - px0 - 120, 110, 2], [(px0 + px1) / 2, cy0 + 110, ct], "ttyDark", `${p.name}.cover.window`);
+    box(g, [70, 2, 22], [px0 + 70, cy0 - 1, deck + 120], "ttyDark", `${p.name}.cover.logo`);
+    cyl(70, px1 - px0 - 140, [(px0 + px1) / 2, back - 30, ct - 40], "paper", "paper", "x");
+    box(g, [px1 - px0 - 160, 4, 120], [(px0 + px1) / 2, cy1 - 20, ct - 30], "paper", `${p.name}.paper.sheet`);
+
+    // the tape unit, at the left: the reader in front with its lever, the punch behind, the reel
+    const tx = (x - w / 2 + split) / 2;
+    box(g, [170, 120, 60], [tx, front + 110, deck], "ttyCover", `${p.name}.reader`);
+    box(g, [30, 40, 14], [tx - 60, front + 70, deck + 60], "ttyKey", `${p.name}.reader.lever`);
+    box(g, [200, 190, 160], [tx + 20, y + 20, deck], "ttyCover", `${p.name}.punch`);
+    for (let i = 0; i < 4; i++) cyl(7, 10, [tx - 40 + i * 40, y - 50, deck + 165], "ttyDark", `punch.button.${i}`, "z");
+    cyl(80, 26, [tx + 20, back - 70, deck + 95], "paper", "reel", "x");
+    box(g, [26, 150, 3], [tx + 20, y + 170, deck + 1], "paper", `${p.name}.tape`);
   }
 
   /**
@@ -1056,36 +1044,3 @@ export function route(a, b, lead) {
   return pts.map(([px, py, pz]) => v3(px, py, pz));
 }
 
-/**
- * The ASR-33's parts, measured from the reference model (see asr33()), in its own millimeters:
- * x from -400 (left) to 400, y from -300 (front) to 300, z up from the floor. The machine is
- * scaled from `size` to the params' box.
- */
-export const ASR33_REF = {
-  /** the machine without its paper: 800 wide, 600 deep, 1000 high */
-  size: [800, 600, 1000],
-  /** the stand's feet, their centers across */
-  feet: [-235, 355],
-  /** the pedestal: across, its back, its front at the feet and at the top (it leans forward), the top, the arch between the legs */
-  pedestal: { x: [-260, 380], back: 280, front0: 93, front1: 5, top: 730, arch: 200 },
-  /** the machine's base: bottom and top */
-  base: [756, 816],
-  /** the keyboard's nose: its top at the front edge and at the back, where the deck starts */
-  nose: { front: 845, top: 888, back: -137 },
-  /** the deck under the cover, the right shoulder, the paper well, the back edge */
-  deck: 888,
-  shoulder: 988,
-  well: 938,
-  back: 954,
-  /** the type cover */
-  cover: { x: [-259, 229], y: [-137, 153], top: 1000 },
-  /** the paper roll: radius, length, center */
-  roll: { r: 68, len: 319, c: [-15, 164, 974] },
-  /** the key rows, front to back: center y, keys, x from, x to, the keytops' height, diameter */
-  keys: [
-    [-236, 12, -186, 150, 860, 20],
-    [-210, 14, -200, 197, 872, 20],
-    [-181, 13, -207, 153, 883, 18],
-    [-156, 13, -193, 167, 894, 18],
-  ],
-};

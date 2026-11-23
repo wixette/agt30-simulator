@@ -2,6 +2,12 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## Unreleased
+
+- The Teletype is an ASR-35, the heavy-duty console that AGTs used, at its documented size (R17). Adage's 1969 brochure lists an ASR-33; its Model 5 manual and M. Howard's memory say ASR-35.
+- The pack image is understood: the dump on tape is the pack's first 984 sectors in order, with the monitor and the games LIFE, QUBIC, Space War and BROSE ([research/ncsu-tapes.md](research/ncsu-tapes.md)).
+- The overview: the array's size, a 19-inch rack of multiplying DACs (CCT21c).
+
 ## 0.0.4
 
 The machine explained. A new document, written for engineers who know today's computers, explains the AGT-30 as a whole, so that what the simulator does, and what the manuals say, can be followed without the scans. It is shared now so that people who knew the machine can review it.
