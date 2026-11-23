@@ -13,7 +13,7 @@
 // and z enter as 15-bit numbers and leave as voltages, full scale +-10 V, which the vector
 // generator takes as +-10 inches (DSPLY p. 22: full scale spans a 20-inch square).
 //
-// The array computes exactly on the quantised numbers (D8). Its analog error is modelled but
+// The array computes exactly on the quantized numbers (D8). Its analog error is modeled but
 // off: every MDAC has a small gain error and every row's amplifiers an offset, which drift
 // until the array is recalibrated, "about once a year" (CCT20). `drift` (0 = just calibrated,
 // 1 = a year on) scales them. The sizes of the errors are our estimate (R5), drawn from a

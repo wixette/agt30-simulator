@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* The simulator's page (docs/ui-design.md). A fixed frame: the top bar, the stage (the machine,
    with its band, card and console strip floating over it), the handle, the dock below (U1), the
-   status line. The page never scrolls. Every colour, corner and state is a token (css/theme.css,
+   status line. The page never scrolls. Every color, corner and state is a token (css/theme.css,
    U10); the controls are the simulator series' (the TRS-80 simulator's). */
 
-@import url("theme.css?v=0.0.3");
-@import url("fonts.css?v=0.0.3");
+@import url("theme.css?v=0.0.4");
+@import url("fonts.css?v=0.0.4");
 
 :root {
   font-family: var(--font);
@@ -79,7 +79,7 @@ code, pre, .mono { font-family: var(--mono); }
 .btn[aria-disabled="true"] { cursor: default; color: color-mix(in srgb, var(--md-on-surface) 38%, transparent); }
 .btn.tonal[aria-disabled="true"], .btn.filled[aria-disabled="true"] { background: color-mix(in srgb, var(--md-on-surface) 12%, transparent); }
 .btn[aria-disabled="true"]::before { display: none; }
-/* an icon alone: in the text's colour, as the series' icon buttons are */
+/* an icon alone: in the text's color, as the series' icon buttons are */
 .btn.icon-only { width: 40px; padding: 0; color: var(--md-on-surface); }
 /* a tool button: the top bar's menus and actions, flat until pointed at; tinted while its menu is open */
 .btn.tool-btn { height: 36px; padding: 0 8px 0 10px; gap: 6px; color: var(--md-on-surface); font-weight: 500; }
@@ -194,7 +194,7 @@ code, pre, .mono { font-family: var(--mono); }
 }
 #strip::-webkit-scrollbar { display: none; }
 #strip > * { flex: none; }
-/* three groups of one height: the labels on one line, each group's controls centred under its label */
+/* three groups of one height: the labels on one line, each group's controls centered under its label */
 .strip-group { display: flex; flex-direction: column; gap: 6px; }
 .strip-group > :last-child { margin-block: auto; }
 .strip-label { font-size: 11px; line-height: 14px; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 410" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1a1a1a">
+<title>The hybrid array: one transformation in analog</title>
+<defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f5fa8"/></marker>
+<marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c2621b"/></marker></defs>
+<rect width="920" height="410" fill="#fff"/>
+<text x="150" y="36" text-anchor="middle" font-weight="bold" fill="#1f5fa8">x</text>
+<path d="M150 44V268" stroke="#1f5fa8" stroke-width="1.6"/>
+<text x="260" y="36" text-anchor="middle" font-weight="bold" fill="#1f5fa8">y</text>
+<path d="M260 44V268" stroke="#1f5fa8" stroke-width="1.6"/>
+<text x="370" y="36" text-anchor="middle" font-weight="bold" fill="#1f5fa8">z</text>
+<path d="M370 44V268" stroke="#1f5fa8" stroke-width="1.6"/>
+<circle cx="150" cy="88" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="150" y="93" text-anchor="middle" font-size="12.5">×R11</text>
+<path d="M172 88H238" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<circle cx="260" cy="88" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="260" y="93" text-anchor="middle" font-size="12.5">×R12</text>
+<path d="M282 88H348" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<circle cx="370" cy="88" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="370" y="93" text-anchor="middle" font-size="12.5">×R13</text>
+<path d="M392 88H455" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<path d="M455 66L495 88L455 110Z" fill="#eeeeee" stroke="#333"/><text x="467" y="93" font-size="13">Σ</text>
+<rect x="510" y="72" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="540" y="93" text-anchor="middle">×SC</text>
+<rect x="600" y="72" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="630" y="93" text-anchor="middle">+DX</text>
+<rect x="690" y="72" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="720" y="93" text-anchor="middle">×PS</text>
+<path d="M495 88H508" stroke="#c2621b" stroke-width="1.6"/><path d="M570 88H598" stroke="#c2621b" stroke-width="1.6"/><path d="M660 88H688" stroke="#c2621b" stroke-width="1.6"/>
+<path d="M750 88H800" stroke="#c2621b" stroke-width="1.8" marker-end="url(#o)"/><text x="812" y="93" font-weight="bold" fill="#c2621b">x′</text>
+<circle cx="150" cy="178" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="150" y="183" text-anchor="middle" font-size="12.5">×R21</text>
+<path d="M172 178H238" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<circle cx="260" cy="178" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="260" y="183" text-anchor="middle" font-size="12.5">×R22</text>
+<path d="M282 178H348" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<circle cx="370" cy="178" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="370" y="183" text-anchor="middle" font-size="12.5">×R23</text>
+<path d="M392 178H455" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<path d="M455 156L495 178L455 200Z" fill="#eeeeee" stroke="#333"/><text x="467" y="183" font-size="13">Σ</text>
+<rect x="510" y="162" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="540" y="183" text-anchor="middle">×SC</text>
+<rect x="600" y="162" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="630" y="183" text-anchor="middle">+DY</text>
+<rect x="690" y="162" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="720" y="183" text-anchor="middle">×PS</text>
+<path d="M495 178H508" stroke="#c2621b" stroke-width="1.6"/><path d="M570 178H598" stroke="#c2621b" stroke-width="1.6"/><path d="M660 178H688" stroke="#c2621b" stroke-width="1.6"/>
+<path d="M750 178H800" stroke="#c2621b" stroke-width="1.8" marker-end="url(#o)"/><text x="812" y="183" font-weight="bold" fill="#c2621b">y′</text>
+<circle cx="150" cy="268" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="150" y="273" text-anchor="middle" font-size="12.5">×R31</text>
+<path d="M172 268H238" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<circle cx="260" cy="268" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="260" y="273" text-anchor="middle" font-size="12.5">×R32</text>
+<path d="M282 268H348" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<circle cx="370" cy="268" r="22" fill="#fdf0e4" stroke="#333" stroke-width="1.3"/>
+<text x="370" y="273" text-anchor="middle" font-size="12.5">×R33</text>
+<path d="M392 268H455" stroke="#c2621b" stroke-width="1.6" fill="none"/>
+<path d="M455 246L495 268L455 290Z" fill="#eeeeee" stroke="#333"/><text x="467" y="273" font-size="13">Σ</text>
+<rect x="510" y="252" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="540" y="273" text-anchor="middle">×SC</text>
+<rect x="600" y="252" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="630" y="273" text-anchor="middle">+DZ</text>
+<rect x="690" y="252" width="60" height="32" rx="4" fill="#fdf0e4" stroke="#333"/><text x="720" y="273" text-anchor="middle">×PS</text>
+<path d="M495 268H508" stroke="#c2621b" stroke-width="1.6"/><path d="M570 268H598" stroke="#c2621b" stroke-width="1.6"/><path d="M660 268H688" stroke="#c2621b" stroke-width="1.6"/>
+<path d="M750 268H800" stroke="#c2621b" stroke-width="1.8" marker-end="url(#o)"/><text x="812" y="273" font-weight="bold" fill="#c2621b">z′</text>
+<text x="752" y="298" font-size="12" fill="#444">to the vector generator;</text><text x="752" y="313" font-size="12" fill="#444">z′ also sets brightness</text>
+<text x="20" y="80" font-size="12" fill="#444">x, y, z: 15-bit</text><text x="20" y="96" font-size="12" fill="#444">numbers from the</text><text x="20" y="112" font-size="12" fill="#444">processor, turned</text><text x="20" y="128" font-size="12" fill="#444">into voltages</text>
+<g font-size="12.5" fill="#333">
+<text x="20" y="336" font-family="Menlo, Consolas, monospace">x′ = PS · [ DX + SC · (R11 x + R12 y + R13 z) ]     and likewise y′, z′</text>
+<text x="20" y="362">Each × is a multiplying DAC: a 15-bit coefficient, held in a register the processor loads, times an incoming voltage.</text>
+<text x="20" y="380">Each Σ is an operational amplifier. All nine products and the sums settle together, in under 4 µs a point.</text>
+<text x="20" y="400" font-size="11.5" fill="#555">After FJCC68 p. 751 (eqs. 5–7) and GIM72 Fig. 9. R is the rotation, SC the scale, D the displacement, PS the picture scale.</text>
+</g></svg>

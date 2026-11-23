@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* The theme's tokens (docs/ui-design.md, U10): Material 3's roles in a dark scheme, the
-   simulator series' own (the Altair 8800 and TRS-80 simulators'): neutral greys round an amber
-   primary, plus the machine's own colours. The brightest thing on screen is the phosphor; the
-   interface round it is quiet. One colour, one meaning: amber what to press and where you are,
+   simulator series' own (the Altair 8800 and TRS-80 simulators'): neutral grays round an amber
+   primary, plus the machine's own colors. The brightest thing on screen is the phosphor; the
+   interface around it is quiet. One color, one meaning: amber what to press and where you are,
    green on and done, blue the story and the data, red refused. The canvas and three.js views
    read these tokens (js/view/theme.js). The page is dark only: a CRT's picture is read in a dark
    room. */
@@ -15,10 +15,10 @@
   --md-on-primary: #241500;
   --md-primary-container: rgba(255, 153, 0, 0.18);
   --md-on-primary-container: #ffc670;
-  /* the tonal buttons: a plain grey */
+  /* the tonal buttons: a plain gray */
   --md-secondary-container: #464646;
   --md-on-secondary-container: #ededed;
-  /* neutral greys, from the darkest well (code and data) up to the dialogs */
+  /* neutral grays, from the darkest well (code and data) up to the dialogs */
   --md-well: #171717;
   --md-surface: #1f1f1f;
   --md-surface-low: #242424;

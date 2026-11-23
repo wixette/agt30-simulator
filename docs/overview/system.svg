@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 470" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1a1a1a">
+  <title>The AGT-30 and its signal paths</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#333"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1f5fa8"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c2621b"/></marker>
+  </defs>
+  <rect width="920" height="470" fill="#fff"/>
+  <g stroke="#333" stroke-width="1.4" fill="#f4f4f4">
+    <rect x="20" y="40" width="150" height="90" rx="6"/>
+    <rect x="230" y="40" width="190" height="150" rx="6"/>
+    <rect x="490" y="40" width="160" height="110" rx="6"/>
+    <rect x="700" y="40" width="190" height="80" rx="6"/>
+    <rect x="700" y="160" width="190" height="90" rx="6"/>
+    <rect x="20" y="300" width="150" height="70" rx="6"/>
+    <rect x="20" y="390" width="150" height="60" rx="6"/>
+    <rect x="230" y="300" width="190" height="70" rx="6"/>
+    <rect x="230" y="390" width="190" height="60" rx="6"/>
+    <rect x="490" y="300" width="160" height="70" rx="6"/>
+    <rect x="700" y="300" width="190" height="70" rx="6"/>
+  </g>
+  <g font-weight="bold">
+    <text x="95" y="66" text-anchor="middle">Core memory</text>
+    <text x="325" y="66" text-anchor="middle">DPR-2 processor</text>
+    <text x="570" y="66" text-anchor="middle">Hybrid array</text>
+    <text x="795" y="66" text-anchor="middle">Vector generator</text>
+    <text x="795" y="186" text-anchor="middle">Scope (CRT)</text>
+    <text x="95" y="326" text-anchor="middle">Disk drives</text>
+    <text x="95" y="416" text-anchor="middle">Tape drives</text>
+    <text x="325" y="326" text-anchor="middle">Teletype</text>
+    <text x="325" y="416" text-anchor="middle">Operator's panel</text>
+    <text x="570" y="326" text-anchor="middle">Dials</text>
+    <text x="795" y="326" text-anchor="middle">Keys, pedals, pen</text>
+  </g>
+  <g font-size="12" fill="#444" text-anchor="middle">
+    <text x="95" y="86">DME1, 8K–32K words</text>
+    <text x="95" y="102">of 30 bits, 2 µs</text>
+    <text x="95" y="118">programs and pictures</text>
+    <text x="325" y="86">DPR2 with EAU1</text>
+    <text x="325" y="104">runs the monitor, the user's</text>
+    <text x="325" y="120">program, and DSPLY, which</text>
+    <text x="325" y="136">walks the picture each frame</text>
+    <text x="325" y="160">15 interrupt channels</text>
+    <text x="325" y="176">(PRI)</text>
+    <text x="570" y="86">HAY1 in GHA2</text>
+    <text x="570" y="104">rotates, scales and places</text>
+    <text x="570" y="120">each point, in analog,</text>
+    <text x="570" y="136">in under 4 µs</text>
+    <text x="795" y="86">AVG1: draws a line from</text>
+    <text x="795" y="102">the beam to the new point</text>
+    <text x="795" y="206">GDS1, 21-inch tube,</text>
+    <text x="795" y="222">12 × 12 in picture,</text>
+    <text x="795" y="238">refreshed ~40 times a second</text>
+    <text x="95" y="346">DMS2 controller</text>
+    <text x="95" y="362">two packs a drive</text>
+    <text x="95" y="436">7-track, 556 BPI</text>
+    <text x="325" y="346">TTY1, an ASR-35:</text>
+    <text x="325" y="362">10 characters a second</text>
+    <text x="325" y="436">OCP: lamps, switches, boot</text>
+    <text x="570" y="346">VCD1: six potentiometers</text>
+    <text x="570" y="362">read through the array</text>
+    <text x="795" y="346">FNS1: 16 keys and PULSE 1;</text>
+    <text x="795" y="362">foot pedals; LPN1 light pen</text>
+  </g>
+  <g stroke-width="2" fill="none">
+    <path d="M170 85H226" stroke="#1f5fa8" marker-start="url(#b)" marker-end="url(#b)"/>
+    <path d="M420 95H486" stroke="#1f5fa8" marker-end="url(#b)"/>
+    <path d="M650 80H696" stroke="#c2621b" marker-end="url(#o)"/>
+    <path d="M795 120V156" stroke="#c2621b" marker-end="url(#o)"/>
+    <path d="M700 110H680V170H426" stroke="#1f5fa8" marker-end="url(#b)"/>
+    <path d="M170 335H200V160H226" stroke="#1f5fa8" marker-start="url(#b)" marker-end="url(#b)"/>
+    <path d="M196 420H174" stroke="#1f5fa8" marker-end="url(#b)"/><path d="M200 420V335" stroke="#1f5fa8"/><path d="M196 420H200" stroke="#1f5fa8"/>
+    <path d="M325 300V194" stroke="#1f5fa8" marker-start="url(#b)" marker-end="url(#b)"/>
+    <path d="M420 420H455V150H424" stroke="#333" marker-end="url(#a)"/>
+    <path d="M570 300V154" stroke="#c2621b" marker-end="url(#o)"/>
+    <path d="M700 335H680V280H400V194" stroke="#1f5fa8" marker-end="url(#b)"/>
+    <path d="M870 300V254" stroke="#333" stroke-dasharray="4 3" marker-start="url(#a)"/>
+  </g>
+  <g font-size="11.5" fill="#1f5fa8">
+    <text x="438" y="88">x, y, z</text>
+    <text x="432" y="113">15 bits</text>
+    <text x="582" y="188">interrupts: end of</text>
+    <text x="582" y="203">vector, frame, pen</text>
+  </g>
+  <g font-size="11.5" fill="#c2621b">
+    <text x="655" y="72">x′ y′ z′</text>
+    <text x="802" y="142">deflection, brightness</text>
+    <text x="578" y="240">dial voltages</text>
+  </g>
+  <text x="862" y="282" text-anchor="end" font-size="11.5" fill="#444">pen sees the spot</text>
+  <g font-size="12" fill="#444">
+    <line x1="20" y1="18" x2="44" y2="18" stroke="#1f5fa8" stroke-width="2"/><text x="50" y="22">digital words</text>
+    <line x1="150" y1="18" x2="174" y2="18" stroke="#c2621b" stroke-width="2"/><text x="180" y="22">analog voltages</text>
+  </g>
+</svg>

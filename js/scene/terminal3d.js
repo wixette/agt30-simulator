@@ -5,8 +5,8 @@
 // No .glb: every part is a few boxes, profiles or cylinders, made here from the params, so the
 // model and its sizes live in one file (D7). Node builds it too, for the scene checks.
 //
-// The params' frame: millimetres, +X to the operator's right, +Y away from the operator, +Z up.
-// three.js: metres, Y up, the operator looking along -Z (docs/conventions.md).
+// The params' frame: millimeters, +X to the operator's right, +Y away from the operator, +Z up.
+// three.js: meters, Y up, the operator looking along -Z (docs/conventions.md).
 
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
@@ -17,7 +17,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
  * @property {number[]} [box] width, depth, height
  * @property {number[]} [plane] width, height
  * @property {number[]} [cylinder] radius, length; lying along X on what is under it
- * @property {number[]} at bottom centre (box), centre (plane, cylinder)
+ * @property {number[]} at bottom center (box), center (plane, cylinder)
  * @property {number} [tilt] degrees back, for the plane
  * @property {number} [radius] a curved face: its sphere's radius (mm)
  * @property {number} [picture] a curved face: the side of the square the picture fills (mm)
@@ -38,7 +38,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
  * @typedef {object} Desk
  * @property {number} top the top's thickness
  * @property {number} post the posts' square section
- * @property {number} inset the posts' centres in from the top's edges
+ * @property {number} inset the posts' centers in from the top's edges
  * @property {number} rail the rails under the top: their height (sides and back; none at the front, for the knees)
  * @property {number[]} pedestal under the scope: width, depth, back from the top's back edge
  */
@@ -46,7 +46,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 /**
  * The scope (NCSU's photographs; R16): a white sheet-metal housing open at the front, split by a
  * partition into an upper section, holding the black CRT module, and a lower one, holding the
- * control panel's black box. Millimetres across from the housing's left edge and down from its
+ * control panel's black box. Millimeters across from the housing's left edge and down from its
  * top, except where noted.
  * @typedef {object} Gds1
  * @property {number} sheet the housing's sheet thickness
@@ -58,7 +58,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
  * @property {number[]} panel the panel box: left, right, top, bottom, setback from the front, depth
  * @property {number[]} knobs the six knobs, across
  * @property {number[]} knob a knob's radius and how far it stands out of the panel
- * @property {number[]} logo the logo's placeholder: centre across, width, height
+ * @property {number[]} logo the logo's placeholder: center across, width, height
  * @property {number} switch the power switch, across
  * @property {number[]} nameplate the sign on top: length, left (past the cabinet's left), height, gap above the top
  * @property {number[]} vents count, first and last slot back from the front, top and bottom down from the top
@@ -79,7 +79,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 /** @typedef {{ parts: PartDef[]; cables: CableDef[]; room: { w: number; d: number; at?: number[] } }} TerminalParams */
 
-/** The materials' colours; the page passes the theme's tokens. */
+/** The materials' colors; the page passes the theme's tokens. */
 export const DEFAULT_PALETTE = {
   enamel: "#9aa7b3",
   enamel_dark: "#5f6b77",
@@ -113,7 +113,7 @@ export const DEFAULT_PALETTE = {
 /** @typedef {typeof DEFAULT_PALETTE} Palette */
 
 /**
- * The params' millimetres to three.js metres.
+ * The params' millimeters to three.js meters.
  * @param {number} x
  * @param {number} y
  * @param {number} z
@@ -134,13 +134,13 @@ export const v3 = (x, y, z) => new THREE.Vector3(x / 1000, z / 1000, -y / 1000);
 
 /**
  * The scope's tube, for the cutaway: where the beam starts, where it bends, where it lands.
- * Positions in three.js metres.
+ * Positions in three.js meters.
  * @typedef {object} Tube
  * @property {THREE.Group} group
  * @property {THREE.Object3D[]} cut the scope's parts the cutaway removes
  * @property {THREE.Vector3} gun where the beam leaves the gun
- * @property {THREE.Vector3} bend the deflection centre, in the yoke
- * @property {(x: number, y: number) => THREE.Vector3} spot a point of the picture (inches from its centre) on the glass
+ * @property {THREE.Vector3} bend the deflection center, in the yoke
+ * @property {(x: number, y: number) => THREE.Vector3} spot a point of the picture (inches from its center) on the glass
  */
 
 /**
@@ -175,10 +175,10 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   let tube = null;
 
   /**
-   * A box in the params' millimetres, by its bottom centre.
+   * A box in the params' millimeters, by its bottom center.
    * @param {THREE.Object3D} parent
    * @param {number[]} size w, d, h
-   * @param {number[]} at x, y, z (bottom centre, relative to the parent's origin, mm)
+   * @param {number[]} at x, y, z (bottom center, relative to the parent's origin, mm)
    * @param {string} material
    * @param {string} [name]
    * @returns {THREE.Mesh}
@@ -321,7 +321,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     box(g, [br - bl, s.module, t], [x, m0 + s.module / 2, bb], B, `${p.name}.crt.b`);
     box(g, [br - bl, t, bt - bb], [x, m0 + s.module - t / 2, bb], B, `${p.name}.crt.back`);
     // the glass's rim: a rounded rectangle; each rim point sits on the sphere, and the bezel meets
-    // it there, sloping forward to the bezel's outer edge along the ray from the face's centre
+    // it there, sloping forward to the bezel's outer edge along the ray from the face's center
     const r = s.corner;
     /** @type {number[][]} */
     const rim = [];
@@ -416,7 +416,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
 
   /**
    * A console box whose top slopes down to the front (NCSU's photographs; R18): a dark brown body, a metal
-   * top plate with a grey panel inset, and what sits on the panel. The function switch box: 16
+   * top plate with a gray panel inset, and what sits on the panel. The function switch box: 16
    * white keys in a 4 x 4 grid, the last column set apart, and the PULSE 1 button alone above the
    * second column. The dial box: six dials in three rows of two, each a silver base under a black
    * knob.
@@ -609,7 +609,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     ctx.strokeStyle = palette.trim;
     ctx.lineWidth = 6;
     ctx.strokeRect(3, 3, c.width - 6, c.height - 6);
-    // the words centred, as wide as fits inside the border with a margin
+    // the words centered, as wide as fits inside the border with a margin
     ctx.fillStyle = "#f2f2f2";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
@@ -671,7 +671,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
    * The Teletype ASR-33 on its stand. The parts and their proportions were measured from a 3D
    * Warehouse model by Comugi ("Teletype ASR-33 (USA:1963)"), used only as a reference: nothing of
    * it is copied. That model is about 1.4 times too big, so each axis is scaled to the documented
-   * size on the stand, 22 in wide, 18.5 in deep and 34 in high without the paper (ASR33; R17). The shapes are built in the reference's own millimetres (ASR33_REF), inside a group
+   * size on the stand, 22 in wide, 18.5 in deep and 34 in high without the paper (ASR33; R17). The shapes are built in the reference's own millimeters (ASR33_REF), inside a group
    * scaled to the params' box.
    * @param {PartDef} p
    * @param {THREE.Group} g
@@ -706,7 +706,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     };
     /**
      * A cylinder lying along x, or standing (axis "z").
-     * @param {number} r @param {number} len @param {number[]} c centre @param {string} material @param {string} name @param {"x" | "z" | "y"} [axis]
+     * @param {number} r @param {number} len @param {number[]} c center @param {string} material @param {string} name @param {"x" | "z" | "y"} [axis]
      */
     const cyl = (r, len, c, material, name, axis = "x") => {
       const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r / 1000, r / 1000, len / 1000, 16), mat(material));
@@ -1000,7 +1000,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
 
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(params.room.w / 1000, params.room.d / 1000), new THREE.MeshStandardMaterial({ color: palette.floor, roughness: 0.95 }));
   floor.rotation.x = -Math.PI / 2;
-  // the floor's centre, under the installation's middle
+  // the floor's center, under the installation's middle
   const [fx, fy] = params.room.at ?? [0, 1000];
   floor.position.copy(v3(fx, fy, -1));
   floor.name = "room.floor";
@@ -1010,7 +1010,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
 }
 
 /**
- * A part's box in the params' millimetres: [minX, minY, minZ, maxX, maxY, maxZ].
+ * A part's box in the params' millimeters: [minX, minY, minZ, maxX, maxY, maxZ].
  * @param {TerminalParams} params
  * @param {string} name
  * @returns {number[] | null}
@@ -1057,14 +1057,14 @@ export function route(a, b, lead) {
 }
 
 /**
- * The ASR-33's parts, measured from the reference model (see asr33()), in its own millimetres:
+ * The ASR-33's parts, measured from the reference model (see asr33()), in its own millimeters:
  * x from -400 (left) to 400, y from -300 (front) to 300, z up from the floor. The machine is
  * scaled from `size` to the params' box.
  */
 export const ASR33_REF = {
   /** the machine without its paper: 800 wide, 600 deep, 1000 high */
   size: [800, 600, 1000],
-  /** the stand's feet, their centres across */
+  /** the stand's feet, their centers across */
   feet: [-235, 355],
   /** the pedestal: across, its back, its front at the feet and at the top (it leans forward), the top, the arch between the legs */
   pedestal: { x: [-260, 380], back: 280, front0: 93, front1: 5, top: 730, arch: 200 },
@@ -1079,9 +1079,9 @@ export const ASR33_REF = {
   back: 954,
   /** the type cover */
   cover: { x: [-259, 229], y: [-137, 153], top: 1000 },
-  /** the paper roll: radius, length, centre */
+  /** the paper roll: radius, length, center */
   roll: { r: 68, len: 319, c: [-15, 164, 974] },
-  /** the key rows, front to back: centre y, keys, x from, x to, the keytops' height, diameter */
+  /** the key rows, front to back: center y, keys, x from, x to, the keytops' height, diameter */
   keys: [
     [-236, 12, -186, 150, 860, 20],
     [-210, 14, -200, 197, 872, 20],

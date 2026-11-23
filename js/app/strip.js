@@ -10,14 +10,14 @@ import { t } from "../l10n/l10n.js";
 import { DIALS, KEYS } from "../sim/agt.js";
 import { DIAL_TRAVEL_DEG } from "../scene/viewer.js";
 
-/** Closer than this to a knob's centre, in pixels, the pointer's angle is too unsteady to follow. */
+/** Closer than this to a knob's center, in pixels, the pointer's angle is too unsteady to follow. */
 const DEAD_PX = 4;
 
 /**
- * Turns a knob the way a hand does (U5): the knob follows the pointer's angle round its centre,
+ * Turns a knob the way a hand does (U5): the knob follows the pointer's angle round its center,
  * clockwise up. Once grabbed, the pointer may circle as wide as it likes, and the wider, the
  * finer. Shared by the strip's dials and the desk's in 3D (P2).
- * @param {() => [number, number]} center the knob's centre on the screen
+ * @param {() => [number, number]} center the knob's center on the screen
  * @param {() => number} get the dial's value, -1..1
  * @param {(v: number) => void} set
  * @returns {{ start: (x: number, y: number) => void; move: (x: number, y: number) => void }}
@@ -104,7 +104,7 @@ export function buildStrip(host, machine, say) {
       machine().setDial(n, v);
       say(t("status.dial", { n, v: machine().dev.dials[n].toFixed(3) }));
     };
-    // turned round its centre, as a hand turns a knob (U5)
+    // turned round its center, as a hand turns a knob (U5)
     const knob = turner(
       () => {
         const r = /** @type {SVGElement} */ (b.querySelector("svg")).getBoundingClientRect();
@@ -198,12 +198,12 @@ export function buildStrip(host, machine, say) {
   makeKey("pulse1", 1, 2);
   for (let n = 0; n < KEYS; n++) makeKey(n, Math.floor(n / 4) + 2, n % 4 < 3 ? (n % 4) + 1 : 5);
 
-  // all six dials back to the centre at once: a convenience of ours (the operator turned each)
-  const centre = el("button", { class: "strip-mini", type: "button" }, [icon("restart_alt")]);
-  setTip(centre, t("strip.dials.centre"));
-  centre.addEventListener("click", () => {
+  // all six dials back to the center at once: a convenience of ours (the operator turned each)
+  const center = el("button", { class: "strip-mini", type: "button" }, [icon("restart_alt")]);
+  setTip(center, t("strip.dials.center"));
+  center.addEventListener("click", () => {
     for (let n = 0; n < DIALS; n++) machine().setDial(n, 0);
-    say(t("status.dialsCentred"));
+    say(t("status.dialsCentered"));
   });
 
   const penText = el("span", { text: t("strip.pen.off") });
@@ -212,7 +212,7 @@ export function buildStrip(host, machine, say) {
   pen.addEventListener("click", () => pen.getAttribute("aria-disabled") === "true" && say(t("status.penOff")));
 
   host.replaceChildren(
-    el("div", { class: "strip-group" }, [el("div", { class: "strip-label-row" }, [el("span", { class: "strip-label", text: t("strip.dials") }), centre]), dials]),
+    el("div", { class: "strip-group" }, [el("div", { class: "strip-label-row" }, [el("span", { class: "strip-label", text: t("strip.dials") }), center]), dials]),
     el("div", { class: "strip-sep" }),
     el("div", { class: "strip-group" }, [el("span", { class: "strip-label", text: t("strip.keys") }), keys]),
     el("div", { class: "strip-sep" }),

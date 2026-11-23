@@ -21,7 +21,7 @@
  * @typedef {object} Phosphor
  * @property {"p31" | "p4" | "p7"} id the ?phosphor= value (docs/development.md)
  * @property {number} tauUs decay time constant (simulated microseconds)
- * @property {string} color the token of its colour
+ * @property {string} color the token of its color
  */
 
 /** The GDS1's phosphor is not documented: P31-like is ours (R14); P4 and P7 for comparison. */

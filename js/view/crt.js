@@ -31,7 +31,7 @@ export class CrtView {
     this.phosphor = PHOSPHORS[0];
     /** Brightness of a fresh stroke relative to a steady 40 frames-a-second picture. */
     this.gain = 1;
-    /** The phosphor's colour. */
+    /** The phosphor's color. */
     this.color = "#7dff9b";
     this.setPhosphor(PHOSPHORS[0]);
   }

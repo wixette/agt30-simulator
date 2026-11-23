@@ -3,7 +3,7 @@ version = 1
 # Default: code is Apache-2.0; everything else of ours (docs, design and research
 # notes, parameters, research data, images) is CC-BY-SA-4.0. More specific
 # annotations override these defaults. Third-party material has its own
-# annotations at the end; the licence texts are in LICENSES/ (docs/licensing.md).
+# annotations at the end; the license texts are in LICENSES/ (docs/licensing.md).
 
 [[annotations]]
 path = "**"

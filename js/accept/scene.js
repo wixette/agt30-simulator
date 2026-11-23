@@ -16,7 +16,7 @@ const P = /** @type {TerminalParams} */ (/** @type {unknown} */ (params));
 
 /** The triangle budget of the whole installation (low poly, so that a laptop draws it easily). */
 export const TRIANGLE_BUDGET = 30000;
-/** Two parts closer than this overlap, mm: less is modelling noise. */
+/** Two parts closer than this overlap, mm: less is modeling noise. */
 const OVERLAP_MM = 1;
 /** A part stands on what is under it within this, mm. */
 const SUPPORT_MM = 2;
@@ -141,7 +141,7 @@ export const SCENE_CHECKS = [
       const uv = face.geometry.getAttribute("uv");
       face.updateWorldMatrix(true, false);
       const pts = Array.from({ length: pos.count }, (_, i) => ({ p: new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(face.matrixWorld), u: uv.getX(i), v: uv.getY(i) }));
-      /** millimetres per unit of a texture coordinate, along an axis */
+      /** millimeters per unit of a texture coordinate, along an axis */
       const span = (/** @type {"u" | "v"} */ k, /** @type {"x" | "y"} */ c) => {
         const a = pts.reduce((m, q) => (q[k] < m[k] ? q : m));
         const b = pts.reduce((m, q) => (q[k] > m[k] ? q : m));

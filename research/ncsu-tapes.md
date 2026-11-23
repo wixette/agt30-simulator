@@ -1,8 +1,8 @@
 # The NCSU tapes
 
-What survives of the software of NCSU's AGT-30, as far as we have catalogued it. M. Howard kept 7-track tapes from the lab; they were read at the Computer History Museum in 2022 with L. Shustek's readtape (556 BPI, NRZI), and he published the images with tools for Adage's tape and disk formats (MH25). This page lists what is on them and what each find could settle. The images are cited by their path in MH25; none is copied here. Since v0.0.2 the simulator takes its instruction encodings from them, and its assembler reproduces their binaries; no program from them runs in it yet.
+What survives of the software of NCSU's AGT-30, as far as we have cataloged it. M. Howard kept 7-track tapes from the lab; they were read at the Computer History Museum in 2022 with L. Shustek's readtape (556 BPI, NRZI), and he published the images with tools for Adage's tape and disk formats (MH25). This page lists what is on them and what each find could settle. The images are cited by their path in MH25; none is copied here. Since v0.0.2 the simulator takes its instruction encodings from them, and its assembler reproduces their binaries; no program from them runs in it yet.
 
-Catalogued on 2026-11-11 by reading the tape headers and the pack's volume directory with the formats below; `tools/amos-tape.mjs` lists and extracts a tape's files. File numbers are octal, as AMOS numbers them; lengths are in 30-bit words.
+Cataloged on 2026-11-11 by reading the tape headers and the pack's volume directory with the formats below; `tools/amos-tape.mjs` lists and extracts a tape's files. File numbers are octal, as AMOS numbers them; lengths are in 30-bit words.
 
 ## The formats
 
@@ -40,7 +40,7 @@ The R numbers are those of [../design/reconstructions.md](../design/reconstructi
 
 - **R1, the instruction encodings.** Every source in the tripp library sits beside its binary: about thirty pairs to check a layout against. They settle it, and it is not ours: [dpr2-encodings.md](dpr2-encodings.md). The disassembly in M. Howard's message (MH26), from an unpublished disassembler, agrees with them.
 - **R2 and R3, DSPLY and the image format.** No DSPLY is in the listings above, nor on the pack; AMRMX's own display handler drives AVG1 from the DPR-2 ([amrmx.md](amrmx.md)). DISP2 is "Display routine for AGT10/AVG1" (C. N. Carter, March 1971): the AGT-10's, which had no array, but it drives the AVG1 vector generator and names its interrupt pivots. Whether DSPLY is in the pack's system area is not known yet.
-- **R4, the programs.** Real programs of NCSU's AGT-30 survive: the games as core images, and more on the pack. 3DTTT is source, but only the display part; it calls the game itself as `$TTT3D`, which is not among the files catalogued here.
+- **R4, the programs.** Real programs of NCSU's AGT-30 survive: the games as core images, and more on the pack. 3DTTT is source, but only the display part; it calls the game itself as `$TTT3D`, which is not among the files cataloged here.
 - **R8, ADEPT.** The sources use what v0.0.1's subset lacked: `EXPUNGE`, `ABSOLUTE`, `ENTRY A,B`, `STRING'…'`, `$NAME` for an external, `.` and `.+2`, `!H!B!B`, macros, conditional assembly (`IFPASS1`, `IFZERO`, `ELSE`, `ENDC`), and `TYPEIN` / `TYPEOUT`. Subroutines start with a `JUMP .` or `JUMP 0` word and take their arguments in the words after the `JPSR`. Since v0.0.2 our assembler takes all of them, and all 34 routines assemble to their binaries' words ([dpr2-encodings.md](dpr2-encodings.md)).
 - **R10 and R15, interrupts and core.** The sources name the interrupt pivots: 77755 the frame clock, 77756 end of vector, 77757 end of list, 77760 the light pen, 77771 overflow (DISP2); 77776 PULSE 1 and 77720–77726 the disk (AMLD0). AMLD0 reads the monitor from the pack and enters it at 73400. See also [dpr2-block-diagram.md](dpr2-block-diagram.md).
 

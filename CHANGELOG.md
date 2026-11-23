@@ -2,14 +2,26 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## 0.0.4
+
+The machine explained. A new document, written for engineers who know today's computers, explains the AGT-30 as a whole, so that what the simulator does, and what the manuals say, can be followed without the scans. It is shared now so that people who knew the machine can review it.
+
+**The overview**
+- [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers, in ten sections and nine figures of our own: the machine at a glance, words and numbers, the DPR-2 processor, interrupts, the picture and the hybrid array, the input devices, the operator's panel and how the machine started, disks and tapes, the software, and what is known and what is not.
+- Appendices: a glossary of Adage's names, every instruction with its code, the monitor's and DSPLY's statements and the picture items, and the sources.
+
+**Also**
+- The call with M. Howard of 2026-11-19 is summarized in [research/correspondence.md](research/correspondence.md): what he confirmed (PULSE 1's setting, PINT, booting with BTSP, the ASR-35, the phosphor's color, the disk), and the questions still open.
+- US spelling throughout the documents and the page: color, center, license.
+
 ## 0.0.3
 
 The simulator series' look, and phones. While the machine waits on M. Howard's answers, this release is about the page: it now looks and works like the series' other simulators (the Altair 8800 and the TRS-80), and it works on a phone.
 
 **The look**
-- The series' theme (U10): neutral greys round an amber primary, and the series' controls: top-bar tool buttons, tabs with icons, the segmented button (now also the Tube's time), fields, menus, tooltips, dialogs and the status line.
+- The series' theme (U10): neutral grays round an amber primary, and the series' controls: top-bar tool buttons, tabs with icons, the segmented button (now also the Tube's time), fields, menus, tooltips, dialogs and the status line.
 - The dock's handle is a row of its own, lit while dragged; dragging keeps the dock's foot where it is; the dock remembers its tab, height and fold (U1).
-- The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one centre line.
+- The top bar keeps only the name, the tools and About: the tagline is gone, and its items share one center line.
 - The Program tab's choices: the cards in a row are the same height.
 
 **Phones** (P11, U2)
@@ -58,7 +70,7 @@ The first pre-release: small, honest about what it reconstructs, and good enough
 **The page**
 - The installation in 3D, built from parameters with sizes measured from photographs or estimated (R16-R19): the desk and scope, the console's devices, the Teletype, four racks, two tape drives, two disk drives and the cables. Every part has a card and a close look.
 - Four viewpoints, chosen from one menu: Room, Console, Screen (the picture close up, where the light pen works) and Tube (the scope cut open, the beam drawing in time slowed up to 100,000 times, with its X, Y and Z signals).
-- The console strip: six dials, turned round their centre or by small arrows; sixteen function keys and PULSE 1, in step with the desk in 3D; the light pen's state.
+- The console strip: six dials, turned around their center or by small arrows; sixteen function keys and PULSE 1, in step with the desk in 3D; the light pen's state.
 - The dock: the program's card, with its actions, a depth cueing switch, what is ours, its statements and source (with no program loaded, the list of programs to choose from); and the Teletype's paper and keyboard.
 - The top bar: the Programs menu, its button naming the program loaded; Reboot; About.
 - English only, every text a message (U11); desktop browsers only (U2).

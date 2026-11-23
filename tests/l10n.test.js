@@ -54,7 +54,7 @@ function dynamicKeys() {
   for (const v of VIEWS) keys.add(`view.${v}`);
   for (const s of ["waiting", "preparing", "drawing", "moving"]) keys.add(`trace.${s}`);
   for (const s of ["drawing", "moving", "waiting", "off"]) keys.add(`beam.${s}`);
-  for (const l of ["code", "content", "three", "font", "icons"]) keys.add(`about.licence.${l}`);
+  for (const l of ["code", "content", "three", "font", "icons"]) keys.add(`about.license.${l}`);
   return keys;
 }
 

@@ -126,7 +126,7 @@ export function loadFigures(term) {
   b.item("RET");
   const end = b.end();
 
-  // TUNSUB: the viewer has travelled into the tunnel by dial 0's angle as a fraction (0 to
+  // TUNSUB: the viewer has traveled into the tunnel by dial 0's angle as a fraction (0 to
   // 0.95). A point at depth d is now d - travel ahead, and shows at 1 / (1 + 1.25 (d - travel))
   // of the mouth's size. A line into the depth starts where the viewer is; a ring already
   // passed is sent in front of FRONT, where it is blanked. Its z runs from 0.5 at the mouth to

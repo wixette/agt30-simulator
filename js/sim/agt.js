@@ -194,7 +194,7 @@ export class Agt30 extends Terminal {
 
   /**
    * Points the light pen at the screen.
-   * @param {number} x inches from the centre
+   * @param {number} x inches from the center
    * @param {number} y
    * @param {boolean} pressed its fingertip switch
    */

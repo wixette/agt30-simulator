@@ -209,7 +209,7 @@ export class Stage {
   }
 
   /**
-   * A box of parts, in three.js metres.
+   * A box of parts, in three.js meters.
    * @param {string[]} names
    * @returns {THREE.Box3}
    */
@@ -232,9 +232,9 @@ export class Stage {
   pose(v) {
     const view = /** @type {TerminalView} */ (this.view3d);
     if (v === "room") {
-      // straight at the scope, a little from above: the scope's screen is centred and faces the
+      // straight at the scope, a little from above: the scope's screen is centered and faces the
       // reader, and the other machines show their depth. The scope stands at the installation's
-      // middle; the box is made even about it all the same, so the framing is centred on it.
+      // middle; the box is made even about it all the same, so the framing is centered on it.
       const box = this.boxOfParts(this.params.parts.map((p) => p.name));
       const cx = this.boxOfParts(["console.scope"]).getCenter(new THREE.Vector3()).x;
       const half = Math.max(cx - box.min.x, box.max.x - cx);
@@ -298,7 +298,7 @@ export class Stage {
     this.markTime(v === "tube" ? TUBE_SCALE : 1);
     this.ops.setPen(v === "screen");
     // the overlays are laid out before the free area is measured; the flight moves the
-    // picture's centre to it, in step with the camera
+    // picture's center to it, in step with the camera
     await new Promise((r) => requestAnimationFrame(r));
     if (animate) this.view3d?.setFreeForFlight(this.freeRect());
     else this.refit();

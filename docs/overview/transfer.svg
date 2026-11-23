@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 300" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1a1a1a">
+  <title>What a transfer instruction does</title>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+  <rect width="920" height="300" fill="#fff"/>
+  <g stroke="#333" stroke-width="1.4">
+    <rect x="20" y="60" width="170" height="150" rx="6" fill="#e8f0fa"/>
+    <rect x="230" y="60" width="150" height="150" rx="6" fill="#fdf0e4"/>
+    <rect x="420" y="60" width="120" height="150" rx="6" fill="#eeeeee"/>
+    <rect x="580" y="60" width="120" height="150" rx="6" fill="#eeeeee"/>
+    <rect x="740" y="60" width="160" height="150" rx="6" fill="#fdf0e4"/>
+  </g>
+  <g stroke="#333" stroke-width="2"><path d="M190 135H226" marker-end="url(#a)"/><path d="M380 135H416" marker-end="url(#a)"/><path d="M540 135H576" marker-end="url(#a)"/><path d="M700 135H736" marker-end="url(#a)"/></g>
+  <g font-weight="bold" text-anchor="middle">
+    <text x="105" y="40">1. Find the operand</text><text x="305" y="40">2. Source (S)</text><text x="480" y="40">3. Rotate (R)</text><text x="640" y="40">4. Logic (T)</text><text x="820" y="40">5. Destination (D)</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#333">
+    <text x="105" y="84">mode 1: the word at</text><text x="105" y="99">the address</text>
+    <text x="105" y="122">'L: the next word</text>
+    <text x="105" y="145">'F: the instruction</text><text x="105" y="160">itself</text>
+    <text x="105" y="183">'I: follow pointers;</text><text x="105" y="198">'X: add 1 to each first</text>
+    <text x="305" y="84">MD (that word)</text><text x="305" y="102">AR, BR, IC</text><text x="305" y="120">S4 sense lines</text><text x="305" y="138">S5 keys, converter</text><text x="305" y="156">S6 tape, S7 disk</text>
+    <text x="480" y="90">none</text><text x="480" y="112">'B: 1 bit</text><text x="480" y="134">'K: 6 bits</text><text x="480" y="156">'H: 15 bits</text><text x="480" y="182">all to the left,</text><text x="480" y="197">end around</text>
+    <text x="640" y="90">none</text><text x="640" y="112">'N: negate</text><text x="640" y="134">'A: AND</text><text x="640" y="156">'O: OR</text><text x="640" y="190">see the note</text>
+    <text x="820" y="84">MD (store), AR, BR, IC</text><text x="820" y="102">IR: run it as an</text><text x="820" y="117">instruction</text><text x="820" y="138">05–14: the devices</text><text x="820" y="160">AS, AE: add into AR</text><text x="820" y="178">XO: exclusive-or</text><text x="820" y="193">into AR</text>
+  </g>
+  <text x="20" y="250" font-size="12" fill="#444">An instruction names its source and destination: MDAR copies the word at an address into AR; ARMD stores AR there;</text>
+  <text x="20" y="268" font-size="12" fill="#444">MDAE adds it to AR. Modifiers follow with an apostrophe: MDAR'I'X LIST steps LIST and reads through it.</text>
+  <text x="20" y="286" font-size="12" fill="#444">After DPR2SPI pp. 20–33. Whether the logic combines with AR or with the destination is an open question (section 3).</text>
+</svg>

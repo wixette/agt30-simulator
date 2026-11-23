@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // The theme's tokens (css/theme.css) for the canvas and three.js views, read from the page so
-// that every colour lives in one place (U10).
+// that every color lives in one place (U10).
 
 /**
  * A CSS custom property of the page's root, or a fallback when there is no page (Node).
@@ -16,7 +16,7 @@ export function token(name, fallback) {
 }
 
 /**
- * A colour as [r, g, b] (0-255), given as #rrggbb or #rgb.
+ * A color as [r, g, b] (0-255), given as #rrggbb or #rgb.
  * @param {string} color
  * @returns {[number, number, number]}
  */

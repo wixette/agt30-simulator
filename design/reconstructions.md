@@ -22,7 +22,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Sources:* DSPLY was a DPR-2 program, defined item by item (DSPLY pp. 7–41); its code has not been found.
 - *We:* interpret the format in JavaScript, and charge the documented processor time where it is documented. The estimates are: 12 µs a MOVE or DRAW item, 8 µs to dispatch any item, 3 µs an array register, 64 µs to save or restore a transform. With these, the documented vector counts per frame come out right.
 - *Settled by:* a DSPLY listing.
-- *Since v0.0.1:* no DSPLY is among the files catalogued on the NCSU tapes. DISP2, the AGT-10's display routine (1971), survives as source and binary, and the pack's system area has no DSPLY either. AMRMX's handler that puts text on the screen drives AVG1 from the DPR-2 through destinations 05, 06, 07 and 10 and the vector interrupts, as DSPLY would ([../research/ncsu-tapes.md](../research/ncsu-tapes.md), [../research/amrmx.md](../research/amrmx.md)).
+- *Since v0.0.1:* no DSPLY is among the files cataloged on the NCSU tapes. DISP2, the AGT-10's display routine (1971), survives as source and binary, and the pack's system area has no DSPLY either. AMRMX's handler that puts text on the screen drives AVG1 from the DPR-2 through destinations 05, 06, 07 and 10 and the vector interrupts, as DSPLY would ([../research/ncsu-tapes.md](../research/ncsu-tapes.md), [../research/amrmx.md](../research/amrmx.md)).
 
 **R3. Gaps in the image format.**
 - *Sources:* the command word, opcodes, data types and address modes are documented to the bit (DSPLY pp. 12–41).
@@ -46,7 +46,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R5. The array's analog error.**
 - *Sources:* 15-bit inputs; settling to 0.01 % in 2 µs (SRM5 GHA4); "about once a year it had to be re-calibrated" (CCT20).
-- *We:* quantise to 15 bits. Drift is modelled as a gain error of up to ± 1.2 % per multiplier and an offset of up to ± 0.4 % per row after a year, but it is not shown in v0.0.1.
+- *We:* quantize to 15 bits. Drift is modeled as a gain error of up to ± 1.2 % per multiplier and an offset of up to ± 0.4 % per row after a year, but it is not shown in v0.0.1.
 - *Settled by:* calibration records, or the memories of people who did the calibration.
 
 **R6. The EAU's product.** *Settled* (v0.0.2).
@@ -116,6 +116,6 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *Sources:* six dials (SRM5 VCD1); sixteen function keys and PULSE 1 (SRM5 FNS1); two foot pedals that act as function keys (SRM5 FNS1); a joystick (BRO69).
 - *We:* read their boxes' shapes and places from NCSU's photographs. The pedals, never photographed, are drawn as the industrial foot switches of the period (confidence `design`).
 
-**R19. The cables** are a diagram of the documented signal paths: one tube per link, routed on the floor, coloured blue for digital words and orange for analog voltages. They are not the real cabling, which is undocumented. They glow with their traffic, a view the real AGT never had.
+**R19. The cables** are a diagram of the documented signal paths: one tube per link, routed on the floor, colored blue for digital words and orange for analog voltages. They are not the real cabling, which is undocumented. They glow with their traffic, a view the real AGT never had.
 
-**R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection centre to the spot, only while it draws: blanked, for a move or between frames, no electrons flow, and none is drawn; the Tube's note says which. A real beam is invisible and curves through the field. Both are views the real AGT never had.
+**R20. The cutaway and the beam.** The Tube viewpoint hides the cabinet's side, top and back. The beam is drawn straight from the yoke's deflection center to the spot, only while it draws: blanked, for a move or between frames, no electrons flow, and none is drawn; the Tube's note says which. A real beam is invisible and curves through the field. Both are views the real AGT never had.

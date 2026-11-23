@@ -26,7 +26,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 
 ## The machine in a few minutes
 
-The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room of equipment for drawing and turning three-dimensional pictures in real time, decades before graphics cards. It worked very differently from a computer today. These are the ideas the simulator shows, with the nearest thing today.
+The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room of equipment for drawing and turning three-dimensional pictures in real time, decades before graphics cards. It worked very differently from a computer today. These are the ideas the simulator shows, with the nearest thing today; [docs/agt30-overview.md](docs/agt30-overview.md) explains the whole machine.
 
 | Then | What it was | The nearest thing today |
 |---|---|---|
@@ -90,7 +90,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R2.** DSPLY is JavaScript, charged at the documented processor time; some of its times are estimates.
 - **R3.** Three gaps in the image format are filled our way.
 - **R4.** The programs are ours, written before we knew of the NCSU tapes.
-- **R5.** The array's analog drift is modelled but off.
+- **R5.** The array's analog drift is modeled but off.
 - **R6.** Settled: the multiply unit's results are as the processor's manual gives them.
 - **R7.** A dial is read through the array's input selector and converter, as on the AGT/30; how the selector's word chooses the dial is ours.
 - **R8.** The assembler is ADEPT as its manual describes it, without action operators or relocatable output, and with our syntax for display items' arguments.
@@ -110,6 +110,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 ## More
 
 - [CHANGELOG.md](CHANGELOG.md): what changed in each release.
+- [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers: the processor, the picture, the array, the panel, the disks and the software, in about an hour's reading.
 - [docs/development.md](docs/development.md): how to run the checks, change the simulator and release it.
 - [research/](research/): what we have learned from the sources, and our correspondence with people who knew the machine.
 
@@ -119,6 +120,6 @@ The simulator rests on T. G. Hagan, R. J. Nixon and L. J. Schaefer's paper "The 
 
 It is built with [three.js](https://threejs.org/), [Roboto Flex](https://github.com/googlefonts/roboto-flex) and [Material Symbols](https://github.com/google/material-design-icons).
 
-## Licence
+## License
 
-The code is under the [Apache License 2.0](LICENSE); the documents, data and pictures of our own under [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt). three.js is MIT, Roboto Flex is under the SIL Open Font License 1.1, and Material Symbols is Apache-2.0. Each file's licence is declared by [REUSE](https://reuse.software); see [docs/licensing.md](docs/licensing.md).
+The code is under the [Apache License 2.0](LICENSE); the documents, data and pictures of our own under [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt). three.js is MIT, Roboto Flex is under the SIL Open Font License 1.1, and Material Symbols is Apache-2.0. Each file's license is declared by [REUSE](https://reuse.software); see [docs/licensing.md](docs/licensing.md).

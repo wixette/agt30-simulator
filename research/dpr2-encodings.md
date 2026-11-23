@@ -12,7 +12,7 @@ Worked out on 2026-11-16. Bits are numbered as Adage numbers them, 0 the leftmos
 - **The check.** A pair counts when its operand can be evaluated (a label of the routine, `.`, a number) and equals the word's address half. A statement with nothing to check, such as `FPRI`, counts when it lies in an unbroken run between pairs that do. Each instruction so paired is then checked against the layout below.
 - **The tool.** `node tools/dpr2-pairs.mjs TAPE` does all of this and prints, for each routine, how many operands matched; then the forms that fit, and the pairs that do not.
 
-This gives 1,398 instruction pairs from 30 routines, in 119 forms (a mnemonic and its modifiers). Of the 953 transfers among them, 938 fit the layout below exactly; in each of the other 15 the count has slipped by one word (an off-by-one, which the neighbouring word shows). Of the 445 other instructions, 439 fit; the six that do not are in AMLD0, FIDCH, ADCR and DPIIO, where the count slips, and no value among them recurs. ADCR, DPIIO and OPIOR pair poorly, and hold more pairs to be had.
+This gives 1,398 instruction pairs from 30 routines, in 119 forms (a mnemonic and its modifiers). Of the 953 transfers among them, 938 fit the layout below exactly; in each of the other 15 the count has slipped by one word (an off-by-one, which the neighboring word shows). Of the 445 other instructions, 439 fit; the six that do not are in AMLD0, FIDCH, ADCR and DPIIO, where the count slips, and no value among them recurs. ADCR, DPIIO and OPIOR pair poorly, and hold more pairs to be had.
 
 ## Transfers
 
@@ -81,7 +81,7 @@ The binary's items left over are the loader's:
 - **External pairs**, 02 and the address of the last use, then the name (190). The uses are chained: each holds the address of the use before it, and the first holds 0.
 - **Set-location items** (LOC): 11 and the address (12), or 13 for an absolute one, after ABSOLUTE (4). The words that LOC skips are not in the binary, which is why ADCR, DPIIO and OPIOR paired poorly above.
 - **The trailer**: words marked 60, the first the program's length (288).
-- Ten others, which look like artefacts of the alignment, or a pair marked 00 (DTRR in ADCR).
+- Ten others, which look like artifacts of the alignment, or a pair marked 00 (DTRR in ADCR).
 
 FACTC's ASCII string settles the LCG1 packing as the manual draws it: four 7-bit characters a word, bit 14 set on the last.
 
