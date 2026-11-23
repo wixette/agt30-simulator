@@ -5,6 +5,7 @@
 // the carriage where it really is, and sends the keys typed while it has the focus. Lower case
 // goes as upper case; the Teletype had none.
 
+import { t } from "../l10n/l10n.js";
 import { DATE_PROMPT } from "../sim/amos.js";
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
@@ -77,7 +78,9 @@ export function buildTeletype(machine, onPrint) {
     out.push(`${esc(last.slice(0, tty.column))}<span class="tty-cursor">${esc(last.charAt(tty.column) || " ")}</span>${esc(last.slice(tty.column + 1))}`);
     text.innerHTML = out.join("\n");
     // nothing printed yet but the monitor's date, which it asked and the simulator answered
-    empty.hidden = !(lines.length <= 2 && lines[0].startsWith(DATE_PROMPT) && (lines[1] ?? "") === "" && tty.column === 0) && !(lines.length === 1 && lines[0] === "" && tty.column === 0);
+    const bare = machine().bare !== null;
+    empty.textContent = t(bare ? "tty.empty.amrmx" : "tty.empty");
+    empty.hidden = bare ? !(lines.length === 1 && lines[0] === "" && tty.column === 0) : !(lines.length <= 2 && lines[0].startsWith(DATE_PROMPT) && (lines[1] ?? "") === "" && tty.column === 0) && !(lines.length === 1 && lines[0] === "" && tty.column === 0);
     paper.scrollTop = paper.scrollHeight;
     if (grew) onPrint();
   }

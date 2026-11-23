@@ -147,7 +147,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 
 **R23. The Teletype's line at bit level.**
 - *Sources:* OPTY strobes BR[22] for serial output; input comes through S4[14] and interrupts (DPR2SPI p. 43); the Teletype is channel 5 (DPR2BD). AMRMX's routines send and take a character a bit at a time, one interrupt a bit: the first seven through 77750, the eighth through 77751, a bit clock run by IC bit 29, reception enabled by IC bits 28 and 29 ([../research/amrmx.md](../research/amrmx.md)).
-- *We:* model the line so (`js/sim/ttyline.js`), for AMRMX; the simulator's own monitor still types a whole character on OPTY (R9). Ours: 110 baud, so a character of eleven bits (start, eight data, two stop) takes 100 ms, the ten a second of SRM5 DPR3 p. 11; with bit 28 set, the clock waits for a character's start bit and ticks in the middle of each data bit; the line idles at 1; the keyboard sends the eighth bit as 1.
+- *We:* model the line so (`js/sim/ttyline.js`), for AMRMX; the simulator's own monitor still types a whole character on OPTY (R9). Ours: 110 baud, so a character of eleven bits (start, eight data, two stop) takes 100 ms, the ten a second of SRM5 DPR3 p. 11; with bit 28 set, the clock waits for a character's start bit and ticks in the middle of each data bit; the line idles at 1; the keyboard sends the eighth bit as 1; the Teletype is set to half duplex, printing its own keys, since AMRMX does not echo them.
 - *Settled by:* the DPR2 Subsystem Programming Specification, which the manual cites for the Teletype's timing.
 
 **R24. The disk and the bootstrap.**

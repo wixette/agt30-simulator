@@ -109,6 +109,9 @@ export class Bare {
     for (const ch of text.toUpperCase()) {
       if (ch === "\n") continue;
       this.line.key(ch === "\r" ? 0o15 : ch.charCodeAt(0));
+      // the Teletype at half duplex prints its own keys: AMRMX does not echo them (R23)
+      if (ch === "\r") this.agt.paper.writeText("\r\n");
+      else if (ch >= " " && ch < "\x7f") this.agt.paper.writeText(ch);
     }
   }
 

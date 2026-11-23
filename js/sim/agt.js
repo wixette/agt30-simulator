@@ -150,6 +150,9 @@ export class Agt30 extends Terminal {
     this.halt();
     this.clockCode = [];
     this.sending = [];
+    // the paper torn off: what is on it was the simulator's monitor's
+    this.printQueue = [];
+    this.paper.clear();
     this.bare = new Bare(this, pack);
     this.panel.btsp = false;
     this.panel.mode = "run";

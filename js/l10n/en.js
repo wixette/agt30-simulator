@@ -87,7 +87,7 @@ export default {
   "status.amrmx": "AMRMX runs",
   "status.pack.fetching": "Fetching NCSU's system pack from M. Howard's repository on GitHub…",
   "status.pack.failed": "The system pack could not be fetched ({error}). The simulator's own monitor still runs.",
-  "status.pack.booted": "AMRMX, NCSU's monitor, booted from the system pack. It asks the date on the screen: type it on the Teletype as month/day/year, for example 11/23/76, and Return.",
+  "status.pack.booted": "AMRMX, NCSU's monitor, booted from the system pack. It asks the date on the screen: click the paper in the Teletype tab, type it as month/day/year, for example 11/23/76, and press Return. It answers on the screen.",
   "status.cpu.halt": "The processor is halted.",
   "status.cpu.pause": "The processor is paused.",
   "strip.pen": "Light pen",
@@ -273,6 +273,7 @@ export default {
   "tty.clear": "Clear paper",
   "tty.clear.tip": "Tear off the paper; the machine is not disturbed",
   "tty.empty": "The monitor is ready: it asked the date, and it has been answered for you. Choose a program, or click here and type a statement, such as DSPLY (V.A)!",
+  "tty.empty.amrmx": "AMRMX runs, and answers on the screen, not here. Click here and type the date it asks for, such as 11/23/76, then press Return; the Teletype prints your keys as you type.",
   "tty.paper": "The Teletype's paper. Type here to send to the AMOS monitor.",
 
   // ---- the status line (P7) ----
