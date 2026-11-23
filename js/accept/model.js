@@ -14,6 +14,7 @@ import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
 import { Teletype } from "../sim/teletype.js";
+import { BIT_PIVOT, BIT_US, LAST_PIVOT, SENSE_LINE, TtyLine, TTY_CHANNEL } from "../sim/ttyline.js";
 import { vectorTime } from "../sim/vecgen.js";
 import { bits, fromAngle, fromFrac, fromOnes15, hi, lo, oct, toFrac, toOnes15, word } from "../sim/words.js";
 import { packText } from "../sim/amoscode.js";
@@ -1052,6 +1053,54 @@ export const MODEL_CHECKS = [
   },
 
   // ---- the programs ----
+  {
+    id: "TTY-4",
+    title: "Receiving, with IC bits 28 and 29 set, a key's bits come one an interrupt on channel 5, lowest first, on S4[14]: seven through 77750, the eighth through 77751 (DPR2SPI p. 43; AMRMX; R23)",
+    run() {
+      const cpu = new Dpr2(new Core());
+      const line = new TtyLine(cpu, () => {});
+      cpu.IC = 3;
+      line.key(0o123);
+      /** @type {number[]} */
+      const bits = [];
+      /** @type {number[]} */
+      const pivots = [];
+      for (let t = 0; t < 12 * BIT_US; t += 100) {
+        cpu.time = t;
+        line.poll();
+        const piw = cpu.pri.pending.get(TTY_CHANNEL);
+        if (piw === undefined) continue;
+        cpu.pri.pending.delete(TTY_CHANNEL);
+        pivots.push(lo(piw));
+        bits.push(Math.floor(cpu.S4 / 2 ** (29 - SENSE_LINE)) % 2);
+      }
+      equal(bits.join(""), "11001011", "S (123), lowest bit first, the eighth bit 1");
+      equal(pivots.filter((p) => p === BIT_PIVOT).length, 7, "seven through 77750");
+      equal(pivots.at(-1), LAST_PIVOT, "the eighth through 77751");
+    },
+  },
+  {
+    id: "TTY-5",
+    title: "Sending, with IC bit 29 set, OPTY's bit on each of eight interrupts makes a character, lowest bit first, printed after its stop bits (DPR2SPI p. 43; AMRMX; R23)",
+    run() {
+      const cpu = new Dpr2(new Core());
+      /** @type {number[]} */
+      const got = [];
+      const line = new TtyLine(cpu, (c) => got.push(c));
+      cpu.IC = 1;
+      const code = 0o301;
+      let k = 0;
+      for (let t = 0; t < 12 * BIT_US && !got.length; t += 100) {
+        cpu.time = t;
+        line.poll();
+        if (!cpu.pri.pending.has(TTY_CHANNEL)) continue;
+        cpu.pri.pending.delete(TTY_CHANNEL);
+        line.strobe((code >> k++) & 1);
+      }
+      equal(got.length, 1, "one character");
+      equal(oct(got[0], 3), "301", "A with its eighth bit");
+    },
+  },
   {
     id: "PRG-1",
     title: "Every program's statements are taken without a ? and start the display (design/v0.0.1.md, section 2)",

@@ -180,6 +180,7 @@ const wval = (n) => (n >= 0 ? n % 0o4000000000 : M30 - (-n % 0o4000000000));
  * @property {(code: number) => boolean} type types a 6-bit AMOS character; false while the Teletype is busy
  * @property {() => number} switches the function switches (S5): key n is bit n
  * @property {(channel: number) => number} analog an analog input, -1..1 (dials, joystick)
+ * @property {(bit: number) => void} [strobe] OPTY's bit, BR[22], to the Teletype's line, when it is modeled
  * @property {(dst: number, v: number, logic: number) => boolean} [write] a transfer to a subsystem's destination (05-14): the word after rotation and 'N, and the logic, 1 'O or 2 'A, for the subsystem to apply; true if a subsystem took it
  */
 
@@ -414,8 +415,13 @@ export class Dpr2 {
       case "ERAR":
         return this.eau(op, a.ea) + a.us;
       case "OPTY":
-        // The real OPTY strobes BR[22] out to the Teletype, a bit at a time (DPR2SPI p. 43).
-        // Ours types the character in AR[24-29] whole, and skips when the Teletype took it (R9).
+        // OPTY strobes BR[22] out to the Teletype, a bit at a time (DPR2SPI p. 43), when the
+        // Teletype's line is modeled (ttyline.js, for AMRMX). Without it, ours types the
+        // character in AR[24-29] whole, and skips when the Teletype took it (R9).
+        if (this.devices.strobe) {
+          this.devices.strobe(Math.floor(this.BR / 2 ** 7) % 2);
+          return TIME.opio;
+        }
         if (this.devices.type(this.AR % 64)) this.LC = (this.LC + 1) & M15;
         return TIME.opio;
       case "CNVT":
