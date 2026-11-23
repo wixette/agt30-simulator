@@ -399,7 +399,7 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 - whether `'A` and `'O` combine with AR or with the destination;
 - whether any array did a perspective divide in hardware;
 - how sixteen function keys fit S5's 15 bits;
-- why the dump of M. Howard's pack holds about 61 cylinders' worth of words while its directory places volumes as far as cylinder 179.
+- whether the rest of M. Howard's pack survives: the dump on tape holds its first 984 sectors (61½ cylinders), the system area and the games QUBIC, LIFE, Space War and BROSE, but not volumes 20–37, among them the lunar lander and Pong ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
 
 ## Appendix A. Glossary
 

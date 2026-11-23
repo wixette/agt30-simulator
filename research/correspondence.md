@@ -54,6 +54,8 @@ Answers go above, with the date. Asked on 2026-11-23:
 
 Not yet asked:
 
+- **The rest of the pack.** The dump on tape ends after 123 records, the pack's first 61½ cylinders, with no tape mark: is there a second reel, or another copy of volumes 20–37 (the lunar lander, Pong)?
+
 - **The transfer logic.** Do 'A and 'O act on the operand and AR, or on the destination?
 - **Destinations 05 and 06.** The array's XY and Z (his notes), AVG1's flags and command (DPR2BD), or both?
 - **The function keys.** How do sixteen keys fit S5[0–14]? And in ADCR's binary, what is the pair marked 00 (DTRR)?
