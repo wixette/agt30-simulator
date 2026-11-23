@@ -363,7 +363,7 @@ export default {
   "part.tty.asr35": "Teletype ASR-35",
   "part.tty.asr35.what": "The operator's console of the DPR-2, the heavy-duty Model 35: keyboard, printer, paper-tape reader and punch, 10 characters a second (SRM5 DPR3; MH26). The AMOS monitor listens to it. Its paper and keyboard are in the dock.",
   "part.rack.dpr2": "DPR-2 processor",
-  "part.rack.dpr2.what": "The 30-bit processor, its transfer bus and priority interrupts, with the operator's panel (SRM5 DPR3). Its 30 lamps here show AR.",
+  "part.rack.dpr2.what": "The 30-bit processor, its transfer bus and priority interrupts, with the operator's control panel at chest height: BR's lamps, the PRI switches, PULSE 1, RUN, HALT and STEP (SRM5 DPR3). The panel works here, in the Panel viewpoint, and in the dock's Panel tab.",
   "part.rack.core": "Core memory",
   "part.rack.core.what": "30-bit words, a 2-microsecond cycle: 8K as standard, 32K at NCSU (BRO69; NCSU).",
   "part.rack.array": "Hybrid array and vector generator",
