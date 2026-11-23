@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 330" font-family="Helvetica, Arial, sans-serif" font-size="12.5" fill="#1a1a1a">
+  <title>A system disk pack</title>
+  <rect width="920" height="330" fill="#fff"/>
+  <text x="20" y="28" font-weight="bold">The pack</text>
+  <g stroke="#333" stroke-width="1.3">
+    <ellipse cx="120" cy="80" rx="90" ry="22" fill="#e8f0fa"/>
+    <ellipse cx="120" cy="120" rx="90" ry="22" fill="#e8f0fa"/>
+    <ellipse cx="120" cy="80" rx="14" ry="4" fill="#fff"/>
+    <ellipse cx="120" cy="120" rx="14" ry="4" fill="#fff"/>
+    <path d="M210 92H250M210 108H250" stroke="#c2621b" stroke-width="2"/>
+  </g>
+  <text x="258" y="96" font-size="12">heads between</text><text x="258" y="112" font-size="12">the two disks</text>
+  <g font-size="12" fill="#333">
+    <text x="20" y="168">2 recording surfaces · 203 cylinders</text>
+    <text x="20" y="186">8 sectors of 104 words a track, so</text>
+    <text x="20" y="204">16 sectors (1,664 words) a cylinder,</text>
+    <text x="20" y="222">337,792 words a pack.</text>
+    <text x="20" y="246">A drive holds two packs on one shaft.</text>
+  </g>
+  <text x="400" y="28" font-weight="bold">A system pack, cylinder by cylinder</text>
+  <g stroke="#333" stroke-width="1.2">
+    <rect x="400" y="50" width="40" height="70" fill="#f4c78a"/>
+    <rect x="440" y="50" width="40" height="70" fill="#9ec3ea"/>
+    <rect x="480" y="50" width="110" height="70" fill="#cfe0f3"/>
+    <rect x="590" y="50" width="180" height="70" fill="#e8f0fa"/>
+    <rect x="770" y="50" width="70" height="70" fill="#f4f4f4"/>
+    <rect x="840" y="50" width="60" height="70" fill="#e6e6e6"/>
+  </g>
+  <g font-size="11.5" text-anchor="middle">
+    <text x="420" y="82">direc-</text><text x="420" y="96">tories</text>
+    <text x="460" y="82">monitor</text><text x="460" y="96">MONIT</text>
+    <text x="535" y="80">symbol table,</text><text x="535" y="94">memory map,</text><text x="535" y="108">overlays</text>
+    <text x="680" y="82">system and user</text><text x="680" y="96">volumes (files)</text>
+    <text x="805" y="82">free</text>
+    <text x="870" y="82">scratch</text><text x="870" y="96">pad</text>
+  </g>
+  <g font-size="11" fill="#555" text-anchor="middle">
+    <text x="400" y="136">0</text><text x="440" y="136">2</text><text x="590" y="136">34</text><text x="900" y="136">202</text>
+  </g>
+  <g font-size="12" fill="#333">
+    <text x="400" y="168">Cylinder 0: the volume directory, then file directories; cylinder 1: more file directories.</text>
+    <text x="400" y="186">The monitor that is read in at start sits next. On NCSU's pack it fills cylinder 2 and the start of 3,</text>
+    <text x="400" y="204">and is loaded into core at 73400–77677. Then the loader's symbol table and the monitor's</text>
+    <text x="400" y="222">overlays, rolled into core when a command needs them.</text>
+    <text x="400" y="246">Files live in numbered volumes, each a run of cylinders. The last cylinders are scratch,</text>
+    <text x="400" y="264">and must stay free: the monitor needs them.</text>
+  </g>
+  <text x="20" y="300" font-size="11.5" fill="#555">After PRM1: DSKIO p. 1 (the geometry) and FILE I/O (its layout figure and p. 22); NCSU's pack as read in research/amrmx.md.</text>
+  <text x="20" y="318" font-size="11.5" fill="#555">Widths are not to scale.</text>
+</svg>

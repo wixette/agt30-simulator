@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1a1a1a">
+<title>One frame of the display at RATE 2</title>
+<rect width="960" height="330" fill="#fff"/>
+<line x1="60" y1="150" x2="910" y2="150" stroke="#333"/>
+<line x1="60" y1="150" x2="60" y2="156" stroke="#333"/><text x="60" y="172" text-anchor="middle" font-size="12">0 ms</text>
+<line x1="230" y1="150" x2="230" y2="156" stroke="#333"/><text x="230" y="172" text-anchor="middle" font-size="12">5 ms</text>
+<line x1="400" y1="150" x2="400" y2="156" stroke="#333"/><text x="400" y="172" text-anchor="middle" font-size="12">10 ms</text>
+<line x1="570" y1="150" x2="570" y2="156" stroke="#333"/><text x="570" y="172" text-anchor="middle" font-size="12">15 ms</text>
+<line x1="740" y1="150" x2="740" y2="156" stroke="#333"/><text x="740" y="172" text-anchor="middle" font-size="12">20 ms</text>
+<line x1="910" y1="150" x2="910" y2="156" stroke="#333"/><text x="910" y="172" text-anchor="middle" font-size="12">25 ms</text>
+<path d="M60 40V150" stroke="#c0392b" stroke-width="2" stroke-dasharray="4 3"/>
+<path d="M910 40V150" stroke="#c0392b" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="60" y="32" font-size="12" fill="#c0392b">frame clock tick (channel 8)</text>
+<text x="910" y="32" font-size="12" fill="#c0392b" text-anchor="end">next tick</text>
+<rect x="60" y="80" width="20.400000000000006" height="44" fill="#f4c78a" stroke="#333"/>
+<rect x="80.4" y="80" width="421.6" height="44" fill="#9ec3ea" stroke="#333"/>
+<rect x="502.0" y="80" width="408.0" height="44" fill="#e6e6e6" stroke="#333"/>
+<text x="88.4" y="107" font-size="12.5">DSPLY walks the picture: loads the array, starts each vector</text>
+<text x="510.0" y="100" font-size="12.5">the user's program and</text><text x="510.0" y="116" font-size="12.5">idle time</text>
+<path d="M70.2 80V64H121.2" stroke="#333" fill="none"/><text x="124.6" y="68" font-size="12">CLOCK routines first (DIALS reads the dials)</text>
+<g font-size="12.5" fill="#333">
+<text x="60" y="208">At RATE 2 the clock ticks 40 times a second (120 / (RATE + 1)), so a frame is 25 ms. Each vector takes 5–39 µs,</text>
+<text x="60" y="226">depending on its length. The 1968 paper's 1,000 random lines (Fig. 12) take about half a frame; past about 2,000 they do not fit.</text>
+<text x="60" y="252">A picture still unfinished at the next tick is a timing error, handled as the DSPLY statement asks:</text>
+<text x="80" y="270">ALL finishes it and refreshes more slowly; CUT stops at the tick and loses the end; BUMP raises RATE.</text>
+<text x="60" y="296">At 40 frames a second a picture looks steady; at 20 it flickers. Nothing stores it but core and the phosphor.</text>
+<text x="60" y="320" font-size="11.5" fill="#555">After DSPLY pp. 7–10, SRM5 AVG1 pp. 1–2 and FJCC68; the proportions are the simulator's (design/architecture.md, section 5).</text>
+</g></svg>

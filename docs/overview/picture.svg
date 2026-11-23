@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 460" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#1a1a1a">
+  <title>A structured picture: one house drawn four times</title>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f5fa8"/></marker></defs>
+  <rect width="920" height="460" fill="#fff"/>
+  <g font-weight="bold"><text x="20" y="30">V.TOWN, the picture shown</text><text x="300" y="30">TOWN</text><text x="640" y="30">HOUSE</text></g>
+  <g font-family="Menlo, Consolas, monospace" font-size="12">
+    <rect x="20" y="42" width="230" height="110" fill="#e8f0fa" stroke="#333" rx="4"/>
+    <text x="30" y="64" fill="#666">name: V.TOWN</text>
+    <text x="30" y="86">RXYZ  dials 0–2</text>
+    <text x="30" y="108">IMG   TOWN</text>
+    <text x="30" y="130">RET</text>
+    <rect x="300" y="42" width="290" height="220" fill="#e8f0fa" stroke="#333" rx="4"/>
+    <text x="310" y="64" fill="#666">name: TOWN</text>
+    <text x="310" y="86">SAVT</text><text x="310" y="104">DV (0, −.5, .5); SCL (.4)</text><text x="310" y="122">IMG   HOUSE</text><text x="310" y="140">REST</text>
+    <text x="310" y="162">SAVT; DV …; SCL …; ROTZ (20°)</text><text x="310" y="180">IMG   HOUSE</text><text x="310" y="198">REST</text>
+    <text x="310" y="220">… twice more …</text>
+    <text x="310" y="242">RET</text>
+    <rect x="640" y="42" width="260" height="150" fill="#e8f0fa" stroke="#333" rx="4"/>
+    <text x="650" y="64" fill="#666">name: HOUSE</text>
+    <text x="650" y="86">MOVE (.3, −.5, −.5)</text><text x="650" y="104">DRAW (.3, .5, −.5)</text><text x="650" y="122">DRAW (.3, .5, .2)</text><text x="650" y="140">DRAW (.3, 0, .6)</text><text x="650" y="158">… 21 more items …</text><text x="650" y="176">RET</text>
+  </g>
+  <g stroke="#1f5fa8" stroke-width="1.8" fill="none">
+    <path d="M118 104H200C230 104 260 80 296 80" marker-end="url(#a)"/>
+    <path d="M378 118H560C600 118 610 80 636 80" marker-end="url(#a)"/>
+    <path d="M378 176H560C610 176 610 84 636 84" marker-end="url(#a)"/>
+  </g>
+  <g font-size="12.5" fill="#333">
+    <text x="20" y="300"><tspan font-weight="bold">Element</tspan> items draw: MOVE and DRAW go to a point; a table of vectors draws many lines from one item.</text>
+    <text x="20" y="322"><tspan font-weight="bold">Transform</tspan> items set the array: rotate (ROTX, RXYZ), scale (SCL), place (DX, DV). Their LD… forms read the</text>
+    <text x="20" y="340">values from core, so a program moves a whole object by changing one word.</text>
+    <text x="20" y="362"><tspan font-weight="bold">Control</tspan> items: IMG calls a sub-picture; SAVT and REST save and restore the transform; RET returns; JMP, LOOP, JSR.</text>
+    <text x="20" y="392">DSPLY walks this tree every frame. Each house is drawn under the transform in force when IMG calls it, so the</text>
+    <text x="20" y="410">four houses share one copy of HOUSE. Pictures nest up to 16 deep.</text>
+    <text x="20" y="442" font-size="11.5" fill="#555">From the simulator's own TOWN.adept and HOUSE.adept; the item format is DSPLY's (PRM1, DSPLY pp. 12–41).</text>
+  </g>
+</svg>

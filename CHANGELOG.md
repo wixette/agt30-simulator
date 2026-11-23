@@ -2,6 +2,10 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## Unreleased
+
+- A new document, [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers, with nine figures of our own. It covers the processor, interrupts, the picture and the array, the input devices, the operator's panel and how the machine started, disks and tapes, and the software, and says what is known and what is not.
+
 ## 0.0.3
 
 The simulator series' look, and phones. While the machine waits on M. Howard's answers, this release is about the page: it now looks and works like the series' other simulators (the Altair 8800 and the TRS-80), and it works on a phone.

@@ -26,7 +26,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 
 ## The machine in a few minutes
 
-The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room of equipment for drawing and turning three-dimensional pictures in real time, decades before graphics cards. It worked very differently from a computer today. These are the ideas the simulator shows, with the nearest thing today.
+The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room of equipment for drawing and turning three-dimensional pictures in real time, decades before graphics cards. It worked very differently from a computer today. These are the ideas the simulator shows, with the nearest thing today; [docs/agt30-overview.md](docs/agt30-overview.md) explains the whole machine.
 
 | Then | What it was | The nearest thing today |
 |---|---|---|
@@ -110,6 +110,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 ## More
 
 - [CHANGELOG.md](CHANGELOG.md): what changed in each release.
+- [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers: the processor, the picture, the array, the panel, the disks and the software, in about an hour's reading.
 - [docs/development.md](docs/development.md): how to run the checks, change the simulator and release it.
 - [research/](research/): what we have learned from the sources, and our correspondence with people who knew the machine.
 
