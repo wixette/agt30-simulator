@@ -262,7 +262,7 @@ It is labeled where the reader meets it as a view the real AGT never had (P9). I
 
 ### U18. The Panel tab: the operator's control panel *(v0.0.5)*
 
-A fifth dock tool, laid out as the overview's figure 7 (SRM5 DPR3 p. 12): BR's 30 lamp-buttons in five groups of three columns, the 30 PRI switches below them, the machine's buttons along the bottom (OFF, ON, RESET; STEP, CYCLE; HALT, RUN, PAUSE; BTSP, TE; IC 0, IC 1), and at the right RESET BR, the request selector, PULSE 1 and the second OFF. Above it, the switches' word in octal and as an instruction, **Usual setting** while they are not at 24000 77776, and the machine's state. Every control says what it did in the status line. On a phone the panel scrolls sideways in the dock rather than shrink below a finger's width.
+A fifth dock tool, laid out as the manual's photograph of the panel (SRM5 DPR3 Figure 4, p. 12), measured and kept in one table that the 3D panel shares (`panelLayout` in `js/sim/panel.js`): BR's 30 lamp-buttons in five groups of three columns, the 30 PRI switches below them, the machine's buttons along the bottom (OFF, ON, RESET; STEP, CYCLE; HALT, RUN, PAUSE; BTSP, TE; IC 0, IC 1), and at the right RESET BR, the request selector, PULSE 1 and the second OFF. Above it, the switches' word in octal and as an instruction, **Usual setting** while they are not at 24000 77776, and the machine's state. Every control says what it did in the status line. On a phone the panel scrolls sideways in the dock rather than shrink below a finger's width.
 
 The same panel stands on the processor rack in 3D, and the Panel viewpoint frames it; its controls work there too. The strip's and the desk's PULSE 1 are the same button. What each control does to a machine whose monitor is JavaScript is R21.
 

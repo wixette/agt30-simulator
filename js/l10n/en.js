@@ -182,8 +182,6 @@ export default {
   "proc.pri.waiting": "channel {channels} waiting",
   "proc.count": "{n} instructions so far",
   "panel.name": "The DPR-2's operator's control panel",
-  "panel.br": "BR",
-  "panel.pri": "PRI",
   "panel.br.bit": "BR bit {n}",
   "panel.br.tip": "BR, the buffer register: a lamp for each bit, lit when it is 1. Each lamp is also a button that sets its bit.",
   "panel.pri.bit": "PRI switch {n}",

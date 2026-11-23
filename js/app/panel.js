@@ -7,13 +7,15 @@
 
 import { t } from "../l10n/l10n.js";
 import { disassemble } from "../sim/dpr2.js";
-import { bitOf, BUTTONS, LAMPED, PRI_USUAL } from "../sim/panel.js";
+import { bitOf, LAMPED, PANEL_SIZE, panelLayout, PRI_USUAL } from "../sim/panel.js";
 import { el, setTip } from "../ui/components.js";
 import { hi, lo, oct } from "../sim/words.js";
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
 /** @typedef {import("../sim/panel.js").Outcome} Outcome */
 
+/** The tab's scale: CSS pixels per pixel of the manual's photograph (a panel 896 px wide). */
+const SCALE = 0.72;
 /** How often the lamps are redrawn while the pane is shown, ms. */
 const REDRAW_MS = 50;
 
@@ -152,46 +154,54 @@ export function buildPanel(host, machine, say, shown) {
     return b;
   };
 
-  /** A bit's cell: its number above its lamp or switch. @param {number} bit @param {"br" | "pri"} kind */
-  const cell = (bit, kind) => {
-    const b = /** @type {HTMLButtonElement} */ (
-      kind === "br"
-        ? el("button", { type: "button", class: "ocp-lamp", "aria-label": t("panel.br.bit", { n: bit }) })
-        : el("button", { type: "button", class: "ocp-toggle", role: "switch", "aria-checked": "false", "aria-label": t("panel.pri.bit", { n: bit }) }, [el("span", { class: "ocp-thumb" })])
-    );
-    (kind === "br" ? brLamps : priSwitches)[bit] = wire(`${kind}.${bit}`, b);
-    return el("div", { class: "ocp-cell" }, [el("span", { class: "ocp-num", text: String(bit) }), b]);
+  // the face, drawn from the layout measured on the manual's photograph, scaled (U18)
+  const face = el("div", { class: "ocp", role: "group", "aria-label": t("panel.name") });
+  face.style.width = `${PANEL_SIZE.w * SCALE}px`;
+  face.style.height = `${PANEL_SIZE.h * SCALE}px`;
+  /** @param {HTMLElement} e @param {number} x @param {number} y @param {number} [w] @param {number} [h] */
+  const place = (e, x, y, w, h) => {
+    e.style.left = `${x * SCALE}px`;
+    e.style.top = `${y * SCALE}px`;
+    if (w !== undefined) e.style.width = `${w * SCALE}px`;
+    if (h !== undefined) e.style.height = `${h * SCALE}px`;
+    face.append(e);
+    return e;
   };
-  /** The five groups of three columns, bits 0-14 above and 15-29 below. @param {"br" | "pri"} kind */
-  const bits = (kind) =>
-    el("div", { class: "ocp-block" }, Array.from({ length: 5 }, (_, g) =>
-      el("div", { class: "ocp-group bits" }, [0, 1, 2, 15, 16, 17].map((o) => cell(g * 3 + o, kind)))));
-  /** A labeled button, lit if it has a lamp. @param {string} id */
-  const button = (id) => {
-    const b = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "ocp-lamp ocp-btn", "aria-label": t(`panel.${id}`) }));
-    setTip(b, t(`panel.${id}.tip`));
-    if (id in LAMPED) lamped.set(id, b);
-    wire(id, b);
-    return el("div", { class: "ocp-cell" }, [el("span", { class: "ocp-name", text: t(`panel.${id}`) }), b]);
-  };
-  const selector = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "ocp-knob" }, [el("span", { class: "ocp-pointer" })]));
-  setTip(selector, t("panel.selector.tip"));
-  wire("selector", selector);
-  const selLabels = /** @type {const} */ (["pulse1", "hub1", "hub2"]).map((s) => el("span", { "data-pos": s, text: t(`panel.sel.${s}`) }));
-
-  const face = el("div", { class: "ocp", role: "group", "aria-label": t("panel.name") }, [
-    el("span", { class: "ocp-side", text: t("panel.br") }),
-    bits("br"),
-    el("div", { class: "ocp-right" }, [button("resetbr")]),
-    el("span", { class: "ocp-side", text: t("panel.pri") }),
-    bits("pri"),
-    el("div", { class: "ocp-right" }, [el("div", { class: "ocp-sel" }, [selector, el("div", { class: "ocp-sel-labels" }, selLabels)]), button("pulse1")]),
-    el("span", { class: "ocp-side" }),
-    el("div", { class: "ocp-block" }, BUTTONS.map((g) => el("div", { class: "ocp-group" }, g.map(button)))),
-    el("div", { class: "ocp-right" }, [button("off1")]),
-  ]);
-  setTip(/** @type {HTMLElement} */ (face.children[1]), t("panel.br.tip"));
-  setTip(/** @type {HTMLElement} */ (face.children[4]), t("panel.pri.tip"));
+  /** @type {HTMLButtonElement | null} */
+  let selector = null;
+  for (const it of panelLayout()) {
+    if (it.kind === "cell") {
+      const c = place(el("div", { class: `ocp-cell r${it.row} c${it.col}` }), it.x, it.y, it.w, it.h);
+      if (it.col === 0 && it.row < 2) setTip(c, t(it.row === 0 ? "panel.br.tip" : "panel.pri.tip"));
+      continue;
+    }
+    if (it.kind === "text") {
+      const e = place(el("span", { class: `ocp-text ${it.tone} ${it.align}`, text: it.text, "aria-hidden": "true" }), it.x, it.y);
+      e.style.fontSize = `${it.size * SCALE}px`;
+      continue;
+    }
+    const n = Number(it.id.split(".")[1]);
+    /** @type {HTMLButtonElement} */
+    let b;
+    if (it.kind === "lamp") {
+      b = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "ocp-lamp", "aria-label": t("panel.br.bit", { n }) }));
+      brLamps[n] = b;
+    } else if (it.kind === "switch") {
+      b = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "ocp-toggle", role: "switch", "aria-checked": "false", "aria-label": t("panel.pri.bit", { n }) }, [el("span", { class: "ocp-lever" })]));
+      priSwitches[n] = b;
+    } else if (it.kind === "selector") {
+      b = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "ocp-knob" }, [el("span", { class: "ocp-pointer" })]));
+      setTip(b, t("panel.selector.tip"));
+      selector = b;
+    } else {
+      b = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "ocp-lamp ocp-btn", "aria-label": t(`panel.${it.id}`) }));
+      setTip(b, t(`panel.${it.id}.tip`));
+      if (it.id in LAMPED) lamped.set(it.id, b);
+    }
+    wire(it.id, b);
+    place(b, it.x, it.y, it.d, it.d);
+  }
+  const knob = /** @type {HTMLButtonElement} */ (selector);
   const word = el("span", { class: "ocp-word mono" });
   const usual = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "btn small tonal" }, [el("span", { text: t("panel.usual") })]));
   setTip(usual, t("panel.usual.tip"));
@@ -221,8 +231,7 @@ export function buildPanel(host, machine, say, shown) {
     brLamps.forEach((b, i) => b.classList.toggle("lit", bitOf(br, i)));
     priSwitches.forEach((b, i) => b.setAttribute("aria-checked", String(bitOf(p.pri, i))));
     for (const [id, b] of lamped) b.classList.toggle("lit", lamps[LAMPED[id]]);
-    selector.dataset.pos = p.selector;
-    for (const s of selLabels) s.classList.toggle("on", s.dataset.pos === p.selector);
+    knob.dataset.pos = p.selector;
     word.textContent = t("panel.word", { word: halves(p.pri), ins: disassemble(p.pri) });
     usual.hidden = p.pri === PRI_USUAL;
     state.textContent = (p.power ? t(`panel.state.${p.mode}`) : t("panel.state.off")) + (p.btsp ? ` · ${t("panel.state.btsp")}` : "");

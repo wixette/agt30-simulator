@@ -663,7 +663,7 @@ export class TerminalView {
     this.built.ocp.pri.forEach((l, i) => {
       const on = Math.floor(p.pri / 2 ** (29 - i)) % 2 === 1;
       if (l.userData.restY === undefined) l.userData.restY = l.position.y;
-      l.position.y = l.userData.restY + (on ? 0.01 : 0);
+      l.position.y = l.userData.restY + (on ? l.userData.travel ?? 0.006 : 0);
       /** @type {THREE.MeshStandardMaterial} */ (l.material).color.copy(on ? this.priSet : this.priClear);
     });
   }

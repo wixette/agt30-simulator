@@ -348,3 +348,72 @@ export class Panel {
     return "ok";
   }
 }
+
+/**
+ * The panel's face as SRM5 DPR3's Figure 4 shows it (p. 12), measured on the manual's
+ * photograph, in its pixels: 1245 x 430, a ratio of 2.9. Both the Panel tab and the panel on the
+ * rack in 3D are drawn from this one table, so the two cannot drift apart.
+ * - On the left, the labels BR and PRI.
+ * - A table of five columns 197 wide, a thin line between them, in three rows with a dark band
+ *   between: BR's lamps (2 x 3 in each column), the PRI switches (2 x 3), the machine's buttons.
+ * - On the right, RESET BR, the request selector, PULSE 1 and OFF, each named on its right
+ *   (OFF above it).
+ * @typedef {{ kind: "cell"; x: number; y: number; w: number; h: number; row: number; col: number }
+ *   | { kind: "text"; text: string; x: number; y: number; size: number; tone: "ink" | "light"; align: "center" | "left" }
+ *   | { kind: "lamp" | "switch" | "button" | "selector"; id: string; x: number; y: number; d: number }} PanelItem
+ */
+export const PANEL_SIZE = { w: 1245, h: 430 };
+const GRID_X = 65;
+const COL_W = 197;
+const COL_GAP = 3;
+/** The table's rows, top and bottom. */
+const ROWS = [[10, 162], [170, 315], [323, 422]];
+/** The three columns of bits in a column of the table, from its left. */
+const BIT_X = [44, 98.5, 153];
+/** Two buttons in a column of the table, from its left. */
+const PAIR_X = [45, 135];
+/** The right-hand column's centers, and where its names start. */
+const RIGHT_X = 1105;
+const RIGHT_TEXT = 1132;
+
+/** @returns {PanelItem[]} */
+export function panelLayout() {
+  /** @type {PanelItem[]} */
+  const items = [];
+  /** @param {string} text @param {number} x @param {number} y @param {number} size @param {"ink" | "light"} tone @param {"center" | "left"} [align] */
+  const text = (text, x, y, size, tone, align = "center") => items.push({ kind: "text", text, x, y, size, tone, align });
+  ROWS.forEach(([top, bottom], row) => {
+    for (let col = 0; col < 5; col++) items.push({ kind: "cell", x: GRID_X + col * COL_W, y: top, w: COL_W - COL_GAP, h: bottom - top, row, col });
+  });
+  text("BR", 34, 86, 17, "light");
+  text("PRI", 34, 242, 17, "light");
+  for (let bit = 0; bit < 30; bit++) {
+    const k = bit % 15;
+    const x = GRID_X + Math.floor(k / 3) * COL_W + BIT_X[k % 3];
+    const lower = bit >= 15;
+    text(String(bit), x, lower ? 94 : 34, 14, "ink");
+    items.push({ kind: "lamp", id: `br.${bit}`, x, y: lower ? 126 : 66, d: 38 });
+    text(String(bit), x, lower ? 262 : 184, 14, "ink");
+    items.push({ kind: "switch", id: `pri.${bit}`, x, y: lower ? 291 : 213, d: 38 });
+  }
+  BUTTONS.forEach((group, col) => {
+    group.forEach((id, i) => {
+      const x = GRID_X + col * COL_W + (group.length === 3 ? BIT_X : PAIR_X)[i];
+      text(BUTTON_NAMES[id] ?? id.toUpperCase(), x, 346, 14, "ink");
+      items.push({ kind: "button", id, x, y: 390, d: 34 });
+    });
+  });
+  items.push({ kind: "button", id: "resetbr", x: RIGHT_X, y: 80, d: 34 });
+  text("RESET", RIGHT_TEXT, 71, 14, "light", "left");
+  text("BR", RIGHT_TEXT, 90, 14, "light", "left");
+  items.push({ kind: "selector", id: "selector", x: RIGHT_X, y: 210, d: 50 });
+  ["PULSE 1", "HUB 1", "HUB 2"].forEach((n, i) => text(n, RIGHT_TEXT + 10, 182 + i * 27, 13, "light", "left"));
+  items.push({ kind: "button", id: "pulse1", x: RIGHT_X, y: 295, d: 34 });
+  text("PULSE 1", RIGHT_TEXT, 295, 14, "light", "left");
+  text("OFF", RIGHT_X, 360, 14, "light");
+  items.push({ kind: "button", id: "off1", x: RIGHT_X, y: 393, d: 34 });
+  return items;
+}
+
+/** The buttons' names as printed, where not the control's name in capitals. */
+const BUTTON_NAMES = /** @type {Record<string, string>} */ ({ off0: "OFF", ic0: "IC 0", ic1: "IC 1" });

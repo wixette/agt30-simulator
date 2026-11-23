@@ -8,10 +8,7 @@
 // The params' frame: millimeters, +X to the operator's right, +Y away from the operator, +Z up.
 // three.js: meters, Y up, the operator looking along -Z (docs/conventions.md).
 
-import { BUTTONS as BUTTON_GROUPS } from "../sim/panel.js";
-
-/** The panel's buttons' names as printed on it, where not the control's name in capitals (figure 7). */
-const CONTROL_NAMES = /** @type {Record<string, string>} */ ({ off0: "OFF", ic0: "IC 0", ic1: "IC 1" });
+import { PANEL_SIZE, panelLayout } from "../sim/panel.js";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
@@ -1032,114 +1029,95 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   }
 
   /**
-   * The DPR-2's operator's control panel, as figure 7 lays it out (SRM5 DPR3 p. 12): BR's 30
-   * lamp-buttons in two rows of fifteen, in five groups of three columns; the 30 PRI switches
-   * below them; the machine's buttons along the bottom; RESET BR, the request selector, PULSE 1
-   * and the second OFF at the right (R21).
+   * The DPR-2's operator's control panel, drawn from the layout measured on the manual's
+   * photograph (SRM5 DPR3 Figure 4; js/sim/panel.js panelLayout): the table of BR's lamps, the
+   * PRI switches and the machine's buttons, and the right-hand column, at the photograph's
+   * proportions, centered in the rack's panel (R21). The table and the names are painted on the
+   * face; the lamps, switches, buttons and selector are meshes.
    * @param {THREE.Group} g @param {string} name @param {number} x @param {number} front the panel's face
    * @param {number} w @param {number} z its bottom @param {number} h
    */
   function operatorPanel(g, name, x, front, w, z, h) {
     const id = `${name}.ocp`;
-    const fw = w - 10;
-    const fh = h - 10;
-    ocp.face = box(g, [fw, 3, fh], [x, front - 1.5, z + 5], "ocpFace", `${id}.face`);
+    const s = Math.min((w - 10) / PANEL_SIZE.w, (h - 6) / PANEL_SIZE.h);
+    const fw = PANEL_SIZE.w * s;
+    const fh = PANEL_SIZE.h * s;
+    const fx0 = x - fw / 2;
+    const fz0 = z + (h - fh) / 2;
+    const fz1 = fz0 + fh;
+    /** the photograph's pixels to the params' x @param {number} px */
+    const X = (px) => fx0 + px * s;
+    /** and to z @param {number} py */
+    const Z = (py) => fz1 - py * s;
+    ocp.face = box(g, [fw, 3, fh], [x, front - 1.5, fz0], "ocpFace", `${id}.face`);
     const f = front - 3;
-    // the face's paint: the group plates and the names, drawn in the params' millimeters from the
-    // face's top left; without a DOM (Node) the plates are blocks and the names are left out
-    const K = 2;
+    // the face's paint; without a DOM (Node) the table's cells are blocks and the names are left out
+    const K = 2.2 / s;
     const canvas = typeof document === "undefined" ? null : document.createElement("canvas");
     const ctx = canvas?.getContext("2d") ?? null;
     if (canvas && ctx) {
-      canvas.width = Math.round(fw * K);
-      canvas.height = Math.round(fh * K);
+      canvas.width = Math.round(PANEL_SIZE.w * s * K);
+      canvas.height = Math.round(PANEL_SIZE.h * s * K);
       ctx.fillStyle = palette.ocpFace;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-    const fx0 = x - fw / 2;
-    const fz1 = z + 5 + fh;
-    /** text on the face at a point (params mm) @param {string} text @param {number} px @param {number} pz @param {number} size mm @param {string} color @param {CanvasTextAlign} [align] */
-    const label = (text, px, pz, size, color, align = "center") => {
-      if (!ctx) return;
-      ctx.fillStyle = color;
-      ctx.font = `bold ${size * K}px Helvetica, Arial, sans-serif`;
-      ctx.textAlign = align;
-      ctx.textBaseline = "middle";
-      ctx.fillText(text, (px - fx0) * K, (fz1 - pz) * K);
-    };
-    const left = x - w / 2 + 40;
-    const gw = 80;
-    const gap = 3;
-    /** a group's left edge @param {number} k */
-    const gx = (k) => left + k * (gw + gap);
-    /** a bit's column center @param {number} bit */
-    const col = (bit) => gx(Math.floor((bit % 15) / 3)) + 18 + (bit % 3) * 22;
-    const top = z + h;
-    /** a beige group plate @param {number} x0 @param {number} x1 @param {number} z0 @param {number} z1 @param {string} n */
-    const plate = (x0, x1, z0, z1, n) => {
-      if (!ctx) return box(g, [x1 - x0, 2, z1 - z0], [(x0 + x1) / 2, f - 1, z0], "ocpGroup", `${id}.plate.${n}`);
-      ctx.fillStyle = palette.ocpGroup;
-      ctx.beginPath();
-      ctx.roundRect((x0 - fx0) * K, (fz1 - z1) * K, (x1 - x0) * K, (z1 - z0) * K, 3 * K);
-      ctx.fill();
-      return null;
-    };
-    const ink = "#3a2f25";
-    const light = "#f2eee4";
-    /** a round lamp-button facing out, with its own material to light @param {number} cx @param {number} cz @param {string} n */
-    const lampButton = (cx, cz, n) => {
-      const m = new THREE.Mesh(new THREE.CylinderGeometry(0.0075, 0.0075, 0.006, 16), new THREE.MeshStandardMaterial({ color: palette.ocpUnlit, emissive: palette.lampOn, emissiveIntensity: 0 }));
+    const c = s * K;
+    /** a lamp-button facing out, with its own material to light @param {number} px @param {number} py @param {number} d @param {string} n */
+    const lampButton = (px, py, d, n) => {
+      const r = (d * s) / 2000;
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.006, 18), new THREE.MeshStandardMaterial({ color: palette.ocpUnlit, emissive: palette.lampOn, emissiveIntensity: 0 }));
       m.rotation.x = Math.PI / 2;
-      m.position.copy(v3(cx, f - 5, cz));
+      m.position.copy(v3(X(px), f - 3, Z(py)));
       m.name = `${id}.${n}`;
       g.add(m);
       return m;
     };
-    for (let k = 0; k < 5; k++) {
-      plate(gx(k), gx(k) + gw, top - 100, top - 22, `br.${k}`);
-      plate(gx(k), gx(k) + gw, top - 205, top - 115, `pri.${k}`);
+    for (const it of panelLayout()) {
+      if (it.kind === "cell") {
+        if (!ctx) box(g, [it.w * s, 2, it.h * s], [X(it.x + it.w / 2), f - 1, Z(it.y + it.h)], "ocpGroup", `${id}.cell.${it.row}${it.col}`);
+        else {
+          ctx.fillStyle = palette.ocpGroup;
+          ctx.fillRect(it.x * c, it.y * c, it.w * c, it.h * c);
+        }
+      } else if (it.kind === "text") {
+        if (!ctx) continue;
+        ctx.fillStyle = it.tone === "ink" ? "#3a2f25" : "#f2eee4";
+        ctx.font = `bold ${it.size * c}px Helvetica, Arial, sans-serif`;
+        ctx.textAlign = it.align;
+        ctx.textBaseline = "middle";
+        ctx.fillText(it.text, it.x * c, it.y * c);
+      } else if (it.kind === "lamp") {
+        lamps.push(lampButton(it.x, it.y, it.d, `br.${it.id.split(".")[1].padStart(2, "0")}`));
+      } else if (it.kind === "switch") {
+        // a dark round socket, and a lever that stands up when its bit is 1
+        const nn = it.id.split(".")[1].padStart(2, "0");
+        const r = (it.d * s) / 2000;
+        const socket = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.003, 18), mat("rackBlack"));
+        socket.rotation.x = Math.PI / 2;
+        socket.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
+        socket.name = `${id}.socket.${nn}`;
+        g.add(socket);
+        const lw = it.d * s * 0.4;
+        const lever = box(g, [lw, 8, it.d * s * 0.45], [X(it.x), f - 4, Z(it.y) - it.d * s * 0.42], "ocpUnlit", `${id}.pri.${nn}`);
+        lever.material = /** @type {THREE.Material} */ (lever.material).clone();
+        lever.userData.travel = (it.d * s * 0.4) / 1000;
+        ocp.pri.push(lever);
+      } else if (it.kind === "selector") {
+        const r = (it.d * s) / 2000;
+        const knob = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.012, 20), mat("metal"));
+        knob.rotation.x = Math.PI / 2;
+        knob.position.copy(v3(X(it.x), f - 6, Z(it.y)));
+        knob.name = `${id}.selector`;
+        g.add(knob);
+        // the pointer on its face: along the knob's own z, which its quarter turn makes "up"
+        const ptr = box(knob, [3, r * 1000 * 0.9, 2], [0, 0, 0], "rackBlack", `${id}.selector.pointer`);
+        ptr.position.set(0, 0.006, 0);
+        ptr.geometry.translate(0, 0, (-r * 0.9) / 2);
+        ocp.controls.set("selector", knob);
+      } else {
+        ocp.controls.set(it.id, lampButton(it.x, it.y, it.d, it.id));
+      }
     }
-    for (let bit = 0; bit < 30; bit++) {
-      const nn = String(bit).padStart(2, "0");
-      const row = bit < 15 ? 0 : 1;
-      lamps.push(lampButton(col(bit), top - 45 - row * 36, `br.${nn}`));
-      label(String(bit), col(bit), top - 33 - row * 36, 7, ink);
-      label(String(bit), col(bit), top - 128 - row * 40, 7, ink);
-      // a PRI switch: a slot, and a lever that stands up when its bit is 1
-      const sz = top - 147 - row * 40;
-      box(g, [8, 2, 20], [col(bit), f - 3, sz - 10], "rackBlack", `${id}.slot.${nn}`);
-      const lever = box(g, [6, 10, 10], [col(bit), f - 7, sz - 10], "ocpUnlit", `${id}.pri.${nn}`);
-      lever.material = /** @type {THREE.Material} */ (/** @type {THREE.Mesh} */ (lever).material).clone();
-      ocp.pri.push(/** @type {THREE.Mesh} */ (lever));
-    }
-    // the machine's buttons along the bottom, in the same five groups
-    BUTTON_GROUPS.forEach((grp, k) => {
-      plate(gx(k), gx(k) + gw, top - 300, top - 222, `buttons.${k}`);
-      grp.forEach((c, i) => {
-        const cx = gx(k) + ((i + 0.5) * gw) / grp.length;
-        ocp.controls.set(c, lampButton(cx, top - 268, c));
-        label(CONTROL_NAMES[c] ?? c.toUpperCase(), cx, top - 238, 7, ink);
-      });
-    });
-    label("BR", x - w / 2 + 20, top - 62, 11, light);
-    label("PRI", x - w / 2 + 20, top - 160, 11, light);
-    // the right column
-    const rx = gx(5) + 32;
-    ocp.controls.set("resetbr", lampButton(rx, top - 62, "resetbr"));
-    const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.012, 20), mat("metal"));
-    knob.rotation.x = Math.PI / 2;
-    knob.position.copy(v3(rx, f - 6, top - 135));
-    knob.name = `${id}.selector`;
-    g.add(knob);
-    box(knob, [3, 14, 2], [0, 0, 0], "rackBlack", `${id}.selector.pointer`).position.set(0, 0.006, -0.007);
-    ocp.controls.set("selector", knob);
-    ocp.controls.set("pulse1", lampButton(rx, top - 185, "pulse1"));
-    ocp.controls.set("off1", lampButton(rx, top - 268, "off1"));
-    label("RESET", rx + 13, top - 57, 7, light, "left");
-    label("BR", rx + 13, top - 67, 7, light, "left");
-    ["PULSE 1", "HUB 1", "HUB 2"].forEach((n, i) => label(n, rx + 19, top - 125 - i * 10, 7, light, "left"));
-    label("PULSE 1", rx + 13, top - 185, 7, light, "left");
-    label("OFF", rx + 13, top - 268, 7, light, "left");
     if (canvas && ocp.face) {
       const tex = new THREE.CanvasTexture(canvas);
       tex.colorSpace = THREE.SRGBColorSpace;
