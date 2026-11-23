@@ -679,12 +679,14 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
    * Model 35 ASR (TTY35P): the front view is near enough to orthographic that its scale is the same
    * across and up (1,016 mm across the top, 978 mm high), so the parts are measured on it; the
    * side view gives the profile. Measured: the body's back 840 mm high and its front edge 662, the
-   * cabinet 570; the cover 940, the dome 978. A cabinet set back on two sled feet, its front sloping
-   * back to the floor; above it a body that overhangs toward the operator, its top sloping down to a chrome
-   * strip at the front edge; on the slope, from the left, a tray with the tape reader in front of
-   * it, the printer's cover (the punch's window at its left), a clear dome over the paper, the
-   * keyboard set into the deck in front of the cover with a knob on each side, and a plate at the
-   * right. The paper leaves by a slot at the back. Sizes in the params' millimeters.
+   * cabinet 570; the printer's cover 150 above the slope at its front. A cabinet set back on two
+   * sled feet, its front sloping back to the floor; above it a body that overhangs toward the
+   * operator, its top sloping down to a chrome strip at the front edge. On the slope, from the
+   * left: the tape tray, a well sunk into the slope; the tape reader just in front of it, a wedge
+   * with a level top; the printer's cover (the punch's window at its left) with the dome over the
+   * platen on its top, the paper rising up the dome's front curve; the keyboard set into the deck
+   * in front of the cover with a knob on each side; a plate at the right. The paper comes in by a
+   * slot at the back and hangs from it. Sizes in the params' millimeters.
    * @param {PartDef} p
    * @param {THREE.Group} g
    */
@@ -712,19 +714,6 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       g.add(mesh);
       return mesh;
     };
-    /**
-     * A cylinder about an axis, by its center (params mm).
-     * @param {number} r @param {number} len @param {number[]} c @param {string} material @param {string} name @param {"x" | "y" | "z"} axis
-     */
-    const cyl = (r, len, c, material, name, axis) => {
-      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r / 1000, r / 1000, len / 1000, 20), mat(material));
-      mesh.position.copy(v3(c[0], c[1], c[2]));
-      if (axis === "x") mesh.rotation.z = Math.PI / 2;
-      if (axis === "y") mesh.rotation.x = Math.PI / 2;
-      mesh.name = `${p.name}.${name}`;
-      g.add(mesh);
-      return mesh;
-    };
 
     // the sled feet, chrome, one each side, front to back
     for (const sx of [-1, 1]) box(g, [40, at(0.15) - at(0.82), 22], [x + sx * (w / 2 - 55), (at(0.15) + at(0.82)) / 2, z], "metal", `${p.name}.foot.${sx < 0 ? "l" : "r"}`);
@@ -737,7 +726,18 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       const a = (i / 6) * (Math.PI / 2);
       top.push([back - 60 + 60 * Math.cos(a), z + 780 + 60 * Math.sin(a)]);
     }
-    prism([[back, z + 570], ...top, [front, z + 662], [front, z + 582], [at(0.62), z + 570]], x - w / 2, x + w / 2, "tty35", "body");
+    // the body in three widths: the middle one holds the tape tray, a well sunk into the slope like
+    // a dustpan, its floor level, its open front meeting the slope, its back wall upright
+    const trX = [x - 425, x - 190];
+    const trT = [0.13, 0.45];
+    const floor = deckZ(trT[1]);
+    const under = [[front, z + 662], [front, z + 582], [at(0.62), z + 570]];
+    prism([[back, z + 570], ...top, ...under], x - w / 2, trX[0], "tty35", "body.l");
+    prism([[back, z + 570], ...top, [at(trT[0]), deckZ(trT[0])], [at(trT[0]), floor], [at(trT[1]), floor], ...under], trX[0], trX[1], "tty35", "body.tray");
+    prism([[back, z + 570], ...top, ...under], trX[1], x + w / 2, "tty35", "body.r");
+    box(g, [trX[1] - trX[0] - 30, at(trT[0]) - at(trT[1]) - 40, 3], [(trX[0] + trX[1]) / 2, (at(trT[0]) + at(trT[1])) / 2 + 5, floor], "paper", `${p.name}.tray.tape`);
+    // the slot at the back that the paper comes in by, under the rounded edge
+    box(g, [250, 4, 8], [x + 148, back + 1, z + 768], "ttyDark", `${p.name}.paper.slot`);
     box(g, [w + 4, 5, 40], [x, front - 2.5, z + 610], "metal", `${p.name}.strip`);
 
     // the slope: a frame lying on the deck, its y up the slope from the front edge, its z out of it
@@ -778,32 +778,54 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     box(slope, [130, 12, 6], [kx, up(0.945), 4], "ttyKey", `${p.name}.keyboard.space`);
     for (const [i, nx] of [kx - 127, kx + 237].entries()) knob(14, 20, nx, up(0.86), "ttyKey", `knob.${i}`);
     knob(6, 12, kx - 203, up(0.84), "switchRed", "reader.start");
-    // the tray at the back left, the tape reader in front of it, the plate at the right
-    box(slope, [235, up(0.13) - up(0.45), 28], [x - 308, (up(0.13) + up(0.45)) / 2, 0], "tty35Dark", `${p.name}.tray`);
-    box(slope, [215, up(0.15) - up(0.43), 4], [x - 308, (up(0.15) + up(0.43)) / 2, 28], "paper", `${p.name}.tray.tape`);
-    box(slope, [170, up(0.47) - up(0.58), 55], [x - 360, (up(0.47) + up(0.58)) / 2, 0], "metal", `${p.name}.reader`);
-    box(slope, [14, 30, 22], [x - 300, up(0.53), 55], "switchRed", `${p.name}.reader.lever`);
+    // the tape reader just in front of the tray: a wedge, its top level, its back meeting the
+    // slope, a short upright wall at its front
+    const rdT = [0.46, 0.6];
+    const rdTop = deckZ(rdT[0]);
+    prism([[at(rdT[0]), rdTop], [at(rdT[1]), rdTop], [at(rdT[1]), deckZ(rdT[1])], [at(rdT[0]) + 1, deckZ(rdT[0]) - 1]], x - 445, x - 275, "metal", "reader");
+    box(g, [14, 30, 10], [x - 300, at(0.53), rdTop], "switchRed", `${p.name}.reader.lever`);
+    // the plate at the right
     box(slope, [120, up(0.15) - up(0.85), 6], [x + 415, (up(0.15) + up(0.85)) / 2, 0], "tty35", `${p.name}.plate`);
 
-    // the printer's cover: its front upright behind the keyboard, its top falling to the back
+    // the printer's cover: upright sides and front behind the keyboard, 150 mm high at the front,
+    // its top falling toward the back to meet the slope
     const cx0 = x - 205;
     const cx1 = x + 350;
-    const ct = z + 940;
     const cf = at(0.72);
+    const ct = deckZ(0.72) + 150;
     const crnd = [];
     for (let i = 0; i <= 6; i++) {
       const a = (i / 6) * (Math.PI / 2);
-      crnd.push([cf + 40 - 40 * Math.cos(a), ct - 40 + 40 * Math.sin(a)]);
+      crnd.push([cf + 25 - 25 * Math.cos(a), ct - 25 + 25 * Math.sin(a)]);
     }
-    prism([[cf, deckZ(0.72)], ...crnd, [at(0.4), ct - 30], [at(0.24), deckZ(0.24) + 25], [at(0.24), deckZ(0.24)]], cx0, cx1, "tty35", "cover");
+    prism([[cf, deckZ(0.72)], ...crnd, [at(0.45), ct - 8], [at(0.24), deckZ(0.24) + 12], [at(0.24), deckZ(0.24)]], cx0, cx1, "tty35", "cover");
     // its front: the punch's window at the left, the logo, the window over the printing line
-    box(g, [80, 3, 90], [x - 158, cf - 1.5, deckZ(0.72) + 70], "glass", `${p.name}.cover.punch`);
-    box(g, [44, 3, 16], [x - 79, cf - 1.5, ct - 55], "ttyDark", `${p.name}.cover.logo`);
-    box(g, [300, 3, 40], [x + 140, cf - 1.5, deckZ(0.72) + 40], "ttyDark", `${p.name}.cover.window`);
-    // the dome over the paper, the paper in it, and the paper out of the back
-    cyl(45, 290, [x + 135, at(0.5), ct - 7], "ttyDome", "dome", "x");
-    box(g, [240, 3, 55], [x + 135, at(0.5), ct - 7], "paper", `${p.name}.paper`);
-    box(g, [230, 3, 300], [x + 150, back + 2, z + 520], "paper", `${p.name}.paper.back`);
+    box(g, [80, 3, 70], [x - 158, cf - 1.5, deckZ(0.72) + 55], "glass", `${p.name}.cover.punch`);
+    box(g, [44, 3, 16], [x - 79, cf - 1.5, ct - 35], "ttyDark", `${p.name}.cover.logo`);
+    box(g, [300, 3, 32], [x + 140, cf - 1.5, deckZ(0.72) + 30], "ttyDark", `${p.name}.cover.window`);
+    // the dome over the platen on the cover's top: deeper than it is high, its top flat, its front
+    // and back curved; the paper rises from inside the cover and follows the front curve over the top
+    const dx0 = x + 135 - 145;
+    const dx1 = x + 135 + 145;
+    const dF = at(0.56);
+    const dB = dF + 190;
+    const base = ct - 12;
+    const dH = 54;
+    /** a quarter ellipse from the base up to the top @param {number} cy @param {number} a @param {number} b @param {number} s */
+    const quarter = (cy, a, b, s) => Array.from({ length: 9 }, (_, i) => {
+      const th = (i / 8) * (Math.PI / 2);
+      return [cy + s * a * Math.cos(th), base + b * Math.sin(th)];
+    });
+    const fr = quarter(dF + 60, 60, dH, -1);
+    const bk = quarter(dB - 35, 35, dH, 1).reverse();
+    prism([...fr, ...bk], dx0, dx1, "ttyDome", "dome");
+    const o = 2;
+    const outer = quarter(dF + 60, 60 + o + 1.5, dH + o + 1.5, -1);
+    const inner = quarter(dF + 60, 60 + o, dH + o, -1).reverse();
+    prism([...outer, [dF + 100, base + dH + o + 1.5], [dF + 100, base + dH + o], ...inner], x + 135 - 120, x + 135 + 120, "paper", "paper");
+    // the paper not yet fed in, hanging from the slot at the back
+    box(g, [212, 8, 1.5], [x + 148, back + 3, z + 769], "paper", `${p.name}.paper.in`);
+    box(g, [212, 1.5, 345], [x + 148, back + 7, z + 425], "paper", `${p.name}.paper.back`);
   }
   /**
    * The Teletype ASR-33 on its stand. The parts and their proportions were measured from a 3D
