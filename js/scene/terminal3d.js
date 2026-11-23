@@ -699,7 +699,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
    * Model 35 ASR (TTY35P): the front view is near enough to orthographic that its scale is the same
    * across and up (1,016 mm across the top, 978 mm high), so the parts are measured on it; the
    * side view gives the profile. Measured: the body's back 840 mm high and its front edge 662, the
-   * cabinet 570; the printer's cover 150 above the slope at its front. A cabinet set back on two
+   * cabinet 570; the printer's cover 150 above the slope at its front, its front leaning back 13 degrees. A cabinet set back on two
    * sled feet, its front sloping back to the floor; above it a body that overhangs toward the
    * operator, its top sloping down to a chrome strip at the front edge. On the slope, from the
    * left: the tape tray, a well sunk into the slope; the tape reader just in front of it, a wedge
@@ -828,42 +828,60 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
     // the plate at the right
     box(slope, [125, up(0.15) - up(0.85), 6], [x + 436, (up(0.15) + up(0.85)) / 2, 0], "tty35", `${p.name}.plate`);
 
-    // the printer's cover: upright sides and front behind the keyboard, 150 mm high at the front,
-    // its top falling toward the back to meet the slope
+    // the printer's cover: upright sides; its front, behind the keyboard, 150 mm high and leaning
+    // back 13 degrees, as the side photographs show; its top level for the front third, then
+    // falling toward the back to meet the slope
     const cx0 = x - 205;
     const cx1 = x + 350;
     const cf = at(0.72);
     const ct = deckZ(0.72) + 150;
-    const crnd = [];
-    for (let i = 0; i <= 6; i++) {
-      const a = (i / 6) * (Math.PI / 2);
-      crnd.push([cf + 25 - 25 * Math.cos(a), ct - 25 + 25 * Math.sin(a)]);
-    }
-    prism([[cf, deckZ(0.72)], ...crnd, [at(0.45), ct - 8], [at(0.24), deckZ(0.24) + 12], [at(0.24), deckZ(0.24)]], cx0, cx1, "tty35", "cover");
-    // its front: the punch's window at the left, the logo, the window over the printing line
-    box(g, [80, 3, 70], [x - 158, cf - 1.5, deckZ(0.72) + 55], "glass", `${p.name}.cover.punch`);
-    box(g, [44, 3, 16], [x - 79, cf - 1.5, ct - 35], "ttyDark", `${p.name}.cover.logo`);
-    box(g, [300, 3, 32], [x + 140, cf - 1.5, deckZ(0.72) + 30], "ttyDark", `${p.name}.cover.window`);
-    // the dome over the platen on the cover's top: deeper than it is high, its top flat, its front
-    // and back curved; the paper rises from inside the cover and follows the front curve over the top
+    const lean = Math.atan2(35, 150);
+    const flatTo = at(0.56);
+    const coverEnd = [at(0.24), deckZ(0.24) + 12];
+    /** the cover's top at a depth behind its front (params y) @param {number} py */
+    const coverTop = (py) => (py <= flatTo ? ct : ct + ((py - flatTo) / (coverEnd[0] - flatTo)) * (coverEnd[1] - ct));
+    // the rounded edge between the leaning front and the top, a quadratic curve
+    const crnd = Array.from({ length: 7 }, (_, i) => {
+      const u = i / 6;
+      const p0 = [cf + 29, ct - 25];
+      const p1 = [cf + 35, ct];
+      const p2 = [cf + 55, ct];
+      return [0, 1].map((k) => (1 - u) ** 2 * p0[k] + 2 * u * (1 - u) * p1[k] + u ** 2 * p2[k]);
+    });
+    prism([[cf, deckZ(0.72)], ...crnd, [flatTo, ct], coverEnd, [at(0.24), deckZ(0.24)]], cx0, cx1, "tty35", "cover");
+    // its front, in a frame leaning with it: the punch's window at the left, the logo, the window
+    // over the printing line
+    const face = new THREE.Group();
+    face.position.copy(v3(0, cf, deckZ(0.72)));
+    face.rotation.x = -lean;
+    face.name = `${p.name}.cover.front`;
+    g.add(face);
+    box(face, [80, 3, 72], [x - 158, -1.5, 56], "glass", `${p.name}.cover.punch`);
+    box(face, [44, 3, 16], [x - 79, -1.5, 118], "ttyDark", `${p.name}.cover.logo`);
+    box(face, [300, 3, 32], [x + 140, -1.5, 30], "ttyDark", `${p.name}.cover.window`);
+    // the dome over the platen, on the cover's level top: lower than it is deep, its top flat,
+    // its front curved, its back curving down onto the cover's falling top; the paper rises from
+    // inside the cover and follows the front curve over the top
     const dx0 = x + 135 - 145;
     const dx1 = x + 135 + 145;
-    const dF = at(0.56);
-    const dB = dF + 190;
-    const base = ct - 12;
-    const dH = 54;
-    /** a quarter ellipse from the base up to the top @param {number} cy @param {number} a @param {number} b @param {number} s */
-    const quarter = (cy, a, b, s) => Array.from({ length: 9 }, (_, i) => {
+    const dF = cf + 75;
+    const dB = dF + 152;
+    const dH = 36;
+    const fa = 40;
+    const ba = 35;
+    const backFoot = coverTop(dB);
+    /** a quarter ellipse, from its foot at the side up to the top @param {number} cy @param {number} a @param {number} foot @param {number} top @param {number} s */
+    const quarter = (cy, a, foot, top, s) => Array.from({ length: 9 }, (_, i) => {
       const th = (i / 8) * (Math.PI / 2);
-      return [cy + s * a * Math.cos(th), base + b * Math.sin(th)];
+      return [cy + s * a * Math.cos(th), foot + (top - foot) * Math.sin(th)];
     });
-    const fr = quarter(dF + 60, 60, dH, -1);
-    const bk = quarter(dB - 35, 35, dH, 1).reverse();
-    prism([...fr, ...bk], dx0, dx1, "ttyDome", "dome");
+    const fr = quarter(dF + fa, fa, ct, ct + dH, -1);
+    const bk = quarter(dB - ba, ba, backFoot, ct + dH, 1).reverse();
+    prism([[dF, ct - 10], ...fr, ...bk, [dB, backFoot - 10]], dx0, dx1, "ttyDome", "dome");
     const o = 2;
-    const outer = quarter(dF + 60, 60 + o + 1.5, dH + o + 1.5, -1);
-    const inner = quarter(dF + 60, 60 + o, dH + o, -1).reverse();
-    prism([...outer, [dF + 100, base + dH + o + 1.5], [dF + 100, base + dH + o], ...inner], x + 135 - 120, x + 135 + 120, "paper", "paper");
+    const outer = quarter(dF + fa, fa + o + 1.5, ct, ct + dH + o + 1.5, -1);
+    const inner = quarter(dF + fa, fa + o, ct, ct + dH + o, -1).reverse();
+    prism([...outer, [dF + fa + 30, ct + dH + o + 1.5], [dF + fa + 30, ct + dH + o], ...inner], x + 135 - 120, x + 135 + 120, "paper", "paper");
     // the paper not yet fed in, hanging from the slot at the back
     box(g, [212, 8, 1.5], [x + 148, back + 3, z + 769], "paper", `${p.name}.paper.in`);
     box(g, [212, 1.5, 345], [x + 148, back + 7, z + 425], "paper", `${p.name}.paper.back`);
