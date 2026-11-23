@@ -129,8 +129,9 @@ code, pre, .mono { font-family: var(--mono); }
 /* the Screen viewpoint: the 2D picture in a thin bezel (V3) */
 /* clear of the band above (its buttons end at 52 px) and of the strip below, whose height the
    stage measures (--strip-space: the strip, its gap to the stage's foot, and a margin) */
-#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 68px 16px var(--strip-space, 168px); background: #030405; }
-.bezel { height: 100%; aspect-ratio: 1; max-width: 100%; padding: 10px; border-radius: 18px; background: var(--scope-bezel); box-shadow: 0 0 0 1px #22262b, 0 10px 40px #000; }
+#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 68px 16px var(--strip-space, 168px); background: #030405; container-type: size; }
+/* the scope's face is square (12 x 12 in): as large as fits both ways, in any window */
+.bezel { box-sizing: border-box; width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); padding: 10px; border-radius: 18px; background: var(--scope-bezel); box-shadow: 0 0 0 1px #22262b, 0 10px 40px #000; }
 #crt { display: block; width: 100%; height: 100%; border-radius: 10px; cursor: crosshair; touch-action: none; }
 
 /* the Tube viewpoint: its time, its traces and the live inset (V4, V5) */
