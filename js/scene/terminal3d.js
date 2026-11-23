@@ -113,7 +113,6 @@ export const DEFAULT_PALETTE = {
   ocpFace: "#5b4a3a",
   ocpGroup: "#d8ccb4",
   ocpUnlit: "#f4f0e6",
-  ocpSet: "#2f62a8",
   analog: "#ffb86b",
   digital: "#9ecaff",
   floor: "#1b2026",
@@ -134,7 +133,7 @@ export const v3 = (x, y, z) => new THREE.Vector3(x / 1000, z / 1000, -y / 1000);
  * The operator's control panel on the processor rack (figure 7; R21). Its meshes are named
  * rack.dpr2.ocp.<control>: br.NN, pri.NN, and the names in js/sim/panel.js CONTROLS, and selector.
  * @typedef {object} Ocp
- * @property {THREE.Mesh[]} pri the 30 PRI switches' levers, bit 0 first
+ * @property {THREE.Object3D[]} pri the 30 PRI switches' levers, each turned at its pivot, bit 0 first
  * @property {Map<string, THREE.Mesh>} controls the buttons, by control name, and the selector
  * @property {THREE.Mesh | null} face the panel's face, for framing it
  */
@@ -1097,11 +1096,29 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
         socket.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
         socket.name = `${id}.socket.${nn}`;
         g.add(socket);
-        const lw = it.d * s * 0.4;
-        const lever = box(g, [lw, 8, it.d * s * 0.45], [X(it.x), f - 4, Z(it.y) - it.d * s * 0.42], "ocpUnlit", `${id}.pri.${nn}`);
-        lever.material = /** @type {THREE.Material} */ (lever.material).clone();
-        lever.userData.travel = (it.d * s * 0.4) / 1000;
-        ocp.pri.push(lever);
+        // the lever, pivoted at the socket's center: from the side a short block, then a flat
+        // isosceles taper to the tip; from above a long narrow bar. Out, square to the panel, for 1;
+        // pressed down 45 degrees for 0 (the viewer turns it)
+        const sd = it.d * s;
+        const len = sd * 1.15;
+        const root = sd * 0.2;
+        const thick = sd * 0.36;
+        const shape = new THREE.Shape([
+          [0, -thick / 2], [root, -thick / 2], [len, -thick * 0.12], [len, thick * 0.12], [root, thick / 2], [0, thick / 2],
+        ].map(([u, v]) => new THREE.Vector2(u / 1000, v / 1000)));
+        const width = sd * 0.34;
+        const geo = new THREE.ExtrudeGeometry(shape, { depth: width / 1000, bevelEnabled: false });
+        // the shape's x (outward) to three.js z, out of the panel; its extrusion across, centered
+        geo.translate(0, 0, -width / 2000);
+        geo.rotateY(-Math.PI / 2);
+        const pivot = new THREE.Group();
+        pivot.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
+        pivot.name = `${id}.lever.${nn}`;
+        g.add(pivot);
+        const lever = new THREE.Mesh(geo, mat("metal"));
+        lever.name = `${id}.pri.${nn}`;
+        pivot.add(lever);
+        ocp.pri.push(pivot);
       } else if (it.kind === "selector") {
         const r = (it.d * s) / 2000;
         const knob = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.012, 20), mat("metal"));

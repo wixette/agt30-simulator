@@ -214,9 +214,6 @@ export class TerminalView {
     this.lastLook = null;
     /** The six knobs on the desk, turned as the dials are. */
     this.knobs = Array.from({ length: 6 }, (_, n) => this.built.root.getObjectByName(`console.dials.knob.${n}`));
-    /** The PRI switches' colors, set and clear, as in the Panel tab. */
-    this.priSet = new THREE.Color(token("--ocp-set", "#2f62a8"));
-    this.priClear = new THREE.Color(token("--ocp-unlit", "#f4f0e6"));
     /** Whether the panel's controls on the rack take clicks: in the Panel viewpoint (R21). */
     this.panelLive = false;
     /** A pressed key's color (U10). */
@@ -660,11 +657,9 @@ export class TerminalView {
       if (c === "selector") m.rotation.y = [-0.8, -1.57, -2.36][["pulse1", "hub1", "hub2"].indexOf(p.selector)];
       else light(m, lamps[PANEL_LAMPS[c] ?? ""] ?? false);
     }
+    // a PRI switch's lever: straight out for 1, pressed down 45 degrees for 0
     this.built.ocp.pri.forEach((l, i) => {
-      const on = Math.floor(p.pri / 2 ** (29 - i)) % 2 === 1;
-      if (l.userData.restY === undefined) l.userData.restY = l.position.y;
-      l.position.y = l.userData.restY + (on ? l.userData.travel ?? 0.006 : 0);
-      /** @type {THREE.MeshStandardMaterial} */ (l.material).color.copy(on ? this.priSet : this.priClear);
+      l.rotation.x = Math.floor(p.pri / 2 ** (29 - i)) % 2 === 1 ? 0 : Math.PI / 4;
     });
   }
 
@@ -739,7 +734,6 @@ function palette() {
     ocpFace: token("--ocp-face", "#5b4a3a"),
     ocpGroup: token("--ocp-group", "#d8ccb4"),
     ocpUnlit: token("--ocp-unlit", "#f4f0e6"),
-    ocpSet: token("--ocp-set", "#2f62a8"),
     analog: token("--analog", "#ffb86b"),
     digital: token("--digital", "#9ecaff"),
     floor: token("--md-surface-mid", "#1b2026"),
