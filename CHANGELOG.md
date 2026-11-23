@@ -2,9 +2,17 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
-## Unreleased
+## 0.0.4
 
-- A new document, [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers, with nine figures of our own. It covers the processor, interrupts, the picture and the array, the input devices, the operator's panel and how the machine started, disks and tapes, and the software, and says what is known and what is not. Appendices list every instruction, the monitor's and DSPLY's statements and the picture items, and the sources.
+The machine explained. A new document, written for engineers who know today's computers, explains the AGT-30 as a whole, so that what the simulator does, and what the manuals say, can be followed without the scans. It is shared now so that people who knew the machine can review it.
+
+**The overview**
+- [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers, in ten sections and nine figures of our own: the machine at a glance, words and numbers, the DPR-2 processor, interrupts, the picture and the hybrid array, the input devices, the operator's panel and how the machine started, disks and tapes, the software, and what is known and what is not.
+- Appendices: a glossary of Adage's names, every instruction with its code, the monitor's and DSPLY's statements and the picture items, and the sources.
+
+**Also**
+- The call with M. Howard of 2026-11-19 is summarized in [research/correspondence.md](research/correspondence.md): what he confirmed (PULSE 1's setting, PINT, booting with BTSP, the ASR-35, the phosphor's color, the disk), and the questions still open.
+- US spelling throughout the documents and the page: color, center, license.
 
 ## 0.0.3
 
