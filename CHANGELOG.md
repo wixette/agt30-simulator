@@ -4,7 +4,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 
 ## Unreleased
 
-- A new document, [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers, with nine figures of our own. It covers the processor, interrupts, the picture and the array, the input devices, the operator's panel and how the machine started, disks and tapes, and the software, and says what is known and what is not.
+- A new document, [docs/agt30-overview.md](docs/agt30-overview.md): the AGT-30 for today's engineers, with nine figures of our own. It covers the processor, interrupts, the picture and the array, the input devices, the operator's panel and how the machine started, disks and tapes, and the software, and says what is known and what is not. Appendices list every instruction, the monitor's and DSPLY's statements and the picture items, and the sources.
 
 ## 0.0.3
 
