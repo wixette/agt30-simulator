@@ -106,6 +106,12 @@ export const TIME = { memory: 4, immediate: 3, jump: 3, jpsr: 5, skip: 3, opio: 
 /** Sense line bits (S4), numbered from the left. Bit 0: AR overflow (FJCC68 Fig. 17 channel 0); bit 29: ADC5 overflow (DPR2BD). */
 export const SENSE = { OVERFLOW: 0, ADC: 29 };
 
+/**
+ * The longest chain of instructions sent to IR one after another that one step runs. The real
+ * processor has no limit: LIFE runs its whole 128 x 128 board as one chain each generation.
+ */
+const IR_CHAIN = 1 << 20;
+
 /** The priority channels the processor itself requests (DPR2BD): 14, the program interrupt (PINT). */
 export const CHANNEL = { PINT: 14 };
 /**
@@ -211,6 +217,8 @@ export class Dpr2 {
     this.instructions = 0;
     /** @type {string | null} why the processor stopped */
     this.stopped = null;
+    /** @type {number | null} a word sent to IR, to be executed next (execute()) */
+    this.irNext = null;
     /** An address that ends a run as `until` does, or -1: where PULSE 1's pivot leads back to the monitor. */
     this.breakAt = -1;
     /**
@@ -365,6 +373,29 @@ export class Dpr2 {
    * @returns {number} us
    */
   execute(ins) {
+    // a word sent to IR is the next instruction, without a return: a chain of them, as LIFE runs
+    // its board, is a loop here, not a nesting
+    let us = 0;
+    let w = ins;
+    for (let n = 0; ; n++) {
+      this.irNext = null;
+      us += this.executeOne(w);
+      const next = /** @type {number | null} */ (this.irNext);
+      if (next === null) return us;
+      if (n >= IR_CHAIN) {
+        this.stopped = `endless chain of instructions through IR at ${((this.LC - 1) & M15).toString(8).padStart(5, "0")}`;
+        return us;
+      }
+      w = next;
+    }
+  }
+
+  /**
+   * Executes one instruction word; a word it sends to IR is left in irNext.
+   * @param {number} ins
+   * @returns {number} us
+   */
+  executeOne(ins) {
     if (get(ins, ENCODING.kind) !== KIND.OTHER) return this.transfer(ins);
     const op = opName(ins);
     const neg = this.negative();
@@ -524,7 +555,8 @@ export class Dpr2 {
         this.BR = combine(this.BR);
         break;
       case DESTS.IR:
-        us += this.execute(v);
+        // the word becomes the next instruction, run by execute() once this one is done
+        this.irNext = v;
         break;
       case DESTS.MX:
         // with IC bit 10 clear, a device may take it for the array's registers (avg1.js, R22)

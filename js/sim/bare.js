@@ -22,6 +22,32 @@ export const MONITOR_HIGH = 0o76600;
 const CYLINDER_WORDS = SECTOR_WORDS * CYLINDER_SECTORS;
 /** Words read from the start of cylinder 3, to 77677. */
 const HIGH_WORDS = 0o77700 - MONITOR_HIGH;
+/** Where AMRMX's commands continue after a program returns: MON9, its main loop (research/amrmx.md). */
+export const MONITOR_RETURN = 0o76377;
+/** LIFE on the pack: volume 10 (cylinder 34), origin 90 (research/ncsu-tapes.md). */
+export const LIFE_SECTOR = 34 * CYLINDER_SECTORS + 90;
+/** A dump's first record is its descriptor (two words at 70730, and the name and bounds at 70732), not core to load. */
+const DESCRIPTOR = [0o70730, 0o70732];
+
+/**
+ * A DUMP file's records, as AMRMX writes a core image to the pack: each a word with the address
+ * in its upper half and the count in its lower, then that many words; a zero word ends the file.
+ * @param {Uint32Array} pack
+ * @param {number} sector where the file starts
+ * @returns {{ addr: number; words: Uint32Array }[]}
+ */
+export function dumpRecords(pack, sector) {
+  const out = [];
+  for (let p = sector * SECTOR_WORDS; p < pack.length; ) {
+    const h = pack[p];
+    const count = h & 0o77777;
+    if (count === 0 || count > 0o1000) break;
+    out.push({ addr: Math.floor(h / 0o100000) & 0o77777, words: pack.slice(p + 1, p + 1 + count) });
+    p += 1 + count;
+  }
+  return out;
+}
+
 /** How long a frame record covers, us: for the views that count frames. */
 const FRAME_US = 25000;
 /** Steps given at most to one call of advance(): a stopped clock cannot hang the page. */
@@ -89,6 +115,27 @@ export class Bare {
     cpu.pri.frozen = false;
     cpu.stopped = null;
     this.avg.clear();
+  }
+
+  /**
+   * Loads a program's core image from the pack and starts it, as AMRMX's START would (ours, R24):
+   * every record but the descriptor into core, the program's entry word given the return to the
+   * monitor, and the processor on at the word after it. For LIFE until AMRMX takes its commands.
+   * @param {number} sector the DUMP file's first sector
+   * @param {number} entry the program's entry word, a JPSR target (LIFE's is 120)
+   * @returns {number} the records loaded
+   */
+  startDump(sector, entry) {
+    const cpu = this.agt.cpu;
+    const core = this.agt.core;
+    const recs = dumpRecords(this.disk.pack, sector).filter((r) => !DESCRIPTOR.includes(r.addr));
+    for (const r of recs) r.words.forEach((w, k) => core.write((r.addr + k) & 0o77777, w));
+    core.write(entry, (Math.floor(core.read(entry) / 0o100000) & 0o77777) * 0o100000 + MONITOR_RETURN);
+    cpu.LC = (entry + 1) & 0o77777;
+    cpu.pri.pending.clear();
+    cpu.pri.service = [];
+    cpu.pri.frozen = false;
+    return recs.length;
   }
 
   /**

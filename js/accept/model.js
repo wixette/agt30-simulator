@@ -9,6 +9,7 @@ import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
 import { Avg1, EOLPV, EOVPV } from "../sim/avg1.js";
+import { dumpRecords } from "../sim/bare.js";
 import { assembleOp, CHANNEL, disassemble, Dpr2, onesAdd, OPS, PIPVT, rotl, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
@@ -614,6 +615,36 @@ export const MODEL_CHECKS = [
     },
   },
 
+  {
+    id: "CPU-12",
+    title: "A word sent to IR is the next instruction, without a return: LIFE runs its 128 x 128 board as one chain of 16,384, each cell's MDIR leading to the next (R1)",
+    run() {
+      const core = new Core();
+      const cpu = new Dpr2(core);
+      const N = 20000;
+      core.write(0o500, assembleOp("MDIR", 0o501, { I: true, X: true }));
+      core.write(0o501, 0o1000 - 1);
+      for (let k = 0; k < N; k++) core.write(0o1000 + k, assembleOp("MDIR", 0o500));
+      core.write(0o1000 + N, assembleOp("JUMP", 0o400));
+      cpu.LC = 0o500;
+      cpu.step();
+      equal(cpu.stopped, null, "no fault");
+      equal(oct(cpu.LC, 5), oct(0o400, 5), "the chain ran to its end in one step");
+      equal(lo(core.read(0o501)), 0o1000 + N, "every cell was visited");
+    },
+  },
+  {
+    id: "PCK-1",
+    title: "A DUMP file on the pack is records of an address and count, then the words, ended by a zero word, as LIFE is stored (research/amrmx.md; R24)",
+    run() {
+      const pack = new Uint32Array(3 * 104);
+      const at = 104;
+      [word(0o70730, 2), 1, 2, word(0o120, 3), 0o4000120, 5, 6, word(0o76326, 1), 7, 0].forEach((w, k) => (pack[at + k] = w));
+      const r = dumpRecords(pack, 1);
+      equal(r.map((x) => `${oct(x.addr, 5)}:${x.words.length}`).join(" "), "70730:2 00120:3 76326:1", "three records");
+      equal(oct(r[1].words[0]), oct(0o4000120), "the entry word first");
+    },
+  },
   // ---- AVG1 and the array at register level (R22) ----
   {
     id: "AVG-1",
