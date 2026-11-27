@@ -98,7 +98,8 @@ async function start() {
   // ---- the real monitor (U19): NCSU's system pack, fetched once, when asked for ----
   /** @type {Promise<Uint32Array> | null} */
   let pack = null;
-  const bootPack = async () => {
+  /** @param {import("../sim/bare.js").GameId} [game] a game to start once booted */
+  const bootPack = async (game) => {
     try {
       if (!pack) {
         say(t("status.pack.fetching"));
@@ -110,17 +111,18 @@ async function start() {
       const words = await pack;
       program = null;
       drawCard();
-      agt.bootPack(words);
+      if (game) agt.startGame(game, words);
+      else agt.bootPack(words);
       proc?.render(true);
       panel?.render(true);
       stage.go("screen");
-      say(t("status.pack.booted"));
+      say(game ? t(`status.game.${game}`) : t("status.pack.booted"));
     } catch (e) {
       pack = null;
       say(t("status.pack.failed", { error: /** @type {Error} */ (e).message }));
     }
   };
-  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown(), () => void bootPack());
+  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown(), (game) => void bootPack(game));
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
   // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu

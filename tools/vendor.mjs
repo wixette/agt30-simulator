@@ -40,6 +40,7 @@ export const ICONS = [
   "content_copy",
   "edit",
   "eject",
+  "play_arrow",
   "keyboard_arrow_up",
   "home",
   "hub",

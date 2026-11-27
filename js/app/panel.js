@@ -6,6 +6,7 @@
 // The same controls are on the processor rack in 3D; both act through act() below (R21).
 
 import { t } from "../l10n/l10n.js";
+import { GAMES } from "../sim/bare.js";
 import { disassemble } from "../sim/dpr2.js";
 import { bitOf, LAMPED, PANEL_SIZE, panelLayout, PRI_USUAL } from "../sim/panel.js";
 import { el, icon, setTip } from "../ui/components.js";
@@ -118,7 +119,7 @@ export function act(agt, id, down, say) {
  * @param {() => Agt30} machine
  * @param {(msg: string) => void} say
  * @param {() => boolean} shown whether the pane is in view
- * @param {() => void} boot boots AMRMX from the system pack (U19)
+ * @param {(game?: import("../sim/bare.js").GameId) => void} boot boots AMRMX from the system pack, and starts a game from it if one is named (U19)
  * @returns {{ render: (force?: boolean) => void }}
  */
 export function buildPanel(host, machine, say, shown, boot) {
@@ -216,8 +217,15 @@ export function buildPanel(host, machine, say, shown, boot) {
   const bootBtn = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "btn small has-icon", "data-tip-describes": "" }, [icon("restart_alt"), el("span", { text: t("panel.boot") })]));
   setTip(bootBtn, t("panel.boot.tip"));
   bootBtn.addEventListener("click", () => boot());
+  // NCSU's games on the pack, started by our loader under AMRMX (U19)
+  const games = /** @type {(keyof typeof GAMES)[]} */ (Object.keys(GAMES)).map((id) => {
+    const b = /** @type {HTMLButtonElement} */ (el("button", { type: "button", class: "btn small has-icon", "data-tip-describes": "" }, [icon("play_arrow"), el("span", { text: t(`panel.game.${id}`) })]));
+    setTip(b, t(`panel.game.${id}.tip`));
+    b.addEventListener("click", () => boot(id));
+    return b;
+  });
   host.replaceChildren(
-    el("div", { class: "ocp-bar" }, [word, usual, state, el("span", { class: "spacer" }), bootBtn]),
+    el("div", { class: "ocp-bar" }, [word, usual, state, el("span", { class: "spacer" }), ...games, bootBtn]),
     el("div", { class: "ocp-scroll" }, [face]),
   );
 

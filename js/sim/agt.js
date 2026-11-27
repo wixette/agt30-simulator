@@ -16,7 +16,7 @@
 
 import { assemble } from "./adept.js";
 import { TTY } from "./amoscode.js";
-import { Bare } from "./bare.js";
+import { Bare, GAMES } from "./bare.js";
 import { assembleOp, Dpr2 } from "./dpr2.js";
 import { loadFigures } from "./figures.js";
 import { CALL_AREA, Monitor } from "./amos.js";
@@ -155,6 +155,20 @@ export class Agt30 extends Terminal {
     this.paper.clear();
     this.bare = new Bare(this, pack);
     this.panel.btsp = false;
+    this.panel.mode = "run";
+    this.panel.sync();
+  }
+
+  /**
+   * Starts a game from the pack under AMRMX (U19, R24): booted first if it is not, then the
+   * game's core image restored by our loader and entered.
+   * @param {import("./bare.js").GameId} id
+   * @param {Uint32Array} pack
+   */
+  startGame(id, pack) {
+    if (!this.bare) this.bootPack(pack);
+    const g = GAMES[id];
+    /** @type {Bare} */ (this.bare).startDump(g.sector, g.entry);
     this.panel.mode = "run";
     this.panel.sync();
   }

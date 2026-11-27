@@ -22,7 +22,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
 2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
 3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
-4. **Boot the real monitor**, if you like: **Boot AMRMX** in the **Panel** tab runs NCSU's own monitor from its 1976 system pack (fetched from M. Howard's repository). Type the date it asks for on the Teletype, for example `11/23/76` and Return.
+4. **Boot the real monitor**, if you like: **Boot AMRMX** in the **Panel** tab runs NCSU's own monitor from its 1976 system pack (fetched from M. Howard's repository). Type the date it asks for on the Teletype, for example `11/23/76` and Return. **LIFE** and **Space War** beside it start NCSU's games from the same pack.
 5. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
 
 ## The machine in a few minutes

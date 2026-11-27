@@ -26,6 +26,16 @@ const HIGH_WORDS = 0o77700 - MONITOR_HIGH;
 export const MONITOR_RETURN = 0o76377;
 /** LIFE on the pack: volume 10 (cylinder 34), origin 90 (research/ncsu-tapes.md). */
 export const LIFE_SECTOR = 34 * CYLINDER_SECTORS + 90;
+/**
+ * The games on the pack the simulator can start, each a DUMP file of volume 10: its first sector
+ * (volume 10's directory) and its entry, the symbol named after the file (research/amrmx.md).
+ * AMRMX's own statement for a DUMP file is not yet found, so our loader restores them (R24).
+ */
+export const GAMES = /** @type {const} */ ({
+  life: { file: "LIFE", sector: LIFE_SECTOR, entry: 0o120 },
+  spcwr: { file: "SPCWR", sector: 0o1451, entry: 0o1266 },
+});
+/** @typedef {keyof typeof GAMES} GameId */
 /** A dump's first record is its descriptor (two words at 70730, and the name and bounds at 70732), not core to load. */
 const DESCRIPTOR = [0o70730, 0o70732];
 
