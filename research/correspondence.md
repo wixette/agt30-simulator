@@ -41,6 +41,7 @@ What we have learned from people who knew the machine, and what they have allowe
   - **Software that survives with him.** AMRMX only as the binary on the pack; ADEPT as a printed listing (it carries its own symbol table, hence EXPUNGE at the head of sources; he once retargeted it to a TMS9900); EDIT, the scope editor; the FORTRAN IV compiler and its libraries; QUBIC by D. Ogden for both the Ambilog and the AGT. The listings resist OCR. On the pack: LIFE (the simplest display, to run first), BROSE (a spirograph), Space War, a Lunar Lander that barely works, and an unfinished Pong. Whether the games drew through DSPLY or directly, he does not know. He has never seen a Volume II of the Programmer's Reference Manual.
   - **Next.** Boot the monitor from the pack image and look for its banner, then LIFE. He hopes to search the Computer History Museum's Adage folders for AGT material.
 - **2026-11-23.** We thanked him and proposed a credit line; said we would change the Teletype to an ASR-35, correct the phosphor, add the OCP and boot from his pack; and asked for the color photographs' source and permission, a further document in his collection (ADAGE_SLS), his judgment of a side-by-side of our green and a P7-like white, and the three questions below that the call did not reach.
+- **2026-11-27.** We sent v0.0.6: LIFE and Space War running unchanged from his pack under AMRMX, with links and how to play them, pictures of the panel and both games, and the scope now white with a green afterglow after his description. We asked whether the phosphor looks right, how a game was started under AMRMX, whether the rest of the pack survives, what set the Teletype's bit rate, and again about the photographs and the credit line; we said the store, the function keys and PIPVT had been settled from the sources.
 
 ## Open questions
 
@@ -53,6 +54,8 @@ Answers go above, with the date. Asked on 2026-11-23:
 - **The color photographs.** Where are they from, and may we use them? And the document ADAGE_SLS.
 
 - **The console on the scope.** AMRMX sends its text to the screen when its display handler is loaded. Was the scope the usual console at NCSU, with the Teletype for when the display was not in use?
+
+Asked again or newly on 2026-11-27: the phosphor (as it is now drawn), the Teletype's timing, the photographs, how a game was started (*The disk monitor's commands*, below) and the rest of the pack (below).
 
 Not yet asked:
 
