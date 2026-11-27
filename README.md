@@ -4,7 +4,7 @@
 
 The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processor that walked a structured picture every frame, a hybrid analog array that turned it in three dimensions in under 4 microseconds a point, and a refreshed vector CRT, with its console and its Teletype.
 
-> **A pre-release (v0.0.2).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below.
+> **A pre-release (v0.0.5).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below. New in v0.0.5: NCSU's own monitor and games, LIFE and Space War, run from the lab's 1976 system pack ([CHANGELOG.md](CHANGELOG.md)).
 
 **[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser (recent Chrome, Edge, Safari or Firefox), and it works on a phone too.
 
@@ -22,7 +22,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
 2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
 3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
-4. **Boot the real monitor**, if you like: **Boot AMRMX** in the **Panel** tab runs NCSU's own monitor from its 1976 system pack (fetched from M. Howard's repository). Type the date it asks for on the Teletype, for example `11/23/76` and Return. NCSU's own games from the same pack, **LIFE** and **Space War**, are in the **Programs** menu.
+4. **Play NCSU's own games:** **LIFE** and **Space War**, at the foot of the Programs menu, run unchanged from the lab's 1976 system pack, fetched from M. Howard's repository, under its monitor AMRMX. Their cards give the keys.
 5. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
 
 ## The machine in a few minutes
@@ -49,19 +49,21 @@ The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room
 - **Console:** from the operator's seat.
 - **Screen:** the picture close up. This is where the light pen works.
 - **Tube:** the scope cut open, the beam drawing in time slowed up to 100,000 times, with its X, Y and Z signals traced.
+- **Panel:** the processor's operator's control panel, on its rack.
 
-**The console strip**, under the picture, holds the dials, the function keys and the light pen.
+**The console strip**, under the picture, holds the dials, the function keys, the two foot pedals (F1, F2) and the light pen.
 
-**The dock** below has four tabs. Drag the handle above it to make it taller or shorter; it remembers its tab and height.
+**The dock** below has five tabs. Drag the handle above it to make it taller or shorter; it remembers its tab and height.
 - **Program:** the program loaded: what it rebuilds, how to use it, its switches, what in it is ours, and its statements and source.
 - **Teletype:** the paper and the keyboard. Click the paper and type statements yourself, each ended with `!`. Some to try:
   - `DSPLY (V.A)!` shows the letter A; `HALT!` stops the display.
   - `V!` asks the monitor its version.
   - `LIST (, RVCD, RVCD+5)!` lists six words of memory in octal.
 - **Processor:** a look inside the processor as it runs: its registers, and memory read as instructions, as picture items or as plain words. A view the real AGT never had.
+- **Panel:** the operator's control panel, to run, halt and step the processor. **Boot AMRMX** there runs NCSU's monitor alone: type the date it asks for, for example `11/23/76`.
 - **References:** where to read more: the history of the NCSU lab, Adage's documents, the tapes of the NCSU lab, and the simulator's own research. About's References button opens it too.
 
-**Seven programs**, from the Programs menu:
+**Seven programs of ours**, from the Programs menu:
 - the letter A, the 1968 paper's first picture;
 - a cube turned by the dials, and the same cube in perspective, worked out by the processor;
 - the tunnel, with and without depth cueing;
@@ -69,7 +71,9 @@ The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room
 - 3-D tic-tac-toe, played with the function keys and the light pen;
 - 1,000 random lines, the paper's measure of the array, which you can push until the picture no longer fits a frame.
 
-**A link** opens a viewpoint and a program: for example [`#view=screen&program=tic-tac-toe`](https://wixette.github.io/agt30-simulator/#view=screen&program=tic-tac-toe).
+**Two of NCSU's**, from the lab's system pack: LIFE, Conway's game on a 128 × 128 board, and Space War, two ships around a star.
+
+**A link** opens a viewpoint and a program: for example [`#view=screen&program=tic-tac-toe`](https://wixette.github.io/agt30-simulator/#view=screen&program=tic-tac-toe) or [`#program=space-war`](https://wixette.github.io/agt30-simulator/#program=space-war).
 
 ## Run it on your own machine
 
@@ -95,22 +99,22 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R6.** Settled: the multiply unit's results are as the processor's manual gives them.
 - **R7.** A dial is read through the array's input selector and converter, as on the AGT/30; how the selector's word chooses the dial is ours.
 - **R8.** The assembler is ADEPT as its manual describes it, without action operators or relocatable output, and with our syntax for display items' arguments.
-- **R9.** What the monitor types back is ours: echoes, results and ?; the Teletype takes a whole character at a time, not a bit.
-- **R10.** Interrupts: the pen, the Teletype and the frame clock are served directly; the program interrupt's pivot is ours.
+- **R9.** What the simulator's own monitor types back is ours: echoes, results and ?; with it, the Teletype takes a whole character at a time. Under AMRMX the line works a bit at a time (R23).
+- **R10.** Interrupts: under the simulator's own monitor the pen, the Teletype and the frame clock are served directly; under AMRMX the devices interrupt as its code expects. The program interrupt's pivot, 77743, is AMRMX's.
 - **R11.** The pen-hit table's layout and PENHT's code are ours.
 - **R12.** Dash mode draws about ten dashes an inch.
 - **R13.** The tunnel's perspective routine is JavaScript, charged an estimated time.
 - **R14.** The phosphor: green and medium-short, P31-like; the GDS1's is not documented.
 - **R15.** Core at start holds the paper's pictures and the resident routines; 32K words, as NCSU's.
 - **R16.** Sizes: the scope measured from photographs; the racks, tapes and disks estimated.
-- **R17.** The Teletype's shape: proportions measured from a reference model, scaled to its documented size.
-- **R18.** The console's devices: shapes from photographs; the pedals as the period's foot switches.
+- **R17.** The Teletype is an ASR-35 at its documented size, shaped from photographs; the ASR-33 is kept as an option.
+- **R18.** The console's devices: shapes from photographs; the pedals as the period's foot switches. The keys and pedals reach the processor as Adage's own switch routines read them.
 - **R19.** The cables are a diagram of the signal paths, not the real cabling.
 - **R20.** The cutaway and the visible beam are views the real AGT never had.
-- **R21.** The operator's panel works on the simulated machine; its monitor is JavaScript, so HALT, RUN and STEP act on what the processor runs, and PULSE 1's pivot leads to a trap.
-- **R22.** AVG1 and the array at register level, for programs that drive the display themselves (AMRMX): vector words on D05, the next sent on each end-of-vector interrupt, array registers loaded through D07; which register number is which is ours, from what AMRMX does with them.
+- **R21.** The operator's panel works on the simulated machine; under the simulator's own monitor, which is JavaScript, PULSE 1's pivot leads to a trap; under AMRMX the panel acts on its code.
+- **R22.** AVG1 and the array at register level, for programs that drive the display themselves (AMRMX, LIFE, Space War); which register number is which is ours, from what those programs do with them.
 - **R23.** The Teletype's line at bit level, for AMRMX: one interrupt a bit, OPTY sending BR[22], S4[14] receiving; the rate (110 baud) and the clock's timing are ours.
-- **R24.** The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor as AMLD0 does, without its code; the disk's times are ours.
+- **R24.** The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor, and our loader the games, without NCSU's code for either; the disk's times are ours.
 
 ## More
 
