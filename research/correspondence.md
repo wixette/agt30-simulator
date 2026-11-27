@@ -62,7 +62,7 @@ Not yet asked:
 - **The disk monitor's commands.** How did an operator start a game under the 1976 AMRMX, for example LIFE? The 1971 manual's statements quote names (`S("TITLE", TAPE)!`); the pack's command table has START, LOAD, RETRIEVE, LISTF and others. Is there a manual of the disk monitor? *(Narrowed on 2026-11-27, not sent: AMRMX takes statements on the simulator, in the syntax NCSU's macros use (`START("9SE",10)!` loads and runs a relocatable file; `SYST(10)!` sets the volume). START only loads RELOC files. The question left: what statement restored a DUMP file such as LIFE, QUBIC or Space War? [amrmx.md](amrmx.md).)*
 - **LIFE.** Its function keys, as its code reads them: 0 stop, 1 run, 2 load a figure from the pack, 3 save one, 5, 6, 9, 10 move the cursor, 7 set a cell, 11 clear one, 14 back to the monitor. Is that how it was played? Did a figure library exist on the pack?
 - **Destinations 05 and 06.** The array's XY and Z (his notes), AVG1's flags and command (DPR2BD), or both?
-- **The function keys.** How do sixteen keys fit S5[0–14]? And in ADCR's binary, what is the pair marked 00 (DTRR)?
+- **The function keys.** How do sixteen keys fit S5[0–14]? *(Space War reads S5 bits 12–14 twice, once as keys 12–14 and once for player 2's thrust and turn and player 1's thrust, which suggests the last row was encoded; [amrmx.md](amrmx.md).)* And in ADCR's binary, what is the pair marked 00 (DTRR)?
 - **The display (R2).** Was the display list walked by a DPR-2 program (DSPLY, as we read PRM1), or mostly by hardware?
 - **The array (R5).** Does our model, x' = PS [D + SC (R x)], match what he knows? How was it calibrated?
 - **Software.** Is 3DTTT D. Ogden's game, and where is `$TTT3D`? Who wrote the other games, and how were they played?

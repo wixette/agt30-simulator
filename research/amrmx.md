@@ -82,6 +82,15 @@ With the stores fixed, LIFE redrew, but its board stood in the upper right quadr
 - **LIFE plays.** Three cells set with keys 7 and 10 make a blinker; key 1 runs, and the blinker turns between a column and a row every generation.
 - **QUBIC** started at its entry (222) stops with the FORTRAN run-time error `OTS ERR #50 AT 00225, ARGUMENT ERROR`: it expects what START would set up.
 
+## Space War's keys (2026-11-27)
+
+Space War reads the sixteen switches once a frame into 01102, each key n at bit 14 + n, and S5 bits 12–14 a second time into bits 12, 13 and 29; each action loads the word complemented and tests one bit. Read so, and checked by holding each key on the simulator:
+
+- **Player 1:** 0 turns anticlockwise, 4 clockwise (its angle, 01045); 13 thrusts (fuel and velocity change); 12 fires (its torpedo count); 8 hyperspace.
+- **Player 2:** 14 turns anticlockwise, 11 clockwise (01046); 3 fires; 7 hyperspace; its thrust is bit 12, which in our model is key 12 again.
+- **The game:** 1 restarts. 5, 6, 9 and 10 each toggle a setting when pressed: 5 draws the border of the playing area, 9 hides the stars, 10 turns gravity off (the ships' velocities stop changing), 6 decides what the star does to a ship that falls in, destroyed (as at start) or held there. 6 and 10 also set IC bits 0 and 1, which light the panel's IC 0 and IC 1. 2 and 15 do nothing.
+- **Not settled:** player 2's thrust and player 1's fire answer the same key here, and key 15 cannot be read at all, because the simulator puts sixteen keys on S5's fifteen bits 0–14 by number. Space War's own reading of bits 12–14 suggests the real panel encoded its last row differently (R18; research/correspondence.md, the function keys).
+
 ## Statements and files (2026-11-27)
 
 What AMRMX's own statement macros (the pack's sector 640 on, written by NCSU's operators) and its loader show about running a program from the pack.
