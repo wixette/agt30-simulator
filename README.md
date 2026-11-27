@@ -4,7 +4,7 @@
 
 The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processor that walked a structured picture every frame, a hybrid analog array that turned it in three dimensions in under 4 microseconds a point, and a refreshed vector CRT, with its console and its Teletype.
 
-> **A pre-release (v0.0.5).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below. New in v0.0.5: NCSU's own monitor and games, LIFE and Space War, run from the lab's 1976 system pack ([CHANGELOG.md](CHANGELOG.md)).
+> **A pre-release (v0.0.6).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below. New in v0.0.6: the scope's white phosphor with its green afterglow, as M. Howard remembers it; since v0.0.5, NCSU's own monitor and games, LIFE and Space War, run from the lab's 1976 system pack ([CHANGELOG.md](CHANGELOG.md)).
 
 **[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser (recent Chrome, Edge, Safari or Firefox), and it works on a phone too.
 

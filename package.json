@@ -1,6 +1,6 @@
 {
   "name": "agt30-simulator",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "type": "module",
   "description": "The Adage Graphics Terminal AGT-30 (1968) in the browser: a 3D picture turned by a hybrid analog array, drawn on a refreshed vector CRT.",

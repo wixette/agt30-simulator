@@ -4,8 +4,8 @@
    status line. The page never scrolls. Every color, corner and state is a token (css/theme.css,
    U10); the controls are the simulator series' (the TRS-80 simulator's). */
 
-@import url("theme.css?v=0.0.5");
-@import url("fonts.css?v=0.0.5");
+@import url("theme.css?v=0.0.6");
+@import url("fonts.css?v=0.0.6");
 
 :root {
   font-family: var(--font);
