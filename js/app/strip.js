@@ -61,7 +61,7 @@ const REPEAT_DELAY_MS = 400;
 const REPEAT_MS = 70;
 
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
-/** @typedef {number | "pulse1"} KeyId a function key, 0-15, or PULSE 1 */
+/** @typedef {number | "pulse1" | "pedal0" | "pedal1"} KeyId a function key, 0-15, PULSE 1, or a foot pedal */
 
 /**
  * Presses or releases a key of the function switch box, from the strip or the desk in 3D (P2),
@@ -75,6 +75,10 @@ export function pressKey(agt, id, down, say) {
   if (id === "pulse1") {
     const r = agt.setPulse1(down);
     if (r) say(pulseText(agt, r));
+  } else if (id === "pedal0" || id === "pedal1") {
+    const n = id === "pedal0" ? 0 : 1;
+    agt.setPedal(n, down);
+    if (down) say(t("status.pedal", { n: n + 1 }));
   } else {
     agt.setKey(id, down);
     if (down) say(t("status.key", { n: id }));
@@ -172,10 +176,12 @@ export function buildStrip(host, machine, say) {
   /** @param {KeyId} id @param {number} row @param {number} col */
   const makeKey = (id, row, col) => {
     const pulse = id === "pulse1";
-    const b = el("button", { class: pulse ? "fkey pulse" : "fkey", type: "button", "aria-pressed": "false", "aria-label": pulse ? t("strip.pulse") : t("strip.key", { n: id }), text: pulse ? "P1" : String(id) });
+    const pedal = id === "pedal0" ? 1 : id === "pedal1" ? 2 : 0;
+    const label = pulse ? t("strip.pulse") : pedal ? t("strip.pedal", { n: pedal }) : t("strip.key", { n: id });
+    const b = el("button", { class: pulse ? "fkey pulse" : pedal ? "fkey pedal" : "fkey", type: "button", "aria-pressed": "false", "aria-label": label, text: pulse ? "P1" : pedal ? `F${pedal}` : String(id) });
     b.style.gridRow = String(row);
     b.style.gridColumn = String(col);
-    setTip(b, pulse ? t("strip.pulse.tip") : t("strip.key.tip", { n: id }));
+    setTip(b, pulse ? t("strip.pulse.tip") : pedal ? t("strip.pedal.tip", { n: pedal }) : t("strip.key.tip", { n: id }));
     /** @param {boolean} down */
     const press = (down) => pressKey(machine(), id, down, say);
     b.addEventListener("pointerdown", (e) => {
@@ -197,6 +203,9 @@ export function buildStrip(host, machine, say) {
     keys.append(b);
   };
   makeKey("pulse1", 1, 2);
+  // the two foot pedals, which the programs read as keys (FNS1; R18)
+  makeKey("pedal0", 1, 1);
+  makeKey("pedal1", 1, 5);
   for (let n = 0; n < KEYS; n++) makeKey(n, Math.floor(n / 4) + 2, n % 4 < 3 ? (n % 4) + 1 : 5);
 
   // all six dials back to the center at once: a convenience of ours (the operator turned each)
@@ -230,7 +239,7 @@ export function buildStrip(host, machine, say) {
       }
       // a key pressed on the desk in 3D shows down here too (P2)
       for (const [id, b] of keyButtons) {
-        const down = String(id === "pulse1" ? agt.dev.pulse1 : agt.keyDown(id));
+        const down = String(id === "pulse1" ? agt.dev.pulse1 : id === "pedal0" ? agt.dev.pedals[0] : id === "pedal1" ? agt.dev.pedals[1] : agt.keyDown(/** @type {number} */ (id)));
         if (b.getAttribute("aria-pressed") !== down) b.setAttribute("aria-pressed", down);
       }
     },

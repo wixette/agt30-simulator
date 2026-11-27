@@ -65,6 +65,8 @@ export class Agt30 extends Terminal {
       dials: new Float64Array(DIALS),
       /** sixteen function keys (FNS1) on S5, key n as bit n in Adage's numbering from the left */
       switches: 0,
+      /** the two foot pedals (FNS1), pedal 1 and pedal 2, down while pressed */
+      pedals: [false, false],
       /** PULSE 1, the manual interrupt, held down: the console's button and the panel's are one (R10) */
       pulse1: false,
     };
@@ -85,7 +87,12 @@ export class Agt30 extends Terminal {
         this.print(code === 0o15 ? "\r\n" : (TTY[code] ?? ""));
         return true;
       },
-      switches: () => this.dev.switches,
+      // IC bit 9 selects what S5's upper half shows: set, FNS 1-15 at bits 0-14; clear, pedal 2,
+      // pedal 1 and FNS 16 at bits 12, 13 and 14 (FSRR and FPRR, the tripp library, MH25; R18)
+      switches: (ic) => {
+        if (Math.floor(ic / 2 ** (29 - 9)) % 2 === 1) return this.dev.switches - (this.keyDown(15) ? 2 ** 14 : 0);
+        return (this.dev.pedals[1] ? 2 ** 17 : 0) + (this.dev.pedals[0] ? 2 ** 16 : 0) + (this.keyDown(15) ? 2 ** 15 : 0);
+      },
       analog: (ch) => (ch < DIALS ? this.dev.dials[ch] : 0),
     });
     /** @type {ClockRoutine[]} DPR-2 routines on the CLOCK chain */
@@ -214,6 +221,15 @@ export class Agt30 extends Terminal {
     const bit = 2 ** (29 - n);
     const on = Math.floor(this.dev.switches / bit) % 2 === 1;
     if (on !== down) this.dev.switches += down ? bit : -bit;
+  }
+
+  /**
+   * Presses or releases a foot pedal.
+   * @param {0 | 1} n pedal 1 or pedal 2
+   * @param {boolean} down
+   */
+  setPedal(n, down) {
+    this.dev.pedals[n] = down;
   }
 
   /**

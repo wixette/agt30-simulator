@@ -666,6 +666,26 @@ export const MODEL_CHECKS = [
       equal(oct(cpu.AR), oct(0o77), "MDAR'O still ORs into AR");
     },
   },
+  {
+    id: "CPU-14",
+    title: "IC bit 9 selects what S5's upper half shows: set, function keys 1-15 at bits 0-14; clear, pedal 2, pedal 1 and key 16 at bits 12, 13, 14 (FSRR, FPBS in the tripp library; R18)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      agt.setKey(0, true);
+      agt.setKey(15, true);
+      agt.setPedal(0, true);
+      agt.core.write(USER_AT, assembleOp("S5AR", 0, { F: true }));
+      const read = (/** @type {boolean} */ bit9) => {
+        cpu.IC = bit9 ? 2 ** (29 - 9) : 0;
+        cpu.LC = USER_AT;
+        cpu.step();
+        return hi(cpu.AR);
+      };
+      equal(oct(read(true), 5), "40000", "bit 9 set: key 0 (FNS 1) at bit 0, and nothing for key 15");
+      equal(oct(read(false), 5), "00003", "bit 9 clear: pedal 1 at bit 13, key 15 (FNS 16) at bit 14");
+    },
+  },
   // ---- AVG1 and the array at register level (R22) ----
   {
     id: "AVG-1",

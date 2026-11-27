@@ -261,7 +261,7 @@ Characters are drawn as vectors too, a few strokes each, in italics (MH26).
 
 **The dials.** Six knobs, VCD1, each a potentiometer giving a voltage. NCSU built its own, with 15-turn potentiometers for fine control (MH26). They are wired to the array's analog inputs. To read one, a program writes the dial's number to destination 07 (GDD1), which selects the input and starts the converter, ADC5; the result appears in the lower half of S5 (DPR2SPI p. 41; DPR2BD). The routine in section 3 does exactly that. Which bits of the word written to 07 choose the input is not documented (R7).
 
-**The function keys.** Sixteen push buttons, FNS1, each with a lamp the program can light, read through S5's upper half. Two foot pedals act as keys, so a user could step up and down a listing with the feet, and most AGTs had them (SRM5 FNS1; MH26). **PULSE 1** sits beside the keys (section 4).
+**The function keys.** Sixteen push buttons, FNS1, each with a lamp the program can light, read through S5's upper half. Its fifteen bits hold sixteen keys and two pedals by way of IC bit 9: set, S5 shows keys 1–15; clear, the two pedals and key 16 (the tripp library's FSRR and FPBS, MH25). Two foot pedals act as keys, so a user could step up and down a listing with the feet, and most AGTs had them (SRM5 FNS1; MH26). **PULSE 1** sits beside the keys (section 4).
 
 **The light pen.** LPN1 is a photocell in a pen. Pointed at the screen, it sees the beam pass under it and interrupts on channel 10 at that moment. Since DSPLY knows which item it was drawing, it can record which part of the picture was picked, in a table of the last 16 hits (DSPLY p. 30). There is no position sensing in the pen itself: it knows *when*, and the display list says *what*.
 
@@ -398,7 +398,6 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 - where PIPVT is (asked);
 - whether `'A` and `'O` combine with AR or with the destination;
 - whether any array did a perspective divide in hardware;
-- how sixteen function keys fit S5's 15 bits;
 - whether the rest of M. Howard's pack survives: the dump on tape holds its first 984 sectors (61½ cylinders), the system area and the games QUBIC, LIFE, Space War and BROSE, but not volumes 20–37, among them the lunar lander and Pong ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
 
 ## Appendix A. Glossary

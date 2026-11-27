@@ -219,6 +219,7 @@ code, pre, .mono { font-family: var(--mono); }
 .dial:active { cursor: grabbing; }
 .keys { display: grid; grid-template-columns: repeat(3, 26px) 8px 26px; grid-template-rows: repeat(5, 13px); gap: 2px; }
 .fkey.pulse { background: #e8e2d6; font-weight: 700; }
+.fkey.pedal { background: #b9b4a8; }
 .fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }
 .fkey[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); }
 .pen { display: flex; align-items: center; gap: 8px; width: 140px; font-size: 12px; line-height: 1.3; color: var(--md-on-surface-variant); }

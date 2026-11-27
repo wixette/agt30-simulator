@@ -184,7 +184,7 @@ const wval = (n) => (n >= 0 ? n % 0o4000000000 : M30 - (-n % 0o4000000000));
  * the array's input selector and converter.
  * @typedef {object} Devices
  * @property {(code: number) => boolean} type types a 6-bit AMOS character; false while the Teletype is busy
- * @property {() => number} switches the function switches (S5): key n is bit n
+ * @property {(ic: number) => number} switches S5's upper half, as IC selects it: with IC bit 9 set the function keys FNS 1-15, key n at bit n; with it clear the pedals and FNS 16
  * @property {(channel: number) => number} analog an analog input, -1..1 (dials, joystick)
  * @property {(bit: number) => void} [strobe] OPTY's bit, BR[22], to the Teletype's line, when it is modeled
  * @property {(dst: number, v: number, logic: number) => boolean} [write] a transfer to a subsystem's destination (05-14): the word after rotation and 'N, and the logic, 1 'O or 2 'A, for the subsystem to apply; true if a subsystem took it
@@ -532,7 +532,7 @@ export class Dpr2 {
         v = this.S4;
         break;
       case SOURCES.S5:
-        v = or30(this.devices.switches(), this.adc);
+        v = or30(this.devices.switches(this.IC), this.adc);
         break;
       default:
         v = 0;
