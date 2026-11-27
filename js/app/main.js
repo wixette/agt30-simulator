@@ -39,6 +39,10 @@ const say = (msg) => (status.textContent = msg);
 applyIcons(document);
 applyL10n(document);
 
+/** How long one try at fetching the pack may take, ms, and how many tries are made (U19). */
+const PACK_TIMEOUT_MS = 20000;
+const PACK_TRIES = 3;
+
 // the programs, from programs/ beside this page, with this release's version in their names
 const version = new URL(import.meta.url).searchParams.get("v");
 /** @param {string} name */
@@ -98,16 +102,32 @@ async function start() {
   // ---- the real monitor (U19): NCSU's system pack, fetched once, when asked for ----
   /** @type {Promise<Uint32Array> | null} */
   let pack = null;
+  /**
+   * Fetches the pack: each try given PACK_TIMEOUT_MS, PACK_TRIES tries, since a stalled
+   * connection would otherwise leave the page fetching for ever. A short read fails readPack's
+   * size check and is tried again too.
+   * @returns {Promise<Uint32Array>}
+   */
+  const fetchPack = async () => {
+    for (let n = 1; ; n++) {
+      say(n === 1 ? t("status.pack.fetching") : t("status.pack.retrying", { n, of: PACK_TRIES }));
+      const abort = new AbortController();
+      const timer = setTimeout(() => abort.abort(), PACK_TIMEOUT_MS);
+      try {
+        const r = await fetch(PACK_URL, { signal: abort.signal });
+        if (!r.ok) throw new Error(`${r.status}`);
+        return readPack(await r.arrayBuffer());
+      } catch (e) {
+        if (n >= PACK_TRIES) throw abort.signal.aborted ? new Error(t("status.pack.timeout")) : e;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+  };
   /** @param {import("../sim/bare.js").GameId} [game] a game to start once booted */
   const bootPack = async (game) => {
     try {
-      if (!pack) {
-        say(t("status.pack.fetching"));
-        pack = fetch(PACK_URL).then(async (r) => {
-          if (!r.ok) throw new Error(`${r.status}`);
-          return readPack(await r.arrayBuffer());
-        });
-      }
+      if (!pack) pack = fetchPack();
       const words = await pack;
       if (!game) {
         program = null;

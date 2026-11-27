@@ -2,6 +2,15 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## 0.0.6
+
+The scope's phosphor is now the white one M. Howard remembers, and links to NCSU's games load reliably on a slow line.
+
+- **The phosphor is white** (R14): a P7-like cool white flash with a long yellow-green afterglow, as M. Howard remembers NCSU's scope, in place of the P31-like green. Moving pictures leave a fading trail, and busy text is harder to read, as he recalls. The green is kept as `?phosphor=p31`.
+- The pack's download gives up a stalled try after 20 seconds and tries three times, so a link to LIFE or Space War no longer waits for ever at "Fetching…" on a slow line (U19).
+- LIFE's card no longer speaks of a zoom the Screen viewpoint does not have.
+- `pnpm game-shots` (tools/game-shots.mjs) takes pictures of the panel, LIFE with a glider gun and Space War, for posts and letters.
+
 ## 0.0.5
 
 The lab's own software runs. NCSU's monitor, AMRMX (1976), boots from M. Howard's dump of the lab's system pack, and two of its games, LIFE and Space War, play from the Programs menu. Getting there settled several of the processor's details from the lab's and Adage's own code.

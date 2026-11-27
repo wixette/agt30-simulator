@@ -97,9 +97,9 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 - *We:* TUNSUB, which recomputes the tunnel's perspective for the viewer's place every frame (the array cannot divide), is JavaScript, charged an estimated 30 µs a point.
 
 **R14. The phosphor.**
-- *Sources:* the GDS1's phosphor is not documented (SRM5 GDS1).
-- *We:* a green, medium-short, P31-like phosphor (τ = 1.5 ms), the usual choice for refreshed stroke displays. The face shows what an eye sums over about 33 ms, a whole number of frame periods when the picture refreshes at least that often. A P4-like or P7-like phosphor can be chosen with `?phosphor=` (a developer option; [../docs/development.md](../docs/development.md)).
-- *Settled by:* anyone who saw the scope lit.
+- *Sources:* the GDS1's phosphor is not documented (SRM5 GDS1). M. Howard remembers NCSU's as "P7 or P30": a cool white that decays towards green, with a very long afterglow; text was hard to read beyond five or six lines, and the room was darkened to watch it (MH26).
+- *We:* a P7-like phosphor in two parts. A cool white flash fades in τ = 0.1 ms; the face shows what an eye sums of it over about 33 ms, a whole number of frame periods when the picture refreshes at least that often. A yellow-green afterglow fades in τ = 150 ms, a third as bright as the flash under a steady picture, so a moving picture leaves a trail. The times and colors are ours. To 0.0.5 the default was a green, medium-short, P31-like phosphor (τ = 1.5 ms), the usual choice for refreshed stroke displays; it and a P4-like white can still be chosen with `?phosphor=` (a developer option; [../docs/development.md](../docs/development.md)).
+- *Settled by:* anyone who saw the scope lit; M. Howard's judgment of the two side by side (asked).
 
 **R15. Core at start.**
 - *We:*

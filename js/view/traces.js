@@ -55,7 +55,7 @@ export class TracesView {
     const lanes = [
       { key: "x", name: this.labels.x, color: token("--trace-x", "#9ecaff"), lo: -6, hi: 6 },
       { key: "y", name: this.labels.y, color: token("--trace-y", "#ffb86b"), lo: -6, hi: 6 },
-      { key: "z", name: this.labels.z, color: token("--phosphor", "#7dff9b"), lo: 0, hi: 1 },
+      { key: "z", name: this.labels.z, color: token("--phosphor", "#e6eeff"), lo: 0, hi: 1 },
     ];
     ctx.clearRect(0, 0, W, H);
     const compact = r.width < COMPACT || r.height < COMPACT_H;

@@ -274,7 +274,7 @@ The Panel tab's bar has **Boot AMRMX**. It fetches NCSU's system pack, M. Howard
 
 The **Programs** menu lists NCSU's games from the same pack after the simulator's own programs, **LIFE** and **Space War**, each with its card and its link (`#program=life`): loading one fetches the pack if need be, boots AMRMX if it is not running, and the game's core image is restored by the simulator's own loader and entered at once, since AMRMX's own statement for a core-image file is not yet found (R24). The status line gives the game's function keys, as far as they are known. LIFE's key 14 returns to AMRMX.
 
-If the pack cannot be fetched, the status line says so and nothing changes.
+If the pack cannot be fetched, the status line says so and nothing changes. Each try at fetching it is given 20 seconds, and three are made, the status line saying so *(v0.0.6)*: a stalled connection had left the page fetching for ever.
 
 *Why it is a button, not the default:* a reader who comes for the paper's pictures and the menu's programs finds them as before; the real monitor asks for a date and a command language from 1976, and is there for whoever wants it. *Why fetched, not copied:* until M. Howard confirms how he wishes to be credited, the pack stays in his repository; this is the one file the page fetches from another site, and only when asked (P10).
 

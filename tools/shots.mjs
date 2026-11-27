@@ -43,7 +43,7 @@ const PLAY = `(async () => {
 
 /** @type {Shot[]} */
 const SHOTS = [
-  { name: "room", hash: "#program=random-lines", dials: [0, 0.2, 0.3], setup: `document.getElementById("tab-tty").click()`, readme: "room.jpg" },
+  { name: "room", hash: "#program=tunnel", dials: [0.3, 0, 0], setup: `document.getElementById("tab-tty").click()`, readme: "room.jpg" },
   { name: "console", hash: "#view=console&program=cube", dials: [0.2, 0.25, 0.3] },
   { name: "screen-tic-tac-toe", hash: "#view=screen&program=tic-tac-toe", setup: PLAY, readme: "screen.jpg" },
   { name: "screen-perspective-cube", hash: "#view=screen&program=perspective-cube", dials: [0.1, 0.15, 0.2] },

@@ -4,15 +4,15 @@
 
 The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processor that walked a structured picture every frame, a hybrid analog array that turned it in three dimensions in under 4 microseconds a point, and a refreshed vector CRT, with its console and its Teletype.
 
-> **A pre-release (v0.0.5).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below. New in v0.0.5: NCSU's own monitor and games, LIFE and Space War, run from the lab's 1976 system pack ([CHANGELOG.md](CHANGELOG.md)).
+> **A pre-release (v0.0.6).** The simulator is still changing. Its links (`#view=…&program=…`) may change before 1.0.0, and where the documents stop it reconstructs, as listed below. New in v0.0.6: the scope's white phosphor with its green afterglow, as M. Howard remembers it; since v0.0.5, NCSU's own monitor and games, LIFE and Space War, run from the lab's 1976 system pack ([CHANGELOG.md](CHANGELOG.md)).
 
 **[▶ Try it online](https://wixette.github.io/agt30-simulator/)**: nothing to install. Made for a desktop browser (recent Chrome, Edge, Safari or Firefox), and it works on a phone too.
 
-![The Room: the AGT-30 installation in 3D, Fig. 12's random lines on the scope, the console's dials and function keys below it, and the session on the Teletype's paper](./images/readme/room.jpg)
+![The Room: the AGT-30 installation in 3D, a tunnel of squares on the scope, the console's dials and function keys below it, and the session on the Teletype's paper](./images/readme/room.jpg)
 
 <table>
 <tr>
-<td width="50%"><b>The Screen</b>: the picture close up, here 3-D tic-tac-toe in play, the marks placed with the light pen.<br><img src="./images/readme/screen.jpg" alt="The Screen viewpoint: the 3 x 3 x 3 tic-tac-toe board in green phosphor, two X's and two O's on its bottom layer, X's turn shown at the top left"></td>
+<td width="50%"><b>The Screen</b>: the picture close up, here 3-D tic-tac-toe in play, the marks placed with the light pen.<br><img src="./images/readme/screen.jpg" alt="The Screen viewpoint: the 3 x 3 x 3 tic-tac-toe board in the white phosphor, two X's and two O's on its bottom layer, X's turn shown at the top left"></td>
 <td width="50%"><b>The Tube</b>: the scope cut open, time slowed 100,000 times, the beam drawing the letter A, with its X, Y and Z signals below.<br><img src="./images/readme/tube.jpg" alt="The Tube viewpoint: the scope's cabinet cut away, the electron gun, the yoke and the beam reaching the face, where the letter A is being drawn; the deflection and intensity traces below; the live screen in the corner"></td>
 </tr>
 </table>
@@ -104,7 +104,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R11.** The pen-hit table's layout and PENHT's code are ours.
 - **R12.** Dash mode draws about ten dashes an inch.
 - **R13.** The tunnel's perspective routine is JavaScript, charged an estimated time.
-- **R14.** The phosphor: green and medium-short, P31-like; the GDS1's is not documented.
+- **R14.** The phosphor: P7-like, a cool white flash fading to a long yellow-green afterglow, as M. Howard remembers it; the times are ours, and the GDS1's phosphor is not documented.
 - **R15.** Core at start holds the paper's pictures and the resident routines; 32K words, as NCSU's.
 - **R16.** Sizes: the scope measured from photographs; the racks, tapes and disks estimated.
 - **R17.** The Teletype is an ASR-35 at its documented size, shaped from photographs; the ASR-33 is kept as an option.
