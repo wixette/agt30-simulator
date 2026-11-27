@@ -50,11 +50,13 @@ export const IC_GDD1 = 10;
 /** D10 upper-half bits (DISP2, GDS1). */
 export const MODE = { ON: [0, 1], CLOCK: 5, SCOPES: [6, 9] };
 /** Array register numbers as D07 gives them (R22); the rest are kept but not used. */
-export const ARRAY_REGS = /** @type {const} */ ({ 0o05: "SC", 0o15: "DX", 0o16: "DY", 0o17: "DZ", 0o20: "PS" });
+export const ARRAY_REGS = /** @type {const} */ ({ 0o05: "SC", 0o06: "R11", 0o07: "R22", 0o10: "R33", 0o11: "R13", 0o13: "R23", 0o15: "DX", 0o16: "DY", 0o17: "DZ", 0o20: "PS" });
+/** D07's register that selects the converter's input, one bit a channel (R7, R22). */
+export const SELECTOR_REG = 0o01;
 /** The bit in D07's upper half that resets the array to the identity (R22). */
 export const ARRAY_RESET = 0o100;
-/** The bit in D07's upper half that makes the next two words load this register and the next (R22). */
-export const ARRAY_PAIR = 0o200;
+/** The bit in D07's upper half that starts a run of words loading this register and the next ones (R22). */
+export const ARRAY_RUN = 0o200;
 
 /** @param {number} half @param {number} b Adage bit 0-14 of a half-word @returns {boolean} */
 const halfBit = (half, b) => Math.floor(half / 2 ** (14 - b)) % 2 === 1;
@@ -73,8 +75,8 @@ export class Avg1 {
     /** D06: the command and z. */
     this.command = 0;
     this.z = 0;
-    /** @type {{ next: number; left: number } | null} a pair load under way (ARRAY_PAIR) */
-    this.pair = null;
+    /** @type {{ next: number } | null} a run of loads under way (ARRAY_RUN) */
+    this.run = null;
     /** Every register D07 has loaded, by number, as half-words (32 places). */
     this.loaded = new Array(32).fill(0);
     /** The beam, inches from the center. */
@@ -143,24 +145,33 @@ export class Avg1 {
    * @param {number} value
    */
   load(upper, value) {
-    // 0200 in the upper half starts a pair: the next two words load this register and the next,
-    // from their lower halves, whatever their upper halves hold (R22). LIFE places each cell so,
-    // X then Y; AMRMX's one such word is followed by two data words too.
-    if (this.pair) {
-      const r = this.pair.next++;
-      if (--this.pair.left === 0) this.pair = null;
+    // 0200 in the upper half starts a run: the words that follow with no register in their upper
+    // half (its low five bits zero) load this register and the ones after it, from their lower
+    // halves, until a word names a register again. QUBIC and BROSE load 03-22 so, sixteen words;
+    // LIFE places each cell so, 15 and 16; AMRMX loads 06 and 07 (R22).
+    if (this.run && (upper & 0o37) === 0) {
+      const r = this.run.next++ & 0o37;
       this.loaded[r] = value;
       const nm = ARRAY_REGS[/** @type {keyof typeof ARRAY_REGS} */ (r)];
       if (nm) this.array.load(nm, value);
       return;
     }
-    if (upper & ARRAY_PAIR) {
+    this.run = null;
+    if (upper & ARRAY_RUN) {
       if (upper & ARRAY_RESET) this.resetArray();
-      this.pair = { next: upper & 0o37, left: 2 };
+      this.run = { next: upper & 0o37 };
       return;
     }
     if (upper & ARRAY_RESET) this.resetArray();
     const n = upper & 0o37;
+    // register 01 is the input selector, one bit a channel, and selecting starts a conversion:
+    // LIFE reads its speed dial so, and QUBIC and BROSE the six dials, 1, 2, 4 ... 40 (R7, R22)
+    if (n === SELECTOR_REG && value) {
+      let ch = 0;
+      while (ch < 15 && !(value & (1 << ch))) ch++;
+      this.cpu.mux = ch;
+      this.cpu.convert();
+    }
     this.loaded[n] = value;
     const name = ARRAY_REGS[/** @type {keyof typeof ARRAY_REGS} */ (n)];
     if (name) this.array.load(name, value);
@@ -231,7 +242,7 @@ export class Avg1 {
     this.loaded.fill(0);
     this.drawing = null;
     this.nextClock = null;
-    this.pair = null;
+    this.run = null;
     this.resetArray();
   }
 }

@@ -8,7 +8,7 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { ARRAY_PAIR, Avg1, EOLPV, EOVPV } from "../sim/avg1.js";
+import { ARRAY_RUN, Avg1, EOLPV, EOVPV, SELECTOR_REG } from "../sim/avg1.js";
 import { dumpRecords } from "../sim/bare.js";
 import { assembleOp, CHANNEL, disassemble, Dpr2, onesAdd, OPS, PIPVT, rotl, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
@@ -742,11 +742,11 @@ export const MODEL_CHECKS = [
 
   {
     id: "AVG-4",
-    title: "D07 with 0200 in the upper half starts a pair: the next two words load that register and the next from their lower halves, as LIFE places each cell (R22)",
+    title: "D07 with 0200 in the upper half starts a run: words with no register in their upper half load that register and the next ones, until a word names a register, as LIFE places each cell and QUBIC loads sixteen (R22)",
     run() {
       const { core, cpu, avg } = bareAvg();
       core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
-      core.write(0o1001, word(ARRAY_PAIR | 0o15, 0));
+      core.write(0o1001, word(ARRAY_RUN | 0o15, 0));
       core.write(0o1002, assembleOp("MDMX", 0, { L: true }));
       core.write(0o1003, word(0o17200, 0o17600));
       core.write(0o1004, assembleOp("MDMX", 0, { L: true }));
@@ -759,6 +759,42 @@ export const MODEL_CHECKS = [
       equal(oct(avg.loaded[0o16], 5), "17200", "the second's to 16");
       equal(oct(avg.loaded[0o5], 5), "01000", "then words name their register again");
       equal(avg.loaded[0], 0, "nothing went to register 0");
+    },
+  },
+  {
+    id: "AVG-5",
+    title: "D07's registers 06, 07, 10 are the array's diagonal, 11 and 13 carry z into x and y, and D06's lower half is z: LIFE centers its board so, with z = -0.5 (R22)",
+    run() {
+      const { core, cpu, avg } = bareAvg();
+      /** @type {[string, number][]} */
+      const prog = [
+        ["MDMX", word(0o120, 0o37777)], ["MDMX", word(0o11, 0o37777)], ["MDMX", word(0o13, 0o37777)],
+        ["MDMX", word(ARRAY_RUN | 0o15, 0)], ["MDMX", word(0, 0o17600)], ["MDMX", word(0, 0o17600)],
+        ["MD06", word(0, 0o60000)], ["MD10", word(0o60400, 0)], ["MDXY", vword(0, 0, true, true)],
+      ];
+      prog.forEach(([m, lit], i) => { core.write(0o1000 + 2 * i, assembleOp(m, 0, { L: true })); core.write(0o1001 + 2 * i, lit); });
+      cpu.LC = 0o1000;
+      for (let i = 0; i < prog.length; i++) cpu.step();
+      const s = avg.take()[0];
+      near(s.x1, 10 * (0o17600 / 0o40000 - 0.5), 0.02, "cell 63 of 0-127 lands just left of the center");
+      near(s.y1, s.x1, 1e-9, "and as far down");
+    },
+  },
+  {
+    id: "AVG-6",
+    title: "D07's register 01 selects the converter's input, one bit a channel, and starts a conversion, as LIFE reads its speed dial (R7, R22)",
+    run() {
+      const core = new Core();
+      /** @type {Avg1} */
+      let avg;
+      const cpu = new Dpr2(core, { type: () => true, switches: () => 0, analog: (ch) => (ch === 2 ? 0.5 : 0), write: (d, v, l) => avg.write(d, v, l) });
+      avg = new Avg1(cpu, new HybridArray());
+      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1001, word(SELECTOR_REG, 0o4));
+      cpu.LC = 0o1000;
+      cpu.step();
+      equal(cpu.mux, 2, "bit 2 selects channel 2");
+      equal(oct(cpu.adc, 5), oct(0o20000, 5), "converted: 0.5");
     },
   },
   // ---- the operator's control panel (R21) ----
