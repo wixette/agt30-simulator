@@ -19,6 +19,7 @@ The lab's own software runs. NCSU's monitor, AMRMX (1976), boots from M. Howard'
 - The Teletype is an ASR-35, the console desk AGTs used, at its documented size and in the shape photographs show (R17); the ASR-33 is kept as an option.
 - The operator's control panel works, in a Panel tab and on the processor rack in 3D, with a Panel viewpoint: BR's lamp-buttons, the PRI switches, PULSE 1 (pressed again, it withdraws its request), RUN, HALT, PAUSE, STEP, CYCLE, RESET, ON and OFF, BTSP, IC 0 and IC 1 (R21).
 - The Screen viewpoint's scope stays square in any window.
+- The address bar keeps only the viewpoint, so a copied link opens the app as it starts; links with `#program=` made on purpose still work (U13).
 
 **Also**
 - The pack image is understood: the dump on tape is the pack's first 984 sectors, with the monitor and the games LIFE, QUBIC, Space War and BROSE ([research/ncsu-tapes.md](research/ncsu-tapes.md)).

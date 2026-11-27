@@ -151,7 +151,9 @@ async function start() {
   };
   drawCard();
 
-  const writeLink = () => history.replaceState(null, "", `${location.pathname}${location.search}${formatLink({ view, program: program?.id })}`);
+  // the address bar keeps the viewpoint only: a link copied from it opens the app as it starts,
+  // not in whatever program was tried last; #program= is still read, for links made on purpose (U13)
+  const writeLink = () => history.replaceState(null, "", `${location.pathname}${location.search}${formatLink({ view })}`);
 
   /**
    * Loads a program as the Programs menu does: types its statements (U8). Typing still under
