@@ -200,7 +200,7 @@ export class TerminalView {
       f?.done();
     });
     // the Tube's beam: from the gun to the yoke, then bent to the spot; faint while blanked
-    const beamColor = token("--phosphor", "#7dff9b");
+    const beamColor = token("--phosphor", "#e6eeff");
     const unit = new THREE.CylinderGeometry(1, 1, 1, 10, 1, true);
     /** @param {number} opacity */
     const beamMat = (opacity) => new THREE.MeshBasicMaterial({ color: beamColor, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });

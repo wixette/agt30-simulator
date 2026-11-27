@@ -253,7 +253,7 @@ The array also has analog inputs of its own: the dials, the joystick and the tab
 
 AVG1 takes each transformed point as a voltage and drives the beam from where it is to there in a straight line, at nearly constant speed, bright for a DRAW and blanked for a MOVE. A vector takes 5 to 39 µs, 3 µs of it between vectors, growing with its longest component; a long move takes 15 µs (SRM5 AVG1 pp. 1–2). The analog space is 20 inches square, but one stroke's component is at most 10 inches, and the GDS1 scope shows a 12 × 12-inch square; lines beyond it are clamped. A short mode draws tiny vectors faster, at the cost of accuracy.
 
-The scope is a 21-inch CRT. Its phosphor is not documented (R14). M. Howard remembers it as P7 (or P30, as the recording of the call has it): a cool white flash that decays towards green, with a very long afterglow (MH26). A long afterglow helps a refreshed display flicker less, and smears a moving one. Text was hard to read beyond five or six lines at once, and the lab darkened the room to watch (MH26).
+The scope is a 21-inch CRT. Its phosphor is not documented (R14). M. Howard remembers it as P7 (or P30, as the recording of the call has it): a cool white flash that decays towards green, with a very long afterglow (MH26). A long afterglow helps a refreshed display flicker less, and smears a moving one. Text was hard to read beyond five or six lines at once, and the lab darkened the room to watch (MH26). The simulator draws it so, a white flash and a yellow-green afterglow, with times of our own (R14).
 
 Characters are drawn as vectors too, a few strokes each, in italics (MH26).
 
@@ -386,13 +386,13 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 | How a dial's input is chosen | GDD1's word is undocumented | R7 |
 | The Teletype's bit timing | the manual it refers to is missing | R9 |
 | How the simulator serves some interrupts, and PIPVT | not yet modeled; the address is undocumented | R10 |
-| The phosphor | undocumented; M. Howard's memory now gives a lead | R14 |
+| The phosphor | undocumented; modeled on M. Howard's memory of a P7-like white with a green afterglow | R14 |
 | The monitor | AMRMX's source is lost; a subset is written in JavaScript | R9, R15 |
 | The installation's sizes and shapes | photographs and the period's common sizes | R16–R18 |
 
 **Open questions** (and asked of M. Howard where marked; [../research/correspondence.md](../research/correspondence.md)):
 
-- the phosphor's color and afterglow (asked);
+- the phosphor's afterglow, how long and how bright (asked);
 - what timed the Teletype's bits (asked);
 - what destination 07 takes in its word (asked), and what destinations 05 and 06 carry besides x, y and z;
 - where PIPVT is (asked);

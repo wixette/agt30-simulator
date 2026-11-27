@@ -16,26 +16,48 @@
 // repaint; a picture refreshed more slowly (20 a second) is caught between frames by some
 // repaints, and flickers, as it did. In slowed time W is the eye's 33 ms, slowed: the face then
 // shows the beam drawing, its trail fading with the phosphor.
+//
+// A P7-like phosphor, the default (R14), has two parts: a cool white flash that fades as above,
+// and a yellow-green afterglow that lasts a large part of a second. The afterglow is not summed
+// stroke by stroke (a second of strokes, drawn again on every repaint, would be too many): each
+// stroke leaves its glow in a layer that fades by exp(-dt / tau) as time passes (crt.js). A
+// stroke refreshed every period P adds d each time and settles at d / (1 - exp(-P / tau)).
+
+/**
+ * @typedef {object} Afterglow
+ * @property {number} tauUs its decay time constant (simulated microseconds)
+ * @property {string} color the token of its color
+ * @property {number} level how bright it is under a steady 40-frames-a-second picture, relative
+ *   to the flash at full brightness
+ */
 
 /**
  * @typedef {object} Phosphor
- * @property {"p31" | "p4" | "p7"} id the ?phosphor= value (docs/development.md)
- * @property {number} tauUs decay time constant (simulated microseconds)
- * @property {string} color the token of its color
+ * @property {"p7" | "p31" | "p4"} id the ?phosphor= value (docs/development.md)
+ * @property {number} tauUs the flash's decay time constant (simulated microseconds)
+ * @property {string} color the token of the flash's color
+ * @property {Afterglow} [glow] a long afterglow of another color
  */
 
-/** The GDS1's phosphor is not documented: P31-like is ours (R14); P4 and P7 for comparison. */
+/**
+ * The GDS1's phosphor is not documented. P7-like, after M. Howard's memory of a cool white
+ * flash decaying towards green with a very long afterglow, is the default; its times are ours
+ * (R14). P31-like green (the default to 0.0.5) and P4-like white for comparison.
+ */
 export const PHOSPHORS = /** @type {Phosphor[]} */ ([
-  { id: "p31", tauUs: 1500, color: "--phosphor" },
+  { id: "p7", tauUs: 100, color: "--phosphor-p7", glow: { tauUs: 150000, color: "--phosphor-p7-glow", level: 0.3 } },
+  { id: "p31", tauUs: 1500, color: "--phosphor-p31" },
   { id: "p4", tauUs: 300, color: "--phosphor-p4" },
-  { id: "p7", tauUs: 60000, color: "--phosphor-p7" },
 ]);
 
 /** How long an eye sums light, us: a thirtieth of a second. */
 export const EYE_US = 1e6 / 30;
 
+/** The frame period the brightness is set for: a steady picture at 40 frames a second. */
+export const STEADY_US = 25000;
+
 /**
- * The phosphor for a ?phosphor= value; P31-like unless another is named.
+ * The phosphor for a ?phosphor= value; P7-like unless another is named.
  * @param {string | null | undefined} id
  * @returns {Phosphor}
  */
@@ -90,6 +112,13 @@ export function steadyLight(periodUs, phaseUs, tau, window) {
  * @returns {number}
  */
 export function gainFor(p) {
-  const period = 25000;
-  return 1.5 / steadyLight(period, 0, p.tauUs, eyeWindowUs(period, 1));
+  return 1.5 / steadyLight(STEADY_US, 0, p.tauUs, eyeWindowUs(STEADY_US, 1));
 }
+
+/**
+ * The glow a fresh stroke leaves, so that a steady 40-frames-a-second picture's afterglow
+ * settles at its level.
+ * @param {Afterglow} g
+ * @returns {number}
+ */
+export const glowDeposit = (g) => g.level * (1 - Math.exp(-STEADY_US / g.tauUs));

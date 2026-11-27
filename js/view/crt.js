@@ -5,11 +5,16 @@
 // resolution Screen viewpoint and the 3D scope face's texture, and finds where the light pen
 // points.
 
-import { gainFor, light, PHOSPHORS } from "./phosphor.js";
+import { gainFor, glowDeposit, light, PHOSPHORS } from "./phosphor.js";
 import { rgbOf, token } from "./theme.js";
 
 /** @typedef {import("../sim/dsply.js").Seg} Seg */
 /** @typedef {import("./phosphor.js").Phosphor} Phosphor */
+
+/** The afterglow's layer holds its light this many times over and is shown at a third: with
+ * fading in steps to 0.75, a pixel that rounding keeps from fading (1 of 255) shows as nothing. */
+const GLOW_SCALE = 3;
+const GLOW_STEP = 0.75;
 
 /** Inches of the visible face (12 in square). */
 const FACE_IN = 12;
@@ -33,6 +38,15 @@ export class CrtView {
     this.gain = 1;
     /** The phosphor's color. */
     this.color = "#7dff9b";
+    /** The afterglow's layer (phosphor.js), its time, and the fading owed to it. */
+    /** @type {OffscreenCanvas | null} */
+    this.glow = null;
+    /** @type {number | null} the simulated time the layer shows, null when empty */
+    this.glowAt = null;
+    /** The layer holds its light divided by this; it is faded only when this falls to
+     * GLOW_STEP, so that 8-bit pixels are not rounded at every repaint. */
+    this.glowFade = 1;
+    this.glowColor = "#b6e35a";
     this.setPhosphor(PHOSPHORS[0]);
   }
 
@@ -40,7 +54,9 @@ export class CrtView {
   setPhosphor(p) {
     this.phosphor = p;
     this.gain = gainFor(p);
-    this.color = token(p.color, "#7dff9b");
+    this.color = token(p.color, "#e6eeff");
+    if (p.glow) this.glowColor = token(p.glow.color, "#b6e35a");
+    this.glowAt = null;
   }
 
   /** Blanks the face: nothing lit (a surface left keeps no stale picture). */
@@ -49,6 +65,75 @@ export class CrtView {
     this.ctx.globalAlpha = 1;
     this.ctx.fillStyle = token("--crt-face", "#050806");
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.glowAt = null;
+  }
+
+  /**
+   * Brings the afterglow's layer to a time: what it held fades, the strokes ended since leave
+   * their glow (phosphor.js).
+   * @param {Seg[]} segs
+   * @param {number} now
+   * @param {number} k pixels an inch
+   * @param {number} spot the spot's width, pixels
+   * @returns {OffscreenCanvas | null} the layer, or null for a phosphor without one
+   */
+  afterglow(segs, now, k, spot) {
+    const g = this.phosphor.glow;
+    if (!g) return null;
+    const S = this.canvas.width;
+    if (!this.glow || this.glow.width !== S) {
+      this.glow = new OffscreenCanvas(S, S);
+      this.glowAt = null;
+    }
+    const gx = /** @type {OffscreenCanvasRenderingContext2D} */ (this.glow.getContext("2d"));
+    const tau = g.tauUs;
+    let since = this.glowAt;
+    if (since === null || now < since || now - since > 8 * tau) {
+      gx.globalCompositeOperation = "source-over";
+      gx.clearRect(0, 0, S, S);
+      this.glowFade = 1;
+      since = now - 8 * tau;
+    } else {
+      this.glowFade *= Math.exp(-(now - since) / tau);
+      if (this.glowFade <= GLOW_STEP) {
+        gx.globalCompositeOperation = "destination-out";
+        gx.globalAlpha = 1;
+        gx.fillStyle = `rgba(0,0,0,${1 - this.glowFade})`;
+        gx.fillRect(0, 0, S, S);
+        this.glowFade = 1;
+      }
+    }
+    this.glowAt = now;
+    const LEVELS = 24;
+    const paths = Array.from({ length: LEVELS }, () => new Path2D());
+    const counts = new Array(LEVELS).fill(0);
+    const d = (GLOW_SCALE * glowDeposit(g)) / this.glowFade;
+    for (let n = segs.length - 1; n >= 0; n--) {
+      const s = segs[n];
+      if (s.t1 <= since) break;
+      if (s.t1 > now || !s.vis) continue;
+      const a = Math.min(1, d * Math.exp(-(now - s.t1) / tau) * Math.max(s.i0, s.i1));
+      if (a < 0.004) continue;
+      const lvl = Math.min(LEVELS - 1, Math.floor(Math.sqrt(a) * LEVELS));
+      const x0 = S / 2 + s.x0 * k;
+      const y0 = S / 2 - s.y0 * k;
+      const x1 = S / 2 + s.x1 * k;
+      const y1 = S / 2 - s.y1 * k;
+      paths[lvl].moveTo(x0, y0);
+      paths[lvl].lineTo(x1 + (x1 === x0 && y1 === y0 ? 0.01 : 0), y1);
+      counts[lvl]++;
+    }
+    gx.globalCompositeOperation = "lighter";
+    gx.strokeStyle = this.glowColor;
+    gx.lineCap = "round";
+    gx.lineWidth = spot * 1.8;
+    for (let lvl = 0; lvl < LEVELS; lvl++) {
+      if (!counts[lvl]) continue;
+      gx.globalAlpha = ((lvl + 0.5) / LEVELS) ** 2;
+      gx.stroke(paths[lvl]);
+    }
+    gx.globalAlpha = 1;
+    return this.glow;
   }
 
   /** Matches the canvas's pixels to its size on screen. */
@@ -84,6 +169,15 @@ export class CrtView {
     ctx.globalAlpha = 1;
     ctx.fillStyle = token("--crt-face", "#050806");
     ctx.fillRect(0, 0, S, S);
+    const spot = Math.max(1.1, 0.02 * k);
+    const glow = this.afterglow(segs, now, k, spot);
+    if (glow) {
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = this.glowFade / GLOW_SCALE;
+      ctx.drawImage(glow, 0, 0);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+    }
     const LEVELS = 24;
     /** @type {Path2D[]} */
     const paths = Array.from({ length: LEVELS }, () => new Path2D());
@@ -133,7 +227,6 @@ export class CrtView {
     }
     ctx.globalCompositeOperation = "lighter";
     ctx.lineCap = "round";
-    const spot = Math.max(1.1, 0.02 * k);
     for (let lvl = 0; lvl < LEVELS; lvl++) {
       if (!counts[lvl]) continue;
       const a = ((lvl + 0.5) / LEVELS) ** 2;

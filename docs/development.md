@@ -20,7 +20,7 @@ Then open <http://localhost:8000/>. `pnpm serve` tells the browser not to cache,
 | Option | What it does |
 |---|---|
 | `?selftest` | Runs the page's acceptance checks and shows a tick or a cross for each; publishes `window.__selftest = { done, passed, failed }` |
-| `?phosphor=p31`, `p4` or `p7` | Uses that phosphor model (R14). `p31` is the default |
+| `?phosphor=p7`, `p31` or `p4` | Uses that phosphor model (R14). `p7` is the default; `p31` is the green default to 0.0.5 |
 | `?debug` | Exposes the machine to the console as `agt`, and the stage as `stage` |
 
 The link format of the page itself (`#view=`, `#program=`) is described in [ui-design.md](ui-design.md), U13. It is not frozen before 1.0.0.

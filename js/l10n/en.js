@@ -361,7 +361,7 @@ export default {
   "recon.R11": "The pen-hit table's layout and PENHT's code are ours.",
   "recon.R12": "Dash mode draws about ten dashes an inch.",
   "recon.R13": "The tunnel's perspective routine is JavaScript, charged an estimated time.",
-  "recon.R14": "The phosphor: green and medium-short, P31-like; the GDS1's is not documented.",
+  "recon.R14": "The phosphor: P7-like, a cool white flash fading to a long yellow-green afterglow, as M. Howard remembers it; the times are ours, and the GDS1's phosphor is not documented.",
   "recon.R15": "Core at start holds the paper's pictures and the resident routines; 32K words, as NCSU's.",
   "recon.R16": "Sizes: the scope measured from photographs; the racks, tapes and disks estimated.",
   "recon.R17": "The Teletype is an ASR-35 at its documented size, shaped from photographs; the ASR-33 is kept as an option.",

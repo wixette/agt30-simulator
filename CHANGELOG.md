@@ -4,6 +4,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 
 ## Unreleased
 
+- **The phosphor is white** (R14): a P7-like cool white flash with a long yellow-green afterglow, as M. Howard remembers NCSU's scope, in place of the P31-like green. Moving pictures leave a fading trail, and busy text is harder to read, as he recalls. The green is kept as `?phosphor=p31`.
 - The pack's download gives up a stalled try after 20 seconds and tries three times, so a link to LIFE or Space War no longer waits for ever at "Fetching…" on a slow line (U19).
 - LIFE's card no longer speaks of a zoom the Screen viewpoint does not have.
 - `pnpm game-shots` (tools/game-shots.mjs) takes pictures of the panel, LIFE with a glider gun and Space War, for posts and letters.
