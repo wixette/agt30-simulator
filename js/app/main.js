@@ -6,6 +6,8 @@
 
 import params from "../../params/terminal.json" with { type: "json" };
 import pkg from "../../package.json" with { type: "json" };
+import { readPack } from "../sim/bare.js";
+import { PACK_URL } from "./aboutData.js";
 import { Agt30, FAST_US_PER_CHAR } from "../sim/agt.js";
 import { tickUs } from "../sim/frameclock.js";
 import { readPrograms } from "../sim/programs.js";
@@ -20,6 +22,7 @@ import { Runner } from "./runner.js";
 import { selftestRequested, runSelftest } from "./selftest.js";
 import { Stage } from "./stage.js";
 import { buildStrip } from "./strip.js";
+import { buildPanel } from "./panel.js";
 import { buildProcessor } from "./processor.js";
 import { buildReferences } from "./references.js";
 import { buildTeletype } from "./teletype.js";
@@ -81,14 +84,47 @@ async function start() {
   if (query.has("debug")) Object.defineProperty(window, "stage", { value: stage });
   /** @type {{ render: (force?: boolean) => void } | null} */
   let proc = null;
+  /** @type {{ render: (force?: boolean) => void } | null} */
+  let panel = null;
   buildReferences(/** @type {HTMLElement} */ (document.getElementById("pane-refs")));
   const dock = buildDock(() => stage.refit(), (id) => {
     if (id === "proc") proc?.render(true);
+    if (id === "panel") panel?.render(true);
   });
   const tty = buildTeletype(machine, () => {
     if (!dock.ttyShown()) dock.mark("tty");
   });
   proc = buildProcessor(machine, say, () => dock.procShown());
+  // ---- the real monitor (U19): NCSU's system pack, fetched once, when asked for ----
+  /** @type {Promise<Uint32Array> | null} */
+  let pack = null;
+  /** @param {import("../sim/bare.js").GameId} [game] a game to start once booted */
+  const bootPack = async (game) => {
+    try {
+      if (!pack) {
+        say(t("status.pack.fetching"));
+        pack = fetch(PACK_URL).then(async (r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return readPack(await r.arrayBuffer());
+        });
+      }
+      const words = await pack;
+      if (!game) {
+        program = null;
+        drawCard();
+      }
+      if (game) agt.startGame(game, words);
+      else agt.bootPack(words);
+      proc?.render(true);
+      panel?.render(true);
+      stage.go("screen");
+      say(game ? t(`status.game.${game}`) : t("status.pack.booted"));
+    } catch (e) {
+      pack = null;
+      say(t("status.pack.failed", { error: /** @type {Error} */ (e).message }));
+    }
+  };
+  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown(), () => void bootPack());
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
   // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu
@@ -115,7 +151,9 @@ async function start() {
   };
   drawCard();
 
-  const writeLink = () => history.replaceState(null, "", `${location.pathname}${location.search}${formatLink({ view, program: program?.id })}`);
+  // the address bar keeps the viewpoint only: a link copied from it opens the app as it starts,
+  // not in whatever program was tried last; #program= is still read, for links made on purpose (U13)
+  const writeLink = () => history.replaceState(null, "", `${location.pathname}${location.search}${formatLink({ view })}`);
 
   /**
    * Loads a program as the Programs menu does: types its statements (U8). Typing still under
@@ -123,6 +161,19 @@ async function start() {
    * @param {Program} p
    */
   const load = (p) => {
+    if (p.game) {
+      // one of NCSU's games: the pack fetched if need be, AMRMX booted, the game started (U19)
+      agt.cancelTyping();
+      program = p;
+      drawCard();
+      if (dock.isFolded()) dock.show("program");
+      dock.mark("program");
+      writeLink();
+      void bootPack(p.game);
+      return;
+    }
+    // the programs are the simulator's monitor's: back to it from the real one
+    if (agt.bare) reboot();
     agt.cancelTyping();
     program = p;
     agt.type(p.statements.join(""), FAST_US_PER_CHAR);
@@ -148,6 +199,7 @@ async function start() {
     drawCard();
     tty.render();
     proc?.render(true);
+    panel?.render(true);
     writeLink();
     say(was ? t("status.unloaded", { title: t(`program.${was.id}.title`) }) : t("status.reset"));
   };
@@ -174,12 +226,14 @@ async function start() {
     syncSwitches(programCard, agt);
     tty.render();
     proc?.render();
+    panel?.render();
     if (agt.typing !== wasBusy) {
       wasBusy = agt.typing;
       drawCard();
       if (!wasBusy && program) say(t("status.loaded", { title: t(`program.${program.id}.title`) }));
     }
-    fpsEl.textContent = agt.image === null ? t("status.halted") : runner.scale < 1 ? t("status.slowed", { rate: agt.rate }) : t("status.fps", { fps: num(Math.round(agt.stats().fps)), rate: agt.rate });
+    const p = agt.panel;
+    fpsEl.textContent = !p.power ? t("status.powerOff") : !p.running ? t(`status.cpu.${p.mode}`) : agt.bare ? t("status.amrmx") : agt.image === null ? t("status.halted") : runner.scale < 1 ? t("status.slowed", { rate: agt.rate }) : t("status.fps", { fps: num(Math.round(agt.stats().fps)), rate: agt.rate });
   });
 
   // ---- the link (U13): a viewpoint and a program ----

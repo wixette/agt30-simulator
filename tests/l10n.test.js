@@ -4,6 +4,8 @@
 // message in js/l10n/en.js, and every message there is used. Keys built at run time are listed
 // from the data they come from.
 
+import { GAMES } from "../js/sim/bare.js";
+import { CONTROLS, SELECTOR } from "../js/sim/panel.js";
 import { MODES } from "../js/sim/listing.js";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
@@ -52,6 +54,11 @@ function dynamicKeys() {
     for (const [id] of items) keys.add(`refs.${g}.${id}`);
   }
   for (const v of VIEWS) keys.add(`view.${v}`);
+  for (const c of CONTROLS) keys.add(`panel.${c}`).add(`panel.${c}.tip`);
+  for (const s of SELECTOR) keys.add(`panel.sel.${s}`);
+  for (const m of ["run", "halt", "pause"]) keys.add(`panel.state.${m}`);
+  for (const m of ["halt", "pause"]) keys.add(`status.cpu.${m}`);
+  for (const g of Object.keys(GAMES)) keys.add(`status.game.${g}`);
   for (const s of ["waiting", "preparing", "drawing", "moving"]) keys.add(`trace.${s}`);
   for (const s of ["drawing", "moving", "waiting", "off"]) keys.add(`beam.${s}`);
   for (const l of ["code", "content", "three", "font", "icons"]) keys.add(`about.license.${l}`);

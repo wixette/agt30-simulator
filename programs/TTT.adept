@@ -154,7 +154,8 @@ G.CLR:  ARXO
         ARMD G.LAST             [ HITS BEFORE THE GAME DO NOT COUNT; HITS
         JPSR G.TYP; G.M0        [ WHILE THIS LINE PRINTS ARE TAKEN AFTER IT
 [ WAIT FOR A KEY OR THE PEN
-G.WAIT: S5AR'H                  [ THE FUNCTION KEYS, KEY 0 AT THE TOP
+G.WAIT: MDIC'O G.IC9             [ IC BIT 9 SELECTS FNS 1-15 IN S5 (FSRR, MH25)
+        S5AR'H                  [ THE FUNCTION KEYS, KEY 0 AT THE TOP
         MDAR'A G.KM0
         JPLS G.K0
         S5AR'H
@@ -391,6 +392,7 @@ G.SOL:  ANDMB (67600)           [ SOLID (DASH OFF)
 G.DSH:  ORMB (10000)            [ DASHED
 G.PON:  ORMB (2000)             [ PEN ON
 G.POF:  ANDMB (75600)           [ PEN OFF
+G.IC9:  40!H                    [ IC BIT 9
 G.KM0:  40000                   [ THE KEYS, ROTATED INTO THE LOWER HALF: KEY 0
 G.KM1:  20000                   [ KEY 1
 G.KM2:  10000                   [ KEY 2

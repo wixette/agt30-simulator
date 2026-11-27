@@ -64,8 +64,13 @@ js/sim/        the machine: no DOM, no three.js
   dpr2.js        the processor: registers, transfer bus, EAU, PRI, timings; ENCODING, OPS
   adept.js       the ADEPT subset assembler
   amos.js        the AMOS monitor subset; amoscode.js: the 6-bit code
-  teletype.js    the ASR-33's paper model (from the 8800 simulator)
+  teletype.js    the Teletype's paper model (from the 8800 simulator's ASR-33)
   agt.js         the AGT-30 as a whole: terminal + DPR-2 + devices + Teletype + monitor
+  panel.js       the operator's control panel: BR, the PRI switches, RUN / HALT / STEP, PULSE 1 (R21)
+  avg1.js        AVG1 and the array as the DPR-2 sees them: D05 vectors, end-of-vector and end-of-list interrupts, D07 array loads, D10 modes (R22)
+  ttyline.js     the Teletype's line at bit level: the bit clock, OPTY's BR[22], S4[14] (R23)
+  dms2.js        the disk as AMRMX drives it (R24)
+  bare.js        the real monitor: the pack read, our bootstrap, the processor run with the devices above (U19)
   figures.js     the generated pictures, built into core; font.js: the stroke font
   programs.js    reads programs/index.json and the .adept files (the caller supplies the reading)
 js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (the face, the pen's
@@ -73,7 +78,8 @@ js/view/       2D views: phosphor.js (the phosphor and the eye, pure), crt.js (t
 js/scene/      three.js: terminal3d.js (built from params), viewer.js (framing, flights, picking,
                the cutaway and the beam)
 js/app/        the page: main.js, runner.js (time), stage.js (viewpoints, their menu, cards),
-               strip.js, dock.js, programCard.js, teletype.js, about.js, link.js, selftest.js
+               strip.js, dock.js, programCard.js, teletype.js, processor.js, panel.js (the
+               operator's panel, R21), about.js, link.js, selftest.js
 js/ui/         components.js: icons, tooltips, menus, tabs, dialogs
 js/l10n/       l10n.js (lookup) and en.js
 js/accept/     acceptance checks shared by tests/ and ?selftest

@@ -33,7 +33,7 @@ Space that is always there is for things that change while you watch: the pictur
 
 | Surface | Case | Translated (when languages come) |
 |---|---|---|
-| The machine: the Teletype's paper, the AMOS statements, ADEPT source, the marks on the console | UPPER CASE where the machine was | No: the ASR-33 and AMOS had no lower case, and statements are code |
+| The machine: the Teletype's paper, the AMOS statements, ADEPT source, the marks on the console | UPPER CASE where the machine was | No: the Teletype and AMOS had no lower case, and statements are code |
 | The instrument: top bar, viewpoint menu, cards, dock, status line | Sentence case | Yes |
 
 ### P6. Unavailable is grayed and explained, never hidden
@@ -55,7 +55,7 @@ What a 1968 operator saw and touched is the primary surface. Anything the real A
 ### P10. One component for each kind of thing
 
 Each kind of control is one component, used the same way everywhere: menu, dialog, icon button, tab, card, chip. They follow Material Design 3 (states, shapes, elevation, motion), in our own colors.
-- **Icons are Material Symbols, as inline SVG.** No icon fonts, and no fonts or scripts from a CDN: the page needs no network but its own site.
+- **Icons are Material Symbols, as inline SVG.** No icon fonts, and no fonts or scripts from a CDN: the page needs no network but its own site. The one exception is NCSU's system pack, fetched from M. Howard's repository only when the operator boots AMRMX (U19).
 - **Every icon button has a tooltip and a screen-reader name.**
 - **The keyboard is first-class:** every control is reachable with Tab and has a visible focus ring. The dock's tabs follow the WAI-ARIA tabs pattern.
 - **Motion is short and optional:** camera flights and cross-fades honor `prefers-reduced-motion`.
@@ -78,9 +78,10 @@ Same regions, same order: the top bar packed down to icons and the program's nam
 | `room` (the way in) | The whole installation in 3D: the desk and scope, the Teletype, the racks, the tapes and disks, the cables; seen a little from above (about 17°), straight at the scope, which stands at the installation's middle, so its screen is centered and faces the reader *(build, after the manual check)* | Start; the viewpoint menu | none *(build: Connections, which dimmed the machines and lit the cables, was dropped from v0.0.1 after the manual check: not worth a place in the interface; the cables still glow faintly with their traffic)* |
 | `console` | The desk from the operator's seat: the scope, the dials, the keys, the light pen, the joystick | The desk's or the scope's card; the viewpoint menu | none |
 | `screen` (2D) | The camera flies to face the scope, then cross-fades to the full-resolution 2D picture in a thin bezel | The scope's card, *Look at the screen* | The light pen (V3) |
+| `panel` *(v0.0.5)* | The operator's control panel on the processor rack, square on; its lamps show BR and the machine's state, and its controls take clicks here (R21) | The processor rack's card, *Go to the operator's panel*; the viewpoint menu | The panel's controls |
 | `tube` | The scope cut open: the gun, the yoke, the beam, the picture on the inside of the glass, with the X, Y and Z traces under it | The scope's card, *Cut it open* | Time: 1/100,000 on entry, then 1/1,000 or real |
 
-A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*), with its icon, and lists all four with theirs, the current one checked (Room ⌂, the same as Home's; Console, a desk; Screen, a monitor; Tube, a magnifier over a frame); any can be reached from any other. *Back* and Escape climb one level: Screen and Tube to Console, Console to Room. *(build, after the first manual check: this replaces a breadcrumb, Room › Console › Screen. The tree is three levels of four viewpoints, so the breadcrumb added a notion of levels without helping anyone find a way; and Screen and Tube, both close-ups of the scope, appeared at different places in its lists. Its dropdown's tooltip also covered the dropdown.)*
+A **viewpoint menu** at the band's left names the viewpoint (*Console ▾*), with its icon, and lists all of them with theirs, the current one checked (Room ⌂, the same as Home's; Console, a desk; Screen, a monitor; Tube, a magnifier over a frame); any can be reached from any other. *Back* and Escape climb one level: Screen and Tube to Console, Console to Room. *(build, after the first manual check: this replaces a breadcrumb, Room › Console › Screen. The tree is three levels of four viewpoints, so the breadcrumb added a notion of levels without helping anyone find a way; and Screen and Tube, both close-ups of the scope, appeared at different places in its lists. Its dropdown's tooltip also covered the dropdown.)*
 
 ### Rules
 
@@ -233,7 +234,7 @@ The page has no feedback link, no survey, and no control that exists only so tha
 
 ### U13. Links: `#view=` and `#program=`, not frozen before 1.0.0
 
-The link format names a viewpoint and a program: `#view=tube&program=tic-tac-toe`. Opening such a link boots the terminal and types the program's statements. The names are chosen carefully now, but the format may still change until 1.0.0, and the README says so. A link never carries octal words: the instruction encodings are reconstructed and may change (R1).
+The link format names a viewpoint and a program: `#view=tube&program=tic-tac-toe`. Opening such a link boots the terminal and types the program's statements. The address bar keeps only the viewpoint as the visitor moves about *(v0.0.5)*: a link copied from it opens the app as it starts, not in the last program tried. `#program=` is still read, so a link to a program can be made on purpose; a Share button that makes one is for later. The names are chosen carefully now, but the format may still change until 1.0.0, and the README says so. A link never carries octal words: the instruction encodings are reconstructed and may change (R1).
 
 ### U14. About
 
@@ -258,6 +259,24 @@ A third dock tool, after the 8800 simulator's Debugger, but one that only looks:
 *Why look only:* stepping would have to pause the whole terminal (the frame clock, DSPLY, the Teletype), not the processor alone, and editing core is already the monitor's (OPEN). A view that cannot change the machine cannot break a running program.
 *Why:* since v0.0.2 the words in core are the real DPR-2's (R1); typing LIST and OPEN on the Teletype is how an operator read them, but not how a visitor today expects to.
 It is labeled where the reader meets it as a view the real AGT never had (P9). It is not only for feedback (U12): it is for anyone curious about the machine.
+
+### U18. The Panel tab: the operator's control panel *(v0.0.5)*
+
+A fifth dock tool, laid out as the manual's photograph of the panel (SRM5 DPR3 Figure 4, p. 12), measured and kept in one table that the 3D panel shares (`panelLayout` in `js/sim/panel.js`): BR's 30 lamp-buttons in five groups of three columns, the 30 PRI switches below them, the machine's buttons along the bottom (OFF, ON, RESET; STEP, CYCLE; HALT, RUN, PAUSE; BTSP, TE; IC 0, IC 1), and at the right RESET BR, the request selector, PULSE 1 and the second OFF. Above it, the switches' word in octal and as an instruction, **Usual setting** while they are not at 24000 77776, and the machine's state. Every control says what it did in the status line. On a phone the panel scrolls sideways in the dock rather than shrink below a finger's width.
+
+The same panel stands on the processor rack in 3D, and the Panel viewpoint frames it; its controls work there too. The strip's and the desk's PULSE 1 are the same button. What each control does to a machine whose monitor is JavaScript is R21.
+
+*Why both:* the tab is where the panel is easiest to use; the rack is where it was, and the operator's walk from the Teletype to it is part of starting the machine. *Why not look only, as the Processor tab:* the panel is the real machine's own, not a view it never had (P9).
+
+### U19. The real monitor: Boot AMRMX *(v0.0.5)*
+
+The Panel tab's bar has **Boot AMRMX**. It fetches NCSU's system pack, M. Howard's dump of it, from his repository on GitHub at a fixed commit, about 400 KB, once a visit, and boots it. The display and any program stop, and the processor runs AMRMX itself, with the vector generator, the Teletype's line and the disk modeled at register level (R22–R24). The paper is torn off, and the view goes to the Screen, where AMRMX draws its banner and asks the date; the status line says to type it in the Teletype tab. AMRMX answers on the screen and does not echo the keys, so the Teletype prints them itself, as one set to half duplex does. From then on every character and every stroke is AMRMX's own. The panel acts on it as on the real machine: HALT stops it, STEP obeys one of its instructions, PULSE 1 is served by its own pivot, and BTSP followed by RUN boots it again. **Reboot** in the top bar, or choosing a program, returns to the simulator's own monitor.
+
+The **Programs** menu lists NCSU's games from the same pack after the simulator's own programs, **LIFE** and **Space War**, each with its card and its link (`#program=life`): loading one fetches the pack if need be, boots AMRMX if it is not running, and the game's core image is restored by the simulator's own loader and entered at once, since AMRMX's own statement for a core-image file is not yet found (R24). The status line gives the game's function keys, as far as they are known. LIFE's key 14 returns to AMRMX.
+
+If the pack cannot be fetched, the status line says so and nothing changes.
+
+*Why it is a button, not the default:* a reader who comes for the paper's pictures and the menu's programs finds them as before; the real monitor asks for a date and a command language from 1976, and is there for whoever wants it. *Why fetched, not copied:* until M. Howard confirms how he wishes to be credited, the pack stays in his repository; this is the one file the page fetches from another site, and only when asked (P10).
 
 ### U16. The References tab *(v0.0.3)*
 

@@ -106,10 +106,19 @@ export const TIME = { memory: 4, immediate: 3, jump: 3, jpsr: 5, skip: 3, opio: 
 /** Sense line bits (S4), numbered from the left. Bit 0: AR overflow (FJCC68 Fig. 17 channel 0); bit 29: ADC5 overflow (DPR2BD). */
 export const SENSE = { OVERFLOW: 0, ADC: 29 };
 
+/**
+ * The longest chain of instructions sent to IR one after another that one step runs. The real
+ * processor has no limit: LIFE runs its whole 128 x 128 board as one chain each generation.
+ */
+const IR_CHAIN = 1 << 20;
+
 /** The priority channels the processor itself requests (DPR2BD): 14, the program interrupt (PINT). */
 export const CHANNEL = { PINT: 14 };
-/** The program interrupt's pivot, PIPVT (DPR2SPI p. 40). Where it sits on the AGT-30 is not known: ours (R10). */
-export const PIPVT = 0o77770;
+/**
+ * The program interrupt's pivot, PIPVT (DPR2SPI p. 40): 77743, where AMRMX on NCSU's pack puts its
+ * task dispatcher and through which it runs PINT (research/amrmx.md; R10).
+ */
+export const PIPVT = 0o77743;
 
 /**
  * Places a field's value into a word.
@@ -175,8 +184,10 @@ const wval = (n) => (n >= 0 ? n % 0o4000000000 : M30 - (-n % 0o4000000000));
  * the array's input selector and converter.
  * @typedef {object} Devices
  * @property {(code: number) => boolean} type types a 6-bit AMOS character; false while the Teletype is busy
- * @property {() => number} switches the function switches (S5): key n is bit n
+ * @property {(ic: number) => number} switches S5's upper half, as IC selects it: with IC bit 9 set the function keys FNS 1-15, key n at bit n; with it clear the pedals and FNS 16
  * @property {(channel: number) => number} analog an analog input, -1..1 (dials, joystick)
+ * @property {(bit: number) => void} [strobe] OPTY's bit, BR[22], to the Teletype's line, when it is modeled
+ * @property {(dst: number, v: number, logic: number) => boolean} [write] a transfer to a subsystem's destination (05-14): the word after rotation and 'N, and the logic, 1 'O or 2 'A, for the subsystem to apply; true if a subsystem took it
  */
 
 /** @type {Devices} */
@@ -206,10 +217,14 @@ export class Dpr2 {
     this.instructions = 0;
     /** @type {string | null} why the processor stopped */
     this.stopped = null;
+    /** @type {number | null} a word sent to IR, to be executed next (execute()) */
+    this.irNext = null;
+    /** An address that ends a run as `until` does, or -1: where PULSE 1's pivot leads back to the monitor. */
+    this.breakAt = -1;
     /**
      * The priority interrupt (PRI) subsystem (SRM5 DPR3 pp. 7-9): requests waiting, each with the
      * instruction its device supplies on S8; the channels whose Jump Subroutine service is under
-     * way (it ends at the first Jump Indirect or successful conditional jump); FPRI's freeze; and,
+     * way (it ends at the first Jump Indirect; R10); FPRI's freeze; and,
      * for the simulator, a hold while the CLOCK chain runs.
      */
     this.pri = {
@@ -339,12 +354,12 @@ export class Dpr2 {
     this.last = this.LC;
     this.LC = (this.LC + 1) & M15;
     this.instructions++;
-    // the end of a Jump Subroutine service: the first Jump Indirect or successful conditional jump
+    // the end of a Jump Subroutine service: the first Jump Indirect. The Model 5 manual adds "or
+    // successful conditional jump" (SRM5 DPR3 p. 8), but AMRMX's interrupt routines take
+    // conditional jumps before their Jump Indirect, and run as written only if those do not end
+    // the service (research/amrmx.md; R10)
     let ends = false;
-    if (this.pri.service.length && get(ins, ENCODING.kind) === KIND.OTHER) {
-      const op = opName(ins);
-      ends = (op === "JUMP" && get(ins, ENCODING.indirect) === 1) || (op === "JPAN" && this.negative()) || (op === "JPLS" && this.lowerSignificance());
-    }
+    if (this.pri.service.length && get(ins, ENCODING.kind) === KIND.OTHER) ends = opName(ins) === "JUMP" && get(ins, ENCODING.indirect) === 1;
     const us = this.execute(ins);
     this.time += us;
     if (ends) this.pri.service.pop();
@@ -358,6 +373,29 @@ export class Dpr2 {
    * @returns {number} us
    */
   execute(ins) {
+    // a word sent to IR is the next instruction, without a return: a chain of them, as LIFE runs
+    // its board, is a loop here, not a nesting
+    let us = 0;
+    let w = ins;
+    for (let n = 0; ; n++) {
+      this.irNext = null;
+      us += this.executeOne(w);
+      const next = /** @type {number | null} */ (this.irNext);
+      if (next === null) return us;
+      if (n >= IR_CHAIN) {
+        this.stopped = `endless chain of instructions through IR at ${((this.LC - 1) & M15).toString(8).padStart(5, "0")}`;
+        return us;
+      }
+      w = next;
+    }
+  }
+
+  /**
+   * Executes one instruction word; a word it sends to IR is left in irNext.
+   * @param {number} ins
+   * @returns {number} us
+   */
+  executeOne(ins) {
     if (get(ins, ENCODING.kind) !== KIND.OTHER) return this.transfer(ins);
     const op = opName(ins);
     const neg = this.negative();
@@ -408,8 +446,13 @@ export class Dpr2 {
       case "ERAR":
         return this.eau(op, a.ea) + a.us;
       case "OPTY":
-        // The real OPTY strobes BR[22] out to the Teletype, a bit at a time (DPR2SPI p. 43).
-        // Ours types the character in AR[24-29] whole, and skips when the Teletype took it (R9).
+        // OPTY strobes BR[22] out to the Teletype, a bit at a time (DPR2SPI p. 43), when the
+        // Teletype's line is modeled (ttyline.js, for AMRMX). Without it, ours types the
+        // character in AR[24-29] whole, and skips when the Teletype took it (R9).
+        if (this.devices.strobe) {
+          this.devices.strobe(Math.floor(this.BR / 2 ** 7) % 2);
+          return TIME.opio;
+        }
         if (this.devices.type(this.AR % 64)) this.LC = (this.LC + 1) & M15;
         return TIME.opio;
       case "CNVT":
@@ -489,7 +532,7 @@ export class Dpr2 {
         v = this.S4;
         break;
       case SOURCES.S5:
-        v = or30(this.devices.switches(), this.adc);
+        v = or30(this.devices.switches(this.IC), this.adc);
         break;
       default:
         v = 0;
@@ -500,7 +543,12 @@ export class Dpr2 {
     const combine = (old) => (logic === 2 ? and30(old, v) : logic === 1 ? or30(old, v) : v);
     switch (dst) {
       case DESTS.MD:
-        this.core.write(ea, combine(this.core.read(ea)));
+        // A store with 'O sets the word to -0, all ones, whatever the source holds: Adage's own
+        // sources use ARMD'O to set a flag ("SET BUSY FLAG" in DISP2, "SET DISK FLAG", "SET
+        // NEGATIVE" in FORTRAN, whose label buffer ends with a -0 "SET" so), AMRMX's statement
+        // reader needs it to start a count at -0, and LIFE's frame flag to be set by it. To other
+        // destinations 'O is an OR, as the manual says (R1; research/amrmx.md).
+        this.core.write(ea, logic === 1 ? M30 : combine(this.core.read(ea)));
         break;
       case DESTS.AR:
         this.AR = combine(this.AR);
@@ -512,9 +560,12 @@ export class Dpr2 {
         this.BR = combine(this.BR);
         break;
       case DESTS.IR:
-        us += this.execute(v);
+        // the word becomes the next instruction, run by execute() once this one is done
+        this.irNext = v;
         break;
       case DESTS.MX:
+        // with IC bit 10 clear, a device may take it for the array's registers (avg1.js, R22)
+        if (this.devices.write?.(dst, v, logic)) break;
         // GDD1 selects the input; on the AGT/30 the selection also starts a conversion (p. 41)
         this.mux = lo(v) & 0o17;
         this.convert();
@@ -537,6 +588,8 @@ export class Dpr2 {
         this.AR = xor30(this.AR, combine(this.AR));
         break;
       default:
+        // 05, 06, 10-14: the subsystems' registers (DPR2BD), which do their own 'O and 'A
+        this.devices.write?.(dst, v, logic);
         break;
     }
     return us;
@@ -592,9 +645,15 @@ export class Dpr2 {
       case "ARRS":
         this.AR = wval(Math.trunc(sval(this.AR) / 2 ** Math.min(29, ea)));
         return TIME.shift;
-      case "ARLS":
-        this.AR = wval(sval(this.AR) * 2 ** Math.min(29, ea));
+      case "ARLS": {
+        // the shifter NORM uses (p. 46): each place moves AR[0-29] left and fills AR[29] with the
+        // sign AR[0] had, so bits pass into AR[0]; AMRMX's display handler packs a character into
+        // AR[0-6] so (research/amrmx.md; R1)
+        let a = this.AR;
+        for (let k = Math.min(29, ea); k > 0; k--) a = ((a * 2) % 2 ** 30) + (a >= 0o4000000000 ? 1 : 0);
+        this.AR = a;
         return TIME.shift;
+      }
       case "NORM": {
         let a = sval(this.AR);
         let n = 0;
@@ -638,6 +697,7 @@ export class Dpr2 {
     this.stopped = null;
     while (us < maxUs) {
       if (this.LC === until && this.nextRequest() === null) return { us, done: true };
+      if (this.LC === this.breakAt) return { us, done: true };
       us += this.step();
       if (this.stopped) return { us, done: true };
     }

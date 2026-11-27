@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { RECONSTRUCTIONS, REFERENCES, SOURCE_URL } from "../js/app/aboutData.js";
+import { PACK_URL, RECONSTRUCTIONS, REFERENCES, SOURCE_URL } from "../js/app/aboutData.js";
 
 const ROOT = new URL("../", import.meta.url);
 /** @param {string} dir @param {string[]} ends @returns {string[]} */
@@ -22,7 +22,8 @@ describe("the page (APP)", () => {
     assert.match(readme, /^## What is reconstructed$/m, "the heading About links to");
   });
 
-  it("APP-2: nothing the page loads comes from another site (P10)", () => {
+  it("APP-2: nothing the page loads comes from another site (P10), but the system pack, when the operator boots AMRMX, from a fixed commit (U19)", () => {
+    assert.match(PACK_URL, /^https:\/\/raw\.githubusercontent\.com\/cramcram\/AGT-30\/[0-9a-f]{40}\/magtapes\/howard\.disk$/);
     const files = [...walk("js", [".js"]), ...walk("css", [".css"]), "index.html"];
     for (const f of files) {
       const src = readFileSync(new URL(f, ROOT), "utf8");

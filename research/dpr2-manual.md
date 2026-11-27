@@ -27,9 +27,9 @@ Each of these is applied in v0.0.2, with an acceptance check (CPU-5 to CPU-10).
 ## What is still ours
 
 - **The Teletype.** OPTY "strobes BR[22] for serial output", and the input comes "using S4[14] and interrupts" (p. 43): the monitor sends and receives each character a bit at a time. What times the bits is not in the manual (it points to a *DPR2 Subsystem Programming Specification* we do not have). The simulator still types a whole character from AR on OPTY (R9).
-- **Where PIPVT is.** The manual names the pivot but not its address; DPR2BD and the NCSU sources do not give it either. Ours is 77770 (R10).
+- **Where PIPVT is.** The manual names the pivot but not its address; DPR2BD and the NCSU sources do not give it either. AMRMX uses 77743 ([amrmx.md](amrmx.md)), and so does the simulator since v0.0.5 (R10).
 - **GDD1's word.** Which bits of the word sent to destination 07 choose the group and line is not given; we take the low four bits as the input's number (R7).
-- **The upper half of S5.** DPR2BD gives the function switches S5[0–14] and ADC5 S5[15–29]. FNS1 has sixteen keys; the simulator's key 15 shares bit 15 with the converter's sign.
+- **The upper half of S5.** DPR2BD gives the function switches S5[0–14] and ADC5 S5[15–29]. FNS1 has sixteen keys and two pedals; IC bit 9 selects which S5 shows, FNS 1–15 or the pedals and FNS 16, as the tripp library's FSRR and FPBS read them ([amrmx.md](amrmx.md)).
 
 ## The other documents
 

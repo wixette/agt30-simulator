@@ -4,8 +4,8 @@
    status line. The page never scrolls. Every color, corner and state is a token (css/theme.css,
    U10); the controls are the simulator series' (the TRS-80 simulator's). */
 
-@import url("theme.css?v=0.0.4");
-@import url("fonts.css?v=0.0.4");
+@import url("theme.css?v=0.0.5");
+@import url("fonts.css?v=0.0.5");
 
 :root {
   font-family: var(--font);
@@ -129,8 +129,9 @@ code, pre, .mono { font-family: var(--mono); }
 /* the Screen viewpoint: the 2D picture in a thin bezel (V3) */
 /* clear of the band above (its buttons end at 52 px) and of the strip below, whose height the
    stage measures (--strip-space: the strip, its gap to the stage's foot, and a margin) */
-#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 68px 16px var(--strip-space, 168px); background: #030405; }
-.bezel { height: 100%; aspect-ratio: 1; max-width: 100%; padding: 10px; border-radius: 18px; background: var(--scope-bezel); box-shadow: 0 0 0 1px #22262b, 0 10px 40px #000; }
+#screen { display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; padding: 68px 16px var(--strip-space, 168px); background: #030405; container-type: size; }
+/* the scope's face is square (12 x 12 in): as large as fits both ways, in any window */
+.bezel { box-sizing: border-box; width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); padding: 10px; border-radius: 18px; background: var(--scope-bezel); box-shadow: 0 0 0 1px #22262b, 0 10px 40px #000; }
 #crt { display: block; width: 100%; height: 100%; border-radius: 10px; cursor: crosshair; touch-action: none; }
 
 /* the Tube viewpoint: its time, its traces and the live inset (V4, V5) */
@@ -218,6 +219,7 @@ code, pre, .mono { font-family: var(--mono); }
 .dial:active { cursor: grabbing; }
 .keys { display: grid; grid-template-columns: repeat(3, 26px) 8px 26px; grid-template-rows: repeat(5, 13px); gap: 2px; }
 .fkey.pulse { background: #e8e2d6; font-weight: 700; }
+.fkey.pedal { background: #b9b4a8; }
 .fkey { width: 26px; height: 13px; padding: 0; border: 1px solid #3b4148; border-radius: 3px; background: #d9d6cc; color: #2b2e31; font-size: 8px; line-height: 11px; cursor: pointer; font-family: var(--mono); }
 .fkey[aria-pressed="true"] { background: var(--attention); border-color: var(--attention); }
 .pen { display: flex; align-items: center; gap: 8px; width: 140px; font-size: 12px; line-height: 1.3; color: var(--md-on-surface-variant); }
@@ -244,6 +246,35 @@ code, pre, .mono { font-family: var(--mono); }
 .dock-tab .dot { position: absolute; top: 8px; right: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--attention); }
 .dock-pane { flex: 1; min-height: 0; overflow: auto; padding: 8px 16px 12px; }
 #dock.folded .dock-pane { display: none; }
+
+/* the Panel tab (U18): the operator's control panel, laid out as figure 7 */
+.ocp-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 2px 0 8px; }
+.ocp-word { font-size: 13px; color: var(--md-on-surface); }
+.ocp-state { font-size: 12px; color: var(--md-on-surface-variant); }
+.ocp-scroll { overflow-x: auto; padding-bottom: 4px; }
+/* the face: everything placed from js/sim/panel.js's layout, by its center */
+.ocp { position: relative; flex: none; border-radius: 6px; background: var(--ocp-face); color: var(--ocp-label); }
+.ocp > * { position: absolute; transform: translate(-50%, -50%); }
+.ocp-cell { transform: none; background: var(--ocp-group); }
+.ocp-cell.r0.c0 { border-top-left-radius: 10px; }
+.ocp-cell.r0.c4 { border-top-right-radius: 10px; }
+.ocp-cell.r2.c0 { border-bottom-left-radius: 10px; }
+.ocp-cell.r2.c4 { border-bottom-right-radius: 10px; }
+.ocp-text { font-weight: 700; line-height: 1; white-space: nowrap; pointer-events: none; }
+.ocp-text.left { transform: translate(0, -50%); }
+.ocp-text.ink { color: var(--ocp-ink); }
+.ocp-lamp { padding: 0; border: 2px solid #2a221b; border-radius: 50%; background: var(--ocp-unlit); cursor: pointer; }
+.ocp-lamp.lit { background: var(--lamp-on); box-shadow: 0 0 8px 2px color-mix(in srgb, var(--lamp-on) 70%, transparent); }
+.ocp-lamp:active { transform: translate(-50%, -50%) scale(0.92); }
+/* a PRI switch: a dark round socket, its lever up for 1, down for 0 */
+.ocp-toggle { padding: 0; border: 0; border-radius: 50%; background: #2a221b; cursor: pointer; }
+.ocp-lever { position: absolute; left: 30%; width: 40%; height: 46%; top: 50%; border-radius: 3px; background: var(--ocp-unlit); transition: top 0.1s; }
+.ocp-toggle[aria-checked="true"] .ocp-lever { top: 4%; background: var(--ocp-set); }
+.ocp-knob { padding: 0; border: 2px solid var(--ocp-label); border-radius: 50%; background: #7a6a58; cursor: pointer; }
+.ocp-pointer { position: absolute; left: 50%; top: 50%; width: 3px; height: 45%; margin-left: -1.5px; background: var(--ocp-label); transform-origin: 50% 0; transform: rotate(-135deg); }
+.ocp-knob[data-pos="hub1"] .ocp-pointer { transform: rotate(-90deg); }
+.ocp-knob[data-pos="hub2"] .ocp-pointer { transform: rotate(-45deg); }
+.ocp button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
 
 /* the program card (U7) */
 .program-card { max-width: 980px; }

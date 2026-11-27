@@ -8,17 +8,50 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { assembleOp, CHANNEL, disassemble, onesAdd, OPS, PIPVT, TIME } from "../sim/dpr2.js";
+import { ARRAY_RUN, Avg1, EOLPV, EOVPV, SELECTOR_REG } from "../sim/avg1.js";
+import { dumpRecords } from "../sim/bare.js";
+import { assembleOp, CHANNEL, disassemble, Dpr2, onesAdd, OPS, PIPVT, rotl, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
 import { Teletype } from "../sim/teletype.js";
+import { BIT_PIVOT, BIT_US, LAST_PIVOT, SENSE_LINE, TtyLine, TTY_CHANNEL } from "../sim/ttyline.js";
 import { vectorTime } from "../sim/vecgen.js";
 import { bits, fromAngle, fromFrac, fromOnes15, hi, lo, oct, toFrac, toOnes15, word } from "../sim/words.js";
 import { packText } from "../sim/amoscode.js";
 import { equal, load, near, ok, typeAndRun } from "./check.js";
 
 /** @typedef {import("./check.js").Check} Check */
+
+/**
+ * A bare DPR-2 with AVG1 and the array on its destinations (R22).
+ * @returns {{ core: Core; cpu: Dpr2; avg: Avg1; run: (n: number) => void }}
+ */
+function bareAvg() {
+  const core = new Core();
+  /** @type {Avg1} */
+  let avg;
+  const cpu = new Dpr2(core, { type: () => true, switches: () => 0, analog: () => 0, write: (d, v, l) => avg.write(d, v, l) });
+  avg = new Avg1(cpu, new HybridArray());
+  avg.clear();
+  const run = (/** @type {number} */ n) => {
+    for (let i = 0; i < n; i++) {
+      avg.poll();
+      cpu.step();
+    }
+  };
+  return { core, cpu, avg, run };
+}
+
+/**
+ * A vector word as DSPLY's tables and D05 take it: X in bits 0-13, end of list 14, Y 15-28, draw 29.
+ * @param {number} x fraction
+ * @param {number} y fraction
+ * @param {boolean} draw
+ * @param {boolean} eol
+ * @returns {number}
+ */
+const vword = (x, y, draw, eol) => Math.round(x * 0o20000) * 2 ** 16 + (eol ? 2 ** 15 : 0) + Math.round(y * 0o20000) * 2 + (draw ? 1 : 0);
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
 
 /** One unit in the last place of a 15-bit fraction. */
@@ -546,7 +579,7 @@ export const MODEL_CHECKS = [
   },
   {
     id: "CPU-10",
-    title: "PINT requests priority channel 14, served as JPSR'I PIPVT (DPR2SPI p. 40; DPR2BD; the pivot's address is ours, R10)",
+    title: "PINT requests priority channel 14, served as JPSR'I PIPVT, at 77743 as AMRMX has it (DPR2SPI p. 40; DPR2BD; R10)",
     run(ctx) {
       const agt = ctx.boot();
       const cpu = agt.cpu;
@@ -560,6 +593,334 @@ export const MODEL_CHECKS = [
       cpu.step();
       equal(cpu.LC, at + 11, "served: the subroutine at the pivot's address is entered");
       equal(lo(agt.core.read(at + 10)), at + 1, "and given the return");
+    },
+  },
+
+  {
+    id: "CPU-11",
+    title: "ARLS shifts as NORM does: bits pass into AR[0], and AR[29] takes the sign; AMRMX packs a character into AR[0-6] so (DPR2SPI p. 46; R6)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      const at = USER_AT;
+      agt.core.write(at, assembleOp("ARLS", 23));
+      agt.core.write(at + 1, assembleOp("ARLS", 1));
+      cpu.AR = 0o123;
+      cpu.LC = at;
+      cpu.step();
+      equal(oct(cpu.AR), oct(0o123 * 2 ** 23), "ASCII S in AR[0-6]: its top bit is the sign");
+      cpu.AR = 0o7777777776;
+      cpu.step();
+      equal(oct(cpu.AR), oct(0o7777777775), "-1 shifted once is -2: the sign fills AR[29]");
+    },
+  },
+
+  {
+    id: "CPU-12",
+    title: "A word sent to IR is the next instruction, without a return: LIFE runs its 128 x 128 board as one chain of 16,384, each cell's MDIR leading to the next (R1)",
+    run() {
+      const core = new Core();
+      const cpu = new Dpr2(core);
+      const N = 20000;
+      core.write(0o500, assembleOp("MDIR", 0o501, { I: true, X: true }));
+      core.write(0o501, 0o1000 - 1);
+      for (let k = 0; k < N; k++) core.write(0o1000 + k, assembleOp("MDIR", 0o500));
+      core.write(0o1000 + N, assembleOp("JUMP", 0o400));
+      cpu.LC = 0o500;
+      cpu.step();
+      equal(cpu.stopped, null, "no fault");
+      equal(oct(cpu.LC, 5), oct(0o400, 5), "the chain ran to its end in one step");
+      equal(lo(core.read(0o501)), 0o1000 + N, "every cell was visited");
+    },
+  },
+  {
+    id: "PCK-1",
+    title: "A DUMP file on the pack is records of an address and count, then the words, ended by a zero word, as LIFE is stored (research/amrmx.md; R24)",
+    run() {
+      const pack = new Uint32Array(3 * 104);
+      const at = 104;
+      [word(0o70730, 2), 1, 2, word(0o120, 3), 0o4000120, 5, 6, word(0o76326, 1), 7, 0].forEach((w, k) => (pack[at + k] = w));
+      const r = dumpRecords(pack, 1);
+      equal(r.map((x) => `${oct(x.addr, 5)}:${x.words.length}`).join(" "), "70730:2 00120:3 76326:1", "three records");
+      equal(oct(r[1].words[0]), oct(0o4000120), "the entry word first");
+    },
+  },
+  {
+    id: "CPU-13",
+    title: "A store with 'O sets the word to -0 whatever AR holds, as Adage's sources use it to set a flag (DISP2, DSKWT, FORTRAN); to a register 'O is an OR (R1)",
+    run() {
+      const core = new Core();
+      const cpu = new Dpr2(core);
+      core.write(0o1000, assembleOp("ARMD", 0o1100, { O: true }));
+      core.write(0o1001, assembleOp("ARMD", 0o1101, { O: true }));
+      core.write(0o1002, assembleOp("MDAR", 0o1102, { O: true }));
+      core.write(0o1101, word(0o12345, 0o54321));
+      core.write(0o1102, 0o70);
+      cpu.AR = 0o7;
+      cpu.LC = 0o1000;
+      cpu.step();
+      cpu.step();
+      equal(oct(core.read(0o1100)), oct(0o7777777777), "a word that was +0 is set to -0, not to AR");
+      equal(oct(core.read(0o1101)), oct(0o7777777777), "and so is one that held a value");
+      cpu.step();
+      equal(oct(cpu.AR), oct(0o77), "MDAR'O still ORs into AR");
+    },
+  },
+  {
+    id: "CPU-14",
+    title: "IC bit 9 selects what S5's upper half shows: set, function keys 1-15 at bits 0-14; clear, pedal 2, pedal 1 and key 16 at bits 12, 13, 14 (FSRR, FPBS in the tripp library; R18)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      agt.setKey(0, true);
+      agt.setKey(15, true);
+      agt.setPedal(0, true);
+      agt.core.write(USER_AT, assembleOp("S5AR", 0, { F: true }));
+      const read = (/** @type {boolean} */ bit9) => {
+        cpu.IC = bit9 ? 2 ** (29 - 9) : 0;
+        cpu.LC = USER_AT;
+        cpu.step();
+        return hi(cpu.AR);
+      };
+      equal(oct(read(true), 5), "40000", "bit 9 set: key 0 (FNS 1) at bit 0, and nothing for key 15");
+      equal(oct(read(false), 5), "00003", "bit 9 clear: pedal 1 at bit 13, key 15 (FNS 16) at bit 14");
+    },
+  },
+  // ---- AVG1 and the array at register level (R22) ----
+  {
+    id: "AVG-1",
+    title: "A list sent through the end-of-vector pivot: each vector's end on channel 11 executes MDIR'X 77756, the next word, until the end-of-list flag calls JPSR'I 77757 (DISP2; R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      const list = [vword(0.25, 0.5, false, false), vword(0.5, 0.5, true, false), vword(0.5, 0.25, true, true)];
+      list.forEach((w, i) => core.write(0o2000 + i, w));
+      core.write(EOVPV, assembleOp("MDXY", 0o2000));
+      core.write(EOLPV, 0o3000);
+      core.write(0o3001, assembleOp("JUMP", 0o3000, { I: true }));
+      core.write(0o1000, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1001, word(0o60400, 0));
+      core.write(0o1002, assembleOp("MDIR", EOVPV));
+      core.write(0o1003, assembleOp("JUMP", 0o1003));
+      cpu.LC = 0o1000;
+      run(200);
+      const segs = avg.take();
+      equal(segs.length, 3, "three vectors");
+      ok(!segs[0].vis && segs[1].vis && segs[2].vis, "a move, then two draws");
+      near(segs[1].x1, 5, 0.01, "through the array at the identity: 0.5 of full scale is 5 in");
+      near(segs[2].y1, 2.5, 0.01, "and 0.25 is 2.5 in");
+      equal(lo(core.read(EOVPV)), 0o2002, "the pivot stepped to the last word");
+      equal(lo(core.read(0o3000)), 0o1003, "the end-of-list routine was called, and returned");
+      ok(segs[1].t0 >= segs[0].t1 && segs[2].t0 >= segs[1].t1, "one vector at a time");
+    },
+  },
+  {
+    id: "AVG-2",
+    title: "A rotation in the pivot ('K) applies to every word of its list, as AMRMX's digits and punctuation need (R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      const list = [vword(0.1, 0.1, false, false), vword(0.3, 0.1, true, true)];
+      list.forEach((w, i) => core.write(0o2000 + i, rotl(w, 24)));
+      core.write(EOVPV, assembleOp("MDXY", 0o2000, { K: true }));
+      core.write(0o1000, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1001, word(0o60400, 0));
+      core.write(0o1002, assembleOp("MDIR", EOVPV));
+      core.write(0o1003, assembleOp("JUMP", 0o1003));
+      cpu.LC = 0o1000;
+      run(100);
+      const segs = avg.take();
+      equal(segs.length, 2, "both words, the second ending the list");
+      near(segs[1].x1, 3, 0.01, "the second word read rotated, as the first");
+    },
+  },
+  {
+    id: "AVG-3",
+    title: "D07 with IC bit 10 clear loads an array register (05 SC, 15 DX; 100 resets to the identity); with it set, D07 selects GDD1's input (DPR2BD; R7, R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1001, word(0o105, 0o20000));
+      core.write(0o1002, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1003, word(0o15, 0o10000));
+      core.write(0o1004, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1005, word(0o60400, 0));
+      core.write(0o1006, assembleOp("MDXY", 0, { L: true }));
+      core.write(0o1007, vword(0.5, 0, true, true));
+      core.write(0o1010, assembleOp("JUMP", 0o1010));
+      cpu.LC = 0o1000;
+      run(12);
+      const s = avg.take()[0];
+      near(s.x1, 10 * (0.25 + 0.5 * 0.5), 0.01, "x' = DX + SC x, with PS at full scale");
+      equal(avg.loaded[0o05], 0o20000, "the register's value is kept by number");
+      cpu.IC = 2 ** (29 - 10);
+      core.write(0o1011, assembleOp("MDMX", 3, { F: true }));
+      cpu.LC = 0o1011;
+      cpu.step();
+      equal(cpu.mux, 3, "with IC bit 10 set, the input selector");
+      equal(avg.loaded[0o03], 0, "and no register loaded");
+    },
+  },
+
+  {
+    id: "AVG-4",
+    title: "D07 with 0200 in the upper half starts a run: words with no register in their upper half load that register and the next ones, until a word names a register, as LIFE places each cell and QUBIC loads sixteen (R22)",
+    run() {
+      const { core, cpu, avg } = bareAvg();
+      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1001, word(ARRAY_RUN | 0o15, 0));
+      core.write(0o1002, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1003, word(0o17200, 0o17600));
+      core.write(0o1004, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1005, word(0o17600, 0o17200));
+      core.write(0o1006, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1007, word(0o5, 0o1000));
+      cpu.LC = 0o1000;
+      for (let i = 0; i < 4; i++) cpu.step();
+      equal(oct(avg.loaded[0o15], 5), "17600", "the first word's lower half to 15");
+      equal(oct(avg.loaded[0o16], 5), "17200", "the second's to 16");
+      equal(oct(avg.loaded[0o5], 5), "01000", "then words name their register again");
+      equal(avg.loaded[0], 0, "nothing went to register 0");
+    },
+  },
+  {
+    id: "AVG-5",
+    title: "D07's registers 06, 07, 10 are the array's diagonal, 11 and 13 carry z into x and y, and D06's lower half is z: LIFE centers its board so, with z = -0.5 (R22)",
+    run() {
+      const { core, cpu, avg } = bareAvg();
+      /** @type {[string, number][]} */
+      const prog = [
+        ["MDMX", word(0o120, 0o37777)], ["MDMX", word(0o11, 0o37777)], ["MDMX", word(0o13, 0o37777)],
+        ["MDMX", word(ARRAY_RUN | 0o15, 0)], ["MDMX", word(0, 0o17600)], ["MDMX", word(0, 0o17600)],
+        ["MD06", word(0, 0o60000)], ["MD10", word(0o60400, 0)], ["MDXY", vword(0, 0, true, true)],
+      ];
+      prog.forEach(([m, lit], i) => { core.write(0o1000 + 2 * i, assembleOp(m, 0, { L: true })); core.write(0o1001 + 2 * i, lit); });
+      cpu.LC = 0o1000;
+      for (let i = 0; i < prog.length; i++) cpu.step();
+      const s = avg.take()[0];
+      near(s.x1, 10 * (0o17600 / 0o40000 - 0.5), 0.02, "cell 63 of 0-127 lands just left of the center");
+      near(s.y1, s.x1, 1e-9, "and as far down");
+    },
+  },
+  {
+    id: "AVG-6",
+    title: "D07's register 01 selects the converter's input, one bit a channel, and starts a conversion, as LIFE reads its speed dial (R7, R22)",
+    run() {
+      const core = new Core();
+      /** @type {Avg1} */
+      let avg;
+      const cpu = new Dpr2(core, { type: () => true, switches: () => 0, analog: (ch) => (ch === 2 ? 0.5 : 0), write: (d, v, l) => avg.write(d, v, l) });
+      avg = new Avg1(cpu, new HybridArray());
+      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1001, word(SELECTOR_REG, 0o4));
+      cpu.LC = 0o1000;
+      cpu.step();
+      equal(cpu.mux, 2, "bit 2 selects channel 2");
+      equal(oct(cpu.adc, 5), oct(0o20000, 5), "converted: 0.5");
+    },
+  },
+  // ---- the operator's control panel (R21) ----
+  {
+    id: "OCP-1",
+    title: "PULSE 1 at the usual setting, MDIR 77776, returns to the monitor: the program stops and the display halts (MH26; R10)",
+    run(ctx) {
+      const agt = ctx.boot();
+      equal(agt.panel.pri, word(0o24000, 0o77776), "the PRI switches' usual setting");
+      equal(disassemble(agt.panel.pri), "MDIR 77776", "decodes as MDIR 77776");
+      agt.core.write(USER_AT, assembleOp("JUMP", USER_AT));
+      agt.startProgram(USER_AT, 0o67777, "LOOP");
+      agt.start(/** @type {number} */ (agt.core.symbols.get("V.CUBE")));
+      agt.advance(agt.now + 100000);
+      ok(agt.program && agt.image !== null, "a program runs and a picture is shown");
+      equal(agt.setPulse1(true), "monitor", "PULSE 1");
+      agt.setPulse1(false);
+      ok(agt.program === null, "the program stopped");
+      ok(agt.image === null, "the display halted");
+    },
+  },
+  {
+    id: "OCP-2",
+    title: "The PRI switches read and write core through BR: MDBR X shows a word, BRMD X stores BR's buttons (SRM5 DPR3 p. 13)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.core.write(USER_AT, word(0o12345, 0o54321));
+      p.setPri(assembleOp("MDBR", USER_AT));
+      equal(agt.setPulse1(true), "served", "PULSE 1");
+      agt.setPulse1(false);
+      equal(agt.cpu.BR, word(0o12345, 0o54321), "BR shows the word");
+      p.resetBR();
+      for (const bit of [0, 14, 29]) p.pressBR(bit);
+      p.setPri(assembleOp("BRMD", USER_AT + 1));
+      agt.setPulse1(true);
+      equal(agt.core.read(USER_AT + 1), word(0o40001, 0o00001), "the word at X is BR's buttons");
+    },
+  },
+  {
+    id: "OCP-3",
+    title: "HALT stops the processor: no frames, the keyboard waits, PULSE 1 waits lit; RUN goes on from the next tick (SRM5 DPR3 p. 13)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.start(/** @type {number} */ (agt.core.symbols.get("V.CUBE")));
+      agt.advance(agt.now + 100000);
+      p.halt();
+      const n = agt.frames.length;
+      agt.type("HALT!");
+      agt.advance(agt.now + 2000000);
+      equal(agt.frames.length, n, "no frame while halted");
+      ok(agt.sending.length > 0, "the characters typed wait");
+      equal(agt.setPulse1(true), "halted", "PULSE 1 while halted");
+      ok(p.pulse1Lit, "its lamp is lit");
+      p.setPri(assembleOp("NOOP", 0));
+      p.run();
+      ok(!p.pulse1Lit, "served at RUN");
+      agt.advance(agt.now + 100000);
+      ok(agt.frames.length - n <= Math.ceil(100000 / tickUs(agt.rate)) + 1, "the frames missed are not caught up");
+      for (let guard = 0; agt.busy && guard < 100; guard++) agt.advance(agt.now + 100000);
+      ok(agt.image === null, "the monitor took HALT! once it ran");
+    },
+  },
+  {
+    id: "OCP-4",
+    title: "STEP obeys one instruction of a halted program; CYCLE, at instruction level, does the same (SRM5 DPR3 p. 13; R21)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.core.write(USER_AT, assembleOp("NOOP", 0));
+      agt.core.write(USER_AT + 1, assembleOp("NOOP", 0));
+      agt.core.write(USER_AT + 2, assembleOp("JUMP", USER_AT));
+      agt.startProgram(USER_AT, 0o67777, "STEPS");
+      p.halt();
+      equal(p.step(), "stepped", "STEP");
+      equal(agt.cpu.LC, USER_AT + 1, "one instruction");
+      equal(p.cycle(), "stepped", "CYCLE");
+      equal(agt.cpu.LC, USER_AT + 2, "one more");
+      p.step();
+      equal(agt.cpu.LC, USER_AT, "the jump");
+      p.run();
+      equal(p.step(), "nothing", "STEP does nothing while the processor runs");
+    },
+  },
+  {
+    id: "OCP-5",
+    title: "RESET clears the registers and halts; OFF takes both buttons; ON stops in HALT with core kept (SRM5 DPR3 pp. 13-14)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const p = agt.panel;
+      agt.cpu.AR = 5;
+      p.pressBR(3);
+      p.reset();
+      equal(agt.cpu.AR + agt.cpu.BR, 0, "AR and BR cleared");
+      equal(p.mode, "halt", "halted");
+      p.run();
+      equal(p.off(0, 0), "armed", "one OFF");
+      ok(p.power, "the power stays on");
+      equal(p.off(0, 3000), "armed", "the same OFF again, later");
+      equal(p.off(1, 3500), "ok", "the other OFF with it");
+      ok(!p.power && !p.lamps().run, "power off, lamps dark");
+      const kept = agt.core.read(USER_AT);
+      equal(p.on(), "halted", "ON");
+      equal(p.mode, "halt", "the processor stops in HALT");
+      equal(agt.core.read(USER_AT), kept, "core kept");
     },
   },
 
@@ -786,7 +1147,7 @@ export const MODEL_CHECKS = [
   // ---- the Teletype ----
   {
     id: "TTY-1",
-    title: "The ASR-33 runs at 10 characters a second (SRM5 DPR3 p. 11)",
+    title: "The Teletype runs at 10 characters a second (SRM5 DPR3 p. 11)",
     run(ctx) {
       const agt = ctx.boot();
       // a character is on the paper once it is struck; the next is struck 0.1 s later. The
@@ -802,7 +1163,7 @@ export const MODEL_CHECKS = [
   },
   {
     id: "TTY-2",
-    title: "Carriage return and line feed are separate: CR alone overprints (the ASR-33)",
+    title: "Carriage return and line feed are separate: CR alone overprints (the Teletype)",
     run() {
       const t = new Teletype();
       t.writeText("ABC\rX\r\nD");
@@ -811,7 +1172,7 @@ export const MODEL_CHECKS = [
   },
   {
     id: "TTY-3",
-    title: "The paper is 72 columns wide (the ASR-33)",
+    title: "The paper is 72 columns wide (the Teletype)",
     run() {
       const t = new Teletype();
       t.writeText("X".repeat(80));
@@ -822,10 +1183,59 @@ export const MODEL_CHECKS = [
 
   // ---- the programs ----
   {
+    id: "TTY-4",
+    title: "Receiving, with IC bits 28 and 29 set, a key's bits come one an interrupt on channel 5, lowest first, on S4[14]: seven through 77750, the eighth through 77751 (DPR2SPI p. 43; AMRMX; R23)",
+    run() {
+      const cpu = new Dpr2(new Core());
+      const line = new TtyLine(cpu, () => {});
+      cpu.IC = 3;
+      line.key(0o123);
+      /** @type {number[]} */
+      const bits = [];
+      /** @type {number[]} */
+      const pivots = [];
+      for (let t = 0; t < 12 * BIT_US; t += 100) {
+        cpu.time = t;
+        line.poll();
+        const piw = cpu.pri.pending.get(TTY_CHANNEL);
+        if (piw === undefined) continue;
+        cpu.pri.pending.delete(TTY_CHANNEL);
+        pivots.push(lo(piw));
+        bits.push(Math.floor(cpu.S4 / 2 ** (29 - SENSE_LINE)) % 2);
+      }
+      equal(bits.join(""), "11001011", "S (123), lowest bit first, the eighth bit 1");
+      equal(pivots.filter((p) => p === BIT_PIVOT).length, 7, "seven through 77750");
+      equal(pivots.at(-1), LAST_PIVOT, "the eighth through 77751");
+    },
+  },
+  {
+    id: "TTY-5",
+    title: "Sending, with IC bit 29 set, OPTY's bit on each of eight interrupts makes a character, lowest bit first, printed after its stop bits (DPR2SPI p. 43; AMRMX; R23)",
+    run() {
+      const cpu = new Dpr2(new Core());
+      /** @type {number[]} */
+      const got = [];
+      const line = new TtyLine(cpu, (c) => got.push(c));
+      cpu.IC = 1;
+      const code = 0o301;
+      let k = 0;
+      for (let t = 0; t < 12 * BIT_US && !got.length; t += 100) {
+        cpu.time = t;
+        line.poll();
+        if (!cpu.pri.pending.has(TTY_CHANNEL)) continue;
+        cpu.pri.pending.delete(TTY_CHANNEL);
+        line.strobe((code >> k++) & 1);
+      }
+      equal(got.length, 1, "one character");
+      equal(oct(got[0], 3), "301", "A with its eighth bit");
+    },
+  },
+  {
     id: "PRG-1",
     title: "Every program's statements are taken without a ? and start the display (design/v0.0.1.md, section 2)",
     run(ctx) {
       for (const p of ctx.manifest.programs) {
+        if (p.game) continue; // NCSU's games run from the pack under AMRMX (U19)
         const agt = ctx.boot();
         load(ctx, agt, p.id);
         agt.advance(agt.now + 1e6);

@@ -2,6 +2,29 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## 0.0.5
+
+The lab's own software runs. NCSU's monitor, AMRMX (1976), boots from M. Howard's dump of the lab's system pack, and two of its games, LIFE and Space War, play from the Programs menu. Getting there settled several of the processor's details from the lab's and Adage's own code.
+
+**NCSU's software**
+- **LIFE** and **Space War** in the Programs menu run unchanged from the pack under AMRMX, each with its card and link (`#program=life`, `#program=space-war`): Conway's Life on a 128 × 128 board, and the two-ship Space War with a foot pedal each for thrust (U19).
+- **Boot AMRMX**, in the Panel tab, runs the monitor alone: it draws its banner on the scope with its own font, asks the date and takes statements typed on the Teletype (`LISTV(10)!` lists a volume). The pack (400 KB) is fetched from M. Howard's repository at a fixed commit, only when asked.
+- For them, the vector generator and the array (R22), the Teletype's line (R23) and the disk (R24) are modeled at register level, from what DISP2, AMLD0 and the pack's programs show ([research/amrmx.md](research/amrmx.md)). The games are started by our own loader: AMRMX's statement for a core-image file is not on the surviving part of the pack.
+
+**The processor**
+- A store with 'O sets the word to −0, as every commented use in Adage's and NCSU's sources does; ARLS shifts through the sign as NORM does; the program interrupt's pivot is 77743; a priority service ends at its Jump Indirect only; a word sent to IR is the next instruction, so LIFE's 16,384-instruction chain runs (R1, R6, R10).
+- The function keys and pedals reach S5 as Adage's switch routines read them: IC bit 9 selects keys 1–15, or the pedals and key 16 (R18). The strip has the two pedals.
+
+**The installation**
+- The Teletype is an ASR-35, the console desk AGTs used, at its documented size and in the shape photographs show (R17); the ASR-33 is kept as an option.
+- The operator's control panel works, in a Panel tab and on the processor rack in 3D, with a Panel viewpoint: BR's lamp-buttons, the PRI switches, PULSE 1 (pressed again, it withdraws its request), RUN, HALT, PAUSE, STEP, CYCLE, RESET, ON and OFF, BTSP, IC 0 and IC 1 (R21).
+- The Screen viewpoint's scope stays square in any window.
+- The address bar keeps only the viewpoint, so a copied link opens the app as it starts; links with `#program=` made on purpose still work (U13).
+
+**Also**
+- The pack image is understood: the dump on tape is the pack's first 984 sectors, with the monitor and the games LIFE, QUBIC, Space War and BROSE ([research/ncsu-tapes.md](research/ncsu-tapes.md)).
+- The overview: the array's size, a 19-inch rack of multiplying DACs (CCT21c); the function keys' layout.
+
 ## 0.0.4
 
 The machine explained. A new document, written for engineers who know today's computers, explains the AGT-30 as a whole, so that what the simulator does, and what the manuals say, can be followed without the scans. It is shared now so that people who knew the machine can review it.

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // The AGT-30 as a whole: the display terminal (DSPLY, the array, the vector generator, the
-// frame clock) with its DPR-2 processor running programs, the console's devices, the ASR-33
-// Teletype and the AMOS monitor that listens to it.
+// frame clock) with its DPR-2 processor running programs, the console's devices, the Teletype
+// and the AMOS monitor that listens to it.
 //
 // One processor does everything, as on the real machine (D4):
 // - DSPLY's work each frame comes first (the display has the higher interrupt priority,
@@ -16,14 +16,16 @@
 
 import { assemble } from "./adept.js";
 import { TTY } from "./amoscode.js";
-import { Dpr2 } from "./dpr2.js";
+import { Bare, GAMES } from "./bare.js";
+import { assembleOp, Dpr2 } from "./dpr2.js";
 import { loadFigures } from "./figures.js";
 import { CALL_AREA, Monitor } from "./amos.js";
+import { MONITOR_ENTRY, Panel, PULSE1_PIVOT } from "./panel.js";
 import { Terminal } from "./terminal.js";
 import { Teletype } from "./teletype.js";
 import { word } from "./words.js";
 
-/** The ASR-33 prints, and sends, 10 characters a second (SRM5 DPR3 p. 11). */
+/** The Teletype prints, and sends, 10 characters a second (SRM5 DPR3 p. 11). */
 export const TTY_US_PER_CHAR = 100000;
 /**
  * How fast the page's menus send statements: as fast as the monitor takes them, 1 ms a
@@ -63,7 +65,9 @@ export class Agt30 extends Terminal {
       dials: new Float64Array(DIALS),
       /** sixteen function keys (FNS1) on S5, key n as bit n in Adage's numbering from the left */
       switches: 0,
-      /** PULSE 1, the manual interrupt, held down; in v0.0.1 it requests no service (R10) */
+      /** the two foot pedals (FNS1), pedal 1 and pedal 2, down while pressed */
+      pedals: [false, false],
+      /** PULSE 1, the manual interrupt, held down: the console's button and the panel's are one (R10) */
       pulse1: false,
     };
     /** The paper. */
@@ -83,7 +87,12 @@ export class Agt30 extends Terminal {
         this.print(code === 0o15 ? "\r\n" : (TTY[code] ?? ""));
         return true;
       },
-      switches: () => this.dev.switches,
+      // IC bit 9 selects what S5's upper half shows: set, FNS 1-15 at bits 0-14; clear, pedal 2,
+      // pedal 1 and FNS 16 at bits 12, 13 and 14 (FSRR and FPRR, the tripp library, MH25; R18)
+      switches: (ic) => {
+        if (Math.floor(ic / 2 ** (29 - 9)) % 2 === 1) return this.dev.switches - (this.keyDown(15) ? 2 ** 14 : 0);
+        return (this.dev.pedals[1] ? 2 ** 17 : 0) + (this.dev.pedals[0] ? 2 ** 16 : 0) + (this.keyDown(15) ? 2 ** 15 : 0);
+      },
       analog: (ch) => (ch < DIALS ? this.dev.dials[ch] : 0),
     });
     /** @type {ClockRoutine[]} DPR-2 routines on the CLOCK chain */
@@ -102,6 +111,11 @@ export class Agt30 extends Terminal {
     this.typeout = (/** @type {string} */ text) => this.print(text);
     this.dsply.machine = (addr) => this.callRoutine(addr);
     this.dsply.pen.aperture = PEN_APERTURE_IN;
+    /** The processor's operator's control panel (R21). */
+    this.panel = new Panel(this);
+    /** @type {Bare | null} the real monitor booted from the pack, with the devices it drives; null for the simulator's own (U19) */
+    this.bare = null;
+    this.cpu.breakAt = MONITOR_ENTRY;
   }
 
   /**
@@ -125,10 +139,45 @@ export class Agt30 extends Terminal {
     }
     if (at > CALL_AREA) throw new Error("the resident programs run into the monitor");
     for (const [name, src] of Object.entries(sources)) if (!RESIDENT.includes(name)) agt.monitor.files.set(name, src);
+    // PULSE 1's pivot leads back to the monitor, so the PRI switches' usual MDIR 77776 does (R21)
+    agt.core.write(PULSE1_PIVOT, assembleOp("JUMP", MONITOR_ENTRY));
     agt.monitor.loadAt = USER_AT;
     agt.startCore = { words: agt.core.words.slice(), symbols: new Map(agt.core.symbols) };
     agt.monitor.greet(date);
     return agt;
+  }
+
+  /**
+   * Boots AMRMX from NCSU's system pack (U19, R24): the display and any program stop, the
+   * simulator's monitor stands aside, and the processor runs the real one.
+   * @param {Uint32Array} pack
+   */
+  bootPack(pack) {
+    this.stopProgram();
+    this.halt();
+    this.clockCode = [];
+    this.sending = [];
+    // the paper torn off: what is on it was the simulator's monitor's
+    this.printQueue = [];
+    this.paper.clear();
+    this.bare = new Bare(this, pack);
+    this.panel.btsp = false;
+    this.panel.mode = "run";
+    this.panel.sync();
+  }
+
+  /**
+   * Starts a game from the pack under AMRMX (U19, R24): booted first if it is not, then the
+   * game's core image restored by our loader and entered.
+   * @param {import("./bare.js").GameId} id
+   * @param {Uint32Array} pack
+   */
+  startGame(id, pack) {
+    if (!this.bare) this.bootPack(pack);
+    const g = GAMES[id];
+    /** @type {Bare} */ (this.bare).startDump(g.sector, g.entry);
+    this.panel.mode = "run";
+    this.panel.sync();
   }
 
   /**
@@ -175,6 +224,15 @@ export class Agt30 extends Terminal {
   }
 
   /**
+   * Presses or releases a foot pedal.
+   * @param {0 | 1} n pedal 1 or pedal 2
+   * @param {boolean} down
+   */
+  setPedal(n, down) {
+    this.dev.pedals[n] = down;
+  }
+
+  /**
    * Whether a function key is down.
    * @param {number} n 0-15
    * @returns {boolean}
@@ -184,12 +242,24 @@ export class Agt30 extends Terminal {
   }
 
   /**
-   * Presses or releases PULSE 1. It is drawn and pressed as on the box, but no program of v0.0.1
-   * uses it, so it requests no interrupt (R10).
+   * Presses or releases PULSE 1, on the console or the panel: pressed, it asks for the PRI
+   * switches' instruction on channel 1 (R10, R21).
    * @param {boolean} down
+   * @returns {import("./panel.js").Outcome | null} what the press did; null for a release
    */
   setPulse1(down) {
+    const was = this.dev.pulse1;
     this.dev.pulse1 = down;
+    return down && !was ? this.panel.pulse1() : null;
+  }
+
+  /**
+   * Back to the monitor, as PULSE 1 at its usual setting returns there: the foreground program
+   * stops and the display halts (AMRMX's HALT! does the same to the display).
+   */
+  abort() {
+    this.stopProgram();
+    this.halt();
   }
 
   /**
@@ -203,28 +273,31 @@ export class Agt30 extends Terminal {
   }
 
   /**
-   * Types on the Teletype's keyboard. Characters go out at the ASR-33's 10 a second, each
+   * Types on the Teletype's keyboard. Characters go out at the Teletype's 10 a second, each
    * reaching the monitor in its turn; the page's menus send faster (FAST_US_PER_CHAR, U8).
    * @param {string} text
    * @param {number} [usPerChar]
    */
   type(text, usPerChar = TTY_US_PER_CHAR) {
+    // AMRMX takes the keys a bit at a time from the line, at the Teletype's pace (R23)
+    if (this.bare) return this.bare.type(text);
     for (const ch of text) this.sending.push({ ch, gapUs: usPerChar });
   }
 
   /** Whether characters are still waiting to be sent. */
   get typing() {
-    return this.sending.length > 0;
+    return this.bare ? this.bare.line.typing : this.sending.length > 0;
   }
 
   /** Throws away what has not been sent yet. */
   cancelTyping() {
     this.sending = [];
+    if (this.bare) this.bare.line.keys = [];
   }
 
   /** Whether the keyboard or the printer is still busy. */
   get busy() {
-    return this.sending.length > 0 || this.printQueue.length > 0;
+    return this.typing || this.printQueue.length > 0;
   }
 
   // ---- the processor's time ----
@@ -270,7 +343,8 @@ export class Agt30 extends Terminal {
   /** @param {number} until */
   advance(until) {
     if (!this.sending.length) this.sendNext = Math.max(this.sendNext, this.now);
-    while (this.sending.length && this.sendNext <= until) {
+    // the monitor is the processor's: halted, it takes nothing, and the keyboard's characters wait
+    while (this.panel.running && this.sending.length && this.sendNext <= until) {
       this.advanceTo(Math.max(this.sendNext, this.now));
       const c = /** @type {{ ch: string; gapUs: number }} */ (this.sending.shift());
       this.printAtOnce = c.gapUs < TTY_US_PER_CHAR;
@@ -283,8 +357,10 @@ export class Agt30 extends Terminal {
 
   /** @param {number} until */
   advanceTo(until) {
+    // the real monitor: the processor runs it and its devices all the time
+    if (this.bare) this.bare.advance(until);
     // with the display halted, the foreground program has the processor to itself
-    if (this.image === null && this.program) {
+    else if (this.image === null && this.program && this.panel.running) {
       this.runBase = this.now;
       this.runCpu = this.cpu.time;
       this.runProgram(until - this.now);
@@ -352,6 +428,10 @@ export class Agt30 extends Terminal {
     const r = this.cpu.resume(this.program.until, us);
     this.programUs += r.us;
     if (r.done) {
+      if (this.cpu.LC === MONITOR_ENTRY && this.program.until !== MONITOR_ENTRY) {
+        this.abort();
+        return;
+      }
       if (this.cpu.stopped) this.print(`${this.cpu.stopped.toUpperCase()}\r\n`);
       this.program = null;
     }

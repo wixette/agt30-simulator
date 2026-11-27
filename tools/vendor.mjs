@@ -40,6 +40,7 @@ export const ICONS = [
   "content_copy",
   "edit",
   "eject",
+  "play_arrow",
   "keyboard_arrow_up",
   "home",
   "hub",
@@ -52,6 +53,7 @@ export const ICONS = [
   "power_settings_new",
   "restart_alt",
   "terminal",
+  "toggle_on",
   "zoom_in",
   "zoom_out",
 ];

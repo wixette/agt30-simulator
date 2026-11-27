@@ -47,16 +47,22 @@ What we have learned from people who knew the machine, and what they have allowe
 Answers go above, with the date. Asked on 2026-11-23:
 
 - **The phosphor (R14).** Is a P7-like white closer than our green, and how strong is the green afterglow?
-- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits?
+- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits? *(The pack shows a bit clock behind IC bit 29 that interrupts once a bit, through pivots 77750 and 77751: [amrmx.md](amrmx.md). Its rate is still the question.)*
 - **GDD1 (R7).** What does destination 07 take in the word written to it (AMRMX's display handler writes full words)?
-- **The program interrupt's pivot (R10).** Where is PIPVT?
+- **The program interrupt's pivot (R10).** Where is PIPVT? *(Since found on the pack: 77743, [amrmx.md](amrmx.md).)*
 - **The color photographs.** Where are they from, and may we use them? And the document ADAGE_SLS.
+
+- **The console on the scope.** AMRMX sends its text to the screen when its display handler is loaded. Was the scope the usual console at NCSU, with the Teletype for when the display was not in use?
 
 Not yet asked:
 
-- **The transfer logic.** Do 'A and 'O act on the operand and AR, or on the destination?
+- **The rest of the pack.** The dump on tape ends after 123 records, the pack's first 61½ cylinders, with no tape mark: is there a second reel, or another copy of volumes 20–37 (the lunar lander, Pong)?
+
+- **The transfer logic.** Do 'A and 'O act on the operand and AR, or on the destination? *(Since settled for 'O by the sources themselves: a store to memory with 'O sets the word to −0, as every commented use on the tapes does ("SET BUSY FLAG", "SET DISK FLAG"); AMRMX then takes statements and LIFE redraws. Not sent; [amrmx.md](amrmx.md). Still open: does a store with 'A AND, as the manual says?)*
+- **The disk monitor's commands.** How did an operator start a game under the 1976 AMRMX, for example LIFE? The 1971 manual's statements quote names (`S("TITLE", TAPE)!`); the pack's command table has START, LOAD, RETRIEVE, LISTF and others. Is there a manual of the disk monitor? *(Narrowed on 2026-11-27, not sent: AMRMX takes statements on the simulator, in the syntax NCSU's macros use (`START("9SE",10)!` loads and runs a relocatable file; `SYST(10)!` sets the volume). START only loads RELOC files. The question left: what statement restored a DUMP file such as LIFE, QUBIC or Space War? [amrmx.md](amrmx.md).)*
+- **LIFE.** Its function keys, as its code reads them: 0 stop, 1 run, 2 load a figure from the pack, 3 save one, 5, 6, 9, 10 move the cursor, 7 set a cell, 11 clear one, 14 back to the monitor. Is that how it was played? Did a figure library exist on the pack?
 - **Destinations 05 and 06.** The array's XY and Z (his notes), AVG1's flags and command (DPR2BD), or both?
-- **The function keys.** How do sixteen keys fit S5[0–14]? And in ADCR's binary, what is the pair marked 00 (DTRR)?
+- **The function keys.** How do sixteen keys fit S5[0–14]? *(Settled from the tripp library's own routines, not sent: IC bit 9 selects FNS 1–15, or the pedals and FNS 16; [amrmx.md](amrmx.md).)* And in ADCR's binary, what is the pair marked 00 (DTRR)?
 - **The display (R2).** Was the display list walked by a DPR-2 program (DSPLY, as we read PRM1), or mostly by hardware?
 - **The array (R5).** Does our model, x' = PS [D + SC (R x)], match what he knows? How was it calibrated?
 - **Software.** Is 3DTTT D. Ogden's game, and where is `$TTT3D`? Who wrote the other games, and how were they played?

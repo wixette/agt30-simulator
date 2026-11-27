@@ -10,6 +10,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { beamAt } from "../view/beam.js";
 import { token } from "../view/theme.js";
 import { buildTerminal } from "./terminal3d.js";
+import { LAMPED as PANEL_LAMPS } from "../sim/panel.js";
 
 /** @typedef {import("./terminal3d.js").TerminalParams} TerminalParams */
 /** @typedef {import("../sim/agt.js").Agt30} Agt30 */
@@ -124,6 +125,8 @@ export class TerminalView {
     this.onDial = () => {};
     /** @type {(id: number | "pulse1", down: boolean) => void} a key of the function switch box on the desk pressed or released (P2) */
     this.onKey = () => {};
+    /** @type {(id: string, down: boolean) => void} a control of the operator's panel on the rack pressed or released (R21) */
+    this.onPanel = () => {};
     this.raycaster = new THREE.Raycaster();
     const canvas = this.renderer.domElement;
     /** @type {{ x: number; y: number } | null} */
@@ -132,8 +135,17 @@ export class TerminalView {
     let dial = null;
     /** @type {number | "pulse1" | null} a key held down on the desk */
     let heldKey = null;
+    /** @type {string | null} a control of the panel held down */
+    let heldControl = null;
     canvas.addEventListener("pointerdown", (e) => {
       down = { x: e.clientX, y: e.clientY };
+      heldControl = this.panelAt(e);
+      if (heldControl !== null) {
+        this.controls.enabled = false;
+        canvas.setPointerCapture(e.pointerId);
+        this.onPanel(heldControl, true);
+        return;
+      }
       heldKey = this.keyAt(e);
       if (heldKey !== null) {
         this.controls.enabled = false;
@@ -153,6 +165,12 @@ export class TerminalView {
       if (dial) this.onDial(dial.n, e.clientX, e.clientY, false);
     });
     const release = () => {
+      if (heldControl !== null) {
+        this.onPanel(heldControl, false);
+        heldControl = null;
+        this.controls.enabled = true;
+        return;
+      }
       if (heldKey === null) return;
       this.onKey(heldKey, false);
       heldKey = null;
@@ -160,7 +178,7 @@ export class TerminalView {
     };
     canvas.addEventListener("pointercancel", release);
     canvas.addEventListener("pointerup", (e) => {
-      if (heldKey !== null) release();
+      if (heldKey !== null || heldControl !== null) release();
       else if (dial) {
         dial = null;
         this.controls.enabled = true;
@@ -168,6 +186,8 @@ export class TerminalView {
       down = null;
     });
     canvas.addEventListener("dblclick", (e) => {
+      // quick presses on the panel are presses, not a double-click on its rack
+      if (this.onPanelFace(e)) return;
       const name = this.hit(e);
       if (name) this.onActivate(name);
     });
@@ -196,6 +216,8 @@ export class TerminalView {
     this.lastLook = null;
     /** The six knobs on the desk, turned as the dials are. */
     this.knobs = Array.from({ length: 6 }, (_, n) => this.built.root.getObjectByName(`console.dials.knob.${n}`));
+    /** Whether the panel's controls on the rack take clicks: in the Panel viewpoint (R21). */
+    this.panelLive = false;
     /** A pressed key's color (U10). */
     this.amber = new THREE.Color(token("--attention", "#ffb74d"));
     /** The function switch box's keys on the desk, by name, and where each rests when up. */
@@ -455,6 +477,30 @@ export class TerminalView {
   }
 
   /**
+   * Whether the pointer is on the operator's panel, in the Panel viewpoint.
+   * @param {MouseEvent} e
+   * @returns {boolean}
+   */
+  onPanelFace(e) {
+    return this.panelLive && (this.rawHit(e)?.startsWith("rack.dpr2.ocp.") ?? false);
+  }
+
+  /**
+   * The control of the operator's panel under the pointer, in the Panel viewpoint: "br.N",
+   * "pri.N", or a control's name; null elsewhere.
+   * @param {MouseEvent} e
+   * @returns {string | null}
+   */
+  panelAt(e) {
+    if (!this.panelLive) return null;
+    const name = this.rawHit(e);
+    const m = name?.match(/^rack\.dpr2\.ocp\.(?:(br|pri)\.(\d\d)|(\w+))(?:\.pointer)?$/);
+    if (!m) return null;
+    if (m[1]) return `${m[1]}.${Number(m[2])}`;
+    return m[3] === "face" || m[3] === "slot" || m[3] === "plate" ? null : m[3];
+  }
+
+  /**
    * The key of the function switch box a press lands on: the key under the pointer, or the
    * nearest within KEY_GRAB_PX of a press on the box's top (a key is a few pixels across).
    * @param {MouseEvent} e
@@ -537,6 +583,8 @@ export class TerminalView {
 
   /** @param {MouseEvent} e */
   pick(e) {
+    // in the Panel viewpoint a click on the panel works it and never selects the rack (R21)
+    if (this.onPanelFace(e)) return;
     const name = this.hit(e);
     this.select(name);
     this.onPick(name);
@@ -607,6 +655,28 @@ export class TerminalView {
   }
 
   /**
+   * The operator's control panel on the rack shows the machine (R21): BR's lamps, the PRI
+   * switches up or down, the buttons' lamps, the selector's position.
+   * @param {Agt30} agt
+   */
+  updatePanel(agt) {
+    const p = agt.panel;
+    const br = p.br;
+    /** @param {THREE.Mesh} m @param {boolean} on */
+    const light = (m, on) => (/** @type {THREE.MeshStandardMaterial} */ (m.material).emissiveIntensity = on ? 1.4 : 0);
+    this.built.lamps.forEach((l, i) => light(l, Math.floor(br / 2 ** (29 - i)) % 2 === 1));
+    const lamps = /** @type {Record<string, boolean>} */ (p.lamps());
+    for (const [c, m] of this.built.ocp.controls) {
+      if (c === "selector") m.rotation.y = [-0.8, -1.57, -2.36][["pulse1", "hub1", "hub2"].indexOf(p.selector)];
+      else light(m, lamps[PANEL_LAMPS[c] ?? ""] ?? false);
+    }
+    // a PRI switch's lever: straight out for 1, pressed down 45 degrees for 0
+    this.built.ocp.pri.forEach((l, i) => {
+      l.rotation.x = Math.floor(p.pri / 2 ** (29 - i)) % 2 === 1 ? 0 : Math.PI / 4;
+    });
+  }
+
+  /**
    * Shows the machine's state and renders: the face, the lamps (AR), the cables' traffic.
    * @param {Agt30} agt
    */
@@ -622,10 +692,7 @@ export class TerminalView {
       // and amber, the color of "your turn" (U10), as the strip shows it
       /** @type {THREE.MeshStandardMaterial} */ (/** @type {THREE.Mesh} */ (k).material).color.copy(down ? this.amber : k.userData.restColor);
     }
-    this.built.lamps.forEach((l, i) => {
-      const on = Math.floor(agt.cpu.AR / 2 ** (29 - i)) % 2 === 1;
-      /** @type {THREE.MeshStandardMaterial} */ (l.material).emissiveIntensity = on ? 1.4 : 0;
-    });
+    this.updatePanel(agt);
     const last = agt.frames.at(-1);
     const recent = last !== undefined && agt.now - last.start < 200000;
     const level = {
@@ -670,10 +737,16 @@ function palette() {
     ttyStand: token("--tty-stand", "#8f8c82"),
     ttyKey: token("--tty-key", "#e4e0d2"),
     ttyDark: token("--tty-dark", "#2d2f31"),
+    tty35: token("--tty35-case", "#c9c7bf"),
+    tty35Dark: token("--tty35-tray", "#a7a49b"),
+    ttyDome: token("--tty-dome", "#d6c07c"),
     paper: token("--paper", "#efe8d2"),
     crt: token("--crt-face", "#050806"),
     lampOff: token("--lamp-off", "#4a4033"),
     lampOn: token("--lamp-on", "#ffd36b"),
+    ocpFace: token("--ocp-face", "#5b4a3a"),
+    ocpGroup: token("--ocp-group", "#d8ccb4"),
+    ocpUnlit: token("--ocp-unlit", "#f4f0e6"),
     analog: token("--analog", "#ffb86b"),
     digital: token("--digital", "#9ecaff"),
     floor: token("--md-surface-mid", "#1b2026"),

@@ -5,7 +5,7 @@
 // reconstructed and may change (R1). Pure: no DOM; tests/link.test.js pins it down.
 
 /** The viewpoints, by the names links use (V6). */
-export const VIEWS = /** @type {const} */ (["room", "console", "screen", "tube"]);
+export const VIEWS = /** @type {const} */ (["room", "console", "screen", "tube", "panel"]);
 /** @typedef {(typeof VIEWS)[number]} View */
 
 /**

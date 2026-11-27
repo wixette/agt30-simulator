@@ -84,9 +84,19 @@
   --tty-stand: #8f8c82;
   --tty-key: #e4e0d2;
   --tty-dark: #2d2f31;
+  --tty35-case: #c9c7bf;
+  --tty35-tray: #a7a49b;
+  --tty-dome: #d6c07c;
   --paper: #efe8d2;
   --lamp-off: #4a4033;
   --lamp-on: #ffd36b;
+  /* the DPR-2's operator's control panel, as the overview's figure 7 draws it: physical, outside the scheme */
+  --ocp-face: #5b4a3a;
+  --ocp-group: #d8ccb4;
+  --ocp-ink: #3a2f25;
+  --ocp-label: #f2eee4;
+  --ocp-unlit: #f4f0e6;
+  --ocp-set: #2f62a8;
   /* the Teletype's paper in the dock: canary stock of the period, outside the scheme */
   --tty-paper: #ebe3cb;
   --tty-ink: #2a2620;

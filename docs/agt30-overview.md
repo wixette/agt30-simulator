@@ -34,7 +34,7 @@ The simulator models the AGT-30 of North Carolina State University's graphics la
 The design rests on one division of labour:
 
 - **The processor walks the picture.** A picture lives in core memory as a structured list (section 5). Forty times a second a program called DSPLY reads it from the top and sends the coordinates of every point to the array.
-- **The array does the arithmetic, in analog.** The hybrid array multiplies each point by a 3 × 3 rotation, scales it and moves it, with amplifiers and multiplying converters, in under 4 µs a point. It takes one point at a time: there is one array, and the points come to it one after another as DSPLY sends them. What happens at once is the arithmetic for that point, all nine products and three sums together (section 5). The array's exact size is not documented; it was one unit among the racks, where a digital multiplier as fast would, in M. Howard's estimate, have filled a rack by itself (MH26).
+- **The array does the arithmetic, in analog.** The hybrid array multiplies each point by a 3 × 3 rotation, scales it and moves it, with amplifiers and multiplying converters, in under 4 µs a point. It takes one point at a time: there is one array, and the points come to it one after another as DSPLY sends them. What happens at once is the arithmetic for that point, all nine products and three sums together (section 5). The array filled a 19-inch rack of its own, "full of 15-bit signed discrete multiplying DACs" (CCT21c); a digital multiplier as fast would, in M. Howard's estimate, have taken a rack of logic for a single 14 × 14-bit product (MH26).
 - **The vector generator draws.** It takes each transformed point and moves the CRT's beam to it in a straight line, bright for a line and dark for a move.
 - **Nothing stores the picture but core and the phosphor.** There is no frame buffer. A line glows only for a moment after the beam passes, so the whole picture is drawn again every frame. A picture with too many lines no longer fits in a frame and flickers.
 
@@ -261,7 +261,7 @@ Characters are drawn as vectors too, a few strokes each, in italics (MH26).
 
 **The dials.** Six knobs, VCD1, each a potentiometer giving a voltage. NCSU built its own, with 15-turn potentiometers for fine control (MH26). They are wired to the array's analog inputs. To read one, a program writes the dial's number to destination 07 (GDD1), which selects the input and starts the converter, ADC5; the result appears in the lower half of S5 (DPR2SPI p. 41; DPR2BD). The routine in section 3 does exactly that. Which bits of the word written to 07 choose the input is not documented (R7).
 
-**The function keys.** Sixteen push buttons, FNS1, each with a lamp the program can light, read through S5's upper half. Two foot pedals act as keys, so a user could step up and down a listing with the feet, and most AGTs had them (SRM5 FNS1; MH26). **PULSE 1** sits beside the keys (section 4).
+**The function keys.** Sixteen push buttons, FNS1, each with a lamp the program can light, read through S5's upper half. Its fifteen bits hold sixteen keys and two pedals by way of IC bit 9: set, S5 shows keys 1–15; clear, the two pedals and key 16 (the tripp library's FSRR and FPBS, MH25). Two foot pedals act as keys, so a user could step up and down a listing with the feet, and most AGTs had them (SRM5 FNS1; MH26). **PULSE 1** sits beside the keys (section 4).
 
 **The light pen.** LPN1 is a photocell in a pen. Pointed at the screen, it sees the beam pass under it and interrupts on channel 10 at that moment. Since DSPLY knows which item it was drawing, it can record which part of the picture was picked, in a table of the last 16 hits (DSPLY p. 30). There is no position sensing in the pen itself: it knows *when*, and the display list says *what*.
 
@@ -398,8 +398,7 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 - where PIPVT is (asked);
 - whether `'A` and `'O` combine with AR or with the destination;
 - whether any array did a perspective divide in hardware;
-- how sixteen function keys fit S5's 15 bits;
-- why the dump of M. Howard's pack holds about 61 cylinders' worth of words while its directory places volumes as far as cylinder 179.
+- whether the rest of M. Howard's pack survives: the dump on tape holds its first 984 sectors (61½ cylinders), the system area and the games QUBIC, LIFE, Space War and BROSE, but not volumes 20–37, among them the lunar lander and Pong ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
 
 ## Appendix A. Glossary
 
@@ -618,5 +617,5 @@ The keys used in this document. Full entries, with links, are in [../research/bi
 | MH25 | M. Howard's repository of NCSU's tapes and his tools | the surviving software, the system pack |
 | MH26 | M. Howard, personal communication, 2026 (emails and a call) | memories of using and maintaining the machine |
 | MHN | M. Howard's notes on the DPR-2's registers, sense lines and channels | cross-checking the block diagram |
-| CCT20 | M. Howard and others on the cctalk mailing list, 2020 | the tapes before they were read; calibration |
+| CCT20, CCT21c | M. Howard and others on the cctalk and cctech mailing lists, 2020 and 2021 | the tapes before they were read; calibration; the array's rack |
 | RT | L. Shustek, readtape | how the tapes were read |

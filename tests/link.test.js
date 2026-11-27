@@ -10,7 +10,7 @@ import { PROGRAMS } from "./boot.js";
 const ids = PROGRAMS.manifest.programs.map((p) => p.id);
 
 describe("links", () => {
-  it("name the four viewpoints of v0.0.1 (V6)", () => assert.deepEqual([...VIEWS], ["room", "console", "screen", "tube"]));
+  it("name the viewpoints: v0.0.1's four (V6) and the Panel (R21)", () => assert.deepEqual([...VIEWS], ["room", "console", "screen", "tube", "panel"]));
   it("read a viewpoint and a program", () => assert.deepEqual(parseLink("#view=tube&program=tic-tac-toe", ids), { view: "tube", program: "tic-tac-toe" }));
   it("ignore what they do not know", () => assert.deepEqual(parseLink("#view=attic&program=pong&x=1", ids), {}));
   it("write the Room, the way in, as nothing", () => assert.equal(formatLink({ view: "room" }), ""));

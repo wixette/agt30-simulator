@@ -14,18 +14,20 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *
- * @fileoverview The paper of a Teletype ASR-33.
+ * @fileoverview The paper of a Teletype.
  *
  * From the Altair 8800 Simulator (https://github.com/wixette/8800-simulator, Apache-2.0),
- * adapted for the AGT-30, whose standard console was an ASR-33 too (BRO69). The AMOS monitor
- * sends CR then LF at the end of a line ("return - L.F.", AMRMX p. 20). The ASR-33 printed
+ * adapted for the AGT-30, whose console was a Teletype too: an ASR-33 in Adage's 1969 brochure
+ * (BRO69), the heavy-duty ASR-35 in its Model 5 manual and, as M. Howard remembers, in use (SRM5;
+ * MH26). Both print the same way, 72 columns at 10 characters a second. The AMOS monitor
+ * sends CR then LF at the end of a line ("return - L.F.", AMRMX p. 20). The Teletypes printed
  * codes 5E and 5F (hex) as an up arrow and a left arrow, which the AMOS code has (AMRMX
  * p. 20); the paper keeps them as those arrows.
  */
 
 
 /**
- * Models the paper in an ASR-33: bytes go in, printed lines come out.
+ * Models the paper in a Teletype: bytes go in, printed lines come out.
  *
  * It is a printer, not a screen, and the difference shows. Carriage
  * return moves the carriage back to the left margin without advancing
@@ -40,7 +42,7 @@
  */
 export class Teletype {
     /**
-     * @param {number=} columns The carriage width. An ASR-33 is 72.
+     * @param {number=} columns The carriage width. An ASR-33 or ASR-35 is 72.
      * @param {number=} maxLines How much paper to keep before the top
      *     of the roll is dropped.
      */
@@ -82,7 +84,7 @@ export class Teletype {
      * @param {number} byte The byte the CPU sent.
      */
     write(byte) {
-        // The ASR-33 is a seven bit machine.
+        // The Teletype is a seven bit machine.
         var c = byte & 0x7f;
         if (c == Teletype.CR) {
             this.column = 0;
@@ -113,7 +115,7 @@ export class Teletype {
     }
 
     /**
-     * Prints a string, one byte at a time. The arrows are the ASR-33's 5E and 5F.
+     * Prints a string, one byte at a time. The arrows are the Teletype's 5E and 5F.
      * @param {string} text The text.
      */
     writeText(text) {
@@ -130,7 +132,7 @@ export class Teletype {
     }
 
     /**
-     * Translates a key press into the byte the ASR-33 would have sent.
+     * Translates a key press into the byte the Teletype would have sent.
      *
      * The keyboard was upper case only, and AMOS is single case
      * (AMRMX p. 20). Backspace rubs out the last character and Escape
@@ -156,7 +158,7 @@ export class Teletype {
     }
 };
 
-/** The carriage width of an ASR-33. @type {number} */
+/** The carriage width of the Teletype. @type {number} */
 Teletype.COLUMNS = 72;
 
 /** How many printed lines to keep. @type {number} */

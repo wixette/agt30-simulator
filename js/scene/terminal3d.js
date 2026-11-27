@@ -8,6 +8,7 @@
 // The params' frame: millimeters, +X to the operator's right, +Y away from the operator, +Z up.
 // three.js: meters, Y up, the operator looking along -Z (docs/conventions.md).
 
+import { PANEL_SIZE, panelLayout } from "../sim/panel.js";
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
@@ -28,6 +29,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
  * @property {"front" | "top"} [face] the side its controls are on, which a close look shows (front unless given)
  * @property {number[]} [look] the direction a close look tries first, from the part towards the camera (params frame)
  * @property {[string, number][]} [front] a cabinet's front panels, top to bottom: style and height (mm; the last fills what is left)
+ * @property {"asr33" | "asr35"} [model] the Teletype's model, for the tty part (R17)
  * @property {string} material
  * @property {string} confidence
  */
@@ -101,10 +103,16 @@ export const DEFAULT_PALETTE = {
   ttyStand: "#8f8c82",
   ttyKey: "#e4e0d2",
   ttyDark: "#2d2f31",
+  tty35: "#c9c7bf",
+  tty35Dark: "#a7a49b",
+  ttyDome: "#d6c07c",
   paper: "#efe8d2",
   crt: "#050806",
   lampOff: "#4a4033",
   lampOn: "#ffd36b",
+  ocpFace: "#5b4a3a",
+  ocpGroup: "#d8ccb4",
+  ocpUnlit: "#f4f0e6",
   analog: "#ffb86b",
   digital: "#9ecaff",
   floor: "#1b2026",
@@ -122,11 +130,21 @@ export const DEFAULT_PALETTE = {
 export const v3 = (x, y, z) => new THREE.Vector3(x / 1000, z / 1000, -y / 1000);
 
 /**
+ * The operator's control panel on the processor rack (figure 7; R21). Its meshes are named
+ * rack.dpr2.ocp.<control>: br.NN, pri.NN, and the names in js/sim/panel.js CONTROLS, and selector.
+ * @typedef {object} Ocp
+ * @property {THREE.Object3D[]} pri the 30 PRI switches' levers, each turned at its pivot, bit 0 first
+ * @property {Map<string, THREE.Mesh>} controls the buttons, by control name, and the selector
+ * @property {THREE.Mesh | null} face the panel's face, for framing it
+ */
+
+/**
  * @typedef {object} Built
  * @property {THREE.Group} root
  * @property {Map<string, THREE.Object3D>} parts by name (the params' names)
  * @property {Map<string, THREE.Group>} cables
- * @property {THREE.Mesh[]} lamps the DPR-2 panel's 30 lamps, bit 0 first
+ * @property {THREE.Mesh[]} lamps the DPR-2 panel's 30 BR lamps, bit 0 first
+ * @property {Ocp} ocp the rest of the operator's control panel
  * @property {THREE.Mesh} face the CRT face
  * @property {Map<string, THREE.MeshStandardMaterial>} materials
  * @property {Tube | null} tube the scope's tube, hidden until the cutaway shows it
@@ -169,6 +187,8 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   const parts = new Map();
   /** @type {THREE.Mesh[]} */
   const lamps = [];
+  /** @type {Ocp} */
+  const ocp = { pri: [], controls: new Map(), face: null };
   /** @type {THREE.Mesh | null} */
   let face = null;
   /** @type {Tube | null} */
@@ -223,8 +243,10 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       else diskDrive(p, g);
     } else if (p.name === "console.pedals" && p.box) {
       pedals(p, g);
-    } else if (p.name === "tty.asr33" && p.box) {
-      asr33(p, g);
+    } else if (p.name.startsWith("tty.") && p.box) {
+      // the Teletype: the model the params name (R17); both are kept, to switch or to reuse
+      if (p.model === "asr33") asr33(p, g);
+      else asr35(p, g);
     } else if (p.box && p.wedge) {
       wedgeBox(p, g);
     } else if (p.box) {
@@ -668,6 +690,199 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   }
 
   /**
+   * The Teletype ASR-35, a console desk (R17). Its overall size is documented: 38.5 in high, 40 in
+   * wide and 24 in deep, the paper not counted (TTY35). Its shape is read from photographs of a
+   * Model 35 ASR (TTY35P): the front view is near enough to orthographic that its scale is the same
+   * across and up (1,016 mm across the top, 978 mm high), so the parts are measured on it; the
+   * side view gives the profile. Measured: the body's back 840 mm high and its front edge 662, the
+   * cabinet 570; the printer's cover 150 above the slope at its front, its front leaning back 13 degrees. A cabinet set back on two
+   * sled feet, its front sloping back to the floor; above it a body that overhangs toward the
+   * operator, its top sloping down to a chrome strip at the front edge. On the slope, from the
+   * left: the tape tray, a well sunk into the slope; the tape reader just in front of it, a wedge
+   * with a level top; the printer's cover (the punch's window at its left) with the dome over the
+   * platen on its top, the paper rising up the dome's front curve; the keyboard set into the deck
+   * in front of the cover with a knob on each side; a plate at the right. The paper comes in by a
+   * slot at the back and hangs from it. Sizes in the params' millimeters.
+   * @param {PartDef} p
+   * @param {THREE.Group} g
+   */
+  function asr35(p, g) {
+    const [w, d] = /** @type {number[]} */ (p.box);
+    const [x, y, z] = p.at;
+    const front = y - d / 2;
+    const back = y + d / 2;
+    /** a depth along the machine: 0 at the back, 1 at the front edge @param {number} t */
+    const at = (t) => back - t * d;
+    // the deck's top: from the rounded back edge (t 0.1, 840 mm) down to the front edge (662 mm)
+    const deckZ = (/** @type {number} */ t) => z + 840 - ((t - 0.1) / 0.9) * 178;
+    /**
+     * A prism whose side profile (params y, z, mm) runs across x0..x1.
+     * @param {number[][]} profile @param {number} x0 @param {number} x1 @param {string} material @param {string} name
+     */
+    const prism = (profile, x0, x1, material, name) => {
+      const shape = new THREE.Shape(profile.map(([py, pz]) => new THREE.Vector2(py / 1000, pz / 1000)));
+      const geo = new THREE.ExtrudeGeometry(shape, { depth: (x1 - x0) / 1000, bevelEnabled: false, curveSegments: 8 });
+      // turned a quarter about y, the shape's x becomes three.js -z (the params' +y), and it extrudes along x
+      geo.rotateY(Math.PI / 2);
+      geo.translate(x0 / 1000, 0, 0);
+      const mesh = new THREE.Mesh(geo, mat(material));
+      mesh.name = `${p.name}.${name}`;
+      g.add(mesh);
+      return mesh;
+    };
+
+    // the sled feet, chrome, one each side, front to back
+    for (const sx of [-1, 1]) box(g, [40, at(0.15) - at(0.82), 22], [x + sx * (w / 2 - 55), (at(0.15) + at(0.82)) / 2, z], "metal", `${p.name}.foot.${sx < 0 ? "l" : "r"}`);
+    // the cabinet: its back upright, its front sloping back toward the floor
+    const cab = 900;
+    prism([[back, z + 22], [back, z + 570], [at(0.62), z + 570], [at(0.49), z + 22]], x - cab / 2, x + cab / 2, "tty35", "cabinet");
+    // the body above: rounded at the top of its back, sloping down to the front strip, overhanging
+    const top = [];
+    for (let i = 0; i <= 6; i++) {
+      const a = (i / 6) * (Math.PI / 2);
+      top.push([back - 60 + 60 * Math.cos(a), z + 780 + 60 * Math.sin(a)]);
+    }
+    // the body in three widths: the middle one holds the tape tray, a well sunk into the slope like
+    // a dustpan, its floor level, its open front meeting the slope, its back wall upright
+    const trX = [x - 425, x - 190];
+    const trT = [0.13, 0.45];
+    const floor = deckZ(trT[1]);
+    const under = [[front, z + 662], [front, z + 582], [at(0.62), z + 570]];
+    prism([[back, z + 570], ...top, ...under], x - w / 2, trX[0], "tty35", "body.l");
+    prism([[back, z + 570], ...top, [at(trT[0]), deckZ(trT[0])], [at(trT[0]), floor], [at(trT[1]), floor], ...under], trX[0], trX[1], "tty35", "body.tray");
+    prism([[back, z + 570], ...top, ...under], trX[1], x + w / 2, "tty35", "body.r");
+    box(g, [trX[1] - trX[0] - 30, at(trT[0]) - at(trT[1]) - 40, 3], [(trX[0] + trX[1]) / 2, (at(trT[0]) + at(trT[1])) / 2 + 5, floor], "paper", `${p.name}.tray.tape`);
+    // the slot at the back that the paper comes in by, under the rounded edge
+    box(g, [250, 4, 8], [x + 148, back + 1, z + 768], "ttyDark", `${p.name}.paper.slot`);
+    box(g, [w + 4, 5, 40], [x, front - 2.5, z + 610], "metal", `${p.name}.strip`);
+
+    // the slope: a frame lying on the deck, its y up the slope from the front edge, its z out of it
+    const run = (0.9 * d);
+    const rise = 178;
+    const slope = new THREE.Group();
+    slope.position.copy(v3(0, front, z + 662));
+    slope.rotation.x = Math.atan2(rise, run);
+    slope.name = `${p.name}.slope`;
+    g.add(slope);
+    /** a distance up the slope for a depth t @param {number} t */
+    const up = (t) => ((1 - t) / 0.9) * Math.hypot(run, rise);
+    // the keyboard, set into the deck in front of the cover, measured on the front photo (TTY35P):
+    // its plate 261 mm wide, centered 157 mm right of the middle; keys on a 18.5 mm pitch in four
+    // rows of twelve, then a row of red keys, a blank and the space bar
+    const kx = x + 157;
+    const kb = [up(0.76), up(0.95)];
+    /** a distance up the slope, a fraction f of the plate from its back edge @param {number} f */
+    const kf = (f) => kb[0] + f * (kb[1] - kb[0]);
+    box(slope, [261, kb[0] - kb[1], 4], [kx, (kb[0] + kb[1]) / 2, 0], "ttyKey", `${p.name}.keyboard.plate`);
+    /** @type {Record<string, THREE.BufferGeometry[]>} */
+    const keys = { ttyKey: [], tty35Dark: [], switchRed: [] };
+    /** a key on the plate, by its offset across from the plate's middle @param {number} dx @param {number} f @param {string} m @param {number} [hgt] */
+    const key = (dx, f, m, hgt = 14) => {
+      const k = new THREE.CylinderGeometry(0.0065, 0.0065, hgt / 1000, 14);
+      k.translate((kx + dx) / 1000, (4 + hgt / 2) / 1000, -kf(f) / 1000);
+      keys[m].push(k);
+    };
+    const pitch = 18.5;
+    // the digits; Q to LINE FEED with a blank before and RETURN after; CTRL and A to RUB OUT;
+    // SHIFT, Z to /, SHIFT
+    for (let i = 0; i < 12; i++) key(-99 + i * pitch, 0.1, "ttyKey");
+    key(-110.5, 0.275, "ttyKey", 2);
+    for (let i = 0; i < 11; i++) key(-91 + i * pitch, 0.275, "ttyKey");
+    key(115.5, 0.275, "ttyKey");
+    key(-106.5, 0.46, "tty35Dark");
+    for (let i = 0; i < 11; i++) key(-88 + i * pitch, 0.46, "ttyKey");
+    key(-98, 0.64, "tty35Dark");
+    for (let i = 0; i < 10; i++) key(-79 + i * pitch, 0.64, "ttyKey");
+    key(115, 0.64, "tty35Dark");
+    // the front row: BRK RLS and LOC LF, a blank, the space bar, LOC CR, LOC B SP and REPT
+    for (const dx of [-116, -97, 74, 94, 114]) key(dx, 0.825, "switchRed", 18);
+    key(-77, 0.825, "ttyKey", 2);
+    for (const [m, list] of Object.entries(keys)) {
+      const mesh = new THREE.Mesh(mergeGeometries(list), mat(m));
+      mesh.name = `${p.name}.keyboard${m === "ttyKey" ? "" : m === "switchRed" ? ".red" : ".gray"}`;
+      slope.add(mesh);
+    }
+    box(slope, [112, 12, 6], [kx, kf(0.825), 12], "tty35Dark", `${p.name}.keyboard.space`);
+    /** a round button standing on the slope @param {number} r @param {number} hgt @param {number} px @param {number} py @param {string} material @param {string} name */
+    const knob = (r, hgt, px, py, material, name) => {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r / 1000, r / 1000, hgt / 1000, 16), mat(material));
+      mesh.position.copy(v3(px, py, hgt / 2));
+      mesh.name = `${p.name}.${name}`;
+      slope.add(mesh);
+    };
+    // left of the keyboard, READER START and the mode dial; right of it, a dial and BREAK below it
+    knob(4, 10, x - 125, kf(0.42), "switchRed", "reader.start");
+    knob(12.5, 20, x - 47, kf(0.42), "ttyKey", "knob.0");
+    knob(12.5, 20, x + 334, kf(0.42), "ttyKey", "knob.1");
+    knob(7, 14, x + 341, kf(0.76), "ttyKey", "break");
+    // the tape reader just in front of the tray: a wedge, its top level, its back meeting the
+    // slope, a short upright wall at its front
+    const rdT = [0.46, 0.6];
+    const rdTop = deckZ(rdT[0]);
+    prism([[at(rdT[0]), rdTop], [at(rdT[1]), rdTop], [at(rdT[1]), deckZ(rdT[1])], [at(rdT[0]) + 1, deckZ(rdT[0]) - 1]], x - 445, x - 275, "metal", "reader");
+    box(g, [14, 30, 10], [x - 300, at(0.53), rdTop], "switchRed", `${p.name}.reader.lever`);
+    // the plate at the right
+    box(slope, [125, up(0.15) - up(0.85), 6], [x + 436, (up(0.15) + up(0.85)) / 2, 0], "tty35", `${p.name}.plate`);
+
+    // the printer's cover: upright sides; its front, behind the keyboard, 150 mm high and leaning
+    // back 13 degrees, as the side photographs show; its top level for the front third, then
+    // falling toward the back to meet the slope
+    const cx0 = x - 205;
+    const cx1 = x + 350;
+    const cf = at(0.72);
+    const ct = deckZ(0.72) + 150;
+    const lean = Math.atan2(35, 150);
+    const flatTo = at(0.56);
+    const coverEnd = [at(0.24), deckZ(0.24) + 12];
+    /** the cover's top at a depth behind its front (params y) @param {number} py */
+    const coverTop = (py) => (py <= flatTo ? ct : ct + ((py - flatTo) / (coverEnd[0] - flatTo)) * (coverEnd[1] - ct));
+    // the rounded edge between the leaning front and the top, a quadratic curve
+    const crnd = Array.from({ length: 7 }, (_, i) => {
+      const u = i / 6;
+      const p0 = [cf + 29, ct - 25];
+      const p1 = [cf + 35, ct];
+      const p2 = [cf + 55, ct];
+      return [0, 1].map((k) => (1 - u) ** 2 * p0[k] + 2 * u * (1 - u) * p1[k] + u ** 2 * p2[k]);
+    });
+    prism([[cf, deckZ(0.72)], ...crnd, [flatTo, ct], coverEnd, [at(0.24), deckZ(0.24)]], cx0, cx1, "tty35", "cover");
+    // its front, in a frame leaning with it: the punch's window at the left, the logo, the window
+    // over the printing line
+    const face = new THREE.Group();
+    face.position.copy(v3(0, cf, deckZ(0.72)));
+    face.rotation.x = -lean;
+    face.name = `${p.name}.cover.front`;
+    g.add(face);
+    box(face, [80, 3, 72], [x - 158, -1.5, 56], "glass", `${p.name}.cover.punch`);
+    box(face, [44, 3, 16], [x - 79, -1.5, 118], "ttyDark", `${p.name}.cover.logo`);
+    box(face, [300, 3, 32], [x + 140, -1.5, 30], "ttyDark", `${p.name}.cover.window`);
+    // the dome over the platen, on the cover's level top: lower than it is deep, its top flat,
+    // its front curved, its back curving down onto the cover's falling top; the paper rises from
+    // inside the cover and follows the front curve over the top
+    const dx0 = x + 135 - 145;
+    const dx1 = x + 135 + 145;
+    const dF = cf + 75;
+    const dB = dF + 152;
+    const dH = 36;
+    const fa = 40;
+    const ba = 35;
+    const backFoot = coverTop(dB);
+    /** a quarter ellipse, from its foot at the side up to the top @param {number} cy @param {number} a @param {number} foot @param {number} top @param {number} s */
+    const quarter = (cy, a, foot, top, s) => Array.from({ length: 9 }, (_, i) => {
+      const th = (i / 8) * (Math.PI / 2);
+      return [cy + s * a * Math.cos(th), foot + (top - foot) * Math.sin(th)];
+    });
+    const fr = quarter(dF + fa, fa, ct, ct + dH, -1);
+    const bk = quarter(dB - ba, ba, backFoot, ct + dH, 1).reverse();
+    prism([[dF, ct - 10], ...fr, ...bk, [dB, backFoot - 10]], dx0, dx1, "ttyDome", "dome");
+    const o = 2;
+    const outer = quarter(dF + fa, fa + o + 1.5, ct, ct + dH + o + 1.5, -1);
+    const inner = quarter(dF + fa, fa + o, ct, ct + dH + o, -1).reverse();
+    prism([...outer, [dF + fa + 30, ct + dH + o + 1.5], [dF + fa + 30, ct + dH + o], ...inner], x + 135 - 120, x + 135 + 120, "paper", "paper");
+    // the paper not yet fed in, hanging from the slot at the back
+    box(g, [212, 8, 1.5], [x + 148, back + 3, z + 769], "paper", `${p.name}.paper.in`);
+    box(g, [212, 1.5, 345], [x + 148, back + 7, z + 425], "paper", `${p.name}.paper.back`);
+  }
+  /**
    * The Teletype ASR-33 on its stand. The parts and their proportions were measured from a 3D
    * Warehouse model by Comugi ("Teletype ASR-33 (USA:1963)"), used only as a reference: nothing of
    * it is copied. That model is about 1.4 times too big, so each axis is scaled to the documented
@@ -813,6 +1028,126 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   }
 
   /**
+   * The DPR-2's operator's control panel, drawn from the layout measured on the manual's
+   * photograph (SRM5 DPR3 Figure 4; js/sim/panel.js panelLayout): the table of BR's lamps, the
+   * PRI switches and the machine's buttons, and the right-hand column, at the photograph's
+   * proportions, centered in the rack's panel (R21). The table and the names are painted on the
+   * face; the lamps, switches, buttons and selector are meshes.
+   * @param {THREE.Group} g @param {string} name @param {number} x @param {number} front the panel's face
+   * @param {number} w @param {number} z its bottom @param {number} h
+   */
+  function operatorPanel(g, name, x, front, w, z, h) {
+    const id = `${name}.ocp`;
+    const s = Math.min((w - 10) / PANEL_SIZE.w, (h - 6) / PANEL_SIZE.h);
+    const fw = PANEL_SIZE.w * s;
+    const fh = PANEL_SIZE.h * s;
+    const fx0 = x - fw / 2;
+    const fz0 = z + (h - fh) / 2;
+    const fz1 = fz0 + fh;
+    /** the photograph's pixels to the params' x @param {number} px */
+    const X = (px) => fx0 + px * s;
+    /** and to z @param {number} py */
+    const Z = (py) => fz1 - py * s;
+    ocp.face = box(g, [fw, 3, fh], [x, front - 1.5, fz0], "ocpFace", `${id}.face`);
+    const f = front - 3;
+    // the face's paint; without a DOM (Node) the table's cells are blocks and the names are left out
+    const K = 2.2 / s;
+    const canvas = typeof document === "undefined" ? null : document.createElement("canvas");
+    const ctx = canvas?.getContext("2d") ?? null;
+    if (canvas && ctx) {
+      canvas.width = Math.round(PANEL_SIZE.w * s * K);
+      canvas.height = Math.round(PANEL_SIZE.h * s * K);
+      ctx.fillStyle = palette.ocpFace;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    const c = s * K;
+    /** a lamp-button facing out, with its own material to light @param {number} px @param {number} py @param {number} d @param {string} n */
+    const lampButton = (px, py, d, n) => {
+      const r = (d * s) / 2000;
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.006, 18), new THREE.MeshStandardMaterial({ color: palette.ocpUnlit, emissive: palette.lampOn, emissiveIntensity: 0 }));
+      m.rotation.x = Math.PI / 2;
+      m.position.copy(v3(X(px), f - 3, Z(py)));
+      m.name = `${id}.${n}`;
+      g.add(m);
+      return m;
+    };
+    for (const it of panelLayout()) {
+      if (it.kind === "cell") {
+        if (!ctx) box(g, [it.w * s, 2, it.h * s], [X(it.x + it.w / 2), f - 1, Z(it.y + it.h)], "ocpGroup", `${id}.cell.${it.row}${it.col}`);
+        else {
+          ctx.fillStyle = palette.ocpGroup;
+          ctx.fillRect(it.x * c, it.y * c, it.w * c, it.h * c);
+        }
+      } else if (it.kind === "text") {
+        if (!ctx) continue;
+        ctx.fillStyle = it.tone === "ink" ? "#3a2f25" : "#f2eee4";
+        ctx.font = `bold ${it.size * c}px Helvetica, Arial, sans-serif`;
+        ctx.textAlign = it.align;
+        ctx.textBaseline = "middle";
+        ctx.fillText(it.text, it.x * c, it.y * c);
+      } else if (it.kind === "lamp") {
+        lamps.push(lampButton(it.x, it.y, it.d, `br.${it.id.split(".")[1].padStart(2, "0")}`));
+      } else if (it.kind === "switch") {
+        // a dark round socket, and a lever that stands up when its bit is 1
+        const nn = it.id.split(".")[1].padStart(2, "0");
+        const r = (it.d * s) / 2000;
+        const socket = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.003, 18), mat("rackBlack"));
+        socket.rotation.x = Math.PI / 2;
+        socket.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
+        socket.name = `${id}.socket.${nn}`;
+        g.add(socket);
+        // the lever, pivoted at the socket's center: a short block at the root, then a body that
+        // tapers to the tip, thinner and narrower; out, square to the panel, for 1; pressed down 45
+        // degrees for 0 (the viewer turns it). Its length runs along three.js z, out of the panel.
+        const sd = it.d * s / 1000;
+        const len = sd * 0.86;
+        const root = sd * 0.18;
+        const [wb, tb] = [sd * 0.52, sd * 0.38];
+        const [wt, tt] = [sd * 0.3, sd * 0.09];
+        const block = new THREE.BoxGeometry(wb, tb, root).translate(0, 0, root / 2);
+        const body = new THREE.BoxGeometry(wb, tb, len - root).translate(0, 0, root + (len - root) / 2);
+        const pos = body.getAttribute("position");
+        for (let k = 0; k < pos.count; k++) {
+          if (pos.getZ(k) < len - 1e-9) continue;
+          pos.setX(k, (Math.sign(pos.getX(k)) * wt) / 2);
+          pos.setY(k, (Math.sign(pos.getY(k)) * tt) / 2);
+        }
+        body.computeVertexNormals();
+        const geo = mergeGeometries([block, body]);
+        const pivot = new THREE.Group();
+        pivot.position.copy(v3(X(it.x), f - 1.5, Z(it.y)));
+        pivot.name = `${id}.lever.${nn}`;
+        g.add(pivot);
+        const lever = new THREE.Mesh(geo, mat("metal"));
+        lever.name = `${id}.pri.${nn}`;
+        pivot.add(lever);
+        ocp.pri.push(pivot);
+      } else if (it.kind === "selector") {
+        const r = (it.d * s) / 2000;
+        const knob = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.012, 20), mat("metal"));
+        knob.rotation.x = Math.PI / 2;
+        knob.position.copy(v3(X(it.x), f - 6, Z(it.y)));
+        knob.name = `${id}.selector`;
+        g.add(knob);
+        // the pointer on its face: along the knob's own z, which its quarter turn makes "up"
+        const ptr = box(knob, [3, r * 1000 * 0.9, 2], [0, 0, 0], "rackBlack", `${id}.selector.pointer`);
+        ptr.position.set(0, 0.006, 0);
+        ptr.geometry.translate(0, 0, (-r * 0.9) / 2);
+        ocp.controls.set("selector", knob);
+      } else {
+        ocp.controls.set(it.id, lampButton(it.x, it.y, it.d, it.id));
+      }
+    }
+    if (canvas && ocp.face) {
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const plain = /** @type {THREE.Material} */ (ocp.face.material);
+      // BoxGeometry's faces: +x, -x, +y, -y, +z (the front), -z
+      ocp.face.material = [plain, plain, plain, plain, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }), plain];
+    }
+  }
+
+  /**
    * One front panel of a cabinet, its bottom at z.
    * @param {THREE.Group} g @param {string} name @param {number} i @param {string} style
    * @param {number} x @param {number} front @param {number} w @param {number} z @param {number} h
@@ -843,19 +1178,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
       knob.name = `${id}.knob.${k}`;
       g.add(knob);
     }
-    if (style === "lamps") {
-      // the DPR-2's operator panel: 30 lamps showing AR in groups of three, the 30 toggles of the
-      // PRI instruction register below them, and the RUN, HALT, STEP and other buttons
-      const span = w - 100;
-      const at = (/** @type {number} */ k) => x - span / 2 + (k + Math.floor(k / 3) * 0.6) * (span / (29 + 9 * 0.6));
-      for (let k = 0; k < 30; k++) {
-        const lamp = box(g, [11, 8, 11], [at(k), face - 4, z + h * 0.72], "lampOff", `${name}.lamp.${String(k).padStart(2, "0")}`);
-        lamp.material = new THREE.MeshStandardMaterial({ color: palette.lampOff, emissive: palette.lampOn, emissiveIntensity: 0 });
-        lamps.push(lamp);
-        box(g, [6, 12, 16], [at(k), face - 6, z + h * 0.45], "metal", `${name}.toggle.${String(k).padStart(2, "0")}`);
-      }
-      for (let k = 0; k < 6; k++) box(g, [40, 14, 26], [x - 150 + k * 60, face - 7, z + h * 0.12], "rackWhite", `${name}.button.${k}`);
-    }
+    if (style === "lamps") operatorPanel(g, name, x, face, w, z, h);
     if (style === "array") {
       // a window onto the twelve MDAC cards, 4 x 3: blue the nine rotation ones, orange the three scales
       box(g, [w - 60, 2, h - 60], [x, face - 1, z + 30], "rackBlack", `${id}.window`);
@@ -1006,7 +1329,7 @@ export function buildTerminal(params, palette = DEFAULT_PALETTE) {
   floor.name = "room.floor";
   root.add(floor);
 
-  return { root, parts, cables, lamps, face: /** @type {THREE.Mesh} */ (/** @type {unknown} */ (face)), materials, tube };
+  return { root, parts, cables, lamps, ocp, face: /** @type {THREE.Mesh} */ (/** @type {unknown} */ (face)), materials, tube };
 }
 
 /**

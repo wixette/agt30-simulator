@@ -63,7 +63,7 @@ export function renderProgramCard(host, p, sources, ops) {
   host.replaceChildren(
     el("div", { class: "program-card" }, [
       el("div", { class: "program-head" }, [el("h2", { text: title }), unload]),
-      el("p", { class: "rebuilds", text: t("program.rebuilds", { source: p.source }) }),
+      el("p", { class: "rebuilds", text: p.game ? t("program.original", { source: p.source }) : t("program.rebuilds", { source: p.source }) }),
       el("p", { text: t(`program.${p.id}.what`) }),
       el("h3", { text: t("program.use") }),
       el("p", { text: t(`program.${p.id}.use`) }),
@@ -71,8 +71,8 @@ export function renderProgramCard(host, p, sources, ops) {
       actions.length || toggles.length ? el("div", { class: "actions" }, [...toggles, ...actions]) : null,
       el("h3", { text: t("program.ours") }),
       ours,
-      el("h3", { text: t("program.statements") }),
-      el("pre", { text: statements }),
+      p.game ? null : el("h3", { text: t("program.statements") }),
+      p.game ? null : el("pre", { text: statements }),
       ...files,
     ]),
   );

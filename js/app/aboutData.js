@@ -1,15 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Facts About, the References tab and the cards use, without the DOM, so the tests can read them:
-// the ids of design/reconstructions.md, R1 to R20, whose short forms are the messages recon.R1 ...
-// recon.R20 (the cards show those a program rests on; the README lists them all, and
-// tests/app.test.js keeps the lists the same); the source repository; and the references, the
-// only other addresses the page names (tests/app.test.js, APP-3).
+// the ids of design/reconstructions.md, whose short forms are the messages recon.R1, recon.R2 ...
+// (the cards show those a program rests on; the README lists them all, and
+// tests/app.test.js keeps the lists the same); the source repository; the system pack; and the
+// references, the only other addresses the page names (tests/app.test.js, APP-3).
 
-export const RECONSTRUCTIONS = Array.from({ length: 20 }, (_, i) => `R${i + 1}`);
+export const RECONSTRUCTIONS = Array.from({ length: 24 }, (_, i) => `R${i + 1}`);
 
 /** The source repository. */
 export const SOURCE_URL = "https://github.com/wixette/agt30-simulator";
+
+/**
+ * NCSU's system pack, M. Howard's dump (MH25), at the commit the simulator was checked against:
+ * the one file the page fetches from another site, and only when the operator asks to boot
+ * AMRMX (U19).
+ */
+export const PACK_COMMIT = "235e2b43f1f4c7b52c9a15b94aba107d89e8522b";
+export const PACK_URL = `https://raw.githubusercontent.com/cramcram/AGT-30/${PACK_COMMIT}/magtapes/howard.disk`;
 
 /**
  * The References tab (U16), by group: each a message, refs.<group>.<id>, and where it is; the keys

@@ -209,14 +209,15 @@
       "confidence": "design"
     },
     {
-      "name": "tty.asr33",
+      "name": "tty.asr35",
+      "model": "asr35",
       "box": [
-        559,
-        470,
-        864
+        1016,
+        610,
+        978
       ],
       "at": [
-        -950,
+        -870,
         -100,
         0
       ],
@@ -245,15 +246,15 @@
       "front": [
         [
           "rackWhite",
-          150
+          420
         ],
         [
           "lamps",
-          330
+          196
         ],
         [
           "rackWhite",
-          260
+          124
         ],
         [
           "vent",
@@ -537,7 +538,7 @@
     },
     {
       "name": "cable.tty",
-      "from": "tty.asr33",
+      "from": "tty.asr35",
       "to": "rack.dpr2",
       "kind": "digital",
       "activity": "tty"
