@@ -543,7 +543,12 @@ export class Dpr2 {
     const combine = (old) => (logic === 2 ? and30(old, v) : logic === 1 ? or30(old, v) : v);
     switch (dst) {
       case DESTS.MD:
-        this.core.write(ea, combine(this.core.read(ea)));
+        // A store with 'O sets the word to -0, all ones, whatever the source holds: Adage's own
+        // sources use ARMD'O to set a flag ("SET BUSY FLAG" in DISP2, "SET DISK FLAG", "SET
+        // NEGATIVE" in FORTRAN, whose label buffer ends with a -0 "SET" so), AMRMX's statement
+        // reader needs it to start a count at -0, and LIFE's frame flag to be set by it. To other
+        // destinations 'O is an OR, as the manual says (R1; research/amrmx.md).
+        this.core.write(ea, logic === 1 ? M30 : combine(this.core.read(ea)));
         break;
       case DESTS.AR:
         this.AR = combine(this.AR);

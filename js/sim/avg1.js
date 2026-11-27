@@ -53,6 +53,8 @@ export const MODE = { ON: [0, 1], CLOCK: 5, SCOPES: [6, 9] };
 export const ARRAY_REGS = /** @type {const} */ ({ 0o05: "SC", 0o15: "DX", 0o16: "DY", 0o17: "DZ", 0o20: "PS" });
 /** The bit in D07's upper half that resets the array to the identity (R22). */
 export const ARRAY_RESET = 0o100;
+/** The bit in D07's upper half that makes the next two words load this register and the next (R22). */
+export const ARRAY_PAIR = 0o200;
 
 /** @param {number} half @param {number} b Adage bit 0-14 of a half-word @returns {boolean} */
 const halfBit = (half, b) => Math.floor(half / 2 ** (14 - b)) % 2 === 1;
@@ -71,6 +73,8 @@ export class Avg1 {
     /** D06: the command and z. */
     this.command = 0;
     this.z = 0;
+    /** @type {{ next: number; left: number } | null} a pair load under way (ARRAY_PAIR) */
+    this.pair = null;
     /** Every register D07 has loaded, by number, as half-words (32 places). */
     this.loaded = new Array(32).fill(0);
     /** The beam, inches from the center. */
@@ -139,6 +143,22 @@ export class Avg1 {
    * @param {number} value
    */
   load(upper, value) {
+    // 0200 in the upper half starts a pair: the next two words load this register and the next,
+    // from their lower halves, whatever their upper halves hold (R22). LIFE places each cell so,
+    // X then Y; AMRMX's one such word is followed by two data words too.
+    if (this.pair) {
+      const r = this.pair.next++;
+      if (--this.pair.left === 0) this.pair = null;
+      this.loaded[r] = value;
+      const nm = ARRAY_REGS[/** @type {keyof typeof ARRAY_REGS} */ (r)];
+      if (nm) this.array.load(nm, value);
+      return;
+    }
+    if (upper & ARRAY_PAIR) {
+      if (upper & ARRAY_RESET) this.resetArray();
+      this.pair = { next: upper & 0o37, left: 2 };
+      return;
+    }
     if (upper & ARRAY_RESET) this.resetArray();
     const n = upper & 0o37;
     this.loaded[n] = value;
@@ -211,6 +231,7 @@ export class Avg1 {
     this.loaded.fill(0);
     this.drawing = null;
     this.nextClock = null;
+    this.pair = null;
     this.resetArray();
   }
 }

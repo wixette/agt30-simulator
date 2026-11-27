@@ -8,7 +8,7 @@
 import { assemble } from "../sim/adept.js";
 import { USER_AT } from "../sim/agt.js";
 import { HybridArray } from "../sim/array.js";
-import { Avg1, EOLPV, EOVPV } from "../sim/avg1.js";
+import { ARRAY_PAIR, Avg1, EOLPV, EOVPV } from "../sim/avg1.js";
 import { dumpRecords } from "../sim/bare.js";
 import { assembleOp, CHANNEL, disassemble, Dpr2, onesAdd, OPS, PIPVT, rotl, TIME } from "../sim/dpr2.js";
 import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
@@ -645,6 +645,27 @@ export const MODEL_CHECKS = [
       equal(oct(r[1].words[0]), oct(0o4000120), "the entry word first");
     },
   },
+  {
+    id: "CPU-13",
+    title: "A store with 'O sets the word to -0 whatever AR holds, as Adage's sources use it to set a flag (DISP2, DSKWT, FORTRAN); to a register 'O is an OR (R1)",
+    run() {
+      const core = new Core();
+      const cpu = new Dpr2(core);
+      core.write(0o1000, assembleOp("ARMD", 0o1100, { O: true }));
+      core.write(0o1001, assembleOp("ARMD", 0o1101, { O: true }));
+      core.write(0o1002, assembleOp("MDAR", 0o1102, { O: true }));
+      core.write(0o1101, word(0o12345, 0o54321));
+      core.write(0o1102, 0o70);
+      cpu.AR = 0o7;
+      cpu.LC = 0o1000;
+      cpu.step();
+      cpu.step();
+      equal(oct(core.read(0o1100)), oct(0o7777777777), "a word that was +0 is set to -0, not to AR");
+      equal(oct(core.read(0o1101)), oct(0o7777777777), "and so is one that held a value");
+      cpu.step();
+      equal(oct(cpu.AR), oct(0o77), "MDAR'O still ORs into AR");
+    },
+  },
   // ---- AVG1 and the array at register level (R22) ----
   {
     id: "AVG-1",
@@ -719,6 +740,27 @@ export const MODEL_CHECKS = [
     },
   },
 
+  {
+    id: "AVG-4",
+    title: "D07 with 0200 in the upper half starts a pair: the next two words load that register and the next from their lower halves, as LIFE places each cell (R22)",
+    run() {
+      const { core, cpu, avg } = bareAvg();
+      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1001, word(ARRAY_PAIR | 0o15, 0));
+      core.write(0o1002, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1003, word(0o17200, 0o17600));
+      core.write(0o1004, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1005, word(0o17600, 0o17200));
+      core.write(0o1006, assembleOp("MDMX", 0, { L: true }));
+      core.write(0o1007, word(0o5, 0o1000));
+      cpu.LC = 0o1000;
+      for (let i = 0; i < 4; i++) cpu.step();
+      equal(oct(avg.loaded[0o15], 5), "17600", "the first word's lower half to 15");
+      equal(oct(avg.loaded[0o16], 5), "17200", "the second's to 16");
+      equal(oct(avg.loaded[0o5], 5), "01000", "then words name their register again");
+      equal(avg.loaded[0], 0, "nothing went to register 0");
+    },
+  },
   // ---- the operator's control panel (R21) ----
   {
     id: "OCP-1",
