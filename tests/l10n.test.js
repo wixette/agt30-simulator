@@ -58,7 +58,7 @@ function dynamicKeys() {
   for (const s of SELECTOR) keys.add(`panel.sel.${s}`);
   for (const m of ["run", "halt", "pause"]) keys.add(`panel.state.${m}`);
   for (const m of ["halt", "pause"]) keys.add(`status.cpu.${m}`);
-  for (const g of Object.keys(GAMES)) keys.add(`panel.game.${g}`).add(`panel.game.${g}.tip`).add(`status.game.${g}`);
+  for (const g of Object.keys(GAMES)) keys.add(`status.game.${g}`);
   for (const s of ["waiting", "preparing", "drawing", "moving"]) keys.add(`trace.${s}`);
   for (const s of ["drawing", "moving", "waiting", "off"]) keys.add(`beam.${s}`);
   for (const l of ["code", "content", "three", "font", "icons"]) keys.add(`about.license.${l}`);

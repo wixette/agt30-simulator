@@ -1235,6 +1235,7 @@ export const MODEL_CHECKS = [
     title: "Every program's statements are taken without a ? and start the display (design/v0.0.1.md, section 2)",
     run(ctx) {
       for (const p of ctx.manifest.programs) {
+        if (p.game) continue; // NCSU's games run from the pack under AMRMX (U19)
         const agt = ctx.boot();
         load(ctx, agt, p.id);
         agt.advance(agt.now + 1e6);

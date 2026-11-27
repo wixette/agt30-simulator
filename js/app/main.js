@@ -109,8 +109,10 @@ async function start() {
         });
       }
       const words = await pack;
-      program = null;
-      drawCard();
+      if (!game) {
+        program = null;
+        drawCard();
+      }
       if (game) agt.startGame(game, words);
       else agt.bootPack(words);
       proc?.render(true);
@@ -122,7 +124,7 @@ async function start() {
       say(t("status.pack.failed", { error: /** @type {Error} */ (e).message }));
     }
   };
-  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown(), (game) => void bootPack(game));
+  panel = buildPanel(/** @type {HTMLElement} */ (document.getElementById("pane-panel")), machine, say, () => dock.panelShown(), () => void bootPack());
 
   const programCard = /** @type {HTMLElement} */ (document.getElementById("pane-program"));
   // the Programs button names the program loaded, in every viewpoint, as the viewpoint menu
@@ -157,6 +159,17 @@ async function start() {
    * @param {Program} p
    */
   const load = (p) => {
+    if (p.game) {
+      // one of NCSU's games: the pack fetched if need be, AMRMX booted, the game started (U19)
+      agt.cancelTyping();
+      program = p;
+      drawCard();
+      if (dock.isFolded()) dock.show("program");
+      dock.mark("program");
+      writeLink();
+      void bootPack(p.game);
+      return;
+    }
     // the programs are the simulator's monitor's: back to it from the real one
     if (agt.bare) reboot();
     agt.cancelTyping();

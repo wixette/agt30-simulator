@@ -227,6 +227,43 @@
           "off": "VIEW (,,0)!"
         }
       ]
+    },
+    {
+      "id": "life",
+      "game": "life",
+      "source": "MH25",
+      "statements": [],
+      "controls": [
+        "keys",
+        "dial0"
+      ],
+      "actions": [],
+      "files": [],
+      "reconstructions": [
+        "R1",
+        "R18",
+        "R22",
+        "R24"
+      ],
+      "toggles": []
+    },
+    {
+      "id": "space-war",
+      "game": "spcwr",
+      "source": "MH25",
+      "statements": [],
+      "controls": [
+        "keys"
+      ],
+      "actions": [],
+      "files": [],
+      "reconstructions": [
+        "R1",
+        "R18",
+        "R22",
+        "R24"
+      ],
+      "toggles": []
     }
   ]
 }

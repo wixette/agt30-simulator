@@ -25,6 +25,7 @@
  * @property {Toggle[]} toggles the card's switches
  * @property {string[]} files the source files its card shows, first its own
  * @property {string[]} reconstructions the R entries it rests on
+ * @property {import("./bare.js").GameId} [game] one of NCSU's games on the system pack, started under AMRMX instead of typed (U19)
  */
 
 /**
