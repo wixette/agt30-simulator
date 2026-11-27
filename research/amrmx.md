@@ -82,6 +82,14 @@ With the stores fixed, LIFE redrew, but its board stood in the upper right quadr
 - **LIFE plays.** Three cells set with keys 7 and 10 make a blinker; key 1 runs, and the blinker turns between a column and a row every generation.
 - **QUBIC** started at its entry (222) stops with the FORTRAN run-time error `OTS ERR #50 AT 00225, ARGUMENT ERROR`: it expects what START would set up.
 
+## Statements and files (2026-11-27)
+
+What AMRMX's own statement macros (the pack's sector 640 on, written by NCSU's operators) and its loader show about running a program from the pack.
+
+- **The syntax**, as the macros write it: a file's name in quotes, then its pack-volume, or a list of them, `START("AGTRT",30)`, `START(%1,(130,7))`. A pack-volume is one octal number, pack × 100 + volume (`LISTV` is itself a macro, `LISTV(%1/100,%1&77)`), so volume 10 of pack 0 is `10`. `SYST(10)!` makes volume 10 the system volume, which statements without one use; until then it is 2, which this pack lacks (`VOLUME 2 NOT DEFINED`).
+- **START loads relocatable files.** START and RETRIEVE share the relocating loader (overlay 200 for the file search, sector 160 for the statements): it walks the volume's directory backwards and considers only entries of type 1, RELOC (the high four bits of the type field, as on the tapes: 1 RELOC, 7 ATEXT, 11 DUMP). `START("9SE",10)!` loads 9SE at 120 and runs it; RETRIEVE loads without starting. For a DUMP file it finds nothing and asks `REQUIRED: … NEW PACK/VOL =`.
+- **What restores a DUMP file is not yet found.** LIFE, QUBIC, Space War and BROSE are DUMP files, core images from 120 on. No code in the system cylinders tests for type 11; `LOADA` is the 1971 manual's load from tape (`LOADA(FILE, TAPE)`) and fails on a disk volume; `REST`, `BEGIN` and the bare name answer `PROGRAM NOT IN MEMORY`. The statement may be a system program on a volume the dump lacks (20–37), or an operator's macro there. Until it is found, the simulator restores a DUMP file with its own loader and starts it at the symbol named after the file (LIFE 120, SPCWR 1266, QUBIC 222), as `Bare.startDump` does.
+
 ## Still open
 
 - **PINT.** Settled: a request on priority channel 14 ([dpr2-manual.md](dpr2-manual.md)), through the pivot at 77743 (above).
