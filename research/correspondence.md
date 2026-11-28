@@ -76,6 +76,7 @@ New, from his reply of 2026-11-28: the display's refresh rate on the real hardwa
 Not yet asked:
 
 - **Depth cueing in QUBIC (R22).** Were QUBIC's far levels dimmer than the near ones? QUBIC loads the array's registers 21 and 22 (0.324 and 0.75), which change nothing in the simulator; if the far levels were dimmer, they may be the depth cue's settings. *(Added 2026-11-29.)*
+- **QUBIC and the light pen.** Was QUBIC ever played with the light pen? Its display package records pen hits, but its own code reads moves from the Teletype. *(Added 2026-11-29.)*
 - **QUBIC's dials.** Dial 3 sizes the board and 0–2 turn it; did dials 4 and 5 do anything? And D10 bit 14, which QUBIC sets and keeps?
 - **The refresh rate and the picture's size** (from his reply of 2026-11-28): how often the real display refreshed, and whether NCSU's picture was 15 inches square rather than the manual's 12.
 
