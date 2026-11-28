@@ -84,11 +84,22 @@ export const CONDITIONS = { AN: 0o260, LS: 0o300 };
 const OP_NAMES = new Map(Object.entries(OPS).map(([k, v]) => [v, k]));
 
 /**
- * The name of an instruction that is not a transfer, or undefined.
+ * The name of an instruction that is not a transfer, or undefined. Bits 2-5 hold a destination,
+ * as in a transfer: the arithmetic unit's destinations, 15-17, select its operations (MPYU ...
+ * ERAR), and the conditional transfers send their word there; for the other special
+ * instructions the destination has no use and is ignored. NCSU's linking loader stores every
+ * symbol as JPSR with destination 01 (bit 5), and FORTRAN's I/O routines execute such words as
+ * calls (R1; research/amrmx.md).
  * @param {number} ins
  * @returns {string | undefined}
  */
-export const opName = (ins) => OP_NAMES.get(get(ins, ENCODING.op) * 4);
+export const opName = (ins) => {
+  const code = get(ins, ENCODING.op) * 4;
+  const name = OP_NAMES.get(code);
+  if (name !== undefined || get(ins, ENCODING.destination) >= 0o15) return name;
+  // bits 2-5 are the upper half's 17000
+  return OP_NAMES.get(code & 0o777);
+};
 
 /**
  * The condition of a conditional transfer, or undefined.

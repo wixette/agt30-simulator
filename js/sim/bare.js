@@ -141,6 +141,9 @@ export class Bare {
     const recs = dumpRecords(this.disk.pack, sector).filter((r) => !DESCRIPTOR.includes(r.addr));
     for (const r of recs) r.words.forEach((w, k) => core.write((r.addr + k) & 0o77777, w));
     core.write(entry, (Math.floor(core.read(entry) / 0o100000) & 0o77777) * 0o100000 + MONITOR_RETURN);
+    // entered with no arguments: a FORTRAN main program, QUBIC's, reports ARGUMENT ERROR if AR's
+    // lower half is not +0 (its run-time library, 4EROR)
+    cpu.AR = 0;
     cpu.LC = (entry + 1) & 0o77777;
     cpu.pri.pending.clear();
     cpu.pri.service = [];

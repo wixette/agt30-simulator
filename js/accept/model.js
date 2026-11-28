@@ -686,6 +686,23 @@ export const MODEL_CHECKS = [
       equal(oct(read(false), 5), "00003", "bit 9 clear: pedal 1 at bit 13, key 15 (FNS 16) at bit 14");
     },
   },
+  {
+    id: "CPU-15",
+    title: "A special instruction's bits 2-5 are a destination: ignored by the jumps and the others, used by the conditional transfers, and 15-17 select the arithmetic unit; JPSR with destination 01, as NCSU's loader stores a symbol, calls (QUBIC's I/O; R1)",
+    run(ctx) {
+      const agt = ctx.boot();
+      const cpu = agt.cpu;
+      // 0102014144: JPSR 14144 with bit 5 set, the word QUBIC's FORTRAN I/O calls its reader by
+      agt.core.write(USER_AT, 0o0102000000 + USER_AT + 0o10);
+      cpu.LC = USER_AT;
+      cpu.step();
+      equal(cpu.stopped ?? "", "", "not stopped as an unknown instruction");
+      equal(oct(cpu.LC, 5), oct(USER_AT + 0o11, 5), "the call entered the routine");
+      equal(oct(agt.core.read(USER_AT + 0o10) & 0o77777, 5), oct(USER_AT + 1, 5), "and left its return");
+      equal(disassemble(0o0102014144), "JPSR 14144", "listed as the call it is");
+      equal(disassemble(0o1544000000), "MPYI 00000", "destination 15: the arithmetic unit's MPYI");
+    },
+  },
   // ---- AVG1 and the array at register level (R22) ----
   {
     id: "AVG-1",
