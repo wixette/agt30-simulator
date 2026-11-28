@@ -106,6 +106,8 @@ export class Bare {
     const cpu = agt.cpu;
     this.avg = new Avg1(cpu, agt.array);
     this.avg.clear();
+    /** @type {(() => void)[]} done once AMRMX waits for a statement (atPrompt) */
+    this.whenReady = [];
     this.line = new TtyLine(cpu, (code) => this.printed(code), (c) => this.keyed(c));
     // a copy: AMRMX writes to its pack, and the pack fetched stays as it came
     this.disk = new Dms2(cpu, pack.slice());
@@ -122,11 +124,16 @@ export class Bare {
   }
 
   /**
-   * The bootstrap: the monitor loaded from the pack and entered at its start, BR as the
-   * operator left it, the interrupts clear, the processor's clock on (R24).
+   * The bootstrap: core cleared, the monitor loaded from the pack and entered at its start, BR as
+   * the operator left it, the interrupts clear, the processor's clock on (R24). Clearing core is
+   * ours: the simulator's own monitor and programs were there, and AMRMX, given a program's core
+   * image, walks the core above it entry by entry to the end of its symbol table, a step of 1
+   * plus the low bits of each word; over words left behind it stepped past the end and never
+   * answered a statement again (after PULSE 1 in QUBIC).
    */
   boot() {
     const cpu = this.agt.cpu;
+    this.agt.core.words.fill(0);
     loadMonitor(this.agt.core, this.pack);
     cpu.LC = MONITOR_START;
     cpu.IC = 0;
@@ -222,8 +229,29 @@ export class Bare {
     this.avg.poll();
     this.line.poll();
     this.disk.poll();
+    if (this.whenReady.length && this.ready()) /** @type {() => void} */ (this.whenReady.shift())();
     cpu.stopped = null;
     return cpu.step();
+  }
+
+  /**
+   * Whether AMRMX waits for a statement: nothing left to type, and the Teletype's line set to
+   * receive (IC bits 28 and 29), as when it has printed its prompt.
+   * @returns {boolean}
+   */
+  ready() {
+    const ic = this.agt.cpu.IC;
+    return this.line.keys.length === 0 && !this.line.char && ic % 2 === 1 && Math.floor(ic / 2) % 2 === 1;
+  }
+
+  /**
+   * Something to do once AMRMX waits for a statement: a game the simulator starts itself, as the
+   * operator would have once the date was taken, so that AMRMX has set PULSE 1's pivot to its
+   * abort routine (JPSR 74000) and PULSE 1 returns to its prompt.
+   * @param {() => void} fn
+   */
+  atPrompt(fn) {
+    this.whenReady.push(fn);
   }
 
   /**

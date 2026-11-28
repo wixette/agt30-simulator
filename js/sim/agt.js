@@ -193,8 +193,15 @@ export class Agt30 extends Terminal {
       // restored once AMRMX has its date and is ready for the statement (Bare.then)
       bare.then(() => bare.restore(tape));
       this.type(`${g.call}\r`);
-    } else bare.startDump(/** @type {number} */ (g.sector), /** @type {number} */ (g.entry));
-    for (const [n, v] of Object.entries(g.dials ?? {})) this.setDial(Number(n), v);
+    } else {
+      // started once AMRMX has the date and waits at its prompt: before that, PULSE 1's pivot
+      // still holds what the pack left there, and PULSE 1 wandered off into the game's core
+      this.type(`${from.date ?? "1/1/76"}\r`);
+      bare.atPrompt(() => {
+        bare.startDump(/** @type {number} */ (g.sector), /** @type {number} */ (g.entry));
+        for (const [n, v] of Object.entries(g.dials ?? {})) this.setDial(Number(n), v);
+      });
+    }
     this.panel.mode = "run";
     this.panel.sync();
   }

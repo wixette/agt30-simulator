@@ -6,6 +6,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 
 - **NCSU's system pack is in the repository** (`packs/`, with its NOTICE), copied unchanged from M. Howard's repository with his agreement, and credited as agreed with him: LIFE, Space War and AMRMX load from the simulator's own site, quickly, instead of from GitHub's raw files. It is historical software outside the repository's licenses ([docs/licensing.md](docs/licensing.md)).
 
+- **PULSE 1 returns to AMRMX** in LIFE, Space War and QUBIC, as at NCSU: it stopped the machine, since the games were entered before AMRMX had set PULSE 1 to its abort routine. They are now started once AMRMX has the date, and core is cleared when the pack boots, so that AMRMX can find its way through a program's symbol table afterwards.
 - **Our programs say so**: their titles end in *(simulator, 2026)*, as NCSU's end in *(NCSU, 1975)*, a source and a year, so that no one takes them for programs from the tapes.
 - **NCSU's programs show in the Tube**: in slowed time the page skips the waits in which the beam draws nothing, but it looked ahead only in our DSPLY's frames, so AMRMX and the games crawled through each wait and showed nothing. It now runs on to their next stroke; the beam's state and the line under the traces describe a program that drives the vector generator itself.
 - **NCSU's programs keep the viewpoint** when loaded from the Programs menu, as the simulator's own do; they used to jump to the Screen, a habit taken from Boot AMRMX, which still goes there to show the date prompt.

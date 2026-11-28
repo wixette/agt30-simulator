@@ -79,4 +79,18 @@ describe("NCSU's games", () => {
     run(4000);
     assert.match(text(), /TYPE YOUR MOVE/);
   });
+
+  for (const id of /** @type {const} */ (["life", "spcwr", "qubic"])) {
+    it(`PULSE 1 in ${id} returns to AMRMX: the game is started at AMRMX's prompt, its abort routine in PULSE 1's pivot`, () => {
+      const { agt, run } = start(id, { date: "11/29/76" });
+      run(6000);
+      assert.equal(agt.core.read(0o77776), 0o0002074000, "JPSR 74000, AMRMX's abort, in the pivot");
+      agt.setPulse1(true);
+      run(100);
+      agt.setPulse1(false);
+      run(2000);
+      assert.equal(agt.cpu.stopped ?? null, null, "nothing unknown executed");
+      assert.ok(agt.cpu.LC >= 0o70000, `AMRMX runs again (at ${agt.cpu.LC.toString(8)})`);
+    });
+  }
 });
