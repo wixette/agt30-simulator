@@ -260,7 +260,7 @@ Characters are drawn as vectors too, a few strokes each, in italics (MH26). The 
 
 ### How a program drives the array and the vector generator
 
-DSPLY hides all of this: the simulator's own programs give it a picture, and the simulator's DSPLY, written in JavaScript, feeds the array directly (section 5). NCSU's monitor and games drive the hardware themselves, through four destinations (Appendix B):
+DSPLY hides all of this: the simulator's own programs give it a picture, and the simulator's DSPLY, written in JavaScript, feeds the array directly (above). NCSU's monitor and games drive the hardware themselves, through four destinations (Appendix B):
 
 - **05**, a point: x in the upper half, y in the lower. Sending it starts a vector through the array.
 - **06**, the array's z in the lower half, and AVG1's command in the upper.
