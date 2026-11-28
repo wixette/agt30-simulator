@@ -17,6 +17,7 @@
 import { assemble } from "./adept.js";
 import { TTY } from "./amoscode.js";
 import { Bare, GAMES } from "./bare.js";
+
 import { assembleOp, Dpr2 } from "./dpr2.js";
 import { loadFigures } from "./figures.js";
 import { CALL_AREA, Monitor } from "./amos.js";
@@ -24,6 +25,9 @@ import { MONITOR_ENTRY, Panel, PULSE1_PIVOT } from "./panel.js";
 import { Terminal } from "./terminal.js";
 import { Teletype } from "./teletype.js";
 import { word } from "./words.js";
+
+/** How far untilStroke runs at a time, us: a few instructions (the waits it skips are milliseconds). */
+const STROKE_STEP_US = 20;
 
 /** The Teletype prints, and sends, 10 characters a second (SRM5 DPR3 p. 11). */
 export const TTY_US_PER_CHAR = 100000;
@@ -368,6 +372,22 @@ export class Agt30 extends Terminal {
       this.sendNext += c.gapUs;
     }
     this.advanceTo(until);
+  }
+
+  /** Whether a picture is being shown: DSPLY's image, or AMRMX and its programs driving AVG1. */
+  get displaying() {
+    return this.image !== null || this.bare !== null;
+  }
+
+  /**
+   * Runs on, in small steps, until the beam starts a new stroke or the time is up: in slowed time
+   * the page skips the waits in which the beam draws nothing, and a program driving AVG1 itself
+   * makes its strokes only as it runs, so the next one cannot be looked up ahead as DSPLY's can.
+   * @param {number} limit us
+   */
+  untilStroke(limit) {
+    const n = this.segs.length;
+    while (this.now < limit && this.segs.length === n) this.advance(Math.min(limit, this.now + STROKE_STEP_US));
   }
 
   /** @param {number} until */

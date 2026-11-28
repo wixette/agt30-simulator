@@ -91,6 +91,11 @@ export class Terminal {
     return Math.ceil(t / p - 1e-9) * p;
   }
 
+  /** Whether a picture is being shown: DSPLY has an image (Agt30 adds a program driving AVG1 itself). */
+  get displaying() {
+    return this.image !== null;
+  }
+
   /**
    * Runs the terminal up to a time: every frame whose tick falls before it.
    * @param {number} until us

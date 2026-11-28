@@ -720,7 +720,7 @@ export class TerminalView {
     const last = agt.frames.at(-1);
     const recent = last !== undefined && agt.now - last.start < 200000;
     const level = {
-      vectors: recent && agt.image !== null ? Math.min(1, 0.25 + last.drawn / 1660) : 0,
+      vectors: recent && agt.displaying ? Math.min(1, 0.25 + last.drawn / 1660) : 0,
       cpu: recent || agt.program ? 0.6 : 0,
       clock: agt.clockCode.length && recent ? 0.7 : 0,
       tty: agt.printQueue.length ? 0.8 : 0,

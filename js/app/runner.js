@@ -9,6 +9,8 @@
 
 /** The most wall time one repaint may advance, ms: a hidden tab does not run away. */
 const MAX_WALL_MS = 100;
+/** The longest wait skipped at once in slowed time when a program drives AVG1 itself, us. */
+const SKIP_LIMIT_US = 25000;
 
 export class Runner {
   /** @param {() => Agt30} machine the machine now (Reset replaces it) */
@@ -40,6 +42,12 @@ export class Runner {
       const under = segs.length && segs[segs.length - 1].t1 > agt.now ? segs.find((s) => s.t1 > agt.now) : undefined;
       if (under && under.t0 > agt.now + 2) dt = Math.max(dt, under.t0 - agt.now);
       else if (!under && agt.image !== null && agt.nextTick > agt.now) dt = Math.max(dt, agt.nextTick - agt.now);
+      // a program driving AVG1 itself (AMRMX and NCSU's games): run on to its next stroke, up to a
+      // frame at 40 a second
+      else if (!under && agt.bare) {
+        agt.untilStroke(agt.now + SKIP_LIMIT_US);
+        dt = 0;
+      }
     }
     if (dt > 0) agt.advance(agt.now + dt);
     for (const f of this.listeners) f(dt);

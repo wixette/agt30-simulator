@@ -79,7 +79,7 @@ export class Stage {
       y: t("trace.y"),
       z: t("trace.z"),
       empty: t("trace.empty"),
-      status: (state, us, total, fps, rate) => t(`trace.${state}`, { us: us.toFixed(1), total: total.toFixed(0), ms: (1000 / fps).toFixed(0), fps: fps.toFixed(0), rate }),
+      status: (state, us, total, fps, rate, own) => (own ? t(`trace.own.${state}`) : t(`trace.${state}`, { us: us.toFixed(1), total: total.toFixed(0), ms: (1000 / fps).toFixed(0), fps: fps.toFixed(0), rate })),
     });
     /** @type {TerminalView | null} */
     this.view3d = null;

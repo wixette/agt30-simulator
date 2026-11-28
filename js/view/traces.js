@@ -20,7 +20,7 @@ import { framesPerSecond } from "../sim/frameclock.js";
  * @property {string} y
  * @property {string} z
  * @property {string} empty nothing on the display
- * @property {(state: "waiting" | "preparing" | "drawing" | "moving", us: number, total: number, fps: number, rate: number) => string} status
+ * @property {(state: "waiting" | "preparing" | "drawing" | "moving", us: number, total: number, fps: number, rate: number, own: boolean) => string} status own: a program drives AVG1 itself (AMRMX, NCSU's games), with no DSPLY frame or RATE
  */
 
 /** Narrower than this, px, or shorter than COMPACT_H, the traces pack down. */
@@ -150,7 +150,8 @@ export class TracesView {
     ctx.fillStyle = ink;
     const us = Math.max(0, Math.min(term.now, t1) - t0);
     const state = term.now > t1 ? "waiting" : term.now < t0 ? "preparing" : b.drawing ? "drawing" : "moving";
-    const status = this.labels.status(state, us, t1 - t0, framesPerSecond(term.rate), term.rate);
+    const own = term.image === null && term.displaying;
+    const status = this.labels.status(own ? (b.drawing ? "drawing" : b.seg ? "moving" : "waiting") : state, us, t1 - t0, framesPerSecond(term.rate), term.rate, own);
     // packed down, the first sentence: where the beam is in the frame
     ctx.fillText(compact ? status.replace(/(\.)\s.*$/, "$1") : status, compact ? 8 * dpr : left, H - axis + 3 * dpr);
   }

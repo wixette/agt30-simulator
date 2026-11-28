@@ -48,7 +48,7 @@ export function beamAt(segs, now) {
  * @returns {"drawing" | "moving" | "waiting" | "off"}
  */
 export function beamState(term) {
-  if (term.image === null) return "off";
+  if (!term.displaying) return "off";
   const b = beamAt(term.segs, term.now);
   if (b.drawing) return "drawing";
   return b.seg ? "moving" : "waiting";
