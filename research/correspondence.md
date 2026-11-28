@@ -75,6 +75,10 @@ New, from his reply of 2026-11-28: the display's refresh rate on the real hardwa
 
 Not yet asked:
 
+- **Depth cueing in QUBIC (R22).** Were QUBIC's far levels dimmer than the near ones? QUBIC loads the array's registers 21 and 22 (0.324 and 0.75), which change nothing in the simulator; if the far levels were dimmer, they may be the depth cue's settings. *(Added 2026-11-29.)*
+- **QUBIC's dials.** Dial 3 sizes the board and 0–2 turn it; did dials 4 and 5 do anything? And D10 bit 14, which QUBIC sets and keeps?
+- **The refresh rate and the picture's size** (from his reply of 2026-11-28): how often the real display refreshed, and whether NCSU's picture was 15 inches square rather than the manual's 12.
+
 - **The rest of the pack.** The dump on tape ends after 123 records, the pack's first 61½ cylinders, with no tape mark: is there a second reel, or another copy of volumes 20–37 (the lunar lander, Pong)? *(Answered 2026-11-28: no other tapes survive. He reads the dump as holding the defined volumes; our reading of the directory, which lists volumes 20–37, is to be checked again.)*
 
 - **The transfer logic.** Do 'A and 'O act on the operand and AR, or on the destination? *(Since settled for 'O by the sources themselves: a store to memory with 'O sets the word to −0, as every commented use on the tapes does ("SET BUSY FLAG", "SET DISK FLAG"); AMRMX then takes statements and LIFE redraws. Not sent; [amrmx.md](amrmx.md). Still open: does a store with 'A AND, as the manual says?)*

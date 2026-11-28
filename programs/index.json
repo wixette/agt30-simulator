@@ -12,7 +12,6 @@
   "store": [
     "HOUSE",
     "TOWN",
-    "TTT",
     "PCUBE"
   ],
   "programs": [
@@ -149,38 +148,6 @@
         {
           "id": "depth",
           "on": "VIEW (.63, -1.89, 37777)!",
-          "off": "VIEW (,,0)!"
-        }
-      ]
-    },
-    {
-      "id": "tic-tac-toe",
-      "source": "NCSU",
-      "statements": [
-        "RESET!",
-        "ADEPT (\"TTT\")!",
-        "DSPLY (V.TTT)!",
-        "CLOCK (DIALS+1, DI.EX)!",
-        "TTT!"
-      ],
-      "controls": [
-        "keys",
-        "pen",
-        "dials"
-      ],
-      "actions": [],
-      "files": [
-        "TTT",
-        "PENHT"
-      ],
-      "reconstructions": [
-        "R4",
-        "R11"
-      ],
-      "toggles": [
-        {
-          "id": "depth",
-          "on": "VIEW (.37, -1.11, 37777)!",
           "off": "VIEW (,,0)!"
         }
       ]

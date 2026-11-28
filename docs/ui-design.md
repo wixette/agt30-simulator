@@ -234,7 +234,7 @@ The page has no feedback link, no survey, and no control that exists only so tha
 
 ### U13. Links: `#view=` and `#program=`, not frozen before 1.0.0
 
-The link format names a viewpoint and a program: `#view=tube&program=tic-tac-toe`. Opening such a link boots the terminal and types the program's statements. The address bar keeps only the viewpoint as the visitor moves about *(v0.0.5)*: a link copied from it opens the app as it starts, not in the last program tried. `#program=` is still read, so a link to a program can be made on purpose; a Share button that makes one is for later. The names are chosen carefully now, but the format may still change until 1.0.0, and the README says so. A link never carries octal words: the instruction encodings are reconstructed and may change (R1).
+The link format names a viewpoint and a program: `#view=tube&program=cube`. Opening such a link boots the terminal and types the program's statements. The address bar keeps only the viewpoint as the visitor moves about *(v0.0.5)*: a link copied from it opens the app as it starts, not in the last program tried. `#program=` is still read, so a link to a program can be made on purpose; a Share button that makes one is for later. The names are chosen carefully now, but the format may still change until 1.0.0, and the README says so. A link never carries octal words: the instruction encodings are reconstructed and may change (R1).
 
 ### U14. About
 

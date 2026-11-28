@@ -27,25 +27,22 @@ const QUALITY = 90;
  * @typedef {{ name: string; hash: string; dials?: number[]; setup?: string; wait?: number; ready?: string; readme?: string }} Shot
  */
 
-/** Plays tic-tac-toe on the bottom layer with the light pen: X, O, X, O, in these cells. */
+/** Plays a move each in QUBIC, typed on the Teletype, once the pack has booted. */
 const PLAY = `(async () => {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  for (const k of [0, 4, 8, 2]) {
-    const addr = agt.core.addr("T" + k.toString(8).padStart(2, "0"));
-    const s = [...agt.segs].reverse().find((g) => g.item === addr && g.vis);
-    if (!s) continue;
-    agt.pen((s.x0 + s.x1) / 2, (s.y0 + s.y1) / 2, true);
-    await sleep(150);
-    agt.pen(0, 0, false);
-    await sleep(400);
-  }
+  for (let i = 0; i < 60 && !agt.bare; i++) await sleep(500);
+  await sleep(2000);
+  agt.type("111\\r");
+  await sleep(4000);
+  agt.type("YES\\r");
+  await sleep(9000);
 })()`;
 
 /** @type {Shot[]} */
 const SHOTS = [
   { name: "room", hash: "#program=tunnel", dials: [0.3, 0, 0], setup: `document.getElementById("tab-tty").click()`, readme: "room.jpg" },
   { name: "console", hash: "#view=console&program=cube", dials: [0.2, 0.25, 0.3] },
-  { name: "screen-tic-tac-toe", hash: "#view=screen&program=tic-tac-toe", setup: PLAY, readme: "screen.jpg" },
+  { name: "screen-qubic", hash: "#view=screen&program=qubic", setup: PLAY, readme: "screen.jpg" },
   { name: "screen-perspective-cube", hash: "#view=screen&program=perspective-cube", dials: [0.1, 0.15, 0.2] },
   { name: "screen-tunnel", hash: "#view=screen&program=tunnel", dials: [0.3, 0, 0] },
   { name: "screen-random-lines", hash: "#view=screen&program=random-lines", dials: [0, 0.2, 0.3] },

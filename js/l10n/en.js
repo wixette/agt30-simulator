@@ -123,7 +123,6 @@ export default {
   "program.perspective-cube.short": "The same cube in perspective, the processor and the array sharing the work.",
   "program.tunnel.short": "Fly into a tunnel, and see what depth cueing does.",
   "program.town.short": "One house, placed four times: a structured picture.",
-  "program.tic-tac-toe.short": "A 3 × 3 × 3 game for two, played with the light pen.",
   "program.random-lines.short": "1,000 random lines, and more, until they no longer fit a frame.",
   "program.rebuilds": "Rebuilds {source}",
   "program.original": "NCSU's own program, run unchanged from M. Howard's copy of the lab's system pack ({source}), under its monitor AMRMX. The pack (400 KB) is loaded with it.",
@@ -160,9 +159,6 @@ export default {
   "program.town.title": "A town from one house",
   "program.town.use": "Turn dials 0, 1 and 2 to turn the town.",
   "program.town.what": "One house image, placed four times at different sizes and angles: a structured image, as the paper describes them.",
-  "program.tic-tac-toe.title": "3-D tic-tac-toe",
-  "program.tic-tac-toe.use": "Keys 0, 1 and 2 choose a layer. On the Screen viewpoint, point the light pen at a cell's small tick and press. Dials 0, 1 and 2 turn the board. Three in a row in any direction wins.",
-  "program.tic-tac-toe.what": "A 3 × 3 × 3 game for two players, after the 4 × 4 × 4 game D. Ogden wrote for NCSU's AGT-30.",
   "program.random-lines.title": "1,000 random lines",
   "program.random-lines.use": "Turn dials 0, 1 and 2. Ask for more lines: past about 2,000 they no longer fit in a frame, and the machine slows the refresh and types the new RATE.",
   "program.random-lines.what": "About 1,000 lines of random length and position, freely turned: the paper's measure of what the array frees the processor to do.",
@@ -174,7 +170,7 @@ export default {
 
   // ---- the Teletype (U9) ----
   "proc.goto": "Go to",
-  "proc.goto.tip": "An address in octal, or a symbol, with or without an octal offset: 60000, RVCD, TTT+12. Empty, Show goes back to where the processor is.",
+  "proc.goto.tip": "An address in octal, or a symbol, with or without an octal offset: 60000, RVCD, CUBE+12. Empty, Show goes back to where the processor is.",
   "proc.goto.placeholder": "Address or symbol",
   "proc.choices": "Places to go: what runs and what is shown now, the resident routines, the pictures",
   "proc.following": "Following the processor: its last instruction stays in view.",

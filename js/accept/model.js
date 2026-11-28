@@ -11,7 +11,7 @@ import { HybridArray } from "../sim/array.js";
 import { ARRAY_RUN, Avg1, EOLPV, EOVPV, SELECTOR_REG } from "../sim/avg1.js";
 import { dumpRecords } from "../sim/bare.js";
 import { assembleOp, CHANNEL, disassemble, Dpr2, onesAdd, OPS, PIPVT, rotl, TIME } from "../sim/dpr2.js";
-import { MAX_DEPTH, rotZYX } from "../sim/dsply.js";
+import { MAX_DEPTH, rotZYX, SR } from "../sim/dsply.js";
 import { framesPerSecond, tickUs } from "../sim/frameclock.js";
 import { AM, BY_NAME, COND, CONDITION, Core, decode, DT, WINDOW } from "../sim/image.js";
 import { Teletype } from "../sim/teletype.js";
@@ -1406,47 +1406,20 @@ export const MODEL_CHECKS = [
   },
   {
     id: "PRG-5",
-    title: "Tic-tac-toe plays through to a win with the light pen; keys choose the layer (after NCSU)",
+    title: "The light pen: with the PE bit set, pointing it at a line drawn and pressing enters the item that drew it, and its image, in the pen-hit table (DSPLY p. 30)",
     run(ctx) {
       const agt = ctx.boot();
-      load(ctx, agt, "tic-tac-toe");
-      agt.advance(agt.now + 3e6);
-      const o2 = (/** @type {number} */ n) => n.toString(8).padStart(2, "0");
-      /** @param {number} k a cell: 9 x layer + 3 x row + column */
-      const pick = (k) => {
-        const addr = agt.core.addr(`T${o2(k)}`);
-        const s = [...agt.segs].reverse().find((g) => g.item === addr && g.vis);
-        ok(s, `cell ${k} drawn`);
-        agt.pen((s.x0 + s.x1) / 2, (s.y0 + s.y1) / 2, true);
-        agt.advance(agt.now + 60000);
-        agt.pen(0, 0, false);
-        agt.advance(agt.now + 200000);
-      };
-      // X takes the bottom layer's first row, then O must go to the middle layer: key 1
-      pick(0);
-      agt.setKey(1, true);
+      typeAndRun(agt, "DSPLY (V.A)!");
+      agt.dsply.setSr(SR.PE, true);
       agt.advance(agt.now + 100000);
-      agt.setKey(1, false);
-      agt.advance(agt.now + 100000);
-      pick(9);
-      agt.setKey(0, true);
-      agt.advance(agt.now + 100000);
-      agt.setKey(0, false);
-      agt.advance(agt.now + 100000);
-      for (const k of [1]) pick(k);
-      agt.setKey(1, true);
-      agt.advance(agt.now + 100000);
-      agt.setKey(1, false);
-      agt.advance(agt.now + 100000);
-      pick(10);
-      agt.setKey(0, true);
-      agt.advance(agt.now + 100000);
-      agt.setKey(0, false);
-      agt.advance(agt.now + 100000);
-      pick(2);
-      agt.advance(agt.now + 3e6);
-      ok(agt.paper.getText().includes("X WINS."), "X wins");
-      equal(agt.program, null, "the program has ended");
+      const s = [...agt.segs].reverse().find((g) => g.vis);
+      ok(s, "a line drawn");
+      const before = agt.dsply.penHits.length;
+      agt.pen((s.x0 + s.x1) / 2, (s.y0 + s.y1) / 2, true);
+      agt.advance(agt.now + 60000);
+      agt.pen(0, 0, false);
+      ok(agt.dsply.penHits.length > before, "a hit entered");
+      equal(agt.dsply.penHits.at(-1)?.item, s.item, "the item that drew the line");
     },
   },
 ];
