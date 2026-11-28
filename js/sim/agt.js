@@ -167,7 +167,7 @@ export class Agt30 extends Terminal {
   }
 
   /**
-   * Starts a game from the pack under AMRMX (U19, R24): booted first if it is not, then the
+   * Starts a game from the pack under AMRMX (U19, R24): AMRMX booted afresh, then the
    * game's core image restored by our loader and entered; or, for a game run as a statement
    * (BROSE), restored from the games tape and called by AMRMX, the date and the statement typed
    * on the Teletype as the operator would.
@@ -177,13 +177,15 @@ export class Agt30 extends Terminal {
    */
   startGame(id, pack, from = {}) {
     const g = GAMES[id];
-    const fresh = !this.bare;
-    if (fresh) this.bootPack(pack);
+    // AMRMX booted afresh for every game, as the operator would after a game that does not return
+    // to it: Space War overwrites the monitor's Teletype and PINT pivots, and QUBIC's FORTRAN I/O,
+    // which goes through them, would never print
+    this.bootPack(pack);
     const bare = /** @type {Bare} */ (this.bare);
     if (g.call) {
       const tape = from.tape;
       if (!tape) throw new Error(`${g.file}: no tape`);
-      if (fresh) this.type(`${from.date ?? "1/1/76"}\r`);
+      this.type(`${from.date ?? "1/1/76"}\r`);
       // restored once AMRMX has its date and is ready for the statement (Bare.then)
       bare.then(() => bare.restore(tape));
       this.type(`${g.call}\r`);

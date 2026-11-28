@@ -20,8 +20,7 @@ const tape = readTape(new Uint8Array(readFileSync(new URL("packs/games.tape", RO
  * @param {import("../js/sim/bare.js").GameId} id
  * @param {object} [from]
  */
-function start(id, from) {
-  const agt = boot();
+function start(id, from, agt = boot()) {
   agt.startGame(id, pack, from);
   const bare = /** @type {import("../js/sim/bare.js").Bare} */ (agt.bare);
   /** @type {number[]} */
@@ -71,5 +70,13 @@ describe("NCSU's games", () => {
     agt.type("YES\r");
     run(8000);
     assert.match(text(), /MY MOVE IS \d\d\d/, "it answers with its own move");
+  });
+
+  it("QUBIC after Space War, which leaves AMRMX's pivots overwritten, still runs: every game gets a fresh AMRMX", () => {
+    const sw = start("spcwr");
+    sw.run(3000);
+    const { run, text } = start("qubic", undefined, sw.agt);
+    run(4000);
+    assert.match(text(), /TYPE YOUR MOVE/);
   });
 });
