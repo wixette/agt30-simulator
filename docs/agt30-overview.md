@@ -178,6 +178,7 @@ The pivots the NCSU software uses ([../research/ncsu-tapes.md](../research/ncsu-
 | 77755 | the frame clock |
 | 77756, 77757 | end of vector, end of the display list |
 | 77760 | the light pen |
+| 77743 | PIPVT, the program interrupt |
 | 77771 | AR overflow |
 | 77776 | PULSE 1 |
 
@@ -189,7 +190,7 @@ IC enables and disables devices bit by bit, and FPRI and UPRI freeze and release
 
 **PINT** is the lowest-priority channel, raised by the program itself. A routine at a high priority, such as the frame clock's, can do its urgent work and leave the rest to a PINT, which runs only when nothing more urgent waits, and then returns to the main-line program (DPR2SPI p. 40; MH26). DSPLY does exactly this: the CLOCK routines run at the PINT level, in the gaps while the vector generator draws (DSPLY p. 10; section 5).
 
-Like any channel, PINT is served by an instruction, `JPSR'I PIPVT`: "jump to the routine whose address is in the word PIPVT". PIPVT is that word, a pivot like the others, and whoever wants PINT's work done puts the routine's address there. Where in core PIPVT is, the documents we have do not say. The simulator had to put it somewhere, and chose 77770, beside the other pivots; that choice is ours (R10).
+Like any channel, PINT is served by an instruction, `JPSR'I PIPVT`: "jump to the routine whose address is in the word PIPVT". PIPVT is that word, a pivot like the others, and whoever wants PINT's work done puts the routine's address there. Where in core PIPVT is, the documents we have do not say; AMRMX on NCSU's pack keeps it at 77743, and so does the simulator (R10).
 
 ## 5. The picture
 
@@ -255,11 +256,43 @@ AVG1 takes each transformed point as a voltage and drives the beam from where it
 
 The scope is a 21-inch CRT. Its phosphor is not documented (R14). M. Howard remembers it as P7 (or P30, as the recording of the call has it): a cool white flash that decays towards green, with a very long afterglow (MH26). A long afterglow helps a refreshed display flicker less, and smears a moving one. Text was hard to read beyond five or six lines at once, and the lab darkened the room to watch (MH26). The simulator draws it so, a white flash and a yellow-green afterglow, with times of our own (R14).
 
-Characters are drawn as vectors too, a few strokes each, in italics (MH26).
+Characters are drawn as vectors too, a few strokes each, in italics (MH26). The slant is the array's: AMRMX loads 0.25 into R12, so that x gains a quarter of y, which is why a failing converter took the slant away (section 5; R22).
+
+### How a program drives the array and the vector generator
+
+DSPLY hides all of this: the simulator's own programs give it a picture, and the simulator's DSPLY, written in JavaScript, feeds the array directly (section 5). NCSU's monitor and games drive the hardware themselves, through four destinations (Appendix B):
+
+- **05**, a point: x in the upper half, y in the lower. Sending it starts a vector through the array.
+- **06**, the array's z in the lower half, and AVG1's command in the upper.
+- **07**, the array's registers, while IC bit 10 is clear: the register's number in the low five bits of the upper half, the value in the lower half. With the bit set, 07 goes to GDD1, the input selector (section 6).
+- **10**, AVG1's mode: bits 0 and 1 turn it on, bit 5 starts the display clock, bits 6–9 unblank scopes A–D, and bit 2 selects the three-dimensional lists below.
+
+**Loading the array.** A word to 07 with 100 in its upper half resets the array to the identity first; one with 200 starts a *run*, in which the words that follow load this register and the next ones in turn, until the program does something else. The registers, as the programs on NCSU's pack use them:
+
+| Register | Holds |
+|---|---|
+| 01 | the input selector, one bit a dial; selecting starts a conversion |
+| 03, 04 | R12, R21 |
+| 05 | SC, the scale |
+| 06, 07, 10 | R11, R22, R33, the diagonal |
+| 11, 12 | R23, R32 |
+| 13, 14 | R13, R31 |
+| 15, 16, 17 | DX, DY, DZ |
+| 20 | PS, the picture scale |
+
+No document numbers them. The matrix's layout comes from QUBIC, whose dials turn its 4 × 4 × 4 board: a quarter turn of each dial changes just the registers of one rotation. The rest comes from what AMRMX, LIFE and Space War load (R22).
+
+**Lists of vectors.** When a vector ends, AVG1 asks for service on channel 11, and the instruction it supplies sends the next word, through the end-of-vector pivot, 77756; at the end of a list it calls the routine whose address is in 77757. A program starts a list by sending its first word and returns to other work: the interrupts send the rest. The words come in two forms:
+
+- **Two-dimensional**, as AMRMX's text, LIFE and Space War draw: each word to 05 holds x in bits 0–13 and y in 15–28, with AVG1's two flags in bits 14 and 29, end of list and draw. AVG1 supplies `MDIR'X 77756`, which steps the pivot, an instruction such as `MDXY` and the word's address, and executes it.
+- **Three-dimensional**, with D10 bit 2, as QUBIC draws its board: a list is pairs, a command to 06, 0100 for a move or 0200 for a line with z in its lower half, then x and y to 05 as whole 15-bit halves. AVG1 asks for each word in turn, the command after each vector and the point after each command, using 77756 as a pointer. A command that is neither a move nor a line ends the list.
+
+The two forms, the commands and the order of the requests are read from the programs' code, since the subsystem specification that would define them is lost (R22).
+
 
 ## 6. Input devices
 
-**The dials.** Six knobs, VCD1, each a potentiometer giving a voltage. NCSU built its own, with 15-turn potentiometers for fine control (MH26). They are wired to the array's analog inputs. To read one, a program writes the dial's number to destination 07 (GDD1), which selects the input and starts the converter, ADC5; the result appears in the lower half of S5 (DPR2SPI p. 41; DPR2BD). The routine in section 3 does exactly that. Which bits of the word written to 07 choose the input is not documented (R7).
+**The dials.** Six knobs, VCD1, each a potentiometer giving a voltage. NCSU built its own, with 15-turn potentiometers for fine control (MH26). They are wired to the array's analog inputs. To read one, a program selects its input and starts the converter, ADC5; the result appears in the lower half of S5 (DPR2SPI p. 41; DPR2BD). The manual's way is a word to destination 07 with IC bit 10 set, GDD1, which M. Howard confirms selects an analog input to sample (MH26); the routine in section 3 does that. The programs on NCSU's pack select a dial through the array's register 01 instead, one bit a dial, which also starts the conversion (R22). Which bits of GDD1's own word choose the input is still not documented (R7).
 
 **The function keys.** Sixteen push buttons, FNS1, each with a lamp the program can light, read through S5's upper half. Its fifteen bits hold sixteen keys and two pedals by way of IC bit 9: set, S5 shows keys 1–15; clear, the two pedals and key 16 (the tripp library's FSRR and FPBS, MH25). Two foot pedals act as keys, so a user could step up and down a listing with the feet, and most AGTs had them (SRM5 FNS1; MH26). **PULSE 1** sits beside the keys (section 4).
 
@@ -384,8 +417,10 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 |---|---|---|
 | DSPLY's code | no listing found; the format is interpreted in JavaScript, at the documented times | R2, R3 |
 | How a dial's input is chosen | GDD1's word is undocumented | R7 |
-| The Teletype's bit timing | the manual it refers to is missing | R9 |
+| The Teletype's bit timing | the manual it refers to is missing | R9, R23 |
 | How the simulator serves some interrupts, and PIPVT | not yet modeled; the address is undocumented | R10 |
+| The array's register numbers; the vector generator's modes, commands and requests | the subsystem specification is lost; read from what AMRMX, LIFE, Space War and QUBIC do | R22 |
+| The disk's times, and the bootstrap | AMLD0's source gives the protocol; the bootstrap and the times are ours | R24 |
 | The phosphor | undocumented; modeled on M. Howard's memory of a P7-like white with a green afterglow | R14 |
 | The monitor | AMRMX's source is lost; a subset is written in JavaScript | R9, R15 |
 | The installation's sizes and shapes | photographs and the period's common sizes | R16–R18 |
@@ -394,11 +429,11 @@ The simulator's own programs, in `programs/`, were written before the NCSU tapes
 
 - the phosphor's afterglow, how long and how bright (asked);
 - what timed the Teletype's bits (asked);
-- what destination 07 takes in its word (asked), and what destinations 05 and 06 carry besides x, y and z;
-- where PIPVT is (asked);
+- which bits of GDD1's word choose an input (M. Howard: it selects the analog input to sample); what D10 bit 14 and D06's other command bits do;
+- the display clock's rate on the real machine, which M. Howard remembers as lower than ours, and whether NCSU's picture was 15 inches square rather than the manual's 12;
 - whether `'A` and `'O` combine with AR or with the destination;
 - whether any array did a perspective divide in hardware;
-- whether the rest of M. Howard's pack survives: the dump on tape holds its first 984 sectors (61½ cylinders), the system area and the games QUBIC, LIFE, Space War and BROSE, but not volumes 20–37, among them the lunar lander and Pong ([../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
+- what is lost of M. Howard's pack: the dump on tape holds its first 984 sectors (61½ cylinders), the system area and the games QUBIC, LIFE, Space War and BROSE, but not volumes 20–37, among them the lunar lander and Pong, and no other tape survives (MH26; [../research/ncsu-tapes.md](../research/ncsu-tapes.md)).
 
 ## Appendix A. Glossary
 
@@ -480,9 +515,9 @@ A transfer is written as its source, its destination, any modifiers, and an addr
 | 2 | BR | the buffer register |
 | 3 | IC | the interrupt control register |
 | 4 | IR | the instruction register: the word is executed |
-| 5 | 05 | the array: x [0–14] and y [15–29]; AVG1's flags |
-| 6 | 06 | the array: z [15–29]; AVG1's command [0–14] |
-| 7 | 07 | GDD1: select an analog input, start the converter |
+| 5 | 05 | the array: x [0–14] and y [15–29]; AVG1's flags [14, 29], end of list and draw in a two-dimensional list (section 5) |
+| 6 | 06 | the array: z [15–29]; AVG1's command [0–14], a move, a line or the end in a three-dimensional list (section 5) |
+| 7 | 07 | with IC bit 10 clear, the array's registers; with it set, GDD1: select an analog input, start the converter |
 | 10 | 10 | AVG1's mode and enable [0–13]; the function keys' lamps [14–29] |
 | 12, 13, 14 | 12, 13, 14 | the line printer, the tapes, the disk |
 | 15 | AS | AR plus the operand's lower half, its sign extended |
@@ -543,6 +578,8 @@ Mode 0. The code is the instruction's upper half, octal, with `'X` and `'I` clea
 
 The conditional transfers, ANDD and LSDD, are written with the condition in place of a source: `ANXO MM` (with −0 in MM, this takes AR's absolute value), `LSAS'N ONE`, `ANIR X`. The word at the address goes to the destination, unrotated, only if the condition holds (DPR2SPI p. 38).
 
+Bits 2–5 of a special instruction, where a transfer keeps its destination, are ignored, except by the conditional transfers and the arithmetic unit's operations below. The manual lists every code with them clear, but NCSU's linking loader stores each symbol as a `JPSR` with bit 5 set, and FORTRAN's input and output routines call through such words (R1).
+
 ### The arithmetic unit (EAU1)
 
 | Code | Name | Does |
@@ -553,6 +590,8 @@ The conditional transfers, ANDD and LSDD, are written with the condition in plac
 | 17500 | ARLS | shift AR left |
 | 17520 | NORM | shift AR left until its top bits differ; the count goes to ER |
 | 17540 | ERAR | copy ER, the normalizing count, to AR |
+
+The multiplies and divides take `'N` in bits 11–12, as a transfer does: the operand is complemented. QUBIC's rotations subtract a product so, with `MPYL'N` (15434), which the manual's list lacks (R1).
 
 ## Appendix C. Statements and picture items
 
