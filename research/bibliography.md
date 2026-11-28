@@ -28,7 +28,7 @@ The keys used across the repository: in docs, code comments and the `source` fie
 | MS68 | T. H. Myer, I. E. Sutherland, "On the design of display processors", *CACM* 11(6), June 1968, pp. 410–414 | ACM Digital Library |
 | CCT20 | M. Howard and replies, "Anyone out there that can read 7 track / 556 BPI tapes?", cctalk, July 2020 | <https://classiccmp.org/pipermail/cctalk/2020-July/054697.html> |
 | CCT21c | M. Howard, in "Interesting photos of a computer graphics lab from 1968", cctech, 28 June 2021 | <https://classiccmp.org/pipermail/cctech/2021-June/049420.html> |
-| MH25 | M. Howard, "AGT-30": images of NCSU's 7-track tapes, read at the Computer History Museum in 2022, and tools for Adage's tape and disk formats, 2025. No license stated: studied and cited, not copied ([ncsu-tapes.md](ncsu-tapes.md)) | <https://github.com/cramcram/AGT-30> |
+| MH25 | M. Howard, "AGT-30": images of NCSU's 7-track tapes, read at the Computer History Museum in 2022, and tools for Adage's tape and disk formats, 2025. No license stated. Used with his permission (2026-11-19, 2026-11-28): the system pack, `howard.disk`, is copied unchanged into `packs/` ([../packs/NOTICE](../packs/NOTICE)); the rest is studied and cited ([ncsu-tapes.md](ncsu-tapes.md)) | <https://github.com/cramcram/AGT-30> |
 | RT | L. Shustek, readtape, the program that read the tapes in MH25 | <https://github.com/LenShustek/readtape> |
 | NE26 | N. England, personal communication, November 2026 ([correspondence.md](correspondence.md)) | |
 | MH26 | M. Howard, personal communication, November 2026 ([correspondence.md](correspondence.md)) | |

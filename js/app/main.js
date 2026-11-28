@@ -99,12 +99,12 @@ async function start() {
     if (!dock.ttyShown()) dock.mark("tty");
   });
   proc = buildProcessor(machine, say, () => dock.procShown());
-  // ---- the real monitor (U19): NCSU's system pack, fetched once, when asked for ----
+  // ---- the real monitor (U19): NCSU's system pack, loaded once, when asked for ----
   /** @type {Promise<Uint32Array> | null} */
   let pack = null;
   /**
-   * Fetches the pack: each try given PACK_TIMEOUT_MS, PACK_TRIES tries, since a stalled
-   * connection would otherwise leave the page fetching for ever. A short read fails readPack's
+   * Loads the pack from the site: each try given PACK_TIMEOUT_MS, PACK_TRIES tries, since a
+   * stalled connection would otherwise leave the page loading for ever. A short read fails readPack's
    * size check and is tried again too.
    * @returns {Promise<Uint32Array>}
    */

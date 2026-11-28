@@ -22,7 +22,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
 2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
 3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
-4. **Play NCSU's own games:** **LIFE** and **Space War**, at the foot of the Programs menu, run unchanged from the lab's 1976 system pack, fetched from M. Howard's repository, under its monitor AMRMX. Their cards give the keys.
+4. **Play NCSU's own games:** **LIFE** and **Space War**, at the foot of the Programs menu, run unchanged from the lab's 1976 system pack, which M. Howard recovered, under its monitor AMRMX. Their cards give the keys.
 5. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
 
 ## The machine in a few minutes
@@ -127,8 +127,10 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 
 The simulator rests on T. G. Hagan, R. J. Nixon and L. J. Schaefer's paper "The Adage graphics terminal" (AFIPS Fall Joint Computer Conference, 1968); Adage's manuals and brochures, kept by [bitsavers.org](http://www.bitsavers.org/pdf/adage/agt/); N. England's [history of the NCSU graphics lab](https://www.graphics-history.org/ncsu/index.htm); and M. Howard's recollections and [the NCSU tapes he recovered](https://github.com/cramcram/AGT-30). Every source is listed in [research/bibliography.md](research/bibliography.md).
 
+The NCSU tapes and disk image: recovered by Marc Howard and read at the Computer History Museum ([github.com/cramcram/AGT-30](https://github.com/cramcram/AGT-30)). The programs on them by Adage, Inc. and the NCSU graphics lab; authors credited by the initials in their sources, and with them the programmers of whom no record survives. NCSU's system pack is included in [`packs/`](packs/NOTICE) with his permission, as historical software outside this repository's licenses.
+
 It is built with [three.js](https://threejs.org/), [Roboto Flex](https://github.com/googlefonts/roboto-flex) and [Material Symbols](https://github.com/google/material-design-icons).
 
 ## License
 
-The code is under the [Apache License 2.0](LICENSE); the documents, data and pictures of our own under [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt). three.js is MIT, Roboto Flex is under the SIL Open Font License 1.1, and Material Symbols is Apache-2.0. Each file's license is declared by [REUSE](https://reuse.software); see [docs/licensing.md](docs/licensing.md).
+The code is under the [Apache License 2.0](LICENSE); the documents, data and pictures of our own under [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt). three.js is MIT, Roboto Flex is under the SIL Open Font License 1.1, and Material Symbols is Apache-2.0. NCSU's system pack in `packs/` is historical software under no license of ours; [packs/NOTICE](packs/NOTICE) says where it came from. Each file's license is declared by [REUSE](https://reuse.software); see [docs/licensing.md](docs/licensing.md).

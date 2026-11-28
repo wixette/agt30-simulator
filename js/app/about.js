@@ -26,7 +26,7 @@ export function openAbout(version, references) {
     el(
       "ul",
       {},
-      ["code", "content", "three", "font", "icons"].map((k) => el("li", { text: t(`about.license.${k}`) })),
+      ["code", "content", "three", "font", "icons", "pack"].map((k) => el("li", { text: t(`about.license.${k}`) })),
     ),
     el("p", {}, [el("a", { href: SOURCE_URL, target: "_blank", rel: "noopener", text: t("about.source") })]),
   ], [

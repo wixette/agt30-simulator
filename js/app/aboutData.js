@@ -12,12 +12,12 @@ export const RECONSTRUCTIONS = Array.from({ length: 24 }, (_, i) => `R${i + 1}`)
 export const SOURCE_URL = "https://github.com/wixette/agt30-simulator";
 
 /**
- * NCSU's system pack, M. Howard's dump (MH25), at the commit the simulator was checked against:
- * the one file the page fetches from another site, and only when the operator asks to boot
- * AMRMX (U19).
+ * NCSU's system pack, M. Howard's dump (MH25), copied unchanged into packs/ from his repository at
+ * this commit (packs/NOTICE): the page loads it from its own site, only when the operator boots
+ * AMRMX or loads one of NCSU's games (U19).
  */
 export const PACK_COMMIT = "235e2b43f1f4c7b52c9a15b94aba107d89e8522b";
-export const PACK_URL = `https://raw.githubusercontent.com/cramcram/AGT-30/${PACK_COMMIT}/magtapes/howard.disk`;
+export const PACK_URL = "./packs/howard.disk";
 
 /**
  * The References tab (U16), by group: each a message, refs.<group>.<id>, and where it is; the keys

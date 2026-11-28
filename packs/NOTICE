@@ -1,0 +1,58 @@
+NCSU's system pack, distributed with this simulator
+===================================================
+
+The files in this directory are NOT covered by the Apache License 2.0
+or the CC BY-SA 4.0 license that apply to the simulator's own code and
+content. They are historical software, included so that the simulator
+can run the programs written for the machine it simulates. Their
+copyright belongs to their original owners: Adage, Inc., and the
+programmers of the NCSU graphics lab (docs/licensing.md).
+
+
+Credit
+------
+
+The NCSU tapes and disk image: recovered by Marc Howard and read at the
+Computer History Museum (github.com/cramcram/AGT-30). The programs on
+them by Adage, Inc. and the NCSU graphics lab; authors credited by the
+initials in their sources, and with them the programmers of whom no
+record survives.
+
+
+howard.disk
+-----------
+
+The system pack of the AGT-30 at North Carolina State University's
+graphics lab, as dumped to tape in April 1976: the monitor AMRMX (the
+AMOS/2 disk monitor) with its overlays and symbol table, and volume 10
+with the games LIFE, QUBIC, Space War (SPCWR) and BROSE, among others.
+The simulator boots AMRMX from it and starts the games
+(research/amrmx.md, research/ncsu-tapes.md).
+
+  Size     409344 bytes: 102,336 words of 30 bits, four bytes each,
+           low byte first; the pack's first 984 sectors in order
+  SHA-256  1b9a60b8efe47a29d772880e159d6c988d6e118070a397ea78fce19d8aa5c56c
+
+Copied unchanged from M. Howard's repository, where it is made from the
+tape image 556_howard_sys_pack by his tools:
+
+  https://github.com/cramcram/AGT-30
+  (commit 235e2b43f1f4c7b52c9a15b94aba107d89e8522b, magtapes/howard.disk)
+
+
+Permission and status
+---------------------
+
+M. Howard, who recovered the tapes, agreed to their use in this
+simulator (a call on 2026-11-19, and his message of 2026-11-28;
+research/correspondence.md). Adage, Inc. ceased operations in 1994. No
+license to redistribute this software has been granted by its
+copyright holders, and none is claimed here. It is included as a
+historical artifact, for study and for running on a simulator of the
+machine it was written for. If you are a rights holder and would rather
+it were not here, please open an issue on the repository and it will be
+removed.
+
+If you would rather not have these files in your copy of the
+repository, delete them. The simulator's own programs run without them;
+NCSU's monitor and games will not load.

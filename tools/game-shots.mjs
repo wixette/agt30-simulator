@@ -3,7 +3,6 @@
 // Screenshots of NCSU's software and the operator's panel, for posts and letters:
 //
 //     pnpm game-shots                                    (into ~/Downloads/agt30-v<version>-media/games/)
-//     node tools/game-shots.mjs --pack path/to/howard.disk   (a copy of the pack at the pinned commit)
 //     node tools/game-shots.mjs --only life
 //
 // - panel.png: the operator's control panel in 3D on its rack, above the same panel in the
@@ -13,18 +12,15 @@
 //   only between generations, and a picture taken then is mostly dark);
 // - space-war.png: Space War's two ships around the star.
 //
-// The system pack is M. Howard's (MH25): read from --pack, a copy of it at the pinned commit, or
-// fetched from his repository at that commit, with retries; it is handed to the page in place of
-// the page's own fetch, and never written into the repository. Pictures are PNG at twice the
-// window's pixels.
+// The page loads NCSU's system pack from the repository's copy (packs/NOTICE). Pictures are PNG
+// at twice the window's pixels.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { PACK_URL } from "../js/app/aboutData.js";
 import { mediaDir, openBrowser, sleep } from "./headless.mjs";
 
-const { values: args } = parseArgs({ options: { out: { type: "string" }, pack: { type: "string" }, only: { type: "string" } } });
+const { values: args } = parseArgs({ options: { out: { type: "string" }, only: { type: "string" } } });
 const OUT = resolve(args.out ?? mediaDir("games"));
 mkdirSync(OUT, { recursive: true });
 const want = (/** @type {string} */ name) => !args.only || name.includes(args.only);
@@ -58,33 +54,15 @@ function gunTaps(ox, oy) {
   return out;
 }
 
-/** @returns {Promise<Buffer>} the pack's bytes */
-async function readPackBytes() {
-  if (args.pack) return readFileSync(resolve(args.pack));
-  for (let n = 1; n <= 5; n++) {
-    try {
-      const r = await fetch(PACK_URL, { signal: AbortSignal.timeout(30000) });
-      const b = Buffer.from(await r.arrayBuffer());
-      if (r.ok && b.length === 102336 * 4) return b;
-    } catch {
-      // tried again below
-    }
-    console.log(`the pack's download failed (${n} of 5)`);
-  }
-  throw new Error("could not fetch the pack; give a copy with --pack");
-}
-
 /**
- * Opens the page at twice the pixels, the pack served from `pack64`.
+ * Opens the page at twice the pixels.
  * @param {number} width
  * @param {number} height
- * @param {string} pack64
  */
-async function open(width, height, pack64) {
+async function open(width, height) {
   const b = await openBrowser({ width, height });
   await b.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 2, mobile: false });
   await b.load("", "#view=screen");
-  await b.evaluate(`(() => { const bytes = Uint8Array.from(atob("${pack64}"), (c) => c.charCodeAt(0)); const f0 = window.fetch; window.fetch = (u, o) => String(u).includes("howard.disk") ? Promise.resolve(new Response(bytes)) : f0(u, o); })()`);
   return b;
 }
 
@@ -124,10 +102,8 @@ const save = (/** @type {string} */ name, /** @type {Buffer} */ png) => {
   console.log(join(OUT, name));
 };
 
-const pack64 = (await readPackBytes()).toString("base64");
-
 if (want("panel")) {
-  const b = await open(1440, 1200, pack64);
+  const b = await open(1440, 1200);
   try {
     await b.evaluate(`localStorage.setItem("agt30.dock", JSON.stringify({ tab: "panel", height: 470 }))`);
     await b.load("", "#view=panel");
@@ -167,7 +143,7 @@ if (want("panel")) {
 }
 
 if (want("life")) {
-  const b = await open(1440, 1640, pack64);
+  const b = await open(1440, 1640);
   try {
     await b.evaluate(`document.getElementById("dock-fold").click()`);
     await loadProgram(b, "LIFE (NCSU, 1975)");
@@ -191,7 +167,7 @@ if (want("life")) {
 }
 
 if (want("space-war")) {
-  const b = await open(1440, 1640, pack64);
+  const b = await open(1440, 1640);
   try {
     await b.evaluate(`document.getElementById("dock-fold").click()`);
     await loadProgram(b, "Space War (NCSU, 1975)");

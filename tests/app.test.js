@@ -22,8 +22,11 @@ describe("the page (APP)", () => {
     assert.match(readme, /^## What is reconstructed$/m, "the heading About links to");
   });
 
-  it("APP-2: nothing the page loads comes from another site (P10), but the system pack, when the operator boots AMRMX, from a fixed commit (U19)", () => {
-    assert.match(PACK_URL, /^https:\/\/raw\.githubusercontent\.com\/cramcram\/AGT-30\/[0-9a-f]{40}\/magtapes\/howard\.disk$/);
+  it("APP-2: nothing the page loads comes from another site (P10); the system pack is the repository's own copy, with its NOTICE (U19)", () => {
+    assert.match(PACK_URL, /^\.\/packs\/howard\.disk$/);
+    const pack = readFileSync(new URL(PACK_URL, ROOT));
+    assert.equal(pack.length, 102336 * 4);
+    assert.match(readFileSync(new URL("packs/NOTICE", ROOT), "utf8"), /1b9a60b8efe47a29d772880e159d6c988d6e118070a397ea78fce19d8aa5c56c/);
     const files = [...walk("js", [".js"]), ...walk("css", [".css"]), "index.html"];
     for (const f of files) {
       const src = readFileSync(new URL(f, ROOT), "utf8");

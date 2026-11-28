@@ -43,23 +43,39 @@ What we have learned from people who knew the machine, and what they have allowe
 - **2026-11-23.** We thanked him and proposed a credit line; said we would change the Teletype to an ASR-35, correct the phosphor, add the OCP and boot from his pack; and asked for the color photographs' source and permission, a further document in his collection (ADAGE_SLS), his judgment of a side-by-side of our green and a P7-like white, and the three questions below that the call did not reach.
 - **2026-11-27.** We sent v0.0.6: LIFE and Space War running unchanged from his pack under AMRMX, with links and how to play them, pictures of the panel and both games, and the scope now white with a green afterglow after his description. We asked whether the phosphor looks right, how a game was started under AMRMX, whether the rest of the pack survives, what set the Teletype's bit rate, and again about the photographs and the credit line; we said the store, the function keys and PIPVT had been settled from the sources.
 
+- **2026-11-28.** He replied to v0.0.6. What he said, as it bears on the simulator:
+  - **3-D tic-tac-toe.** The game, running correctly, shows a 4 × 4 × 4 board; he recalls no text legends on it. (Ours is 3 × 3 × 3 with a title.)
+  - **The picture's size.** He would like a much larger display, and recalls NCSU's picture as about 15 × 15 inches (SRM5 GDS1 gives 12 × 12).
+  - **The monitor on the scope.** After a boot, the scope showed a two-line message at its top, with words like "AMOS/2 Monitor", and a command prompt at its foot. PULSE 1 in a running program killed it and returned to that prompt.
+  - **PULSE 1 on the console** sat on its own row, at the top of the function keys.
+  - **Attribution.** We should acknowledge the programmers of whom there is no record. We take this, with the call of 2026-11-19, as his agreement to the credit line we proposed on 2026-11-23 and to our copying what the simulator needs from MH25 (decided 2026-11-28; [../docs/licensing.md](../docs/licensing.md)).
+  - **The disk drives** should follow the 1969 brochure (BRO69). The packs had a brown oxide finish (their outer surfaces unused), and a rectangular plate with rounded corners showed the heads' position.
+  - **The color photographs** are on bitsavers, in `pdf/adage/agt/george_clark_adage`; he does not know who George Clark was. They appear to be from Adage's plant.
+  - **ADAGE_SLS** is Adage's *Software Limitations Summary*, a list of the known faults of its software; of little use to us.
+  - **The phosphor.** The white looks better. The afterglow cannot be judged until the picture refreshes at the real hardware's lower rate.
+  - **The Teletype.** The monitor's code should show what happens. He expects output on BR bit 22, the lowest bit first, an interrupt for each data bit (11 a second at 110 baud) and the software assembling the bits, perhaps with a sense bit marking a character's first bit. At NCSU nearly everything was typed on the console's external keyboard; the Teletype was rarely typed on, and printed tape listings.
+  - **GDD1.** A word to it selects an analog input channel for the converter to sample.
+  - **The pack's dump** holds the defined volumes only; the volume directory (cylinder 0, sector 0) lists them. No other tapes survive. Some program listings survive on paper.
+
 ## Open questions
 
 Answers go above, with the date. Asked on 2026-11-23:
 
-- **The phosphor (R14).** Is a P7-like white closer than our green, and how strong is the green afterglow?
-- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits? *(The pack shows a bit clock behind IC bit 29 that interrupts once a bit, through pivots 77750 and 77751: [amrmx.md](amrmx.md). Its rate is still the question.)*
-- **GDD1 (R7).** What does destination 07 take in the word written to it (AMRMX's display handler writes full words)?
+- **The phosphor (R14).** Is a P7-like white closer than our green, and how strong is the green afterglow? *(Answered 2026-11-28: the white looks better; the afterglow is to be judged at the real refresh rate, which is still open.)*
+- **The Teletype's timing (R9).** OPTY sends each bit from BR[22] and input arrives on S4[14] (DPR2SPI p. 43): what sets the pace between bits? *(The pack shows a bit clock behind IC bit 29 that interrupts once a bit, through pivots 77750 and 77751: [amrmx.md](amrmx.md). Its rate is still the question.)* *(Answered in part 2026-11-28: his expectation matches the model; the Teletype was rarely typed on at NCSU.)*
+- **GDD1 (R7).** What does destination 07 take in the word written to it (AMRMX's display handler writes full words)? *(Answered 2026-11-28: it selects the analog input to sample; the word's layout is still to be read from the code.)*
 - **The program interrupt's pivot (R10).** Where is PIPVT? *(Since found on the pack: 77743, [amrmx.md](amrmx.md).)*
-- **The color photographs.** Where are they from, and may we use them? And the document ADAGE_SLS.
+- **The color photographs.** Where are they from, and may we use them? And the document ADAGE_SLS. *(Answered 2026-11-28: bitsavers, the photographer unknown; ADAGE_SLS is a fault list.)*
 
-- **The console on the scope.** AMRMX sends its text to the screen when its display handler is loaded. Was the scope the usual console at NCSU, with the Teletype for when the display was not in use?
+- **The console on the scope.** AMRMX sends its text to the screen when its display handler is loaded. Was the scope the usual console at NCSU, with the Teletype for when the display was not in use? *(Answered 2026-11-28: yes, with the console's keyboard for input.)*
 
-Asked again or newly on 2026-11-27: the phosphor (as it is now drawn), the Teletype's timing, the photographs, how a game was started (*The disk monitor's commands*, below) and the rest of the pack (below).
+Asked again or newly on 2026-11-27: the phosphor (as it is now drawn), the Teletype's timing, the photographs, how a game was started (*The disk monitor's commands*, below; not answered on 2026-11-28) and the rest of the pack (below).
+
+New, from his reply of 2026-11-28: the display's refresh rate on the real hardware, and whether NCSU's picture was 15 × 15 inches.
 
 Not yet asked:
 
-- **The rest of the pack.** The dump on tape ends after 123 records, the pack's first 61½ cylinders, with no tape mark: is there a second reel, or another copy of volumes 20–37 (the lunar lander, Pong)?
+- **The rest of the pack.** The dump on tape ends after 123 records, the pack's first 61½ cylinders, with no tape mark: is there a second reel, or another copy of volumes 20–37 (the lunar lander, Pong)? *(Answered 2026-11-28: no other tapes survive. He reads the dump as holding the defined volumes; our reading of the directory, which lists volumes 20–37, is to be checked again.)*
 
 - **The transfer logic.** Do 'A and 'O act on the operand and AR, or on the destination? *(Since settled for 'O by the sources themselves: a store to memory with 'O sets the word to −0, as every commented use on the tapes does ("SET BUSY FLAG", "SET DISK FLAG"); AMRMX then takes statements and LIFE redraws. Not sent; [amrmx.md](amrmx.md). Still open: does a store with 'A AND, as the manual says?)*
 - **The disk monitor's commands.** How did an operator start a game under the 1976 AMRMX, for example LIFE? The 1971 manual's statements quote names (`S("TITLE", TAPE)!`); the pack's command table has START, LOAD, RETRIEVE, LISTF and others. Is there a manual of the disk monitor? *(Narrowed on 2026-11-27, not sent: AMRMX takes statements on the simulator, in the syntax NCSU's macros use (`START("9SE",10)!` loads and runs a relocatable file; `SYST(10)!` sets the volume). START only loads RELOC files. The question left: what statement restored a DUMP file such as LIFE, QUBIC or Space War? [amrmx.md](amrmx.md).)*
@@ -69,4 +85,4 @@ Not yet asked:
 - **The display (R2).** Was the display list walked by a DPR-2 program (DSPLY, as we read PRM1), or mostly by hardware?
 - **The array (R5).** Does our model, x' = PS [D + SC (R x)], match what he knows? How was it calibrated?
 - **Software.** Is 3DTTT D. Ogden's game, and where is `$TTT3D`? Who wrote the other games, and how were they played?
-- **Credit.** Who else should be credited (the Computer History Museum; readtape; the program authors by name, once known)?
+- **Credit.** Who else should be credited (the Computer History Museum; readtape; the program authors by name, once known)? *(2026-11-28: acknowledge the programmers of whom there is no record.)*

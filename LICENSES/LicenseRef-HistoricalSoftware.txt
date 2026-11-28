@@ -1,0 +1,13 @@
+Historical software: no license granted
+
+The files this identifier is applied to are historical software for the
+Adage Graphics Terminal, written by Adage, Inc. and by the programmers of
+the graphics lab at North Carolina State University in the 1960s and
+1970s. Their copyright belongs to their original owners.
+
+No license to use, copy, modify or distribute them has been granted by
+their copyright holders, and none is granted by the authors of this
+repository. They are included, with the permission of the person who
+recovered them, as historical artifacts, for study and for running on a
+simulator of the machine they were written for. Where they came from, and
+how to ask for their removal, is in the NOTICE file beside them.

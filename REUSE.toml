@@ -44,3 +44,12 @@ path = "vendor/material-symbols/**"
 precedence = "override"
 SPDX-FileCopyrightText = "Google LLC"
 SPDX-License-Identifier = "Apache-2.0"
+
+# NCSU's system pack, copied unchanged from M. Howard's repository (MH25): historical
+# software, not under the repository's licenses; packs/NOTICE says where it came from,
+# credits its authors and offers to remove it (docs/licensing.md).
+[[annotations]]
+path = "packs/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Adage, Inc., and the programmers of the NCSU graphics lab"
+SPDX-License-Identifier = "LicenseRef-HistoricalSoftware"

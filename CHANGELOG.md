@@ -2,6 +2,10 @@
 
 What changed in each release. Versions follow `package.json` and are tagged `vX.Y.Z` ([docs/development.md](docs/development.md), *Branches, versions and releases*). Versions 0.0.x are pre-releases. The decisions cited (D1, U8, R14, …) are in [docs/ui-design.md](docs/ui-design.md), [design/architecture.md](design/architecture.md) and [design/reconstructions.md](design/reconstructions.md).
 
+## Unreleased
+
+- **NCSU's system pack is in the repository** (`packs/`, with its NOTICE), copied unchanged from M. Howard's repository with his agreement, and credited as agreed with him: LIFE, Space War and AMRMX load from the simulator's own site, quickly, instead of from GitHub's raw files. It is historical software outside the repository's licenses ([docs/licensing.md](docs/licensing.md)).
+
 ## 0.0.6
 
 The scope's phosphor is now the white one M. Howard remembers, and links to NCSU's games load reliably on a slow line.

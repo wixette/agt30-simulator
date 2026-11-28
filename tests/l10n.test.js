@@ -61,7 +61,7 @@ function dynamicKeys() {
   for (const g of Object.keys(GAMES)) keys.add(`status.game.${g}`);
   for (const s of ["waiting", "preparing", "drawing", "moving"]) keys.add(`trace.${s}`);
   for (const s of ["drawing", "moving", "waiting", "off"]) keys.add(`beam.${s}`);
-  for (const l of ["code", "content", "three", "font", "icons"]) keys.add(`about.license.${l}`);
+  for (const l of ["code", "content", "three", "font", "icons", "pack"]) keys.add(`about.license.${l}`);
   return keys;
 }
 
