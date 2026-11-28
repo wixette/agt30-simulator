@@ -152,7 +152,9 @@ async function start() {
       else agt.bootPack(words);
       proc?.render(true);
       panel?.render(true);
-      stage.go("screen");
+      // Boot AMRMX goes to the Screen, where AMRMX asks the date; a game keeps the viewpoint, as the
+      // simulator's own programs do (U19)
+      if (!game) stage.go("screen");
       say(game ? t(`status.game.${game}`) : t("status.pack.booted"));
     } catch (e) {
       pack = null;
