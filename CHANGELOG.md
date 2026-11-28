@@ -7,6 +7,7 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 - **NCSU's system pack is in the repository** (`packs/`, with its NOTICE), copied unchanged from M. Howard's repository with his agreement, and credited as agreed with him: LIFE, Space War and AMRMX load from the simulator's own site, quickly, instead of from GitHub's raw files. It is historical software outside the repository's licenses ([docs/licensing.md](docs/licensing.md)).
 
 - **PULSE 1 has its own row** at the top of the function keys in the console strip, as M. Howard recalls the box; the two foot pedals, which shared that row, are a group of their own, **Pedals**.
+- **The foot pedals work in 3D** as the dials and keys do: press a treadle on the floor, or hold F1 or F2 in the strip, and the treadle tilts down in amber. Their card no longer says they have no control on the page.
 
 ## 0.0.6
 

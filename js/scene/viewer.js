@@ -57,6 +57,8 @@ const GRAB_PX = 16;
 const KEY_GRAB_PX = 10;
 /** How far a function key goes down when pressed, meters (est). */
 const KEY_TRAVEL_M = 0.0035;
+/** How far a foot pedal's treadle turns down about its heel when pressed, radians: most of its rise. */
+const PEDAL_TRAVEL_RAD = 0.16;
 
 /** A dial's travel each side of its center, degrees: a potentiometer's 300 degrees in all. */
 export const DIAL_TRAVEL_DEG = 150;
@@ -123,7 +125,7 @@ export class TerminalView {
     this.onActivate = () => {};
     /** @type {(n: number, x: number, y: number, start: boolean) => void} a dial on the desk being turned, the pointer at x, y (U5, P2) */
     this.onDial = () => {};
-    /** @type {(id: number | "pulse1", down: boolean) => void} a key of the function switch box on the desk pressed or released (P2) */
+    /** @type {(id: import("../app/strip.js").KeyId, down: boolean) => void} a key of the function switch box on the desk, or a foot pedal on the floor, pressed or released (P2) */
     this.onKey = () => {};
     /** @type {(id: string, down: boolean) => void} a control of the operator's panel on the rack pressed or released (R21) */
     this.onPanel = () => {};
@@ -133,7 +135,7 @@ export class TerminalView {
     let down = null;
     /** @type {{ n: number } | null} a dial being turned on the desk */
     let dial = null;
-    /** @type {number | "pulse1" | null} a key held down on the desk */
+    /** @type {import("../app/strip.js").KeyId | null} a key held down on the desk, or a pedal on the floor */
     let heldKey = null;
     /** @type {string | null} a control of the panel held down */
     let heldControl = null;
@@ -230,10 +232,22 @@ export class TerminalView {
         // its own material, so that it can light up alone when pressed
         const m = /** @type {THREE.MeshStandardMaterial} */ (/** @type {THREE.Mesh} */ (k).material).clone();
         /** @type {THREE.Mesh} */ (k).material = m;
+        k.userData.own = true;
         k.userData.restColor = m.color.clone();
         this.fnKeys.set(name, k);
       }
     }
+    /** The foot pedals' treadles, left (pedal 1) and right (pedal 2), each with its plate, which
+     * lights up alone when pressed, and its angle when up. */
+    this.treadles = ["left", "right"].map((side) => {
+      const tread = this.built.root.getObjectByName(`console.pedals.${side}.treadle`);
+      const plate = /** @type {THREE.Mesh | undefined} */ (this.built.root.getObjectByName(`console.pedals.${side}.plate`));
+      if (!tread || !plate) return null;
+      const m = /** @type {THREE.MeshStandardMaterial} */ (plate.material).clone();
+      plate.material = m;
+      plate.userData.own = true;
+      return { tread, plate, restRot: tread.rotation.x, restColor: m.color.clone() };
+    });
     new ResizeObserver(() => this.resize()).observe(host);
     this.resize();
   }
@@ -502,12 +516,15 @@ export class TerminalView {
 
   /**
    * The key of the function switch box a press lands on: the key under the pointer, or the
-   * nearest within KEY_GRAB_PX of a press on the box's top (a key is a few pixels across).
+   * nearest within KEY_GRAB_PX of a press on the box's top (a key is a few pixels across); or a
+   * foot pedal, pressed on its treadle (its housing, hinge, guard and cord show its card).
    * @param {MouseEvent} e
-   * @returns {number | "pulse1" | null}
+   * @returns {import("../app/strip.js").KeyId | null}
    */
   keyAt(e) {
     const name = this.rawHit(e);
+    const pedal = name?.match(/^console\.pedals\.(left|right)\.(?:plate|rib\.\d+)$/);
+    if (pedal) return pedal[1] === "left" ? "pedal0" : "pedal1";
     if (!name?.startsWith("console.fns")) return null;
     /** @param {string} n @returns {number | "pulse1"} */
     const idOf = (n) => (n.endsWith(".pulse1") ? "pulse1" : Number(n.split(".").pop()));
@@ -692,6 +709,13 @@ export class TerminalView {
       // and amber, the color of "your turn" (U10), as the strip shows it
       /** @type {THREE.MeshStandardMaterial} */ (/** @type {THREE.Mesh} */ (k).material).color.copy(down ? this.amber : k.userData.restColor);
     }
+    // a pedal held down, on the floor or in the strip, is down there too, its treadle amber
+    this.treadles.forEach((p, n) => {
+      if (!p) return;
+      const down = agt.dev.pedals[n];
+      p.tread.rotation.x = p.restRot - (down ? PEDAL_TRAVEL_RAD : 0);
+      /** @type {THREE.MeshStandardMaterial} */ (p.plate.material).color.copy(down ? this.amber : p.restColor);
+    });
     this.updatePanel(agt);
     const last = agt.frames.at(-1);
     const recent = last !== undefined && agt.now - last.start < 200000;

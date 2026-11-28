@@ -391,7 +391,7 @@ export default {
   "part.console.pen": "Light pen (LPN1)",
   "part.console.pen.what": "Pointed at a line with its fingertip switch pressed, it sees the beam pass and tells DSPLY which image item drew it (SRM5 LPN1). Use it on the Screen viewpoint.",
   "part.console.pedals": "Foot pedals (FNS1)",
-  "part.console.pedals.what": "Two pedals, read like the function keys (SRM5 FNS1). Their look is not documented: drawn as the foot switches of the period.",
+  "part.console.pedals.what": "Two pedals, read like the function keys (SRM5 FNS1). F1 and F2 are in the console strip, and each can be pressed here on its treadle. Their look is not documented: drawn as the foot switches of the period.",
   "part.tty.asr35": "Teletype ASR-35",
   "part.tty.asr35.what": "The operator's console of the DPR-2, the heavy-duty Model 35: keyboard, printer, paper-tape reader and punch, 10 characters a second (SRM5 DPR3; MH26). The AMOS monitor listens to it. Its paper and keyboard are in the dock.",
   "part.rack.dpr2": "DPR-2 processor",

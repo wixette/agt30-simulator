@@ -35,7 +35,7 @@ export const TUBE_SCALE = 0.00001;
 /** The parts the Console viewpoint frames: the desktop and what stands on it, as the operator sees them. */
 const CONSOLE_PARTS = ["console.scope", "console.dials", "console.fns", "console.joystick", "console.pen"];
 /** The parts that have no control in the strip in v0.0.1 (U5). */
-const NOT_IN_STRIP = new Set(["console.joystick", "console.pedals"]);
+const NOT_IN_STRIP = new Set(["console.joystick"]);
 
 /**
  * @typedef {object} StageOps
