@@ -163,13 +163,13 @@ The stage's top band (viewpoint menu, view tools), the console strip and an open
 
 ### U5. The console strip: dials, function keys, light pen
 
-The strip floats at the bottom of the stage, centered, laid out as the console lays them out: the dials leftmost, then the function switch box, then the pen.
+The strip floats at the bottom of the stage, centered, laid out as the console lays them out: the dials leftmost, then the function switch box, the foot pedals, then the pen.
 
 - **Six dials** (VCD1). A knob with a pointer and no number, as on the console. It turns by dragging, by arrow keys when focused, or by the wheel. Dragging a dial on the desk in 3D does the same. It turns the way a hand turns it: the knob follows the pointer's angle round its center, clockwise up, and once grabbed the pointer may circle as wide as it likes (the wider, the finer). *(build, after the manual check: a vertical drag, chosen first, ignored a sideways drag and turned the knob backwards when the hand went round it)* Under each dial in the strip, a pair of small arrows steps it down or up by 1/32 of its travel, and keeps stepping while held, for a reader who would rather click. *(build, after the manual check)* A small button on the *Dials* label line turns all six back to the center at once, a convenience of ours: the operator turned each by hand. It is not the top bar's *Reboot*, which restarts the whole terminal. §6).
 - **Sixteen function keys** in a 4 × 4 grid, the last column set apart, and **PULSE 1** above them, as on FNS1. They are momentary: down while pressed. Space and Enter press them from the keyboard. A key pressed here goes down on the desk in 3D and turns amber there, and one pressed on the desk shows down here (P2). PULSE 1 is there because it is on the box; no program of v0.0.1 uses it, so pressing it says so in the status line (R10). *(build, after the manual check)*
 - **The light pen.** It shows its state: *pen: point at the screen* on Screen, grayed elsewhere with the reason (P6). On Screen the pointer over the picture is the pen, and holding the button closes its fingertip switch.
 
-The joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so.
+The joystick and the foot pedals are drawn in 3D but are not in v0.0.1's strip: no program of v0.0.1 uses them. Their cards say so. *Since v0.0.5* the strip has the two pedals, F1 and F2, which programs read like keys (R18); *since v0.0.7* they are a group of their own, **Pedals**, after the function keys, and PULSE 1 is alone on the keys' top row, over the second column as on the desk, with a gap below it (M. Howard: PULSE 1 sat on its own row at the top of the button matrix, MH26). Until then the pedals shared PULSE 1's row.
 
 ### U6. Cards: one component, one per part or program
 

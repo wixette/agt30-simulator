@@ -168,19 +168,21 @@ export function buildStrip(host, machine, say) {
     dials.append(el("div", { class: "dial-col" }, [b, el("div", { class: "dial-steps" }, [arrow(-1, "chevron_left"), el("span", { class: "n", text: String(n) }), arrow(1, "chevron_right")])]));
   }
 
-  // the function switch box as FNS1 lays it out: PULSE 1 above, the sixteen keys in a 4 x 4 grid
-  // below it, their last column set apart
+  // the function switch box as FNS1 lays it out: PULSE 1 alone on the top row, over the second
+  // column as on the desk in 3D, the sixteen keys in a 4 x 4 grid below it, their last column set
+  // apart (M. Howard, 2026-11-28); the foot pedals in a group of their own
   const keys = el("div", { class: "keys" });
+  const pedals = el("div", { class: "pedals" });
   /** @type {Map<KeyId, HTMLButtonElement>} */
   const keyButtons = new Map();
-  /** @param {KeyId} id @param {number} row @param {number} col */
-  const makeKey = (id, row, col) => {
+  /** @param {KeyId} id @param {HTMLElement} box @param {number} [row] @param {number} [col] */
+  const makeKey = (id, box, row, col) => {
     const pulse = id === "pulse1";
     const pedal = id === "pedal0" ? 1 : id === "pedal1" ? 2 : 0;
     const label = pulse ? t("strip.pulse") : pedal ? t("strip.pedal", { n: pedal }) : t("strip.key", { n: id });
     const b = el("button", { class: pulse ? "fkey pulse" : pedal ? "fkey pedal" : "fkey", type: "button", "aria-pressed": "false", "aria-label": label, text: pulse ? "P1" : pedal ? `F${pedal}` : String(id) });
-    b.style.gridRow = String(row);
-    b.style.gridColumn = String(col);
+    if (row) b.style.gridRow = String(row);
+    if (col) b.style.gridColumn = String(col);
     setTip(b, pulse ? t("strip.pulse.tip") : pedal ? t("strip.pedal.tip", { n: pedal }) : t("strip.key.tip", { n: id }));
     /** @param {boolean} down */
     const press = (down) => pressKey(machine(), id, down, say);
@@ -200,13 +202,14 @@ export function buildStrip(host, machine, say) {
     });
     b.addEventListener("blur", () => b.getAttribute("aria-pressed") === "true" && press(false));
     keyButtons.set(id, b);
-    keys.append(b);
+    box.append(b);
   };
-  makeKey("pulse1", 1, 2);
+  makeKey("pulse1", keys, 1, 2);
+  // row 2 is a gap that sets PULSE 1's row apart
+  for (let n = 0; n < KEYS; n++) makeKey(n, keys, Math.floor(n / 4) + 3, n % 4 < 3 ? (n % 4) + 1 : 5);
   // the two foot pedals, which the programs read as keys (FNS1; R18)
-  makeKey("pedal0", 1, 1);
-  makeKey("pedal1", 1, 5);
-  for (let n = 0; n < KEYS; n++) makeKey(n, Math.floor(n / 4) + 2, n % 4 < 3 ? (n % 4) + 1 : 5);
+  makeKey("pedal0", pedals);
+  makeKey("pedal1", pedals);
 
   // all six dials back to the center at once: a convenience of ours (the operator turned each)
   const center = el("button", { class: "strip-mini", type: "button" }, [icon("restart_alt")]);
@@ -225,6 +228,7 @@ export function buildStrip(host, machine, say) {
     el("div", { class: "strip-group" }, [el("div", { class: "strip-label-row" }, [el("span", { class: "strip-label", text: t("strip.dials") }), center]), dials]),
     el("div", { class: "strip-sep" }),
     el("div", { class: "strip-group" }, [el("span", { class: "strip-label", text: t("strip.keys") }), keys]),
+    el("div", { class: "strip-group" }, [el("span", { class: "strip-label", text: t("strip.pedals") }), pedals]),
     el("div", { class: "strip-sep" }),
     el("div", { class: "strip-group" }, [el("span", { class: "strip-label", text: t("strip.pen") }), pen]),
   );

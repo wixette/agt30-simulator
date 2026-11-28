@@ -6,6 +6,8 @@ What changed in each release. Versions follow `package.json` and are tagged `vX.
 
 - **NCSU's system pack is in the repository** (`packs/`, with its NOTICE), copied unchanged from M. Howard's repository with his agreement, and credited as agreed with him: LIFE, Space War and AMRMX load from the simulator's own site, quickly, instead of from GitHub's raw files. It is historical software outside the repository's licenses ([docs/licensing.md](docs/licensing.md)).
 
+- **PULSE 1 has its own row** at the top of the function keys in the console strip, as M. Howard recalls the box; the two foot pedals, which shared that row, are a group of their own, **Pedals**.
+
 ## 0.0.6
 
 The scope's phosphor is now the white one M. Howard remembers, and links to NCSU's games load reliably on a slow line.

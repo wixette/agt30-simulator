@@ -83,6 +83,7 @@ export default {
   "strip.key.tip": "Function key {n}: down while pressed",
   "strip.pulse": "PULSE 1",
   "strip.pulse.tip": "PULSE 1, the manual interrupt",
+  "strip.pedals": "Pedals",
   "strip.pedal": "Foot pedal {n}",
   "strip.pedal.tip": "Foot pedal {n}, held down while pressed. Programs read the two pedals like function keys; Space War's thrust is on them.",
   "status.powerOff": "The power is off.",

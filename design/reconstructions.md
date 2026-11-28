@@ -122,7 +122,7 @@ Sources are cited by key ([../research/bibliography.md](../research/bibliography
 **R18. The console's devices.**
 - *Sources:* six dials (SRM5 VCD1); sixteen function keys and PULSE 1 (SRM5 FNS1); two foot pedals that act as function keys (SRM5 FNS1); a joystick (BRO69).
 - *We:* read their boxes' shapes and places from NCSU's photographs. The pedals, never photographed, are drawn as the industrial foot switches of the period (confidence `design`).
-- *Since v0.0.5:* the keys and pedals reach S5 as Adage's switch routines read them (FSRR, FPBS, the tripp library, MH25): with IC bit 9 set, FNS 1–15 at bits 0–14; with it clear, pedal 2, pedal 1 and FNS 16 at bits 12, 13 and 14. The strip has the two pedals beside PULSE 1 ([../research/amrmx.md](../research/amrmx.md)). Until then the simulator put the sixteen keys on S5 by number, so the sixteenth key and the pedals could not be read.
+- *Since v0.0.5:* the keys and pedals reach S5 as Adage's switch routines read them (FSRR, FPBS, the tripp library, MH25): with IC bit 9 set, FNS 1–15 at bits 0–14; with it clear, pedal 2, pedal 1 and FNS 16 at bits 12, 13 and 14. The strip has the two pedals, since v0.0.7 in a group of their own, PULSE 1 alone on its row above the keys as M. Howard recalls it (MH26) ([../research/amrmx.md](../research/amrmx.md)). Until then the simulator put the sixteen keys on S5 by number, so the sixteenth key and the pedals could not be read.
 
 **R19. The cables** are a diagram of the documented signal paths: one tube per link, routed on the floor, colored blue for digital words and orange for analog voltages. They are not the real cabling, which is undocumented. They glow with their traffic, a view the real AGT never had.
 
