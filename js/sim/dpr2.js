@@ -96,7 +96,13 @@ const OP_NAMES = new Map(Object.entries(OPS).map(([k, v]) => [v, k]));
 export const opName = (ins) => {
   const code = get(ins, ENCODING.op) * 4;
   const name = OP_NAMES.get(code);
-  if (name !== undefined || get(ins, ENCODING.destination) >= 0o15) return name;
+  if (name !== undefined) return name;
+  // the arithmetic unit's multiply and divide with 'N, its operand complemented (bits 11-12, as in
+  // a transfer; the upper half's 14): QUBIC's and BROSE's rotations subtract a product so (R1)
+  if (get(ins, ENCODING.destination) >= 0o15) {
+    const plain = OP_NAMES.get(code & ~0o14);
+    return get(ins, ENCODING.logic) === 3 && plain && /^(MPY|DIV)/.test(plain) ? plain : undefined;
+  }
   // bits 2-5 are the upper half's 17000
   return OP_NAMES.get(code & 0o777);
 };
@@ -199,6 +205,7 @@ const wval = (n) => (n >= 0 ? n % 0o4000000000 : M30 - (-n % 0o4000000000));
  * @property {(channel: number) => number} analog an analog input, -1..1 (dials, joystick)
  * @property {(bit: number) => void} [strobe] OPTY's bit, BR[22], to the Teletype's line, when it is modeled
  * @property {(dst: number, v: number, logic: number) => boolean} [write] a transfer to a subsystem's destination (05-14): the word after rotation and 'N, and the logic, 1 'O or 2 'A, for the subsystem to apply; true if a subsystem took it
+ * @property {() => void} [icWritten] IC was written: the array's run of loads ends (avg1.js, R22)
  */
 
 /** @type {Devices} */
@@ -455,7 +462,7 @@ export class Dpr2 {
       case "ARLS":
       case "NORM":
       case "ERAR":
-        return this.eau(op, a.ea) + a.us;
+        return this.eau(op, a.ea, get(ins, ENCODING.logic) === 3) + a.us;
       case "OPTY":
         // OPTY strobes BR[22] out to the Teletype, a bit at a time (DPR2SPI p. 43), when the
         // Teletype's line is modeled (ttyline.js, for AMRMX). Without it, ours types the
@@ -566,6 +573,7 @@ export class Dpr2 {
         break;
       case DESTS.IC:
         this.IC = combine(this.IC);
+        this.devices.icWritten?.();
         break;
       case DESTS.BR:
         this.BR = combine(this.BR);
@@ -625,11 +633,15 @@ export class Dpr2 {
    * remainder, in absolute value, in AR[0-14]. MPYI and DIVI take the address field itself.
    * @param {string} op
    * @param {number} ea
+   * @param {boolean} [complement] with N: the operand complemented, for MPY and DIV (R1)
    * @returns {number} us
    */
-  eau(op, ea) {
-    const s15 = (/** @type {number} */ h) => (h & 0o40000 ? -(~h & M15) : h);
-    const ar15 = s15(lo(this.AR));
+  eau(op, ea, complement = false) {
+    const s15 = (/** @type {number} */ h) => {
+      const v = h & 0o40000 ? -(~h & M15) : h;
+      return complement ? -v : v;
+    };
+    const ar15 = (lo(this.AR) & 0o40000 ? -(~lo(this.AR) & M15) : lo(this.AR));
     const m = this.core.read(ea);
     switch (op) {
       case "MPYU":
@@ -823,5 +835,7 @@ export function disassemble(w) {
     const d = Object.keys(DST_NAMES).find((k) => DST_NAMES[k] === get(w, ENCODING.destination)) ?? get(w, ENCODING.destination).toString(8).padStart(2, "0");
     return `${c}${d}${["", "'O", "'A", "'N"][get(w, ENCODING.logic)]}${mods} ${a}`;
   }
-  return `${opName(w) ?? "?"}${mods} ${a}`;
+  const op = opName(w);
+  const n = op && /^(MPY|DIV)/.test(op) && get(w, ENCODING.logic) === 3 ? "'N" : "";
+  return `${op ?? "?"}${n}${mods} ${a}`;
 }

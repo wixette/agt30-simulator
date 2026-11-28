@@ -31,7 +31,7 @@ function bareAvg() {
   const core = new Core();
   /** @type {Avg1} */
   let avg;
-  const cpu = new Dpr2(core, { type: () => true, switches: () => 0, analog: () => 0, write: (d, v, l) => avg.write(d, v, l) });
+  const cpu = new Dpr2(core, { type: () => true, switches: () => 0, analog: () => 0, write: (d, v, l) => avg.write(d, v, l), icWritten: () => avg.endRun() });
   avg = new Avg1(cpu, new HybridArray());
   avg.clear();
   const run = (/** @type {number} */ n) => {
@@ -701,6 +701,14 @@ export const MODEL_CHECKS = [
       equal(oct(agt.core.read(USER_AT + 0o10) & 0o77777, 5), oct(USER_AT + 1, 5), "and left its return");
       equal(disassemble(0o0102014144), "JPSR 14144", "listed as the call it is");
       equal(disassemble(0o1544000000), "MPYI 00000", "destination 15: the arithmetic unit's MPYI");
+      // MPYL'N, 15434: the operand complemented, as QUBIC's rotations subtract a product
+      agt.core.write(USER_AT + 0o20, 0o20000);
+      agt.core.write(USER_AT, 0o1543400000 + USER_AT + 0o20);
+      cpu.AR = 0o20000;
+      cpu.LC = USER_AT;
+      cpu.step();
+      equal(disassemble(0o1543412154), "MPYL'N 12154", "listed with its 'N");
+      ok(cpu.AR >= 0o4000000000, `0.5 times the complement of 0.5 is negative (${oct(cpu.AR)})`);
     },
   },
   // ---- AVG1 and the array at register level (R22) ----
@@ -779,23 +787,56 @@ export const MODEL_CHECKS = [
 
   {
     id: "AVG-4",
-    title: "D07 with 0200 in the upper half starts a run: words with no register in their upper half load that register and the next ones, until a word names a register, as LIFE places each cell and QUBIC loads sixteen (R22)",
+    title: "D07 with 0200 in the upper half starts a run: the words that follow load that register and the next ones, whatever their upper halves hold, until the program writes IC or another of AVG1's registers, as LIFE places each cell, AMRMX loads 06 and 07 and QUBIC loads sixteen (R22)",
     run() {
       const { core, cpu, avg } = bareAvg();
-      core.write(0o1000, assembleOp("MDMX", 0, { L: true }));
-      core.write(0o1001, word(ARRAY_RUN | 0o15, 0));
-      core.write(0o1002, assembleOp("MDMX", 0, { L: true }));
-      core.write(0o1003, word(0o17200, 0o17600));
-      core.write(0o1004, assembleOp("MDMX", 0, { L: true }));
-      core.write(0o1005, word(0o17600, 0o17200));
-      core.write(0o1006, assembleOp("MDMX", 0, { L: true }));
-      core.write(0o1007, word(0o5, 0o1000));
+      const words = [word(ARRAY_RUN | 0o15, 0), word(0o17200, 0o17600), word(0o014, 0o17200), word(0o5, 0o1000)];
+      words.forEach((w, i) => {
+        core.write(0o1000 + 2 * i, assembleOp("MDMX", 0, { L: true }));
+        core.write(0o1001 + 2 * i, w);
+      });
+      // an IC write between the third word and the fourth ends the run (AMRMX's MDIC'A)
+      core.write(0o1006, assembleOp("MDIC", 0o1020));
+      core.write(0o1007, assembleOp("MDMX", 0o1021));
+      core.write(0o1021, words[3]);
       cpu.LC = 0o1000;
-      for (let i = 0; i < 4; i++) cpu.step();
+      for (let i = 0; i < 5; i++) cpu.step();
       equal(oct(avg.loaded[0o15], 5), "17600", "the first word's lower half to 15");
-      equal(oct(avg.loaded[0o16], 5), "17200", "the second's to 16");
-      equal(oct(avg.loaded[0o5], 5), "01000", "then words name their register again");
-      equal(avg.loaded[0], 0, "nothing went to register 0");
+      equal(oct(avg.loaded[0o16], 5), "17200", "the second's to 16, though its upper half reads 14 (QUBIC's products leave their low bits there)");
+      equal(avg.loaded[0o14], 0, "nothing went to 14");
+      equal(oct(avg.loaded[0o5], 5), "01000", "after IC was written, a word names its register again");
+    },
+  },
+  {
+    id: "AVG-7",
+    title: "With D10 bit 2, AVG1 draws in three dimensions: a command to D06 (0100 move, 0200 draw, z in its lower half), x and y to D05 as whole halves; AVG1 asks for each word in turn through the pivot as a pointer, and a command that neither moves nor draws ends the list (QUBIC's GRAFX; R22)",
+    run() {
+      const { core, cpu, avg, run } = bareAvg();
+      // a list of two pairs and an end, as QUBIC's BOARD builds it: move, draw, end
+      const list = [word(0o100, 0), word(0o20000, 0o20000), word(0o300, 0), word(0o60000, 0o20000), word(0, 1)];
+      list.forEach((w, i) => core.write(0o2001 + i, w));
+      core.write(EOVPV, assembleOp("MD06", 0o2000));
+      core.write(EOLPV, 0o3000);
+      core.write(0o3001, assembleOp("JUMP", 0o3000, { I: true }));
+      core.write(0o1000, assembleOp("MD10", 0, { L: true }));
+      core.write(0o1001, word(0o70740, 0));
+      // the first pair sent by the program, as GRAFX does from an interrupt routine, where AVG1's
+      // requests wait: here FPRI holds them
+      core.write(0o1002, assembleOp("FPRI", 0));
+      core.write(0o1003, assembleOp("MD06", 0o77756, { X: true, I: true }));
+      core.write(0o1004, assembleOp("MDXY", 0o77756, { X: true, I: true }));
+      core.write(0o1005, assembleOp("UPRI", 0));
+      core.write(0o1006, assembleOp("JUMP", 0o1006));
+      cpu.LC = 0o1000;
+      run(400);
+      const segs = avg.take();
+      equal(segs.length, 2, "two vectors");
+      equal(segs[0].vis, false, "the first a move");
+      equal(segs[1].vis, true, "the second drawn");
+      ok(segs[1].x0 > 0 && segs[1].x1 < 0, `from x +0.25 to -0.25 full scale (${segs[1].x0.toFixed(2)} to ${segs[1].x1.toFixed(2)} in)`);
+      equal(oct(lo(core.read(EOVPV)), 5), "02005", "the pointer stepped through the list, AVG1 asking for each word");
+      equal(cpu.pri.served.get(11) ?? 0, 4, "three requests for words and the end of list, on channel 11");
+      equal(oct(lo(core.read(0o3000)), 5), "01006", "the end-of-list routine was called from the idle loop");
     },
   },
   {

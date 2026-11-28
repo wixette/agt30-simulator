@@ -10,7 +10,8 @@
 // - life.png: LIFE with the Gosper glider gun, entered with LIFE's own keys, run until a stream
 //   of gliders is out, then stopped (stopped, LIFE refreshes every frame; running fast it draws
 //   only between generations, and a picture taken then is mostly dark);
-// - space-war.png: Space War's two ships around the star.
+// - space-war.png: Space War's two ships around the star;
+// - qubic.png: QUBIC's 4 x 4 x 4 board after a move each, typed on the Teletype.
 //
 // The page loads NCSU's system pack from the repository's copy (packs/NOTICE). Pictures are PNG
 // at twice the window's pixels.
@@ -173,6 +174,22 @@ if (want("space-war")) {
     await loadProgram(b, "Space War (NCSU, 1975)");
     await sleep(3000);
     save("space-war.png", await stageShot(b));
+  } finally {
+    await b.close().catch(() => {});
+  }
+}
+
+if (want("qubic")) {
+  const b = await open(1440, 1640);
+  try {
+    await b.evaluate(`document.getElementById("dock-fold").click()`);
+    await loadProgram(b, "QUBIC, 4 × 4 × 4 tic-tac-toe (NCSU, 1975)");
+    await sleep(2000);
+    for (const line of ["111", "YES"]) {
+      await b.evaluate(`agt.type(${JSON.stringify(line + "\r")})`);
+      await sleep(line === "YES" ? 9000 : 4000);
+    }
+    save("qubic.png", await stageShot(b));
   } finally {
     await b.close().catch(() => {});
   }

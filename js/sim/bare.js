@@ -30,12 +30,16 @@ export const LIFE_SECTOR = 34 * CYLINDER_SECTORS + 90;
  * The games on the pack the simulator can start, each a DUMP file of volume 10: its first sector
  * (volume 10's directory) and its entry, the symbol named after the file (research/amrmx.md).
  * AMRMX's own statement for a DUMP file is not yet found, so our loader restores them (R24).
+ * Dials set when a game starts are ours: QUBIC sizes its board by dial 3, nothing at the center,
+ * and seen square on its levels are lines, so it starts sized and a little turned.
+ * @type {Record<string, { file: string; sector: number; entry: number; dials?: Record<number, number> }>}
  */
-export const GAMES = /** @type {const} */ ({
+export const GAMES = {
   life: { file: "LIFE", sector: LIFE_SECTOR, entry: 0o120 },
   spcwr: { file: "SPCWR", sector: 0o1451, entry: 0o1266 },
-});
-/** @typedef {keyof typeof GAMES} GameId */
+  qubic: { file: "QUBIC", sector: 0o1040, entry: 0o222, dials: { 0: 0.12, 1: 0.08, 3: 0.6 } },
+};
+/** @typedef {"life" | "spcwr" | "qubic"} GameId */
 /** A dump's first record is its descriptor (two words at 70730, and the name and bounds at 70732), not core to load. */
 const DESCRIPTOR = [0o70730, 0o70732];
 
@@ -101,6 +105,7 @@ export class Bare {
     // a copy: AMRMX writes to its pack, and the pack fetched stays as it came
     this.disk = new Dms2(cpu, pack.slice());
     cpu.devices.write = (d, v, l) => this.avg.write(d, v, l);
+    cpu.devices.icWritten = () => this.avg.endRun();
     cpu.devices.strobe = (b) => this.line.strobe(b);
     /** Simulated time less the processor's: it grows while the processor is stopped. */
     this.off = agt.now - cpu.time;

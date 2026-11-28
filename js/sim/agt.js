@@ -176,6 +176,7 @@ export class Agt30 extends Terminal {
     if (!this.bare) this.bootPack(pack);
     const g = GAMES[id];
     /** @type {Bare} */ (this.bare).startDump(g.sector, g.entry);
+    for (const [n, v] of Object.entries(g.dials ?? {})) this.setDial(Number(n), v);
     this.panel.mode = "run";
     this.panel.sync();
   }

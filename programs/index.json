@@ -264,6 +264,23 @@
         "R24"
       ],
       "toggles": []
+    },
+    {
+      "id": "qubic",
+      "game": "qubic",
+      "source": "MH25",
+      "statements": [],
+      "controls": [
+        "dials"
+      ],
+      "actions": [],
+      "files": [],
+      "reconstructions": [
+        "R1",
+        "R22",
+        "R24"
+      ],
+      "toggles": []
     }
   ]
 }

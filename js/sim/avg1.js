@@ -17,15 +17,27 @@
 //   AVGON), bit 5 the display clock (CLON), bits 6-9 unblank scopes A-D (GDS1). Its lower half
 //   is the function switches' lights.
 // - D06 takes AVG1's command in its upper half and z for the array in its lower (DPR2BD).
+// - With D10 bit 2 set AVG1 draws in three dimensions, as QUBIC and BROSE's display package
+//   does (research/amrmx.md): a list is pairs, a command word to D06 (0100 move, 0200 draw, z in
+//   its lower half) and then x and y to D05 as whole 15-bit halves, AVG1's flags in bits 14 and
+//   29 being their lowest bits. AVG1 asks for each word in turn on channel 11: after a vector,
+//   MD06'X'I 77756, the next command; after a command that moves or draws, MDXY'X'I 77756, its
+//   x and y; the pivot's lower half is the list's pointer. A command that neither moves nor
+//   draws ends the list: AVG1 calls JPSR'I 77757. A word the program sends itself answers the
+//   request, as GRAFX sends a list's first pair.
 // - D07 with IC bit 10 clear loads an array register: its number in the low five bits of the
 //   upper half, the value in the lower half. With the bit set it goes to GDD1, the input
 //   selector, as before (the dials).
+// - 0200 in D07's upper half starts a run: the words that follow load the next registers in
+//   turn, whatever their upper halves hold (QUBIC's matrix words carry its products' low bits
+//   there), until the program writes IC or another of AVG1's registers, the run passes 22, or a
+//   word starts a run again (LIFE's cells follow one another so).
 // - The display clock interrupts on channel 8 through 77755 (DISP2's DCLPV).
 //
-// Ours (R22): which register number is which (only SC 05, DX 15, DY 16, DZ 17 and PS 20 are
-// placed, from what AMRMX does with them); that 100 in the upper half resets the array to the
-// identity first; the clock's 120 a second; that a word sent to D05 while a vector is drawn
-// waits for it to end.
+// Ours (R22): which register number is which, from what QUBIC's dials do to its run of 03-22 and
+// what AMRMX puts in them (21 and 22 are not placed); that 100 in the upper half resets the
+// array to the identity first; what ends a run; the clock's 120 a second; that a word sent to
+// D05 while a vector is drawn waits for it to end; the 3D mode's commands and requests.
 
 import { CLAMP_IN, INCH_PER_FS, vectorTime } from "./vecgen.js";
 import { assembleOp } from "./dpr2.js";
@@ -50,7 +62,17 @@ export const IC_GDD1 = 10;
 /** D10 upper-half bits (DISP2, GDS1). */
 export const MODE = { ON: [0, 1], CLOCK: 5, SCOPES: [6, 9] };
 /** Array register numbers as D07 gives them (R22); the rest are kept but not used. */
-export const ARRAY_REGS = /** @type {const} */ ({ 0o05: "SC", 0o06: "R11", 0o07: "R22", 0o10: "R33", 0o11: "R13", 0o13: "R23", 0o15: "DX", 0o16: "DY", 0o17: "DZ", 0o20: "PS" });
+export const ARRAY_REGS = /** @type {const} */ ({ 0o03: "R12", 0o04: "R21", 0o05: "SC", 0o06: "R11", 0o07: "R22", 0o10: "R33", 0o11: "R23", 0o12: "R32", 0o13: "R13", 0o14: "R31", 0o15: "DX", 0o16: "DY", 0o17: "DZ", 0o20: "PS" });
+/** The last register a run loads (QUBIC's run of sixteen from 03). */
+export const LAST_REG = 0o22;
+/** D10's upper half: bit 2, AVG1 in three dimensions (QUBIC). */
+export const MODE_3D = 2;
+/** The 3D mode's command bits, in D06's upper half: move or draw, and draw (the beam on). */
+export const CMD_VECTOR = 0o300;
+export const CMD_DRAW = 0o200;
+/** The words AVG1 asks for in the 3D mode: the next command, and the x and y after it. */
+export const NEXT_COMMAND = assembleOp("MD06", EOVPV, { X: true, I: true });
+export const NEXT_XY = assembleOp("MDXY", EOVPV, { X: true, I: true });
 /** D07's register that selects the converter's input, one bit a channel (R7, R22). */
 export const SELECTOR_REG = 0o01;
 /** The bit in D07's upper half that resets the array to the identity (R22). */
@@ -87,6 +109,8 @@ export class Avg1 {
     /** When the display clock next ticks, or null while it is off. */
     /** @type {number | null} */
     this.nextClock = null;
+    /** The word AVG1 has asked for in the 3D mode, by destination (5 or 6), or 0. */
+    this.want = 0;
     /** @type {import("./dsply.js").Seg[]} strokes drawn since the last take() */
     this.segs = [];
     this.vectors = 0;
@@ -95,6 +119,36 @@ export class Avg1 {
   /** Whether AVG1 is on: D10 bits 0 and 1. */
   get on() {
     return halfBit(this.mode, MODE.ON[0]) && halfBit(this.mode, MODE.ON[1]);
+  }
+
+  /** Whether AVG1 draws in three dimensions: D10 bit 2. */
+  get threeD() {
+    return halfBit(this.mode, MODE_3D);
+  }
+
+  /** The run of loads ends: the program wrote IC or another of AVG1's registers (R22). */
+  endRun() {
+    this.run = null;
+  }
+
+  /**
+   * A word the program sends itself answers AVG1's request for it.
+   * @param {number} dst
+   */
+  answered(dst) {
+    if (this.want === dst) {
+      this.cpu.pri.pending.delete(AVG_CHANNEL);
+      this.want = 0;
+    }
+  }
+
+  /**
+   * AVG1 asks for a word on channel 11 (the 3D mode).
+   * @param {5 | 6} dst
+   */
+  ask(dst) {
+    this.want = dst;
+    this.cpu.request(AVG_CHANNEL, dst === 5 ? NEXT_XY : NEXT_COMMAND);
   }
 
   /** Whether any scope is unblanked. */
@@ -111,13 +165,23 @@ export class Avg1 {
    * @returns {boolean} whether AVG1 or the array took it
    */
   write(dst, v, logic) {
+    if (dst !== 0o07) this.endRun();
     switch (dst) {
       case 0o05:
-        this.send(v);
+        if (this.threeD) {
+          this.answered(5);
+          this.send3(v);
+        } else this.send(v);
         return true;
       case 0o06:
         this.command = hi(v);
         this.z = lo(v);
+        if (this.threeD) {
+          this.answered(6);
+          if (this.command & CMD_VECTOR) this.ask(5);
+          // neither move nor draw: the list ends when the vector under way does
+          else this.drawing = { end: Math.max(this.cpu.time, this.drawing?.end ?? 0), eol: true };
+        }
         return true;
       case 0o07:
         if (Math.floor(this.cpu.IC / 2 ** (29 - IC_GDD1)) % 2 === 1) return false;
@@ -145,18 +209,20 @@ export class Avg1 {
    * @param {number} value
    */
   load(upper, value) {
-    // 0200 in the upper half starts a run: the words that follow with no register in their upper
-    // half (its low five bits zero) load this register and the ones after it, from their lower
-    // halves, until a word names a register again. QUBIC and BROSE load 03-22 so, sixteen words;
-    // LIFE places each cell so, 15 and 16; AMRMX loads 06 and 07 (R22).
-    if (this.run && (upper & 0o37) === 0) {
+    // 0200 in the upper half starts a run: the words that follow load this register and the ones
+    // after it, from their lower halves, whatever their upper halves hold, until the program
+    // writes IC or another of AVG1's registers, the run passes 22, or a word starts a run again
+    // (0200 and nothing above 0377 in its upper half: LIFE places cell after cell so, 15 and 16
+    // each). QUBIC and BROSE load 03-22 so, sixteen words; AMRMX loads 06 and 07 (R22).
+    const starts = (upper & ARRAY_RUN) !== 0 && (upper & ~0o377) === 0;
+    if (this.run && !starts) {
       const r = this.run.next++ & 0o37;
+      if (r >= LAST_REG) this.run = null;
       this.loaded[r] = value;
       const nm = ARRAY_REGS[/** @type {keyof typeof ARRAY_REGS} */ (r)];
       if (nm) this.array.load(nm, value);
       return;
     }
-    this.run = null;
     if (upper & ARRAY_RUN) {
       if (upper & ARRAY_RESET) this.resetArray();
       this.run = { next: upper & 0o37 };
@@ -190,14 +256,21 @@ export class Avg1 {
    */
   send(w) {
     if (!this.on) return;
+    this.vector(toFrac(from14(bits(w, 0, 13))), toFrac(from14(bits(w, 15, 28))), bits(w, 29, 29) === 1, bits(w, 14, 14) === 1);
+  }
+
+  /**
+   * The beam goes to a point through the array, with z from D06.
+   * @param {number} xh
+   * @param {number} yh
+   * @param {boolean} draw
+   * @param {boolean} eol whether the list ends with it
+   */
+  vector(xh, yh, draw, eol) {
     const cpu = this.cpu;
     // a word sent while a vector is drawn waits for it (R22)
     if (this.drawing && this.drawing.end > cpu.time) cpu.time = this.drawing.end;
-    const fx = from14(bits(w, 0, 13));
-    const fy = from14(bits(w, 15, 28));
-    const eol = bits(w, 14, 14) === 1;
-    const draw = bits(w, 29, 29) === 1;
-    const [ox, oy] = this.array.transform(toFrac(fx), toFrac(fy), this.z);
+    const [ox, oy] = this.array.transform(xh, yh, this.z);
     const x = Math.max(-CLAMP_IN, Math.min(CLAMP_IN, ox * INCH_PER_FS));
     const y = Math.max(-CLAMP_IN, Math.min(CLAMP_IN, oy * INCH_PER_FS));
     const len = Math.max(Math.abs(x - this.beam.x), Math.abs(y - this.beam.y));
@@ -211,6 +284,15 @@ export class Avg1 {
   }
 
   /**
+   * A vector in the 3D mode: x and y as whole halves, z and the command from D06.
+   * @param {number} w
+   */
+  send3(w) {
+    if (!this.on) return;
+    this.vector(hi(w), lo(w), (this.command & CMD_DRAW) !== 0, false);
+  }
+
+  /**
    * Raises what is due by the processor's time: a vector's end, the display clock.
    */
   poll() {
@@ -218,7 +300,8 @@ export class Avg1 {
     const d = this.drawing;
     if (d && cpu.time >= d.end) {
       this.drawing = null;
-      cpu.request(AVG_CHANNEL, d.eol ? EOL_PIW : EOV_PIW);
+      if (this.threeD && !d.eol) this.ask(6);
+      else cpu.request(AVG_CHANNEL, d.eol ? EOL_PIW : EOV_PIW);
     }
     if (this.nextClock !== null && cpu.time >= this.nextClock) {
       this.nextClock += CLOCK_US;
@@ -238,7 +321,7 @@ export class Avg1 {
 
   /** As at power on: off, the array reset. */
   clear() {
-    this.mode = this.lights = this.command = this.z = 0;
+    this.mode = this.lights = this.command = this.z = this.want = 0;
     this.loaded.fill(0);
     this.drawing = null;
     this.nextClock = null;
