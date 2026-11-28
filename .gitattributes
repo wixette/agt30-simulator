@@ -1,4 +1,5 @@
 # Text normalization. There are no large binaries (the largest is the 400 KB system pack), so no Git LFS (design/architecture.md, D7).
 * text=auto eol=lf
-# The system packs are binary images (packs/NOTICE).
+# The system pack and the tapes are binary images (packs/NOTICE).
 *.disk binary
+*.tape binary

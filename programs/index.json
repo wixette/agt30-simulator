@@ -248,6 +248,21 @@
         "R24"
       ],
       "toggles": []
+    },
+    {
+      "id": "brose",
+      "game": "brose",
+      "source": "MH25",
+      "statements": [],
+      "controls": [],
+      "actions": [],
+      "files": [],
+      "reconstructions": [
+        "R1",
+        "R22",
+        "R24"
+      ],
+      "toggles": []
     }
   ]
 }

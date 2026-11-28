@@ -22,7 +22,7 @@ The Adage Graphics Terminal, model 30 (1968), in your browser: a 30-bit processo
 1. **Choose a program** from **Programs** in the top bar, for example *A cube turned by the dials*. The simulator types its statements on the Teletype, as an operator would have, and the picture appears on the scope.
 2. **Play with it:** turn the dials in the console strip under the picture (drag one round, or click its small arrows). Each program's card, in the **Program** tab below, says what to try.
 3. **Look closer:** the menu at the top left of the picture changes the viewpoint (Room, Console, Screen, Tube). Click any part of the installation for its card.
-4. **Play NCSU's own games:** **LIFE**, **Space War** and **QUBIC** (4 × 4 × 4 tic-tac-toe), at the foot of the Programs menu, run unchanged from the lab's 1976 system pack, which M. Howard recovered, under its monitor AMRMX. Their cards give the keys.
+4. **Play NCSU's own programs:** **LIFE**, **Space War**, **QUBIC** (4 × 4 × 4 tic-tac-toe) and **BROSE** (rose curves), at the foot of the Programs menu, run unchanged from the lab's 1976 system pack and games tape, which M. Howard recovered, under its monitor AMRMX. Their cards give the keys.
 5. **Start again:** **Unload** on the program's card, or at the foot of the Programs menu, takes the program out and reboots the terminal; **Reboot** in the top bar does the same at any time.
 
 ## The machine in a few minutes
@@ -70,7 +70,7 @@ The AGT-30 was a graphics terminal made by Adage, Inc. of Boston in 1968: a room
 - a town built from one house;
 - 1,000 random lines, the paper's measure of the array, which you can push until the picture no longer fits a frame.
 
-**Three of NCSU's**, from the lab's system pack: LIFE, Conway's game on a 128 × 128 board; Space War, two ships around a star; and QUBIC, tic-tac-toe on a 4 × 4 × 4 board drawn in three dimensions, its moves typed on the Teletype.
+**Four of NCSU's**, from the lab's system pack and games tape: LIFE, Conway's game on a 128 × 128 board; Space War, two ships around a star; QUBIC, tic-tac-toe on a 4 × 4 × 4 board drawn in three dimensions, its moves typed on the Teletype; and BROSE, rose curves, typed as a statement of the monitor, `BROSE(7,500,3)!`.
 
 **A link** opens a viewpoint and a program: for example [`#view=screen&program=qubic`](https://wixette.github.io/agt30-simulator/#view=screen&program=qubic) or [`#program=space-war`](https://wixette.github.io/agt30-simulator/#program=space-war).
 
@@ -113,7 +113,7 @@ Much of the AGT is documented, but not all of it. Where the documents stop, the 
 - **R21.** The operator's panel works on the simulated machine; under the simulator's own monitor, which is JavaScript, PULSE 1's pivot leads to a trap; under AMRMX the panel acts on its code.
 - **R22.** AVG1 and the array at register level, for programs that drive the display themselves (AMRMX, LIFE, Space War, QUBIC), with the three-dimensional mode QUBIC uses; which register number is which is ours, from what those programs do with them.
 - **R23.** The Teletype's line at bit level, for AMRMX: one interrupt a bit, OPTY sending BR[22], S4[14] receiving; the rate (110 baud) and the clock's timing are ours.
-- **R24.** The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor, and our loader the games, without NCSU's code for either; the disk's times are ours.
+- **R24.** The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor, and our loader restores the games, from the pack or the games tape, without NCSU's code for either; BROSE is then called by AMRMX itself; the disk's times are ours.
 
 ## More
 

@@ -6,8 +6,9 @@
 
 import params from "../../params/terminal.json" with { type: "json" };
 import pkg from "../../package.json" with { type: "json" };
-import { readPack } from "../sim/bare.js";
-import { PACK_URL } from "./aboutData.js";
+import { GAMES, readPack } from "../sim/bare.js";
+import { PACK_URL, TAPE_URL } from "./aboutData.js";
+import { dumpOf, readTape } from "../sim/amostape.js";
 import { Agt30, FAST_US_PER_CHAR } from "../sim/agt.js";
 import { tickUs } from "../sim/frameclock.js";
 import { readPrograms } from "../sim/programs.js";
@@ -102,21 +103,26 @@ async function start() {
   // ---- the real monitor (U19): NCSU's system pack, loaded once, when asked for ----
   /** @type {Promise<Uint32Array> | null} */
   let pack = null;
+  /** @type {Promise<import("../sim/amostape.js").TapeFile[]> | null} the games tape's files */
+  let tape = null;
   /**
-   * Loads the pack from the site: each try given PACK_TIMEOUT_MS, PACK_TRIES tries, since a
-   * stalled connection would otherwise leave the page loading for ever. A short read fails readPack's
-   * size check and is tried again too.
-   * @returns {Promise<Uint32Array>}
+   * Loads a file of packs/ from the site: each try given PACK_TIMEOUT_MS, PACK_TRIES tries, since
+   * a stalled connection would otherwise leave the page loading for ever. A short read fails the
+   * reader's checks and is tried again too.
+   * @template T
+   * @param {string} url
+   * @param {(buf: ArrayBuffer) => T} read
+   * @returns {Promise<T>}
    */
-  const fetchPack = async () => {
+  const fetchPacked = async (url, read) => {
     for (let n = 1; ; n++) {
       say(n === 1 ? t("status.pack.fetching") : t("status.pack.retrying", { n, of: PACK_TRIES }));
       const abort = new AbortController();
       const timer = setTimeout(() => abort.abort(), PACK_TIMEOUT_MS);
       try {
-        const r = await fetch(PACK_URL, { signal: abort.signal });
+        const r = await fetch(url, { signal: abort.signal });
         if (!r.ok) throw new Error(`${r.status}`);
-        return readPack(await r.arrayBuffer());
+        return read(await r.arrayBuffer());
       } catch (e) {
         if (n >= PACK_TRIES) throw abort.signal.aborted ? new Error(t("status.pack.timeout")) : e;
       } finally {
@@ -127,13 +133,22 @@ async function start() {
   /** @param {import("../sim/bare.js").GameId} [game] a game to start once booted */
   const bootPack = async (game) => {
     try {
-      if (!pack) pack = fetchPack();
+      if (!pack) pack = fetchPacked(PACK_URL, readPack);
       const words = await pack;
+      const g = game ? GAMES[game] : undefined;
+      if (g?.tape && !tape) tape = fetchPacked(TAPE_URL, (b) => readTape(new Uint8Array(b)));
+      const files = g?.tape ? await /** @type {Promise<import("../sim/amostape.js").TapeFile[]>} */ (tape) : [];
+      const f = files.find((x) => x.name === g?.file && x.type === "DUMP");
+      if (g?.tape && !f) throw new Error(`${g.file}?`);
       if (!game) {
         program = null;
         drawCard();
       }
-      if (game) agt.startGame(game, words);
+      // AMRMX takes a year of its own time (DATE ERROR for 26): today, in 1976, the pack's year,
+      // a leap year like any (ours)
+      const d = new Date();
+      const date = `${d.getMonth() + 1}/${d.getDate()}/76`;
+      if (game) agt.startGame(game, words, { tape: f ? dumpOf(f) : undefined, date });
       else agt.bootPack(words);
       proc?.render(true);
       panel?.render(true);
@@ -141,6 +156,7 @@ async function start() {
       say(game ? t(`status.game.${game}`) : t("status.pack.booted"));
     } catch (e) {
       pack = null;
+      tape = null;
       say(t("status.pack.failed", { error: /** @type {Error} */ (e).message }));
     }
   };

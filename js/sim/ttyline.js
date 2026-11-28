@@ -43,11 +43,15 @@ export class TtyLine {
   /**
    * @param {import("./dpr2.js").Dpr2} cpu
    * @param {(code: number) => void} printed a character the Teletype received from the computer: 8 bits
+   * @param {(code: number) => void} [keyed] a key's character as it starts down the line, 7 bits: the
+   *   Teletype at half duplex prints it then (R23)
    */
-  constructor(cpu, printed) {
+  constructor(cpu, printed, keyed = () => {}) {
     this.cpu = cpu;
     this.printed = printed;
-    /** @type {number[]} characters waiting to be sent from the keyboard, 8 bits each */
+    this.keyed = keyed;
+    /** @type {(number | (() => void))[]} characters waiting to be sent from the keyboard, 8 bits
+     * each, and things to do when the line reaches them (the simulator's, between keys) */
     this.keys = [];
     /** The character being received or sent, its bits so far, and when the next tick falls. */
     /** @type {{ dir: "in" | "out"; code: number; k: number; sent: number; next: number } | null} */
@@ -87,9 +91,12 @@ export class TtyLine {
     const clock = icBit(ic, IC_CLOCK);
     const receive = icBit(ic, IC_RECEIVE);
     if (!this.char) {
+      // something to do between keys, when the line reaches it
+      while (typeof this.keys[0] === "function") /** @type {() => void} */ (this.keys.shift())();
       if (receive && clock && this.keys.length && t >= this.keyFree) {
         // the start bit; the first tick falls in the middle of the first data bit
         this.char = { dir: "in", code: /** @type {number} */ (this.keys.shift()), k: 0, sent: 0, next: t + 1.5 * BIT_US };
+        this.keyed(this.char.code & 0o177);
         this.keyFree = t + CHAR_BITS * BIT_US;
         cpu.setSense(SENSE_LINE, false);
       } else if (clock && !receive) {

@@ -5,6 +5,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { dumpOf } from "../js/sim/amostape.js";
 import { CHARS, fileName, readTape, text } from "./amos-tape.mjs";
 
 /** Packs five 6-bit codes into a word. @param {number[]} c */
@@ -20,10 +21,11 @@ const NAME = (/** @type {string} */ s) => pack([...s.padEnd(5, " ")].map((ch) =>
  * @param {string} name
  * @param {number} type
  * @param {number[]} data
+ * @param {number} [origin]
  */
-function record(file, name, type, data) {
+function record(file, name, type, data, origin = 0) {
   const date = ((1971 - 1964) * 2 ** 24) + 5 * 2 ** 20 + 19 * 2 ** 15 + data.length;
-  const words = [file, NAME(name), date, type * 2 ** 26 + 1 * 2 ** 21 + 0o33 * 2 ** 15, ...data, 0];
+  const words = [file, NAME(name), date, type * 2 ** 26 + 1 * 2 ** 21 + 0o33 * 2 ** 15 + origin, ...data, 0];
   return [0x80000000 + words.length * 5, ...words];
 }
 
@@ -50,6 +52,13 @@ test("a file's records are joined, and its header read", () => {
   assert.equal(src.words.length, 3);
   assert.equal(bin.type, "RELOC");
   assert.deepEqual(bin.words, [0o0004000000]);
+});
+
+test("a DUMP file's records each carry where their words go in core, as BROSE's on the games tape", () => {
+  const tape = image([...record(0o13, "BROSE", 9, [1, 2], 0o70730), ...record(0o13, "BROSE", 9, [3, 4, 5], 0o120), 0xffffffff]);
+  const [f] = readTape(tape);
+  assert.equal(f.type, "DUMP");
+  assert.deepEqual(dumpOf(f).map((r) => [r.addr, [...r.words]]), [[0o70730, [1, 2]], [0o120, [3, 4, 5]]]);
 });
 
 test("source text: a line ends with character 15 and the rest of its word is filler", () => {

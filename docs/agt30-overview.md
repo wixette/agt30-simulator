@@ -186,7 +186,7 @@ The pivots the NCSU software uses ([../research/ncsu-tapes.md](../research/ncsu-
 
 IC enables and disables devices bit by bit, and FPRI and UPRI freeze and release the whole system, for code that must not be interrupted.
 
-**PULSE 1** is the operator's Ctrl-C: it aborts whatever is running and returns to the monitor. The button is on the operator's panel and beside the function keys. Its channel does not take its instruction from a device but from 30 switches on the panel (section 7), and they are normally set to `24000 77776`. That decodes as `MDIR 77776`: execute the word at the PULSE 1 pivot, which leads back to the monitor. M. Howard remembers the switches staying at that setting "99.9 % of the time"; they were changed only to debug a broken machine, for example to move BR to AR by hand (MH26).
+**PULSE 1** is the operator's Ctrl-C: it aborts whatever is running and returns to the monitor. The button is on the operator's panel and beside the function keys. Its channel does not take its instruction from a device but from 30 switches on the panel (section 7), and they are normally set to `24000 77776`. That decodes as `MDIR 77776`: execute the word at the PULSE 1 pivot, which leads back to the monitor. M. Howard remembers the switches staying at that setting "99.9 % of the time"; they were changed only to debug a broken machine, for example to move BR to AR by hand (MH26). A program can also put its own instruction in the pivot: FORTRAN's PAUSE does, and waits until PULSE 1 sets its flag, so the operator continues a paused program with the same button.
 
 **PINT** is the lowest-priority channel, raised by the program itself. A routine at a high priority, such as the frame clock's, can do its urgent work and leave the rest to a PINT, which runs only when nothing more urgent waits, and then returns to the main-line program (DPR2SPI p. 40; MH26). DSPLY does exactly this: the CLOCK routines run at the PINT level, in the gaps while the vector generator draws (DSPLY p. 10; section 5).
 
@@ -612,7 +612,7 @@ RATE gives 120 / (RATE + 1) frames a second: 1 → 60, 2 → 40, 3 → 30, 4 →
 
 ### The monitor's statements
 
-The simulator's monitor understands these (AMRMX; AMRMX71). A statement is an operation, its arguments in parentheses, and `!`. The real monitor called any other name as a subroutine with the arguments after the call, which is how DSPLY and the user's own routines were run from the Teletype.
+The simulator's monitor understands these (AMRMX; AMRMX71). A statement is an operation, its arguments in parentheses, and `!`. The real monitor called any other name as a subroutine with the arguments after the call, which is how DSPLY and the user's own routines were run from the Teletype. NCSU's BROSE still runs so: `BROSE(7,500,3)!` draws a rose curve, and the monitor finds the name in the symbol table that the program's core image carries.
 
 | Statement | Does |
 |---|---|

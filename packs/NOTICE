@@ -1,5 +1,5 @@
-NCSU's system pack, distributed with this simulator
-===================================================
+NCSU's system pack and games tape, distributed with this simulator
+==================================================================
 
 The files in this directory are NOT covered by the Apache License 2.0
 or the CC BY-SA 4.0 license that apply to the simulator's own code and
@@ -38,6 +38,26 @@ tape image 556_howard_sys_pack by his tools:
 
   https://github.com/cramcram/AGT-30
   (commit 235e2b43f1f4c7b52c9a15b94aba107d89e8522b, magtapes/howard.disk)
+
+
+games.tape
+----------
+
+A tape of the lab's games, written in January 1975: QUBIC, LIFE, BROSE
+and Space War (SPCWR) as core images, with the display part of 3-D
+tic-tac-toe, BCOR, CDAF and 9SE, the set written twice. The pack's
+copy of BROSE is cut short where the dump ends; the simulator loads
+BROSE from this tape (research/ncsu-tapes.md).
+
+  Size     436264 bytes: AMOS tape records, each 30-bit word in four
+           bytes, low byte first (js/sim/amostape.js)
+  SHA-256  66d9493879a26a3df3c25a81edf81e09d4cffb69f1bbf49394285d8fbd196d88
+
+Copied unchanged from M. Howard's repository, where it is made from the
+tape image games_1975jan by his tools:
+
+  https://github.com/cramcram/AGT-30
+  (commit 235e2b43f1f4c7b52c9a15b94aba107d89e8522b, magtapes/games.tape)
 
 
 Permission and status

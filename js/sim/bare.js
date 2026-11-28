@@ -32,14 +32,19 @@ export const LIFE_SECTOR = 34 * CYLINDER_SECTORS + 90;
  * AMRMX's own statement for a DUMP file is not yet found, so our loader restores them (R24).
  * Dials set when a game starts are ours: QUBIC sizes its board by dial 3, nothing at the center,
  * and seen square on its levels are lines, so it starts sized and a little turned.
- * @type {Record<string, { file: string; sector: number; entry: number; dials?: Record<number, number> }>}
+ * BROSE is a FORTRAN subroutine of three arguments, run as a statement: its dump, whole on the
+ * games tape, is restored, and AMRMX calls it by its name in the dump's symbol table, as the lab
+ * typed it; the statement typed is ours, an example (research/amrmx.md).
+ * @typedef {{ file: string; sector?: number; entry?: number; tape?: boolean; call?: string; dials?: Record<number, number> }} Game
+ * @type {Record<string, Game>}
  */
 export const GAMES = {
   life: { file: "LIFE", sector: LIFE_SECTOR, entry: 0o120 },
   spcwr: { file: "SPCWR", sector: 0o1451, entry: 0o1266 },
   qubic: { file: "QUBIC", sector: 0o1040, entry: 0o222, dials: { 0: 0.12, 1: 0.08, 3: 0.6 } },
+  brose: { file: "BROSE", tape: true, call: "BROSE(7,500,3)!" },
 };
-/** @typedef {"life" | "spcwr" | "qubic"} GameId */
+/** @typedef {"life" | "spcwr" | "qubic" | "brose"} GameId */
 /** A dump's first record is its descriptor (two words at 70730, and the name and bounds at 70732), not core to load. */
 const DESCRIPTOR = [0o70730, 0o70732];
 
@@ -101,7 +106,7 @@ export class Bare {
     const cpu = agt.cpu;
     this.avg = new Avg1(cpu, agt.array);
     this.avg.clear();
-    this.line = new TtyLine(cpu, (code) => this.printed(code));
+    this.line = new TtyLine(cpu, (code) => this.printed(code), (c) => this.keyed(c));
     // a copy: AMRMX writes to its pack, and the pack fetched stays as it came
     this.disk = new Dms2(cpu, pack.slice());
     cpu.devices.write = (d, v, l) => this.avg.write(d, v, l);
@@ -143,8 +148,7 @@ export class Bare {
   startDump(sector, entry) {
     const cpu = this.agt.cpu;
     const core = this.agt.core;
-    const recs = dumpRecords(this.disk.pack, sector).filter((r) => !DESCRIPTOR.includes(r.addr));
-    for (const r of recs) r.words.forEach((w, k) => core.write((r.addr + k) & 0o77777, w));
+    const n = this.restore(dumpRecords(this.disk.pack, sector));
     core.write(entry, (Math.floor(core.read(entry) / 0o100000) & 0o77777) * 0o100000 + MONITOR_RETURN);
     // entered with no arguments: a FORTRAN main program, QUBIC's, reports ARGUMENT ERROR if AR's
     // lower half is not +0 (its run-time library, 4EROR)
@@ -153,6 +157,20 @@ export class Bare {
     cpu.pri.pending.clear();
     cpu.pri.service = [];
     cpu.pri.frozen = false;
+    return n;
+  }
+
+  /**
+   * Puts a core image in core, every record but the descriptor (ours, R24), and leaves AMRMX
+   * running: it then knows the program's names from the loader's symbol table, which the image
+   * carries (71422-72441), and calls one when its name is typed as a statement.
+   * @param {{ addr: number; words: ArrayLike<number> }[]} records
+   * @returns {number} the records loaded
+   */
+  restore(records) {
+    const core = this.agt.core;
+    const recs = records.filter((r) => !DESCRIPTOR.includes(r.addr));
+    for (const r of recs) Array.from(r.words).forEach((w, k) => core.write((r.addr + k) & 0o77777, w));
     return recs.length;
   }
 
@@ -175,10 +193,27 @@ export class Bare {
     for (const ch of text.toUpperCase()) {
       if (ch === "\n") continue;
       this.line.key(ch === "\r" ? 0o15 : ch.charCodeAt(0));
-      // the Teletype at half duplex prints its own keys: AMRMX does not echo them (R23)
-      if (ch === "\r") this.agt.paper.writeText("\r\n");
-      else if (ch >= " " && ch < "\x7f") this.agt.paper.writeText(ch);
     }
+  }
+
+  /**
+   * Something to do when the keys typed so far have gone down the line: BROSE is restored after
+   * AMRMX has taken the date, as the operator's statement starts, since AMRMX's start would
+   * overwrite the monitor's state the dump restores.
+   * @param {() => void} fn
+   */
+  then(fn) {
+    this.line.keys.push(fn);
+  }
+
+  /**
+   * A key's character as it goes down the line: the Teletype at half duplex prints its own keys,
+   * as each is sent, and AMRMX does not echo them (R23). Keys typed ahead wait, and print, in turn.
+   * @param {number} c 7 bits
+   */
+  keyed(c) {
+    if (c === 0o15) this.agt.paper.writeText("\r\n");
+    else if (c >= 0o40 && c < 0o177) this.agt.paper.writeText(String.fromCharCode(c));
   }
 
   /** Polls the devices and obeys one instruction. @returns {number} us */

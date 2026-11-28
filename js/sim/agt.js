@@ -168,14 +168,26 @@ export class Agt30 extends Terminal {
 
   /**
    * Starts a game from the pack under AMRMX (U19, R24): booted first if it is not, then the
-   * game's core image restored by our loader and entered.
+   * game's core image restored by our loader and entered; or, for a game run as a statement
+   * (BROSE), restored from the games tape and called by AMRMX, the date and the statement typed
+   * on the Teletype as the operator would.
    * @param {import("./bare.js").GameId} id
    * @param {Uint32Array} pack
+   * @param {{ tape?: { addr: number; words: ArrayLike<number> }[]; date?: string }} [from] the game's records from the tape; the date to answer AMRMX with, MO/DA/YR
    */
-  startGame(id, pack) {
-    if (!this.bare) this.bootPack(pack);
+  startGame(id, pack, from = {}) {
     const g = GAMES[id];
-    /** @type {Bare} */ (this.bare).startDump(g.sector, g.entry);
+    const fresh = !this.bare;
+    if (fresh) this.bootPack(pack);
+    const bare = /** @type {Bare} */ (this.bare);
+    if (g.call) {
+      const tape = from.tape;
+      if (!tape) throw new Error(`${g.file}: no tape`);
+      if (fresh) this.type(`${from.date ?? "1/1/76"}\r`);
+      // restored once AMRMX has its date and is ready for the statement (Bare.then)
+      bare.then(() => bare.restore(tape));
+      this.type(`${g.call}\r`);
+    } else bare.startDump(/** @type {number} */ (g.sector), /** @type {number} */ (g.entry));
     for (const [n, v] of Object.entries(g.dials ?? {})) this.setDial(Number(n), v);
     this.panel.mode = "run";
     this.panel.sync();

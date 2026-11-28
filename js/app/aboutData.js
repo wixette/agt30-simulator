@@ -18,6 +18,8 @@ export const SOURCE_URL = "https://github.com/wixette/agt30-simulator";
  */
 export const PACK_COMMIT = "235e2b43f1f4c7b52c9a15b94aba107d89e8522b";
 export const PACK_URL = "./packs/howard.disk";
+/** The games tape, from the same commit (packs/NOTICE): BROSE, whole, is on it. */
+export const TAPE_URL = "./packs/games.tape";
 
 /**
  * The References tab (U16), by group: each a message, refs.<group>.<id>, and where it is; the keys

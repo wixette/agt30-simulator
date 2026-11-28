@@ -94,6 +94,7 @@ export default {
   "status.pack.failed": "The system pack could not be loaded ({error}). The simulator's own monitor still runs; load the program again to try once more.",
   "status.pack.booted": "AMRMX, NCSU's monitor, booted from the system pack. It asks the date on the screen: click the paper in the Teletype tab, type it as month/day/year, for example 11/23/76, and press Return. It answers on the screen.",
   "status.game.life": "LIFE runs, from NCSU's pack. Function keys: 7 sets a cell, 11 clears it, 5, 6, 9, 10 move the cursor, 1 runs, 0 stops, 15 returns to AMRMX. Dial 0 sets the speed.",
+  "status.game.brose": "BROSE runs, from NCSU's games tape: AMRMX was asked BROSE(7,500,3)! on the Teletype. When the rose is drawn it pauses; press PULSE 1 to end it, and type another, such as BROSE(5,100,2)!, in the Teletype tab.",
   "status.game.qubic": "QUBIC runs, from NCSU's pack. Type your move on the Teletype as three digits, 1 to 4 (for example 111), press Return, and answer YES. Dials 0, 1 and 2 turn the board; dial 3 sizes it.",
   "status.game.spcwr": "Space War runs, from NCSU's pack. Player 1: keys 0 and 4 turn, 12 fires, 8 hyperspace, pedal F1 thrusts. Player 2: 15 and 11 turn, 3 fires, 7 hyperspace, pedal F2 thrusts. 1 restarts; 5 border, 9 stars, 10 gravity, 6 deadly star.",
   "status.cpu.halt": "The processor is halted.",
@@ -136,6 +137,10 @@ export default {
   "program.life.short": "Conway's game of Life, NCSU's own, from the lab's system pack.",
   "program.life.what": "Conway's game of Life as NCSU's lab played it on this AGT: a 128 x 128 board of cells, each cell an instruction, so that a generation is computed by running the board. Loading it boots the lab's monitor AMRMX from its system pack and starts LIFE.",
   "program.life.use": "With the function keys: 5, 6, 9 and 10 move the cursor (left, right, up, down), 7 sets the cell under it, 11 clears it; 1 runs the generations, 0 stops them; 15 returns to AMRMX. Dial 0 sets the speed. Three cells in a row make a blinker. The board is small on the screen: the Screen viewpoint shows it largest.",
+  "program.brose.title": "BROSE, roses (NCSU, 1975)",
+  "program.brose.short": "Rose curves, a FORTRAN subroutine of NCSU's own, from the lab's games tape.",
+  "program.brose.what": "NCSU's BROSE draws a rose curve, its petals set by numbers you give it. It is a FORTRAN subroutine run as a statement of the monitor: loading it boots AMRMX from the lab's system pack, restores BROSE from the lab's games tape, and types BROSE(7,500,3)! on the Teletype, as the operator did.",
+  "program.brose.use": "When the rose is drawn, BROSE pauses (PAUSE on the Teletype): press PULSE 1, at the top of the function keys, to end it. Then type another statement in the Teletype tab, BROSE(petals, points, turns)!, for example BROSE(5,100,2)! or BROSE(4,1000,9)!, and press Return. The second number is how many points the curve is drawn with, 3 to 10000; the first and third shape it.",
   "program.qubic.title": "QUBIC, 4 × 4 × 4 tic-tac-toe (NCSU, 1975)",
   "program.qubic.short": "Three-dimensional tic-tac-toe against the computer, NCSU's own, from the lab's system pack.",
   "program.qubic.what": "NCSU's QUBIC: tic-tac-toe on a 4 × 4 × 4 board, four in a line in any direction, against the computer. A FORTRAN program with a display package of the lab's own, which draws the board in three dimensions through the array. Loading it boots the lab's monitor AMRMX from its system pack and starts QUBIC.",
@@ -374,7 +379,7 @@ export default {
   "recon.R21": "The operator's panel works on the simulated machine; under the simulator's own monitor, which is JavaScript, PULSE 1's pivot leads to a trap; under AMRMX the panel acts on its code.",
   "recon.R22": "AVG1 and the array at register level, for programs that drive the display themselves (AMRMX, LIFE, Space War, QUBIC), with the three-dimensional mode QUBIC uses; which register number is which is ours, from what those programs do with them.",
   "recon.R23": "The Teletype's line at bit level, for AMRMX: one interrupt a bit, OPTY sending BR[22], S4[14] receiving; the rate (110 baud) and the clock's timing are ours.",
-  "recon.R24": "The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor, and our loader the games, without NCSU's code for either; the disk's times are ours.",
+  "recon.R24": "The disk and the bootstrap: DMS2 as AMRMX drives it, from AMLD0's source; our bootstrap loads the monitor, and our loader restores the games, from the pack or the games tape, without NCSU's code for either; BROSE is then called by AMRMX itself; the disk's times are ours.",
 
   // ---- the parts' cards (params/terminal.json) ----
   "part.console.desk": "Operator's console",

@@ -11,7 +11,8 @@
 //   of gliders is out, then stopped (stopped, LIFE refreshes every frame; running fast it draws
 //   only between generations, and a picture taken then is mostly dark);
 // - space-war.png: Space War's two ships around the star;
-// - qubic.png: QUBIC's 4 x 4 x 4 board after a move each, typed on the Teletype.
+// - qubic.png: QUBIC's 4 x 4 x 4 board after a move each, typed on the Teletype;
+// - brose.png: BROSE's rose, BROSE(7,500,3)! as the Programs menu types it, at its PAUSE.
 //
 // The page loads NCSU's system pack from the repository's copy (packs/NOTICE). Pictures are PNG
 // at twice the window's pixels.
@@ -190,6 +191,20 @@ if (want("qubic")) {
       await sleep(line === "YES" ? 9000 : 4000);
     }
     save("qubic.png", await stageShot(b));
+  } finally {
+    await b.close().catch(() => {});
+  }
+}
+
+if (want("brose")) {
+  const b = await open(1440, 1640);
+  try {
+    await b.evaluate(`document.getElementById("dock-fold").click()`);
+    await loadProgram(b, "BROSE, roses (NCSU, 1975)");
+    // the rose is drawn when BROSE prints PAUSE
+    for (let i = 0; i < 120 && !(await b.evaluate(`/PAUSE/.test(agt.paper.getText())`)); i++) await sleep(500);
+    await sleep(1500);
+    save("brose.png", await stageShot(b));
   } finally {
     await b.close().catch(() => {});
   }
